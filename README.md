@@ -1,7 +1,4 @@
-![](https://github.com/jservonnat/C-ESM-EP/blob/master/share/fp_template/CESMEP_bandeau.png)
 ![relative](share/fp_template/CESMEP_bandeau.png)
-
-
 
 # C-ESM-EP
 
