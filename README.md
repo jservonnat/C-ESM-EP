@@ -1,3 +1,5 @@
+![My image](jservonnat.github.com/C-ESM-EP/share/fp_template/C-ESM-EP_bandeau.png)
+
 # C-ESM-EP
 
 The C-ESM-EP consists of a set of predefined – community validated (IPSL-CNRM-CERFACS) set of evaluation diagnostics by component/thematic that can be run typically on a set of climate model simulations during the development phase of an ESM. It provides an efficient way to systematically compare results of different simulations while benefiting from the mechanisms of Atlas Explorer to finess the analysis (choosing the periods for a set of diagnostics, controlling the plot parameters…).
