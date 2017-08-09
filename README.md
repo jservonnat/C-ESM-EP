@@ -1,4 +1,4 @@
-![My image](jservonnat.github.com/C-ESM-EP/share/fp_template/C-ESM-EP_bandeau.png)
+![My image](jservonnat.github.com/C-ESM-EP/share/fp_template/CESMEP_bandeau.png)
 
 # C-ESM-EP
 
