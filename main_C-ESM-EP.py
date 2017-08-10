@@ -1139,14 +1139,21 @@ if do_Monsoons_pr_anncyc:
             land_pr_sim_masked = fmul(regrid(pr_sim,pr_ref, option='remapcon2'), land_ref_mask)
 
             anncyc_pr_sim_masked = fmul(space_average(llbox(land_pr_sim_masked, **region['domain'])), 86400)
-        
-            ens_for_plot.update({model['simulation']:anncyc_pr_sim_masked})
-        
-            models_order.append(model['simulation'])
+            if safe_mode:
+               try:
+                  cfile(anncyc_pr_sim_masked)
+                  if model['project']=='CMIP5':
+                     monsoon_name_in_plot = model['model']
+                  else:
+                     monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
+                  ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+                  models_order.append(monsoon_name_in_plot)
+               except:
+                  print 'No data for Monsoon pr diagnostic for ',model
 
         cens_for_plot = cens(ens_for_plot, order=['GPCP'] + models_order)
     
-        plot_pr_anncyc_region = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'],  **cpp), True, safe_mode)
+        plot_pr_anncyc_region = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
 
         index+=cell("", plot_pr_anncyc_region, thumbnail=thumbnail_monsoon_pr_anncyc_size, hover=hover, **alternative_dir)
     #
@@ -1251,7 +1258,7 @@ if do_Tropics_SFlux_maps:
                              x=30, y=40,
                              font='Waree-Bold'
                              )
-            index+=cell("", cfile(plot_ANM), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            index+=cell("", safe_mode_cfile_plot(plot_ANM, safe_mode=safe_mode, do_cfile=True), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         close_line()
         index+=close_table()
         # 
@@ -1271,7 +1278,7 @@ if do_Tropics_SFlux_maps:
                                    x=30, y=40,
                                    font='Waree-Bold'
                                   )
-        index+=cell("", cfile(seas_ref_clim_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+        index+=cell("", safe_mode_cfile_plot(seas_ref_clim_plot, safe_mode=safe_mode, do_cfile=True), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         # And loop over the models
         for model in Wmodels:
             wmodel = model.copy()
@@ -1288,7 +1295,7 @@ if do_Tropics_SFlux_maps:
                                        x=30, y=40,
                                        font='Waree-Bold'
                                       )
-            index+=cell("", cfile(seas_sim_clim_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            index+=cell("", safe_mode_cfile_plot(seas_sim_clim_plot, safe_mode=safe_mode), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         close_line()
 
         # -- Third line: Bias maps -----------------------------------------------------
