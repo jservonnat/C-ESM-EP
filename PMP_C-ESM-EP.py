@@ -166,16 +166,18 @@ if not reference_data_path:
   if ref_parallel_coordinates in 'AMIP':
     reference_data_path = '/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-amip/03Nov2016'
 
-if not vars:
-   if metrics_table=='Atmosphere':
-      groups = ['LMDZ_PCMDI']
+#if not vars:
+if metrics_table=='Atmosphere':
+   groups = ['LMDZ_PCMDI']
+   if not vars:
       vars = ['pr','prw','tas','uas','vas','psl','rlut','rsut','rlutcs','rsutcs','huss',
               'ta_850','ta_200','ua_850','ua_200','va_850','va_200','zg_500','hus_850',
               'rtnetcre','rstcre','rltcre',
               'tauu','tauv']
    #
-   if metrics_table=='Ocean':
-      groups = ['NEMO_PCMDI','NEMO_VertLevels']
+if metrics_table=='Ocean':
+   groups = ['NEMO_PCMDI','NEMO_VertLevels']
+   if not vars:
       vars = ['sos','tos','wfo','zos','mldpt',
              'tod_50','tod_100','tod_500','tod_1000',
              'sod_50','sod_100','sod_500','sod_1000']
@@ -261,7 +263,7 @@ ok_json_files = []
 
 if not root_outpath:
     if atTGCC: root_outpath = '${SCRATCHDIR}'
-    if onCiclad: root_outpath = '/data/'+getuser()
+    if onCiclad: root_outpath = '/prodigfs/ipslfs/dods/'+getuser()
 
 # -- Check if the tmp_hermes directory exists; if not, create it. If yes, clean it.
 tmp_hermes_dir = root_outpath+'/PMP_OUT/metrics_results/tmp_hermes'
@@ -422,7 +424,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                     w_variables.remove(var)
                 #
                 # --> The files are now ready in the tmp directory (and in the CliMAF cache)
-                metric_files_list.append(metrics_output_path+'/'+var+'_'+targetGrid+'_esmf_linear_metrics.json')
+                metric_files_list.append(metrics_output_path+'/'+str.replace(var,'_','-')+'_'+targetGrid+'_esmf_linear_metrics.json')
 
             ### 2.1/ Copy the template parameter file
 
@@ -496,6 +498,11 @@ metric_files_list = run_CliMAF_PMP(Wmodels, group=groups[0], variables=None,
 # et on concatene avec ok_json_files
 # On fait
 requested_json_files = metric_files_list + ok_json_files
+
+print 'ok_json_files = ',ok_json_files
+print 'metric_files_list = ', metric_files_list
+print 'requested_json_files = ', requested_json_files
+
 
 os.system('rm -rf '+tmp_hermes_dir)
 files_in_tmp_hermes = []
