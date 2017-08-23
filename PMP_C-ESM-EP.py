@@ -551,18 +551,16 @@ print path_for_pmp_plot
 test_data_path = ','.join(path_for_pmp_plot)
 
 # -- Customization
+from CM_atlas import build_plot_title
 customnames = []
 correct_metric_path_list = []
 colors=[]
 i = 0
 for model in Wmodels:
+    customname = str.replace(build_plot_title(model, None),' ','_')
     if 'period' in model: wperiod=model['period']
     if 'clim_period' in model: wperiod=model['clim_period']
-    if 'customname' in model:
-        customname = str.replace(model['customname'],' ','_')
-        if wperiod not in customname: customname = customname+'_'+wperiod
-    else:
-        customname = model['model']+'__'+model['simulation']+'__'+wperiod
+    if wperiod not in customname: customname = customname+'_'+wperiod
     if customname not in customnames:
         customnames.append(customname)
     if 'line_color' in model:
