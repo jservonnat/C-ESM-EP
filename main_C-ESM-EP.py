@@ -1317,13 +1317,14 @@ if do_Tropics_SFlux_maps:
                                   x=30, y=40,
                                   font='Waree-Bold'
                                  )
-            if safe_mode==True:
-               try:
-                  index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-               except:
-                  index+=cell("", blank_cell, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-            else:
-               index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            #if safe_mode==True:
+            #   try:
+            #      index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            #   except:
+            #      index+=cell("", blank_cell, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            #else:
+            #   index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            index+=cell("", safe_mode_cfile(seas_bias_plot, safe_mode=safe_mode), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         close_line()
         index+=close_table()
         #
