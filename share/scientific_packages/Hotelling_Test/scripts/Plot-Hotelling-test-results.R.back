@@ -1,0 +1,299 @@
+
+
+# ---------------------------------------------------------------------------------------------------------- #
+# -- Ce script fait un test de HotellingDB entre un ensemble de jeux de donnees de reference
+# -- et une simulation, sur une zone pre-definie.
+# -- Le test de HotellingDB en pratique necessite de:
+# --      - estimer un espace d'EOFs commun a la reference et au modele que l'on veut tester;
+# --        pour une definition optimale de cet espace (pour qu'il explique le plus de variance possible
+# --        du modele et de la ref), on va estimer une matrice de covariance commune a la ref et au modele ;
+# --        si, par facilite , on estimait une matrice de covariance commune avec la moyenne des modeles
+# --        et pas pour chaque modele, on perdra de la variance et le test ne sera pas optimal.
+# --      - dans cet espace d'EOFs de la matrice de covariance commune, on projette le modele et la moyenne
+# --        des refs sur les neof; on projette egalement chaque ref individuelle pour estimer la matrice de
+# --        covariance d'erreurs S ; tous les champs projetes sur les neof EOF communes sont mis sous la
+# --        forme suivante: les neof PCs sont mises les unes a la suite des autres pour former un vecteur,
+# --        de longueur neof*12. La matrice de covariance d'erreur est donc de dimension n.indiv.ref/neof*12
+# --      - La matrice de covariance d'erreur n'est pas inversible en l'etat. Pour l'inverser, on calcule
+# --        ses EOFs; on inversera la matrice diagonale de valeurs propres, et on projettera les champs (deja
+# --        projettes dans l'espace des EOFs communes) dans l'espace de ces EOFs de la matrice de covariance
+# --        d'erreur. La figure Variance-explained-by-error-covariance-matrix.pdf montre comment les
+# --        differents modeles et la moyenne des Refs se projettent dans ces EOFs.
+# --      - On estime le parametre nu de la distribution de Fisher pour estimer la significativite du test
+# --        a l'aide de la formule de Yao (1965)
+# --      - on estime T2, son intervalle de confiance, ainsi que Ts2 (voir Braconnot & Frankignoul 1992)
+# --        La figure HotellingDB-test-IPSL-models-vs-REF-mean-*.pdf resume les resultats du test. 
+# -- 
+# ---------------------------------------------------------------------------------------------------------- #
+
+
+# -- Source the useful scripts of functions -----------------------------------------------
+main_dir=getwd()
+Rsource=paste(main_dir,"/scripts/Rtools/",sep="")
+source(paste(Rsource,"function.R",sep=""))
+#library(fields)
+library(plotrix)
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------- #
+# -- Preliminaire 1
+# -- On impose le nombre d'EOFs (neof) de la matrice de covariance commune que l'on veut garder =>
+# -- => cf le script d'etude de la matrice de covariance commune et les deux figures produites:
+# --    - le script: Common-covariance-matrix-study.R
+# --    - les figures: Explained-variance-indivmodel-vs-CCM-modelmean.pdf et Explained-variance-indivmodel-vs-CCM-indivmodels.pdf
+# -- A partir de la, on sait qu'avec 4 eofs, on conserve plus de 90% de la variance
+# -- neof est le nombre d'EOFs de la matrice de covariance commune que l'on conserve
+
+# -- Si un argument est NULL, 
+CommonSpace="CCM"
+Model=NULL
+Period=NULL # -- Period of the model
+Experiment=NULL
+RefName=""
+CommonGrid=""
+
+Tests=list(
+           "1"=list("Model"="IPSL-CM5A-LR","Experiment"="historical","Period"="198001-200512"),
+	   "2"=list("Model"="IPSL-CM5A-MR","Experiment"="historical","Period"="198001-200512"),
+	   "3"=list("Model"="IPSL-CM5B-LR","Experiment"="historical","Period"="198001-200512"),
+	   "4"=list("Model"="IPSL-CM5A-LR","Experiment"="amip","Period"="198001-200512")
+          )
+
+
+
+
+
+
+
+
+stat="Ts2"  # --> T2 ou Ts2
+
+# -- Which variables?
+vars=c("tsol","flat","sens","taux","tauy")
+#neofs1=c(2,3,2,3,2)
+#neofs2=c(2,3,2,2,2)
+neofs1=c(2,3,2,2,2)
+neofs2=c(2,3,2,2,2)
+
+
+pvars=vars
+if (add!=""){vars=paste(vars,add,sep="_")}
+
+# -- Find the results that match the variables and numbers of EOFs
+source(paste(main_dir,"/scripts/graphical-parameters.R",sep=""))
+
+
+
+
+# ---------------------------------------------------------------------------------------------------------- #
+# -- On charge le dernier fichier contenant tous les resultats des HotellingDBs
+all_results_file=paste(main_dir,"results/Res-Hotelling.Rdata",sep="/")
+load(all_results_file)
+# -> We've juste loaded the HotellingDBDB list of all the results
+
+
+# -- Variables long names -----------------------------------------------------------------------------
+
+
+
+
+# -- On a maintenant un objet HotellingDB contenant, par increment:
+# --> HotellingDB[[inc]]$description = la description du setup correspondant aux resultats
+# --> HotellingDB[[inc]]$hotelling_res = l'ensemble des resultats du test de Hotelling
+
+# -- On scan la liste HotellingDB pour voir ce qui est dispo:
+scan_existing=c()
+for (i in 1:length(HotellingDB)){
+  vectnames=c(
+              HotellingDB[[i]]$description$simname,
+              HotellingDB[[i]]$description$varname,
+  	      HotellingDB[[i]]$description$neof1,
+	      HotellingDB[[i]]$description$neof2,
+	      HotellingDB[[i]]$description$area_weighting
+	      )
+  scan_existing=rbind(scan_existing,vectnames)
+}#end for i
+
+
+selres=list()
+dumylim=c()
+listvars=vars[1]
+dum=1
+for (varname in vars){
+selres[[as.character(dum)]]=list() ; if (varname!=vars[1]){listvars=paste(listvars,varname,sep="-")}
+indlines=which(scan_existing[,2]==varname
+             & scan_existing[,3]==as.character(neofs1[dum])
+	     & scan_existing[,4]==as.character(neofs2[dum])
+	     & scan_existing[,5]==as.character(weighting))
+
+  for (i in 1:length(indlines)){
+    selres[[as.character(dum)]][[as.character(i)]]=HotellingDB[[indlines[i]]]
+    dumylim=c(dumylim,HotellingDB[[indlines[i]]]$hotelling_res[[whichstat]]$conf_int)
+  }#end for i
+dum=dum+1
+}#end for i
+
+
+nplots=length(vars)
+one_panel_width=3.5
+one_panel_width=2.5
+one_panel_height=6
+
+plotdir=paste(main_dir,"results/HotellingDB-plots/",sep="/")
+
+if (length(unique(neofs1))==1 & length(unique(neofs2))==1){tmpeof=paste("-neof1-",neofs1[1],"-neof2-",neofs2[1],sep="")}else{tmpeof="-test-neofs"}
+
+if (weighting==FALSE){tmpweight="-no_weighting"}else{tmpweight="-weighted"}
+
+if (add!=""){addCCMM=paste("-",add,sep="")}else{addCCMM=""}
+
+figname=paste("Res-Hotelling-test-",whichstat,addCCMM,"-",listvars,tmpeof,tmpweight,".pdf",sep="")
+
+
+
+
+
+
+if (nplots>5){
+# -- On divise le nombre de plots en deux lignes
+npanels_per_row=trunc(nplots/2) ; if ((npanels_per_row*2)!=nplots){npanels_per_row=npanels_per_row+1}
+pdf(paste(plotdir,figname,sep=""),width=npanels_per_row*one_panel_width,height=one_panel_height*2)
+layout(t(matrix(1:(npanels_per_row*2),npanels_per_row,2)))
+}else{
+pdf(paste(plotdir,figname,sep=""),width=nplots*one_panel_width,height=one_panel_height)
+layout(matrix(1:nplots,1,nplots))
+}#end if & else
+
+
+
+if (whichstat=="T2"){ylim=c(0,log(max(dumylim)))}
+if (whichstat=="Ts2"){ylim=c(0,max(dumylim))}
+
+yscale=ylim[2]/100
+
+
+
+panels=c("hfls","hfss","tauu","tauv")
+
+for (panel in panels){
+
+     var=panel
+
+     
+#Refname ; nref
+#Testname ; ntest
+#TestPeriod
+#var
+#CommonSpace
+#CommonGrid?
+
+UpperLeftTop=
+LowerLeftTop=
+
+UpperRightTop=
+LowerRightTop=
+
+x.labels=
+
+
+}#
+
+
+
+
+dum=1
+for (varname in vars){
+
+    TMP=selres[[as.character(dum)]]
+    nmodel=length(TMP)
+    # -- Parametres graphiques
+    par(mar=c(8,2.5,4,0.5),cex=1)
+    titre=paste("Hotelling",whichstat,"statistic")
+
+     # -- Demarrage du plot
+     plot(1:nmodel,rep(0,nmodel),type="p",col="white",xlab="",ylab="",main="",pch=16,cex=1.2,ylim=ylim,xaxt="n",xlim=c(0,nmodel+1),xaxs="i")
+     grid()
+     #if (whichstat=="T2"){mtext(paste("log(",whichstat,"statistic)"),2,line=2)}
+     #if (whichstat=="Ts2"){mtext(paste(whichstat,"statistic"),2,line=2)}
+     #mtext("% explained variance",4,line=2)
+#     mtext(titre,side=3,adj=0,cex=1.2,line=2)
+     #mtext(varlongname[[pvars[dum]]],side=3,adj=0,cex=1.2,font=2,line=2.1)
+     mtext(varlongname[[pvars[dum]]],side=3,adj=0,cex=1.1,font=2,line=0.75)
+     #mtext(paste("NEOF1 =",neofs1[dum]),side=3,adj=0,cex=0.9,line=1.25)
+     #mtext(paste("NEOF2 =",neofs2[dum]),side=3,adj=0,cex=0.9,line=0.5)
+
+     MODELNAMES=T2=conf_int=threshold=explvar.model.neof1=explvar.model.neof2=explvar.refmean.neof1=explvar.refmean.neof2=c()
+     for (i in 1:nmodel){
+
+       modelname=TMP[[i]]$description$Testname
+       MODELNAMES=c(MODELNAMES,modelname)
+
+       T2=c(T2,TMP[[i]]$hotelling_res[[whichstat]]$statistic)
+       conf_int=cbind(conf_int,TMP[[i]]$hotelling_res[[whichstat]]$conf_int)
+       threshold=c(threshold,TMP[[i]]$hotelling_res[[whichstat]]$threshold_99)
+       if (whichstat=="T2"){T2=log(T2) ; conf_int=log(conf_int) ; threshold=log(threshold)}
+
+       explvar.model.neof1=c(explvar.model.neof1,round(TMP[[i]]$hotelling_res$explvar.model.neof1,digits=1))
+       explvar.model.neof2=c(explvar.model.neof2,round(TMP[[i]]$hotelling_res$explvar.model.neof2,digits=1))
+       explvar.refmean.neof1=c(explvar.refmean.neof1,round(TMP[[i]]$hotelling_res$explvar.refmean.neof1,digits=1))
+       explvar.refmean.neof2=c(explvar.refmean.neof2,round(TMP[[i]]$hotelling_res$explvar.refmean.neof2,digits=1))
+
+
+     }#end for simnames
+
+
+     # On remet dans l'ordre pour affichage
+     dumT2=dumconf_int=dumthreshold=c()
+     dumMODELNAMES=c("IPSL-CM4","IPSL-CM5A-LR","IPSL-CM5A-MR","IPSL-CM5B-LR","LMDZ5A AMIP")
+     for (modelname in dumMODELNAMES){
+          index=which(MODELNAMES==modelname)
+	  dumT2=c(dumT2,T2[index])
+	  dumconf_int=cbind(dumconf_int,conf_int[,index])
+	  dumthreshold=c(dumthreshold,threshold[index])
+     }
+     T2=dumT2
+     conf_int=dumconf_int
+     threshold=dumthreshold
+     MODELNAMES=dumMODELNAMES
+
+
+
+	 # -- boucle sur les modeles
+         for (i in 1:nmodel){
+           lines(rep(i,2),conf_int[,i],type="l",col="darkturquoise")
+	 }#end for simnames
+
+	 # -- rajouts de points pour un affichage plus propre
+	 lines(1:nmodel,T2,type="p",pch=16,cex=1.5)
+         points(1:nmodel,conf_int[1,],type="p",pch=16,col="darkgrey")
+         points(1:nmodel,conf_int[2,],type="p",pch=16,col="darkgrey")
+	 points(1:nmodel,threshold,type="p",pch=22,col="red")
+	 #lines(1:nmodel,yscale*explvar.model.neof1,type="b",col="blue")
+	 #lines(1:nmodel,yscale*explvar.model.neof2,type="b",col="blue",lty=2,cex=0.9)
+	 #lines(1:nmodel,yscale*explvar.refmean.neof1,type="b",col="black")
+	 #lines(1:nmodel,yscale*explvar.refmean.neof2,type="b",col="black",lty=2)
+
+	 # -- ligne de zeros
+	 zero(0:(nmodel+1))
+	 #zero(0:(nmodel+1),val=90*yscale,lty=3)
+
+	 # -- axe des X
+         axis(1,at=1:nmodel,labels=MODELNAMES,las=2)
+	 par(cex=0.8)
+         #axis(4,at=seq(0,100,by=20)*yscale,labels=seq(0,100,by=20),cex=0.8)
+
+dum=dum+1
+}#end for vars
+
+dev.off()
+
+
+
+
+
+
+
+
+
