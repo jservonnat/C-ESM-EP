@@ -27,6 +27,7 @@ MLD_diags = None
 do_curl_maps = False
 curl_diags=None
 do_GLB_SFlux_maps = False
+do_Hotelling_Test = False
 do_Tropics_SFlux_maps = False
 do_ENSO_CLIVAR = False
 do_Monsoons_pr_anncyc = False
@@ -68,4 +69,5 @@ thumbsize_MOC_TS="325*250"
 thumbsize_VertProf="250*250"
 thumbnail_ENSO_size="400*175"
 thumbnail_ENSO_ts_size="400*175"
+thumbnail_monsoon_pr_anncyc_size = '375*600'
 

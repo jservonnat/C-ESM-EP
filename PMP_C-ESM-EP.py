@@ -22,9 +22,16 @@ from PMP_MG import *
 
 clog('debug')
 
+# -- Define the path to the main C-ESM-EP directory:
+# -----------------------------------------------------------------------------------
+rootmainpath = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
+if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath
+if os.path.isfile(rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/'
+
 # ------------------------------------------------------------------------------------------- #
 # -- START PARAMETERS MANAGEMENT                                                           -- #
-
 
 # -- Get the parameters that the atlas takes as arguments
 # -----------------------------------------------------------------------------------
@@ -117,7 +124,8 @@ metrics_table            = 'Atmosphere'
 # - Palette that will be used by the R script 
 colorpalette = ['dodgerblue3','orangered','green','dodgerblue4','firebrick3','yellow1','royalblue','deepskyblue','mediumseagreen','violetred2','mediumturquoise','cadetblue','brown2','chartreuse1','burlywood3','coral1','burlywood4','darkgoldenrod2','darkolivegreen3','darkgoldenrod4','darkorchid']
 # Use --colors to override the colors of a subset of highlights, or directly edit colorpalette in the param file
-parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
+#parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
+parallel_coordinates_script = main_cesmep_path+'scientific_packages/parallel_coordinates/parallel_coordinates.R'
 index_filename_root = 'parallel_coordinates'
 
 
@@ -163,6 +171,7 @@ if not opts.outfigdir:
 if not reference_data_path:
   if ref_parallel_coordinates in 'CMIP5':
     reference_data_path = '/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-historical/03Nov2016'
+    #reference_data_path = main_cesmep_path+'scientific_packages/PCMDI_CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-historical/03Nov2016'#'/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-historical/03Nov2016'
   if ref_parallel_coordinates in 'AMIP':
     reference_data_path = '/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-amip/03Nov2016'
 
@@ -674,7 +683,7 @@ root_url = "https://vesg.ipsl.upmc.fr"
 
 # -- Start the html file
 # ---------------------------------------------------------
-index = header(index_head_title, style_file=style_file)
+index = header(atlas_head_title, style_file=style_file)
 
 
 # -- One dictionary corresponds with one section;

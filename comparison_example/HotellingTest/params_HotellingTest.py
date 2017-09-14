@@ -4,7 +4,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: Atmosphere_zonmean                                                 - |
+# --             - component: TurbulentAirSeaFluxes                                              - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -59,40 +59,49 @@ proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, 
 domain = {}
 
 
+# ---------------------------------------------------------------------------- >
+# -- Hotelling Test (Servonnat et al. 2017)
+# ---------------------------------------------------------------------------- >
+hotelling_variables = ['hfls','hfss','tauu','tauv']#,'tauu','tauv']
+do_Hotelling_Test      = True
+# Parameters
+image_size=None
+#reference_results = None
+reference_results = 'CMIP5'
+common_grid = 'r180x90'
+common_space = 'CCM'
+force_compute_reference = False
+force_compute_test = False
+force_compute_reference_results = False
+# -- Check the R colors here: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
+R_colorpalette = ['dodgerblue3','orangered','green2','yellow3','navyblue','darkturquoise','mediumseagreen','firebrick3','violetred2','antiquewhite3','darkgoldenrod3','coral3','lightsalmon1','lightslateblue','darkgreen','darkkhaki','darkorchid4','darksalmon','deepink2','lightblue4']
 
+
+# 1.1 Get the list of datasets (python dictionaries) from dataset_setup.py
+reference_models = []
+if reference_results in ['CMIP5','AMIP']:
+   common_keys = dict(project='CMIP5',
+                      experiment='historical',
+                      frequency='monthly',
+                      realm='atmos',
+                      period='1980-2005')
+   if reference_results=='CMIP5': common_keys.update( dict(experiment='historical') )
+   if reference_results=='AMIP':  common_keys.update( dict(experiment='amip') )
+
+   # -- First, scan the CMIP5 archive to find the available models
+   dum = ds(variable='hfls', model='*', **common_keys)
+   cmip5_models = []
+   for dumfile  in str.split(dum.baseFiles(),' '):
+       cmip5_models.append(str.split(dumfile,'/')[6])
+   cmip5_models = list(set(cmip5_models))
+   cmip5_models.remove('MIROC4h')
+   cmip5_models.remove('MIROC5')
+
+   # -- Add the CMIP5 models to the list...
+   for cmip5_model in cmip5_models:
+       reference_models.append(dict(model=cmip5_model, customname=cmip5_model, **common_keys))
 
 # ---------------------------------------------------------------------------- >
-# -- Atmosphere diagnostics
-# -- This section is based on the same mechanisms as Atlas Explorer; it is
-# -- thus possible to use the functionalities (python dictionaries to add options
-# -- with a variable)
-# ---------------------------------------------------------------------------- >
-do_atmos_maps   = True    # -> [LMDZ_SE Atlas] builds a section with a list of standard atmospheric variables (2D maps and zonal means)
-atmos_variables_list = [
-                   'ua','va','ta','hus','hur',
-                   dict(variable='ua',season='DJF'),dict(variable='va',season='DJF'),dict(variable='ta',season='DJF'),
-                   dict(variable='hus',season='DJF'),dict(variable='hur',season='DJF'),
-                   dict(variable='ua',season='JJA'),dict(variable='va',season='JJA'),dict(variable='ta',season='JJA'),
-                   dict(variable='hus',season='JJA'),dict(variable='hur',season='JJA'),
-                   dict(variable='ua',y='log'),dict(variable='va',y='log'),dict(variable='ta',y='log'),
-                   dict(variable='hus',y='log'),dict(variable='hur',y='log'),
-                   dict(variable='ua',y='log',season='DJF'),dict(variable='va',y='log',season='DJF'),dict(variable='ta',y='log',season='DJF'),
-                   dict(variable='hus',y='log',season='DJF'),dict(variable='hur',y='log',season='DJF'),
-                   dict(variable='ua',y='log',season='JJA'),dict(variable='va',y='log',season='JJA'),dict(variable='ta',y='log',season='JJA'),
-                   dict(variable='hus',y='log',season='JJA'),dict(variable='hur',y='log',season='JJA'),
-]
-atmos_variables = []
-for var in atmos_variables_list:
-    if isinstance(var,dict):
-       tmpvar = var.copy()
-       tmpvar.update(dict(add_climato_contours=True))
-       atmos_variables.append(tmpvar)
-    else:
-       atmos_variables.append(dict(variable=var, add_climato_contours=True))
-# ---------------------------------------------------------------------------- >
-
-
-
 
 
 # -- Some settings -- customization
@@ -100,7 +109,7 @@ for var in atmos_variables_list:
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Zonal mean - seasonal"
+atlas_head_title = "Hotelling Test on tropical Turbulent Air-Sea Fluxes (GB2015)"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
@@ -146,6 +155,7 @@ index_name = None
 from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
+
 
 
 

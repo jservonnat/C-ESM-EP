@@ -28,7 +28,7 @@
 # --    - building the html page with climaf.html
 # --    - do the plots with the script parallel_coordinates.R
 
-
+safe_mode=True
 
 
 # -- Import modules
@@ -63,7 +63,8 @@ CMIP5_highlights_first       = True
 lwd_background         = 2
 lwd_highlights         = 6
 # -- Check the R colors here: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
-colorpalette = ['dodgerblue3','orangered','mediumseagreen','firebrick3','yellow1','royalblue','deepskyblue','violetred2','mediumturquoise','cadetblue']
+#colorpalette = ['dodgerblue3','orangered','mediumseagreen','firebrick3','yellow1','royalblue','deepskyblue','violetred2','mediumturquoise','cadetblue']
+colorpalette = ['dodgerblue3','orangered','green2','yellow3','navyblue','darkturquoise','mediumseagreen','firebrick3','violetred2','antiquewhite3','darkgoldenrod3','coral3','lightsalmon1','lightslateblue','darkgreen','darkkhaki','darkorchid4','darksalmon','deepink2','lightblue4']
 root_outpath           = None # -- For the links to the climatologies
 force_compute_metrics  = False
 reference              = None # -- defaultReference, alternate1...
@@ -72,7 +73,11 @@ rm_tmp_paramfie        = True
 obs_data_path          = '/data/jservon/Evaluation/ReferenceDatasets/PMP_obs/obs'
 outfigdir              = None
 ref_parallel_coordinates = 'CMIP5'
-reference_data_path      = None
+if ref_parallel_coordinates=='CMIP5':
+   reference_data_path = '/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-historical/03Nov2016'
+if ref_parallel_coordinates=='AMIP':
+   reference_data_path = '/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-amip/03Nov2016'
+
 metrics_table = 'Atmosphere'
 vars = None
 parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
@@ -81,10 +86,6 @@ parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parall
 
 # -- Set the sections of metrics you want
 metrics_sections = [
-       #dict(statistic=['rms_xyt'],#,'rmsc_xy','bias_xy','cor_xy'],
-       #     region=['global'],#,'land','ocean'],
-       #     season=['ann'],
-       #     section_name='Global, land, ocean on annual cycle and annual mean (rms_xyt, rmsc_xyt, bias_xy and cor_xy)'),
        dict(statistic=['rms_xyt','rmsc_xy','bias_xy','cor_xy'],
             region=['global'],#'land','ocean'],
             season=['ann'],
@@ -96,7 +97,7 @@ metrics_sections = [
     ]
 
 
-index_head_title = 'Parallel Coordinates - PMP - CESMEP'
+atlas_head_title = 'Parallel Coordinates - PMP'
 
 style_file = '/share/fp_template/cesmep_atlas_style_css'
 i=1
@@ -110,12 +111,4 @@ style_file = os.getcwd()+style_file
 
 index_filename_root = 'ParallelCoordinates_Atmosphere'
 
-
-#    vars = ['pr','prw','tas','uas','vas','psl','rlut','rsut','rlutcs','rsutcs','huss',
-#        'ta_850','ta_200','ua_850','ua_200','va_850','va_200','zg_500','hus_850',
-#        'rtnetcre','rstcre','rltcre',
-#        'tauu','tauv']
-#    vars = ['sos','tos','wfo','zos','mldpt',
-#            'tod_50','tod_100','tod_500','tod_1000',
-#            'sod_50','sod_100','sod_500','sod_1000']
 

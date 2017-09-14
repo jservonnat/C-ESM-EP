@@ -31,7 +31,7 @@ from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = False
+safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 
@@ -81,7 +81,7 @@ do_Monsoons_pr_anncyc  = True    # -> Same for the seasonal averages in the trop
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - Monsoons Diagnostics"
+atlas_head_title = "Monsoons Diagnostics"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
@@ -106,7 +106,7 @@ thumbsize_MOC_slice      = '475*250'
 thumbsize_MAXMOC_profile = '325*250'
 thumbsize_MOC_TS         = '325*250'
 thumbsize_VertProf       = '250*250'
-thumbnail_monsoon_pr_anncyc_size = '250*400'
+thumbnail_monsoon_pr_anncyc_size = '375*600'
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >

@@ -10,6 +10,8 @@ from CM_atlas import *
 from climaf.site_settings import onCiclad, atTGCC
 from getpass import getuser
 from climaf import __path__ as cpath
+import json
+import os, copy, subprocess, shlex
 
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
@@ -200,6 +202,14 @@ for model in models:
     print '  --'
     print '  --'
 
+
+# -- Define the path to the main C-ESM-EP directory:
+# -----------------------------------------------------------------------------------
+rootmainpath = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
+if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath
+if os.path.isfile(rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/'
 
 
 # -----------------------------------------------------------------------------------
@@ -1139,18 +1149,23 @@ if do_Monsoons_pr_anncyc:
             land_pr_sim_masked = fmul(regrid(pr_sim,pr_ref, option='remapcon2'), land_ref_mask)
 
             anncyc_pr_sim_masked = fmul(space_average(llbox(land_pr_sim_masked, **region['domain'])), 86400)
+            if model['project']=='CMIP5':
+               monsoon_name_in_plot = model['model']
+            else:
+               monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
+            #
             if safe_mode:
                try:
                   cfile(anncyc_pr_sim_masked)
-                  if model['project']=='CMIP5':
-                     monsoon_name_in_plot = model['model']
-                  else:
-                     monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
                   ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
                   models_order.append(monsoon_name_in_plot)
                except:
                   print 'No data for Monsoon pr diagnostic for ',model
+            else:
+               ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+               models_order.append(monsoon_name_in_plot)
 
+        print 'ens_for_plot = ',ens_for_plot
         cens_for_plot = cens(ens_for_plot, order=['GPCP'] + models_order)
     
         plot_pr_anncyc_region = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
@@ -1175,6 +1190,385 @@ if do_Monsoons_pr_anncyc:
 # ---------------------------------------------
 
 
+
+# ---------------------------------------------------------------------------------------- #
+# -- Hotelling Test: evaluation metric for the spatio-temporal variability              -- #
+# -- of the annual cycle                                                                -- #
+if do_Hotelling_Test:
+  Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+  #
+  # -- For the Hotelling Test, the scripts are not declared properly as CliMAF operators
+  # -- because CliMAF doesn't handle json output files at the moment (and also because of
+  # -- how the scripts were written, the CEOFs plots are done along the computation of the
+  # -- test; not the metrics plot that is done separately.
+  # -- This is why we need to prepare the path to the output results 'hard coded'
+  # -- atlas_outdir is the directory containing the atlas and all the figures (or links)
+  # -- hotelling_outputdir is the independant directory where the user will store all
+  # -- the results from the Hotelling test (json files, plots...) so that we will
+  # -- be able to easily check the available results.
+  if onCiclad:
+     hotelling_outputdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/Hotelling_test_results/'
+     if not os.path.isdir(hotelling_outputdir+'json_files/'): os.makedirs(hotelling_outputdir+'json_files/')
+     if not os.path.isdir(hotelling_outputdir+'CEOFs_plots/'): os.makedirs(hotelling_outputdir+'CEOFs_plots/')
+     atlas_outdir = subdir+'/Hotelling_Test/'
+     if not os.path.isdir(atlas_outdir):
+        os.makedirs(atlas_outdir)
+     else:
+        os.system('rm -f '+atlas_outdir+'*')
+  #
+  # -- Assign a color (if the user didn't) to the tested datasets
+  # -- If the user didn't assign one, we take one from R_colorpalette defined in params_HotellingTest.py
+  # -- If the user assigned one that was already attributed automatically with the mechanism above,
+  # -- we replace it with another one.
+  hotelling_colors = []
+  for model in Wmodels:
+      if 'R_color' in model or 'color' in model:
+         if 'color' in model: tmp_color = model['color']
+         if 'R_color' in model: tmp_color = model['R_color']
+         if tmp_color in hotelling_colors:
+            i=0
+            while R_colorpalette[i] in hotelling_colors: i = i + 1
+            hotelling_colors[hotelling_colors.index(tmp_color)] = R_colorpalette[i]
+            hotelling_colors.append(tmp_color)
+      else:
+         i=0
+         while R_colorpalette[i] in hotelling_colors: i = i + 1
+         tmp_color = R_colorpalette[i]
+  
+      hotelling_colors.append(tmp_color)
+      model.update(dict(R_color=tmp_color))
+
+
+  # -- Loop on the variables
+  for variable in hotelling_variables:
+
+      # --------------------------------------------------------------------------------------------- #
+      # -->   First, prepare the annual cycle files for the reference observational datasets
+      # -->   if they are not available
+      # -->   At the end of this section, we have json file containing a python dictionnary
+      # -->   describing the informations and access to the reference datasets.
+      # --------------------------------------------------------------------------------------------- #
+      # -- Create the json file RefFiles.json
+      RefFileName = main_cesmep_path+'/share/scientific_packages/Hotelling_Test/reference_json_files/reference_files_GB2015_'+variable+'.json'
+      # -- list_of_ref_products is the predefined list of reference products of the GB2015 ensemble
+      list_of_ref_products = ['OAFlux','NCEP','NCEP2','CORE2','FSU3','NOCS-v2','J-OFURO2','GSSTFM3','IFREMER',
+                              'DFS4.3','TropFlux','DASILVA','HOAPS3','ERAInterim']
+
+      if not os.path.isfile(RefFileName) or force_compute_reference:
+         # -- Get the reference files
+         RefFiles = dict()
+         # Scan the available files for variable
+         listfiles = ds(project='ref_climatos', variable=variable)
+         files = set(str.split(listfiles.baseFiles(),' '))
+         for f in files:
+             if get_product(f) in list_of_ref_products:
+                 # -- Get the dataset and regrid to the common grid
+                 refdat = regridn( ds(variable=variable, project='ref_climatos', product=get_product(f)),
+                                   cdogrid=common_grid, option='remapdis')
+                 RefFiles.update({get_product(f):dict(variable=variable, file=cfile(refdat))})
+         #
+         # -- Create the json file RefFiles.json
+         # -- It contains the paths to the netcdf files of the reference observational datasets
+         # -- associated with the names used in the plots
+         with open(RefFileName, 'w') as fp:
+            json.dump(RefFiles, fp)
+         fp.close()
+
+      # --------------------------------------------------------------------------------------------- #
+      # -->   Then, we deal with the model datasets
+      # --------------------------------------------------------------------------------------------- #
+
+      # -- Add the reference_models python list => list of models used as reference results (CMIP5, AMIP...)
+      Wmodels = Wmodels + reference_models
+      #
+      # -- Get the tested datasets
+      TestFiles = dict()
+      names_to_keep_order_in_atlas = []
+      for model in Wmodels:
+          # 
+          # -- Copy the dictionary to modify it without modifying the original dictionaries
+          model.update(dict(variable=variable))
+          #
+          # -- Apply the frequency and time manager
+          frequency_manager_for_diag(model, diag='SE')
+          get_period_manager(model)
+          wmodel = model.copy()
+          print 'wmodel = ',wmodel
+          #
+          #wmodel = model.copy()
+          #wmodel.update(dict(variable=variable))
+          ##
+          ## -- Apply the frequency and time manager
+          #frequency_manager_for_diag(wmodel, diag='SE')
+          #get_period_manager(wmodel)
+          print 'wmodel = ',wmodel
+          #
+          # -- Get the dataset, compute the annual cycle and regrid to the common grid
+          dat = regridn( annual_cycle( ds(**wmodel) ), cdogrid=common_grid, option='remapdis')
+          #
+          # -- Get the name that will be used in the plot => customname
+          # -- It will also serve to identify the dataset in the json file TestFiles
+          if 'customname' in wmodel:
+             customname = wmodel['customname']
+          else:
+             customname = str.replace(build_plot_title(wmodel, None),' ','_')
+             if 'clim_period' in wmodel: wperiod=wmodel['clim_period']
+             if 'period' in wmodel:
+                if wmodel['period'] not in 'fx': wperiod=wmodel['period']
+             if wperiod not in customname: customname = customname+'_'+wperiod
+          #
+          # -- Build a string that identifies the dataset in the output files names
+          # -- More complete version of customname
+          dataset_name_in_filename = ''
+          for key in ['project','model','login','experiment','simulation','realization']:
+              ds_for_keys = ds(**wmodel)
+              if key in ds_for_keys.kvp:
+                 if ds_for_keys.kvp[key] not in '*':
+                    if dataset_name_in_filename=='':
+                       dataset_name_in_filename = ds_for_keys.kvp[key]
+                    else:
+                       dataset_name_in_filename += '_'+ds_for_keys.kvp[key]
+          # Add the customname if the user provided one (this for plotting issues)
+          if 'customname' in wmodel:
+             dataset_name_in_filename += '_'+str.replace(customname,' ','_')
+          else:
+             # Add the period
+             dataset_name_in_filename += '_'+wperiod
+          # -- From this, we build the names of the output files = hard coded
+          # -- Names of the json file and the plots of the CEOFs
+          output_res_hotelling_json_file = hotelling_outputdir+'json_files/Res-Hotelling_'+dataset_name_in_filename+'-'+variable+'.json'
+          output_ceof1_figname = hotelling_outputdir+'CEOFs_plots/'+dataset_name_in_filename+'-'+variable+'-CEOFs1.pdf'
+          output_ceof2_figname = hotelling_outputdir+'CEOFs_plots/'+dataset_name_in_filename+'-'+variable+'-CEOFs2.pdf'
+          #
+          # -- Make the output directory of the hotelling results json file if it doesn't exist
+          if not os.path.isdir(os.path.dirname(output_res_hotelling_json_file)): os.makedirs(output_res_hotelling_json_file)
+          #
+          # -- If the result json file is not in the main output directory (hotelling_outputdir+'json_files/'),
+          # -- we check whether it's available in the scientific_packages/Hotelling_Test/results/json_files
+          # -- If so, we link the file in hotelling_outputdir+'json_files/'
+          ref_res_hotelling_json_file = str.replace(output_res_hotelling_json_file,
+                                                    hotelling_outputdir,
+                                                    main_cesmep_path+'share/scientific_packages/Hotelling_Test/results/json_files/')
+          #
+          dataset_description_dict = dict(variable = variable,
+                                          dataset_name_in_filename = dataset_name_in_filename,
+                                          output_res_hotelling_json_file = output_res_hotelling_json_file,
+                                          output_ceof1_figname = output_ceof1_figname,
+                                          output_ceof2_figname = output_ceof2_figname,
+                                          )
+          # -------------------------------------------------------
+          # -- Let's now compute the Hotelling Test
+          # -------------------------------------------------------
+          # --> We treat separately the tested models and the reference models to keep control on whether we want
+          # --> to force recompute results for each batch of datasets
+          # -->
+          # --> The main_Hotelling.R script will use the instruction compute_hotelling='FALSE'/'TRUE'
+          # --> to compute or not the Hotelling Test.
+          # --> We use this mechanism rather than removing the dataset of the TestFiles list
+          # --> because we need the complete list of datasets to do the plots eventually.
+          # -->
+          # --> First, we treat the tested models
+          # ---------------------------------------
+          if model not in reference_models:
+            if force_compute_test==True:
+               try:
+                   wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+                   names_to_keep_order_in_atlas.append(customname)
+               except:
+                   print 'Force compute = True but No dataset available for wmodel = ',wmodel
+            else:
+               # -- Normal case = we use the existing results (force_compute_test=False)
+               if os.path.isfile(output_res_hotelling_json_file) or os.path.isfile(ref_res_hotelling_json_file):
+                   # -- If the result json file is not in the main output directory (hotelling_outputdir+'json_files/'),
+                   # -- we check whether it's available in the share/scientific_packages/Hotelling_Test/results/json_files
+                   # -- If so, we link the file in hotelling_outputdir+'json_files/'
+                   if not os.path.isfile(output_res_hotelling_json_file): os.system('ln -s '+ref_res_hotelling_json_file+' '+output_res_hotelling_json_file)
+                   wmodel.update(dict(file="", compute_hotelling='FALSE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+                   names_to_keep_order_in_atlas.append(customname)
+               else:
+                   # -- If we have no file already
+                   try:
+                      wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                      TestFiles.update({customname:wmodel})
+                      names_to_keep_order_in_atlas.append(customname)
+                   except:
+                      print 'Force compute = False and No dataset available for wmodel = ',wmodel
+          else:
+            # --> Then, we treat the reference models
+            # ---------------------------------------
+            if force_compute_reference_results==True:
+               # -- If we force recomputing, just (try to) do it and add it to the list of test files if successfull:
+               try:
+                   wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+               except:
+                   print 'Force compute = True but No dataset available for wmodel = ',wmodel
+            else:
+               if os.path.isfile(output_res_hotelling_json_file) or os.path.isfile(ref_res_hotelling_json_file):
+                   # -- If the json file already exists...
+                   if not os.path.isfile(output_res_hotelling_json_file): os.system('ln -s '+ref_res_hotelling_json_file+' '+output_res_hotelling_json_file)
+                   wmodel.update(dict(file="", compute_hotelling='FALSE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+               else:
+                   # -- If it's not there yet...
+                   try:
+                      wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                      TestFiles.update({customname:wmodel})
+                   except:
+                      print 'Force compute = False and No dataset available for wmodel = ',wmodel
+      #
+      # -- Create the json file TestFiles.json
+      # ------------------------------------------------
+      TestFileName = main_cesmep_path+'/'+opts.comparison+'/HotellingTest/test_files_'+opts.comparison+'_'+variable+'.json'
+      with open(TestFileName, 'w') as fp:
+         json.dump(TestFiles, fp)
+      fp.close()
+      #
+      # --> Now run the main_Hotelling.R script to compute the Hotelling Test on the datasets defined in TestFiles
+      # --------------------------------------------------------------------------------------------------------------
+      cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/main_Hotelling.R --test_json_file '+TestFileName+' --reference_json_file '+RefFileName+' --hotelling_outputdir '+hotelling_outputdir+' --main_dir '+main_cesmep_path+'share/scientific_packages/Hotelling_Test'
+      print cmd
+      p=subprocess.Popen(shlex.split(cmd))
+      p.communicate()
+      #
+      # -- We now have the Hotelling results = both metrics (but not the plot, TBD below) and CEOFs plots  
+      #
+      # -- Start an html section to receive the plots
+      # ----------------------------------------------------------------------------------------------
+      index += section('Hotelling Test Metrics (T2) in the intertropical band -20/20N (left plot) ; Annual Mean raw spatial average (right plot)', level=4)
+      index+=start_line(varlongname(variable)+' ('+variable+')')
+
+      # --> We start with the Hotelling metrics plot
+      # --> by running share/scientific_packages/Hotelling_Test/Plot-Hotelling-test-results-one-variable.R
+      # ----------------------------------------------------------------------------------------------
+      # --> Make the plot now with the list of datasets in input
+      for stat in ['T2']:
+          figname = subdir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/Plot-Hotelling-test-results-one-variable.R --test_json_files '+TestFileName+' --figname '+figname+' --main_dir '+main_cesmep_path+'share/scientific_packages/Hotelling_Test --statistic '+stat
+          print cmd
+          p=subprocess.Popen(shlex.split(cmd))
+          p.communicate()
+          # -- Add the figure (hard coded) to the html line in a cell (climaf.html function)
+          pngfigname = str.replace(figname,'pdf','png')
+          os.system('convert -density 150 '+figname+' -quality 90 '+pngfigname)
+          index+=cell("", os.path.basename(pngfigname), thumbnail="650*600", hover=False)
+      #
+      # --> The Hotelling statistic is about the spatio-temporal variability of the annual cycle
+      # --> Here we add a plot with the raw spatial averages over the domain and other potential domains
+      # --> to give a more comprehensive view of the evaluation of the turbulent fluxes 
+      #
+      # --> Include the plot of the averages over defined regions
+      if not regions_for_spatial_averages:
+         regions_for_spatial_averages = [ dict(region_name='Intertropical_Band', domain=[-20,20,0,360] ) ]
+      # -- Prepare the references
+      references = []
+      for ref in list_of_ref_products:
+          ref_dict = dict(product=ref, variable=variable, project='ref_climatos')
+          try:
+             cfile(ds(**ref_dict))
+             ref_dict.update(dict(customname=ref))
+             references.append( ref_dict )
+          except:
+             print 'No dataset for ', variable, ref
+      #
+      # -- We need to apply the same mask to all the datasets to compute the same spatial average
+      # -- For this, we build the mask from the ensemble mean of the annual means of the regridded references on the common grid
+      ens_dict = dict()
+      cdogrid='r180x90'
+      for ref in references:
+          ens_dict.update({ref['product']:llbox(regridn(clim_average(ds(**ref),season), cdogrid=cdogrid, option='remapdis'),
+                                                lonmin=0,lonmax=360,latmin=-20,latmax=20)})
+      ens = cens(ens_dict)
+      ens_mean = ccdo_ens(ens, operator='ensavg')
+      # -- We obtain the mask (Fill_values and 1) by dividing the ensemble mean of the references by itself
+      mask = divide(ens_mean,ens_mean)
+      #
+      # ------------------------------------------------
+      # -- Start computing the spatial averages
+      # ------------------------------------------------
+      #all_dataset_dicts = Wmodels + reference_models + references
+      all_dataset_dicts = Wmodels + references # -> reference_models already is in Wmodels from above
+      #
+      results = dict()
+      for dataset_dict in all_dataset_dicts:
+          #
+          # -- Apply time manager
+          wdataset_dict = dataset_dict.copy()
+          #wdataset_dict.update(dict(variable=variable))
+          #frequency_manager_for_diag(wdataset_dict, diag='SE')
+          #get_period_manager(wdataset_dict)
+          #
+          # -- Build customname and update dictionnary => we need customname anyway, for references too
+          if 'customname' in wdataset_dict:
+              customname = wdataset_dict['customname']
+          else:
+              customname = str.replace(build_plot_title(wdataset_dict, None),' ','_')
+   	      wperiod = ''
+	      if 'clim_period' in wdataset_dict: wperiod=wdataset_dict['clim_period']
+	      if 'period' in wdataset_dict:
+                  if wdataset_dict['period'] not in 'fx': wperiod=wdataset_dict['period']
+              if wperiod not in customname: customname = customname+'_'+wperiod
+          customname = str.replace(customname,' ','_')
+          wdataset_dict.update(dict(customname = customname))
+          #
+          # -- We tag the datasets to identify if they are: test_dataset, reference_dataset or obs_reference
+          # -- This information is used by the plotting R script.
+          if dataset_dict in Wmodels: 
+             wdataset_dict.update(dict(dataset_type='test_dataset'))
+          if dataset_dict in reference_models:
+             wdataset_dict.update(dict(dataset_type='reference_dataset'))
+          if dataset_dict in references:
+             wdataset_dict.update(dict(dataset_type='obs_reference'))
+          dataset_name = customname
+          results[dataset_name] = dict(results=dict(), dataset_dict=wdataset_dict)
+          #
+          # -- Loop on the regions; build the results dictionary and save it in the json file variable_comparison_spatial_averages_over_regions.json
+          for region in regions_for_spatial_averages:
+              dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid=cdogrid, option='remapdis'),
+                          lonmin=region['domain'][2], lonmax=region['domain'][3],
+                          latmin=region['domain'][0], latmax=region['domain'][1])
+              metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+              results[dataset_name]['results'].update( {region['region_name']: str(metric) })
+
+      outjson = main_cesmep_path+'/'+opts.comparison+'/HotellingTest/'+variable+'_'+opts.comparison+'_spatial_averages_over_regions.json'
+      results.update(dict(json_structure=['dataset_name','results','region_name'],
+                          variable=dict(variable=variable, varlongname=varlongname(variable))))
+      #
+      # -- Eventually, do the plots
+      for region in regions_for_spatial_averages:
+          with open(outjson, 'w') as outfile:
+               json.dump(results, outfile, sort_keys = True, indent = 4)
+          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/plot_space_averages_over_regions.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
+          print(cmd)
+          os.system(cmd)
+          index+=cell("", os.path.basename(figname), thumbnail="650*600", hover=False)
+
+      # -- Close the line and the section
+      index += close_line() + close_table()
+
+
+      # --> Then we add a section for the variable to store the plots of the CEOFs 
+      # --> that are produced automatically by main_Hotelling.R -> Hotelling_routine.R -> Fig-common-EOFS-First-reduction.R 
+      # ----------------------------------------------------------------------------------------------------------------------
+      index += section('First (CEOF1) and second (CEOF2) Common EOFs with the projections', level=4)
+      index+=start_line(varlongname(variable)+' ('+variable+')')
+      for dataset_name in names_to_keep_order_in_atlas:
+          # -- Add the CEOF1 plot figure (hard coded) to the html line in a cell (climaf.html function)
+          pdffigname_ceof1 = TestFiles[dataset_name]['output_ceof1_figname']
+          pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', subdir)
+          os.system('convert -density 150 '+pdffigname_ceof1+' -quality 90 '+pngfigname_ceof1)
+          if variable=='hfls':
+             ceof_thumbnail = "650*450"
+          else:
+             ceof_thumbnail = "650*300"
+          index+=cell("", os.path.basename(pngfigname_ceof1), thumbnail=ceof_thumbnail, hover=False)
+          # -- Add the CEOF2 plot figure (hard coded) to the html line in a cell (climaf.html function)
+          # --> To do if needed
+      # -- Close the line and the section
+      index += close_line() + close_table()
 
 
 # ---------------------------------------------------------------------------------------- #

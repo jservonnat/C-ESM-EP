@@ -4,7 +4,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: Atmosphere_zonmean                                                 - |
+# --             - component: Atmosphere_StdPressLev                                             - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -54,7 +54,7 @@ clean_cache = 'False'
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
 season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'SH20' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
 #domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30) # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2) 
 domain = {}
 
@@ -68,27 +68,20 @@ domain = {}
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
 do_atmos_maps   = True    # -> [LMDZ_SE Atlas] builds a section with a list of standard atmospheric variables (2D maps and zonal means)
+my_seasons = ['ANM','DJF','JJA']
 atmos_variables_list = [
-                   'ua','va','ta','hus','hur',
-                   dict(variable='ua',season='DJF'),dict(variable='va',season='DJF'),dict(variable='ta',season='DJF'),
-                   dict(variable='hus',season='DJF'),dict(variable='hur',season='DJF'),
-                   dict(variable='ua',season='JJA'),dict(variable='va',season='JJA'),dict(variable='ta',season='JJA'),
-                   dict(variable='hus',season='JJA'),dict(variable='hur',season='JJA'),
-                   dict(variable='ua',y='log'),dict(variable='va',y='log'),dict(variable='ta',y='log'),
-                   dict(variable='hus',y='log'),dict(variable='hur',y='log'),
-                   dict(variable='ua',y='log',season='DJF'),dict(variable='va',y='log',season='DJF'),dict(variable='ta',y='log',season='DJF'),
-                   dict(variable='hus',y='log',season='DJF'),dict(variable='hur',y='log',season='DJF'),
-                   dict(variable='ua',y='log',season='JJA'),dict(variable='va',y='log',season='JJA'),dict(variable='ta',y='log',season='JJA'),
-                   dict(variable='hus',y='log',season='JJA'),dict(variable='hur',y='log',season='JJA'),
-]
+                   'ua850','ua500','ua200',
+                   'va850','va500','va200',
+                   'ta850','ta500','ta200',
+                   'hur850','hur500','hur200',
+                   'hus850','hus500','hus200',
+                   'zg500']
+
 atmos_variables = []
 for var in atmos_variables_list:
-    if isinstance(var,dict):
-       tmpvar = var.copy()
-       tmpvar.update(dict(add_climato_contours=True))
-       atmos_variables.append(tmpvar)
-    else:
-       atmos_variables.append(dict(variable=var, add_climato_contours=True))
+    for seas in my_seasons:
+        atmos_variables.append(dict(variable=var, season=seas))
+
 # ---------------------------------------------------------------------------- >
 
 
@@ -100,7 +93,7 @@ for var in atmos_variables_list:
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Zonal mean - seasonal"
+atlas_head_title = "Atmosphere Standard press. lev. - seasonal"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
@@ -137,7 +130,6 @@ add_compareCompanion = True
 # ---------------------------------------------------------------------------- >
 index_name = None
 
-
 # -- Custom plot params
 # -- Changing the plot parameters of the plots
 # ---------------------------------------------------------------------------- >
@@ -146,7 +138,6 @@ index_name = None
 from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
-
 
 
 # ---------------------------------------------------------------------------------------- #
