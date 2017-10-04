@@ -76,7 +76,7 @@ do_Tropics_SFlux_maps  = True    # -> Same for the seasonal averages in the trop
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - Turbulent Air-Sea Fluxes (GB2015) Simulation comparator"
+atlas_head_title = "Turbulent Air-Sea Fluxes (GB2015)"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

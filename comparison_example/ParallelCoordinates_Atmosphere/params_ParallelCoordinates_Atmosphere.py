@@ -51,9 +51,13 @@ sort                   = 'TRUE'
 # --   => CMIP5_colors = ['red', 'blue', 'orange']
 # --   => CMIP5_colors = [dict(model='IPSL-CM5A-MR',color='red'), dict(model='IPSL-CM5A-LR',color='green')]
 # --      -> the models that were not attributed a color will be assigned a default color
-CMIP5_colors                 = ['blue','navyblue','darkturquoise','green2']
+#CMIP5_colors                 = ['blue','navyblue','darkturquoise','green2']
 # -- Set the CMIP5 models you want to highlight
-CMIP5_highlights             = ['IPSL-CM5A-MR','IPSL-CM5A-LR','IPSL-CM5B-LR','CNRM-CM5']
+CMIP5_highlights             = [dict(model='IPSL-CM5A-MR',color='blue'),
+                                dict(model='IPSL-CM5A-LR',color='navyblue'),
+                                dict(model='IPSL-CM5B-LR',color='darkturquoise'),
+                                dict(model='CNRM-CM5', color='green2')
+                               ]
 # -- Show only the highlighted simulations/models in the legend
 highlights_only        = "FALSE"
 # -- Do you want to use the first model of the highlights list to sort the results? If yes, set to "TRUE"
@@ -97,7 +101,7 @@ metrics_sections = [
     ]
 
 
-atlas_head_title = 'Parallel Coordinates - PMP'
+atlas_head_title = 'Parallel Coordinates - PMP PCMDI'
 
 style_file = '/share/fp_template/cesmep_atlas_style_css'
 i=1

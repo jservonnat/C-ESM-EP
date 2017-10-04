@@ -10,6 +10,8 @@ domain = {}
 
 custom_obs_dict = dict()
 
+reference_models=[]
+do_SST_for_tuning = False
 do_atlas_explorer = False
 atlas_explorer_climato_variables=None
 do_atmos_maps = False

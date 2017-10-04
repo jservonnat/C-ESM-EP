@@ -1,0 +1,10 @@
+error    : 'defining cnco : command ${operator} is not executable'
+warning  : Redefining CliMAF script ccdfmean_profile_box
+warning  : Redefining CliMAF script rename_depth
+	error    : "Something went wrong - Type 'cerr()' for details"
+warning  : Redefining project MGV
+warning  : Redefining CliMAF script ueve_otorres
+	error    : "Something went wrong - Type 'cerr()' for details"
+warning  : Redefining CliMAF script ueve_otorres
+	error    : "Something went wrong - Type 'cerr()' for details"
+	error    : "Something went wrong - Type 'cerr()' for details"

@@ -23,7 +23,7 @@ onCiclad = False
 args = sys.argv
 
 metrics_components = ['ParallelCoordinates_Atmosphere']
-allcomponents=['ParallelCoordinates_Atmosphere','Atmosphere_Surface','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','Atmosphere_StdPressLev','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','Focus_Atlantic_AMOC_Surface','PISCES','ENSO','ORCHIDEE','TurbulentAirSeaFluxes','HotellingTest', 'AtlasExplorer','Essentials_CM6011_CM6012']
+allcomponents=['TuningMetrics','ParallelCoordinates_Atmosphere','Atmosphere_Surface','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','Atmosphere_StdPressLev','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','Focus_Atlantic_AMOC_Surface','PISCES','ENSO','ORCHIDEE','TurbulentAirSeaFluxes','HotellingTest', 'AtlasExplorer','Essentials_CM6011_CM6012','Monsoons']
 
 if len(args)==1:
    print 'Provide the name of a comparison setup as argument of the script'
@@ -63,7 +63,7 @@ for component in allcomponents:
   if component in subdirs: available_components.append(component)
 # -> Then, we check whether there are some components not list in allcomponents; if yes, they will be added at the end of the list
 for subdir in subdirs:
-  if subdir not in allcomponents: available_components.append(subdir)
+  if subdir not in allcomponents and subdir not in 'tmp_paramfiles': available_components.append(subdir)
 
 # -- We get the atlas_head_title variable in the params_component.py file to have a more explicit string for the links
 cesmep_modules = []

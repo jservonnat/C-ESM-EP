@@ -93,7 +93,7 @@ for var in atmos_variables_list:
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Standard press. lev. - seasonal"
+atlas_head_title = "SH Polar St. - Atmosphere Standard press. lev."
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
