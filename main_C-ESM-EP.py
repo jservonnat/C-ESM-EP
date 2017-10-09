@@ -805,7 +805,6 @@ if do_ATLAS_VERTICAL_PROFILES:
 # -- Plotting the Zonal Mean Slices                                                     -- #
 if do_ATLAS_ZONALMEAN_SLICES:
 
-    #crm(pattern='mask')
     index+=section("Zonal Means Sections per ocean basin --> Model regridded on reference (before computing the zonal mean)",level=4)
     # Loop over variables
     Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
@@ -2176,8 +2175,7 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
 
 
 # ---------------------------------------------------------------------------------------- #
-# -- MLD maps: global, polar stereographic and North Atlantic                           -- #
-# -- Winter and annual max                                                              -- #
+# -- MSE export maps                                                                    -- #
 if do_mse_otorres_maps:
     #
     # -- Declare UEVE script (O.Torres)
@@ -2214,6 +2212,7 @@ if do_mse_otorres_maps:
         # -- Get ue and ve and compute the climatology
         ue_dat = clim_average( ds(variable='ue', **wmodel), season )
         ve_dat = clim_average( ds(variable='ve', **wmodel), season )
+        #
         # -- Get aire and pourc_ter
         aire_dat = ds(variable='aire', **wmodel)
         pourc_ter_dat = ds(variable='pourc_ter', **wmodel)
@@ -2221,13 +2220,181 @@ if do_mse_otorres_maps:
         # -- Build the title
         title = build_plot_title(wmodel_var,None)#+'_'+build_period_str(wmodel_var)
         # -- Compute the MSE export and do the plot with ueve_otorres
-        MSE_plot = safe_mode_cfile_plot( ueve_otorres(ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve), safe_mode=safe_mode)
+        MSE_plot = ueve_otorres(ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve)
         #
         # -- Add the plot to the line
-        index += cell("",MSE_plot, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        index += cell("",safe_mode_cfile_plot(MSE_plot, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        #cfile(MSE_plot, target='/home/otorres/myfigure.png')
         #
     # -- Close the line and the table of the climatos
     index+=close_line() + close_table()
+    #
+    # -- Second part of the analysis = compute differences
+    # -- Declare UEVE script for differences (O.Torres)
+    ueve_script_diff = main_cesmep_path+'share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_diff_plug.py'
+    cscript('ueve_otorres_diff',
+            'python '+ueve_script_diff+' --ue_ref=${in} ${in_2} ${in_3} ${in_4} ${in_5} ${in_6} "${title}" "${arrow_width}" '+
+                 '"${colorbar}" "${narrow_x}" "${narrow_y}" "${arrow_scale}" "${min}" "${max}" "${land_mask_value}" ${out}',
+            format='graph')
+    #
+    # -- Open the html line with the title
+    index += open_table()
+    line_title = 'MSE Export Diff'
+    index+=start_line(line_title)
+    #
+    # -- Preparing the reference simulation
+    # -- Apply frequency and period manager
+    wref_var = ref_mse_diff.copy() # - copy the dictionary to avoid modifying the original dictionary
+    wref_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
+    #                                          and get_period_manager to scan the existing files and find the requested period
+    frequency_manager_for_diag(wref_var, 'SE') # - Apply frequency_manager_for_diag
+    get_period_manager(wref_var) # - Apply get_period_manager
+    wref = wref_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
+    wref.pop('variable')
+    #
+    # -- Get ue and ve and compute the climatology
+    ue_ref = clim_average( ds(variable='ue', **wref), season )
+    ve_ref = clim_average( ds(variable='ve', **wref), season )
+    #
+    # -- Copy of models to avoid modifying it
+    models_for_diff = copy.deepcopy(models)
+    # -- and remove the reference of the list
+    models_for_diff.remove(ref_mse_diff)
+
+    # -- Loop on the models (add the results to the html line)
+    Wmodels = period_for_diag_manager(models_for_diff, diag='atlas_explorer')
+    for model in Wmodels:
+        # -- Apply frequency and period manager
+        wmodel_var = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+        wmodel_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
+        #                                          and get_period_manager to scan the existing files and find the requested period
+        frequency_manager_for_diag(wmodel_var, 'SE') # - Apply frequency_manager_for_diag
+        get_period_manager(wmodel_var) # - Apply get_period_manager
+        wmodel = wmodel_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
+        wmodel.pop('variable')
+        #
+        # -- Get ue and ve and compute the climatology
+        ue_dat = clim_average( ds(variable='ue', **wmodel), season )
+        ve_dat = clim_average( ds(variable='ve', **wmodel), season )
+        #
+        # -- Get aire and pourc_ter
+        aire_dat = ds(variable='aire', **wmodel)
+        pourc_ter_dat = ds(variable='pourc_ter', **wmodel)
+        #
+        # -- Build the title
+        title = build_plot_title(wmodel_var, wref_var)#+'_'+build_period_str(wmodel_var)
+        # -- Compute the MSE export and do the plot with ueve_otorres
+        MSE_diff_plot = ueve_otorres_diff(ue_ref, ve_ref, ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve_diff)
+        #
+        # -- Add the plot to the line
+        index += cell("",safe_mode_cfile_plot(MSE_plot_diff, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        #cfile(MSE_plot, target='/home/otorres/myfigure.png')
+        #
+    # -- Close the line and the table of the climatos
+    index+=close_line() + close_table()
+
+
+
+# ----------------------------------------------
+# --                                             \
+# --  Add your own script                         \
+# --                                              /
+# --                                             /
+# --                                            /
+# ---------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- Your own diagnostic script                                                         -- #
+# -- This section is a copy of the previous section; it is a good example               -- #
+# -- of how to add your own script/diagnostic                                           -- # 
+# -- The section starting with comments with ==> at the beginning are mandatory to      -- #
+# -- build a section in the C-ESM-EP. The comments starting with /// identify code that -- #
+# -- is specific to the diagnostic presented here.                                      -- #
+if do_my_own_climaf_diag:
+    #
+    # ==> -- Open the section and an html table
+    # -----------------------------------------------------------------------------------------
+    index += section("My own CliMAF diagnostic", level=4)
+    #
+    # ==> -- Control the size of the thumbnail -> thumbN_size
+    # -----------------------------------------------------------------------------------------
+    thumbN_size = thumbnail_size
+    #
+    # ==> -- Open the html line with the title
+    # -----------------------------------------------------------------------------------------
+    index += open_table()
+    line_title = 'Diag #1 = amplitude of the annual cycle'
+    index+=start_line(line_title)
+    #
+    # ==> -- Apply the period_for_diag_manager (not actually needed here)
+    # -----------------------------------------------------------------------------------------
+    Wmodels = copy.deepcopy(models)
+    #Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    #
+    # -- Define plot parameters per variable -> better if in the params file
+    # -----------------------------------------------------------------------------------------
+    my_own_climaf_diag_plot_params = dict(
+       'tas'= dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
+       'pr' = dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
+
+    )
+    #
+    # -- Loop on the variables defined in my_own_climaf_diag_variables -> better if in the params file
+    # -----------------------------------------------------------------------------------------
+    my_own_climaf_diag_variables = ['tas', 'pr']
+    for variable in my_own_climaf_diag_variables:
+        #
+        # -- Loop on the models
+        # -----------------------------------------------------------------------------------------
+        for model in Wmodels:
+            #
+            # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+            # -- in the list models, and add the variable
+            # -----------------------------------------------------------------------------------------
+            wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+            wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+            #
+            # ==> -- Apply frequency and period manager
+            # -----------------------------------------------------------------------------------------
+            # ==> -- They aim at finding the last SE or last XX years available when the user provides
+            # ==> -- clim_period='last_SE' or clim_period='last_XXY'...
+            # ==> -- and get_period_manager scans the existing files and find the requested period
+            # ==> -- !!! Both functions modify the wmodel so that it will point to the requested period
+            frequency_manager_for_diag(wmodel, 'SE')
+            get_period_manager(wmodel)
+            #
+            # /// -- Get the dataset and compute the annual cycle
+            # -----------------------------------------------------------------------------------------
+            dat = annual_cycle( ds(**wmodel) )
+            #
+            # -- Compute the amplitude of the annual cycle (max - min)
+            # -----------------------------------------------------------------------------------------
+            amp = minus( ccdo(dat, operator='timmax'), ccdo(dat, operator='timmin') )
+            #
+            # /// -- Build the titles
+            # -----------------------------------------------------------------------------------------
+            title = build_plot_title(wmodel,None) # > returns the model name if project=='CMIP5'
+            #                                         otherwise it returns the simulation name
+            #                                         It returns the name of the reference if you provide
+            #                                         a second argument ('dat1 - dat2')
+            LeftString = variable
+            RightString = build_str_period(wmodel)  # -> finds the right key for the period (period of clim_period)
+            CenterString = 'Seas cyc. amplitude'
+            #
+            # -- Plot the amplitude of the annual cycle
+            # -----------------------------------------------------------------------------------------
+            plot_amp = plot(dat, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
+                            **my_own_climaf_diag_plot_params[variable] )
+            #
+            # ==> -- Add the plot to the line
+            # -----------------------------------------------------------------------------------------
+            index += cell("",safe_mode_cfile_plot(plot_amp, safe_mode=safe_mode),
+                          thumbnail=thumbN_size, hover=hover, **alternative_dir)
+            #
+        # ==> -- Close the line and the table for this section
+        # -----------------------------------------------------------------------------------------
+        index+=close_line() + close_table()
 
 
 

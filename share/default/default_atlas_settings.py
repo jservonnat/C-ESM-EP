@@ -34,6 +34,8 @@ do_Tropics_SFlux_maps = False
 do_ENSO_CLIVAR = False
 do_Monsoons_pr_anncyc = False
 monsoon_precip_regions = None
+do_mse_otorres_maps = False
+do_my_own_script_diag = False
 
 add_line_of_climato_plots = False
 

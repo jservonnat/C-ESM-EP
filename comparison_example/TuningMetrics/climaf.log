@@ -1,3 +1,0 @@
-error    : 'defining cnco : command ${operator} is not executable'
-warning  : Redefining CliMAF script ccdfmean_profile_box
-warning  : Redefining CliMAF script rename_depth
