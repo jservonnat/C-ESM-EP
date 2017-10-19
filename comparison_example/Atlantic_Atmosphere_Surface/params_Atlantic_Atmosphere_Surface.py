@@ -133,7 +133,7 @@ thumbnail_size="400*400"
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - Atmosphere Surface - seasonal"
+atlas_head_title = "Focus Atlantic - Atmosphere Surface"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

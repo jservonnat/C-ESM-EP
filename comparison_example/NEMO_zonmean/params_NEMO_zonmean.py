@@ -88,7 +88,7 @@ y = 'lin' # -> The vertical axis; choose between 'lin' (linear) or 'index' (mode
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - NEMO zonmean - Simulations comparator"
+atlas_head_title = "NEMO zonal means"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

@@ -160,7 +160,7 @@ derive("IGCM_OUT", 'GPP_c4PftFrac', 'ccdo', 'GPP1113', operator='vertsum -selnam
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CliMAF - ORCHIDEE Simulation comparator"
+atlas_head_title = "ORCHIDEE"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

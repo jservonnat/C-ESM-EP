@@ -134,7 +134,7 @@ do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice v
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - NEMO - Simulations comparator"
+atlas_head_title = "NEMO - general diagnostics"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

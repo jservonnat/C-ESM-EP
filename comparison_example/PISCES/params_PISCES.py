@@ -85,7 +85,7 @@ ocebio_2D_variables        = ["NO3_surf", "PO4_surf", "Si_surf", "O2_surf",
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - PISCES - Simulations comparator"
+atlas_head_title = "PISCES"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

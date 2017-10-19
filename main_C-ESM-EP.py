@@ -10,6 +10,8 @@ from CM_atlas import *
 from climaf.site_settings import onCiclad, atTGCC
 from getpass import getuser
 from climaf import __path__ as cpath
+import json
+import os, copy, subprocess, shlex
 
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
@@ -125,14 +127,12 @@ if onCiclad:
    from climaf import cachedir
    component = str.replace( str.replace( str.replace(index_name,'.html',''), 'atlas_', ''), '_'+opts.comparison, '' )
    subdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component
-   #subdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+str.replace(index_name,'.html','')
    if not os.path.isdir(subdir):
       os.makedirs(subdir)
    else:
       os.system('rm -f '+subdir+'/*')
    alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(subdir,'dods')[1]
    root_url = "https://vesg.ipsl.upmc.fr"
-   #alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(cachedir,'dods')[1]
 
 # -> Specif TGCC: Creation du repertoire de l'atlas, ou nettoyage de celui-ci si il existe deja
 # -----------------------------------------------------------------------------------
@@ -144,9 +144,6 @@ if atTGCC:
    scratch_alt_dir_name = '/ccc/scratch/cont003/'+wspace+'/'+user_login+'/C-ESM-EP/out/'+opts.comparison+'_'+user_login+'/'+component_season+'/'
    work_alt_dir_name = scratch_alt_dir_name.replace('scratch', 'work')
    root_url = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
-   #work_alt_dir_name = root_url + 'out/'+opts.comparison+'_'+user_login+'/'+component_season+'/'
-   #alt_dir_name = work_alt_dir_name #.replace('work', 'scratch')
-   #alt_dir_name = work_alt_dir_name.replace('work', 'scratch')
    alt_dir_name = scratch_alt_dir_name
    if not os.path.isdir(scratch_alt_dir_name):
       os.makedirs(scratch_alt_dir_name)
@@ -201,6 +198,14 @@ for model in models:
     print '  --'
 
 
+# -- Define the path to the main C-ESM-EP directory:
+# -----------------------------------------------------------------------------------
+rootmainpath = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
+if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath
+if os.path.isfile(rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/'
+
 
 # -----------------------------------------------------------------------------------
 # --   End PART 1 
@@ -233,9 +238,11 @@ index = header(atlas_head_title, style_file=style_file)
 
 
 
+
+
 # ----------------------------------------------
 # --                                             \
-# --  PMP - Metrics Garden                        \
+# --  Model Tuning: SST 50S/50N average           \
 # --                                              /
 # --                                             /
 # --                                            /
@@ -244,22 +251,154 @@ index = header(atlas_head_title, style_file=style_file)
 
 
 # ---------------------------------------------------------------------------------------- #
-# -- Plotting the maps of the Atlas Explorer                                            -- #
-do_PMP_MG=False
-if do_PMP_MG:
-    print '---------------------------------'
-    print '-- Processing PMP_MG           --'
-    print '-- do_PMP_MG = True            --'
-    print '-- PMP_MG_variables         =  --'
-    #print '-> ',PMP_MG_variables
-    #print '--                             --'
-    #Wmodels = period_for_diag_manager(models, diag='PMP_MG')
-    #
-    #index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
-    #                         'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
-    #                         add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-    #                         add_line_of_climato_plots=add_line_of_climato_plots,
-    #                                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+# -- Compute the SST biases over 50S/50N for the reference models and the test datasets -- #
+
+if do_SST_for_tuning:
+
+      # -- Start an html section to receive the plots
+      # ----------------------------------------------------------------------------------------------
+      index += section('Spatial averages = metrics for tuning', level=4)
+      index+=start_line('SST 50S/50N')
+
+      Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+      tuning_colors = []
+      for model in Wmodels:
+         if 'R_color' in model or 'color' in model:
+            if 'color' in model: tmp_color = model['color']
+            if 'R_color' in model: tmp_color = model['R_color']
+            if tmp_color in tuning_colors:
+               i=0
+               while R_colorpalette[i] in tuning_colors: i = i + 1
+               tuning_colors[tuning_colors.index(tmp_color)] = R_colorpalette[i]
+               tuning_colors.append(tmp_color)
+         else:
+            i=0
+            while R_colorpalette[i] in tuning_colors: i = i + 1
+            tmp_color = R_colorpalette[i]
+
+         tuning_colors.append(tmp_color)
+         model.update(dict(R_color=tmp_color))
+
+      # ------------------------------------------------
+      # -- Start computing the spatial averages
+      # ------------------------------------------------
+      if not reference_models: reference_models = []
+      reference_datasets = [
+         #dict(project='ref_climatos', product='WOA13-v2', clim_period='195501-201212', dataset_type='obs_reference'),
+         #dict(project='ref_climatos', product='UKMETOFFICE-HadISST-v1-1', clim_period='198002-200501', dataset_type='obs_reference'),
+         #dict(project='ref_climatos', product='NOAA-OISST-v2', clim_period='198202-201201', dataset_type='obs_reference'),
+         dict(project='ref_ts', product='HadISST', period='1990-2010', dataset_type='obs_reference', frequency='monthly'),
+         #dict(project='ref_ts', product='HadISST', period='1980-2005', dataset_type='obs_reference', frequency='monthly'),
+         #dict(project='ref_ts', product='HadISST', period='1979-2000', dataset_type='obs_reference', frequency='monthly'),
+         dict(project='ref_ts', product='HadISST', period='1875-1899', dataset_type='obs_reference', frequency='monthly'),
+
+      ]
+      ref_for_rmsc = dict(project='ref_ts', product='HadISST', period='1990-2010', dataset_type='obs_reference', frequency='monthly', variable='tos')
+      all_dataset_dicts= Wmodels + reference_models + reference_datasets
+      #
+      results = dict()
+      variable='tos'
+      for dataset_dict in all_dataset_dicts:
+          #
+          # -- We already applied time manager, no need to re-do it (loosing time searching for the available periods)
+          wdataset_dict = dataset_dict.copy()
+          wdataset_dict.update(dict(variable='tos'))
+          #
+          frequency_manager_for_diag(wdataset_dict, diag='SE')
+          get_period_manager(wdataset_dict)
+          
+          # -- Build customname and update dictionnary => we need customname anyway, for references too
+          if 'customname' in wdataset_dict:
+              customname = wdataset_dict['customname']
+          else:
+              customname = str.replace(build_plot_title(wdataset_dict, None),' ','_')
+              wperiod = ''
+              if 'clim_period' in wdataset_dict: wperiod=wdataset_dict['clim_period']
+              if 'period' in wdataset_dict:
+                  if wdataset_dict['period'] not in 'fx': wperiod=wdataset_dict['period']
+              if wperiod not in customname: customname = customname+'_'+wperiod
+          customname = str.replace(customname,' ','_')
+          wdataset_dict.update(dict(customname = customname))
+          print 'customname = ', customname
+          #
+          # -- We tag the datasets to identify if they are: test_dataset, reference_dataset or obs_reference
+          # -- This information is used by the plotting R script.
+          if dataset_dict in Wmodels:
+             wdataset_dict.update(dict(dataset_type='test_dataset'))
+          if dataset_dict in reference_models:
+             wdataset_dict.update(dict(dataset_type='reference_dataset'))
+          dataset_name = customname
+          results[dataset_name] = dict(results=dict(), dataset_dict=wdataset_dict)
+          #
+          # -- Loop on the regions; build the results dictionary and save it in the json file variable_comparison_spatial_averages_over_regions.json
+          regions_for_spatial_averages = [ dict(region_name='50S_50N', domain=[-50,50,0,360]) ]
+          season='ANM'
+          #tos_ref = variable2reference('tos')
+          #tos_ref = dict(project='ref_ts', product=)
+          for region in regions_for_spatial_averages:
+              dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid='r360x180', option='remapdis'),
+                          lonmin=region['domain'][2], lonmax=region['domain'][3],
+                          latmin=region['domain'][0], latmax=region['domain'][1])
+              #ref = llbox(regridn(clim_average(ds(**tos_ref), season), cdogrid='r360x180', option='remapdis'),
+              #            lonmin=region['domain'][2], lonmax=region['domain'][3],
+              #            latmin=region['domain'][0], latmax=region['domain'][1])
+              rawvalue = cMA(space_average(dat))[0][0][0]
+              if 'product' in wdataset_dict:
+                 if wdataset_dict['product']=='WOA13-v2': rawvalue = rawvalue[0]
+              # -- Add offset to convert in Celsius
+              rawvalue = rawvalue - 273.15
+              #results[dataset_name]['results'].update( {region['region_name']: str(metric) })
+              ## -- Compute bias
+              #bias = cMA(minus(space_average(dat),space_average(ref)))[0][0][0]
+              results[dataset_name]['results'].update( {region['region_name']: {'rawvalue': str(rawvalue)} } )
+              #
+              # -- Compute the centered RMSE rmsc
+              if wdataset_dict['dataset_type']!='obs_reference':
+                 scyc_dat = llbox(regridn(annual_cycle(ds(**wdataset_dict)), cdogrid='r360x180', option='remapdis'),
+                                  lonmin=region['domain'][2], lonmax=region['domain'][3],
+                                  latmin=region['domain'][0], latmax=region['domain'][1])
+                 anom_dat = fsub(scyc_dat, str(cMA(space_average(dat))[0][0][0]) )
+
+                 scyc_ref = llbox(regridn(annual_cycle(ds(**ref_for_rmsc)), cdogrid='r360x180', option='remapdis'),
+                                  lonmin=region['domain'][2], lonmax=region['domain'][3],
+                                  latmin=region['domain'][0], latmax=region['domain'][1])
+                 anom_ref = fsub(scyc_ref, str(cscalar(time_average(space_average(scyc_ref)))) )
+                 rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                 rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                 results[dataset_name]['results'][region['region_name']].update( dict(rmsc = str(rmsc), rms=str(rms) ))
+      outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_metrics_over_regions_for_tuning.json'
+      #outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_bias_over_regions_for_tuning.json'
+      #results.update(dict(json_structure=['dataset_name','results','region_name'],
+      #                    variable=dict(variable=variable, varlongname=varlongname(variable))))
+      with open(outjson, 'w') as outfile:
+           json.dump(results, outfile, sort_keys = True, indent = 4)
+      #
+      # -- Eventually, do the plots
+      for region in regions_for_spatial_averages:
+          # -- plot the raw values
+          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rawvalues_over_regions_for_tuning.png'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rawvalue.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
+          print(cmd)
+          os.system(cmd)
+          index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
+          #
+          # -- plot the rmsc
+          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rmsc_over_regions_for_tuning.png'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
+          print(cmd)
+          os.system(cmd)
+          index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
+          #
+          # -- plot the rms
+          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rms_over_regions_for_tuning.png'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname+' --statistic rms'
+          print(cmd)
+          os.system(cmd)
+          index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
+
+      # -- Close the line and the section
+      index += close_line() + close_table()
+
 
 
 
@@ -296,6 +435,20 @@ if do_atlas_explorer:
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 
 
+
+# ---------------------------------------------------------------------------------------- #
+# -- Plotting the maps of the Atlas Explorer                                            -- #
+if do_zonal_profiles_explorer:
+    print '---------------------------------'
+    print '-- Processing Zonal profiles   --'
+    print '-- do_zonal_profiles = True    --'
+    print '-- zonal_profiles_variables =  --'
+    print '-> ',zonal_profiles_variables
+    print '--                             --'
+    Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    index += section_zonal_profiles(Wmodels, reference, season, zonal_profiles_variables,
+                                    'Zonal Profiles Explorer', domain=domain,
+                                    safe_mode=safe_mode, alternative_dir=alternative_dir)
 
 
 
@@ -674,7 +827,6 @@ if do_ATLAS_VERTICAL_PROFILES:
 # -- Plotting the Zonal Mean Slices                                                     -- #
 if do_ATLAS_ZONALMEAN_SLICES:
 
-    #crm(pattern='mask')
     index+=section("Zonal Means Sections per ocean basin --> Model regridded on reference (before computing the zonal mean)",level=4)
     # Loop over variables
     Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
@@ -1032,7 +1184,13 @@ if do_ENSO_CLIVAR:
     index+=start_line(line_title)
     Wmodels = period_for_diag_manager(models, diag='ENSO')
     plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode)
-    index+=cell("", plot_annual_cycles, thumbnail="350*200", hover=hover, **alternative_dir)
+    thumbN_size="600*350"
+    index+=cell("", plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+    close_line()
+    index+=start_line('')
+    for model in Wmodels:
+        one_model_plot_annual_cycles = plot_ENSO_annual_cycles([model], safe_mode=safe_mode)
+        index+=cell("", one_model_plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
 
@@ -1042,7 +1200,13 @@ if do_ENSO_CLIVAR:
     index+=start_line(line_title)
     Wmodels = period_for_diag_manager(models, diag='ENSO')
     plot_tauu_profile = plot_ZonalWindStress_long_profile(Wmodels, safe_mode=safe_mode)
-    index+=cell("", plot_tauu_profile, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+    thumbN_size="450*400"
+    index+=cell("", plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+    close_line()
+    index+=start_line('')
+    for model in Wmodels:
+        one_model_plot_tauu_profile = plot_ZonalWindStress_long_profile([model], safe_mode=safe_mode)
+        index+=cell("", one_model_plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
 
@@ -1074,7 +1238,8 @@ if do_Monsoons_pr_anncyc:
     if not monsoon_precip_regions:
        monsoon_precip_regions = [
 	dict(name='All-India Rainfall (65/95E;5/30N)', domain=dict(lonmin=65,lonmax=95,latmin=5,latmax=30)),
-        dict(name='West African Monsoon (-20/30E;0/20N)', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
+        #dict(name='West African Monsoon (-20/30E;0/20N)', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
+        dict(name='WAM - AMMA (-10/10E;12/20N)', domain=dict(lonmin=-10,lonmax=10,latmin=12,latmax=20)),
         ]
     
     # -- Common plot parameters for monsoons precip annual cycles
@@ -1097,9 +1262,6 @@ if do_Monsoons_pr_anncyc:
               'tiYAxisString=Precipitation (mm/day)|'+\
               'gsnStringFontHeightF=0.017'#+\
           )
-          #    'xyMonoLineThickness=False|'+\
-          #    'xyLineThicknesses=(/ 6.0, 14.0/)|'+\
-          #'xyLineThicknesses=(/6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 14.0/)|'+\
 
     # -- Get the reference
     pr_ref = ds(**variable2reference('pr'))
@@ -1111,19 +1273,24 @@ if do_Monsoons_pr_anncyc:
     land_pr_ref_masked = fmul(pr_ref, land_ref_mask)
 
     # -- Annual cycle of precipitation over land ---------------------------------------- 
-    line_title = 'Annual cycle of precipitation over land'
-    index+=start_line(line_title)
+    #line_title = 'Annual cycle of precipitation over land'
+    #index+=start_line(line_title)
     #
     Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
     # -- Loop on regions
     #MP = []
     for region in monsoon_precip_regions:
 
+        # -- Start line
+        line_title = region['name']
+        index+=start_line(line_title)
+        #
+        # -- Reference
         anncyc_pr_ref_masked = fmul(space_average(llbox(land_pr_ref_masked, **region['domain'])), 86400)
         
         ens_for_plot = dict(GPCP=anncyc_pr_ref_masked)
         
-        # -- One plot per region
+        # -- One plot per region -- All models on the same plot ----------------------------------------------------------------
         # -> Loop on the models
         models_order = []
         for model in Wmodels:
@@ -1139,25 +1306,70 @@ if do_Monsoons_pr_anncyc:
             land_pr_sim_masked = fmul(regrid(pr_sim,pr_ref, option='remapcon2'), land_ref_mask)
 
             anncyc_pr_sim_masked = fmul(space_average(llbox(land_pr_sim_masked, **region['domain'])), 86400)
+            if model['project']=='CMIP5':
+               monsoon_name_in_plot = model['model']
+            else:
+               monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
+            #
             if safe_mode:
                try:
                   cfile(anncyc_pr_sim_masked)
-                  if model['project']=='CMIP5':
-                     monsoon_name_in_plot = model['model']
-                  else:
-                     monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
                   ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
                   models_order.append(monsoon_name_in_plot)
                except:
                   print 'No data for Monsoon pr diagnostic for ',model
+            else:
+               ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+               models_order.append(monsoon_name_in_plot)
 
+        print 'ens_for_plot = ',ens_for_plot
         cens_for_plot = cens(ens_for_plot, order=['GPCP'] + models_order)
     
         plot_pr_anncyc_region = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
 
         index+=cell("", plot_pr_anncyc_region, thumbnail=thumbnail_monsoon_pr_anncyc_size, hover=hover, **alternative_dir)
-    #
-    close_line()
+        close_line()
+
+        # -- One plot per region -- One model with the ref on the plot ----------------------------------------------------------------
+        # -> Loop on the models
+        index += start_line('')
+        for model in Wmodels:
+            # -- Reinitialize the climaf ensemble for the plot
+            ens_for_plot = dict(GPCP=anncyc_pr_ref_masked)
+
+            wmodel = model.copy()
+            wmodel.update(dict(variable='pr'))
+            frequency_manager_for_diag(wmodel, diag='SE')
+            get_period_manager(wmodel)
+
+            pr_sim = ds(**wmodel)
+
+            # Method 1 = regrid the model on the obs, and use the obs mask to compute the spatial average
+            land_pr_sim_masked = fmul(regrid(pr_sim,pr_ref, option='remapcon2'), land_ref_mask)
+
+            anncyc_pr_sim_masked = fmul(space_average(llbox(land_pr_sim_masked, **region['domain'])), 86400)
+            if model['project']=='CMIP5':
+               monsoon_name_in_plot = model['model']
+            else:
+               monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
+            #
+            if safe_mode:
+               try:
+                  cfile(anncyc_pr_sim_masked)
+                  ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+               except:
+                  print 'No data for Monsoon pr diagnostic for ',model
+            else:
+               ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+
+            cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
+
+            plot_pr_anncyc_region_one_model = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
+
+            index+=cell("", plot_pr_anncyc_region_one_model, thumbnail=thumbnail_monsoon_pr_anncyc_size, hover=hover, **alternative_dir)
+
+        #
+        close_line()
     index+=close_table()
 
 
@@ -1175,6 +1387,372 @@ if do_Monsoons_pr_anncyc:
 # ---------------------------------------------
 
 
+
+# ---------------------------------------------------------------------------------------- #
+# -- Hotelling Test: evaluation metric for the spatio-temporal variability              -- #
+# -- of the annual cycle                                                                -- #
+if do_Hotelling_Test:
+  Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+  #
+  # -- For the Hotelling Test, the scripts are not declared properly as CliMAF operators
+  # -- because CliMAF doesn't handle json output files at the moment (and also because of
+  # -- how the scripts were written, the CEOFs plots are done along the computation of the
+  # -- test; not the metrics plot that is done separately.
+  # -- This is why we need to prepare the path to the output results 'hard coded'
+  # -- atlas_outdir is the directory containing the atlas and all the figures (or links)
+  # -- hotelling_outputdir is the independant directory where the user will store all
+  # -- the results from the Hotelling test (json files, plots...) so that we will
+  # -- be able to easily check the available results.
+  if onCiclad:
+     hotelling_outputdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/Hotelling_test_results/'
+     if not os.path.isdir(hotelling_outputdir+'json_files/'): os.makedirs(hotelling_outputdir+'json_files/')
+     if not os.path.isdir(hotelling_outputdir+'CEOFs_plots/'): os.makedirs(hotelling_outputdir+'CEOFs_plots/')
+     atlas_outdir = subdir+'/Hotelling_Test/'
+     if not os.path.isdir(atlas_outdir):
+        os.makedirs(atlas_outdir)
+     else:
+        os.system('rm -f '+atlas_outdir+'*')
+  #
+  # -- Assign a color (if the user didn't) to the tested datasets
+  # -- If the user didn't assign one, we take one from R_colorpalette defined in params_HotellingTest.py
+  # -- If the user assigned one that was already attributed automatically with the mechanism above,
+  # -- we replace it with another one.
+  hotelling_colors = []
+  for model in Wmodels:
+      if 'R_color' in model or 'color' in model:
+         if 'color' in model: tmp_color = model['color']
+         if 'R_color' in model: tmp_color = model['R_color']
+         if tmp_color in hotelling_colors:
+            i=0
+            while R_colorpalette[i] in hotelling_colors: i = i + 1
+            hotelling_colors[hotelling_colors.index(tmp_color)] = R_colorpalette[i]
+            hotelling_colors.append(tmp_color)
+      else:
+         i=0
+         while R_colorpalette[i] in hotelling_colors: i = i + 1
+         tmp_color = R_colorpalette[i]
+  
+      hotelling_colors.append(tmp_color)
+      model.update(dict(R_color=tmp_color))
+
+
+  # -- Loop on the variables
+  for variable in hotelling_variables:
+
+      # --------------------------------------------------------------------------------------------- #
+      # -->   First, prepare the annual cycle files for the reference observational datasets
+      # -->   if they are not available
+      # -->   At the end of this section, we have json file containing a python dictionnary
+      # -->   describing the informations and access to the reference datasets.
+      # --------------------------------------------------------------------------------------------- #
+      # -- Create the json file RefFiles.json
+      RefFileName = main_cesmep_path+'/share/scientific_packages/Hotelling_Test/reference_json_files/reference_files_GB2015_'+variable+'.json'
+      # -- list_of_ref_products is the predefined list of reference products of the GB2015 ensemble
+      list_of_ref_products = ['OAFlux','NCEP','NCEP2','CORE2','FSU3','NOCS-v2','J-OFURO2','GSSTFM3','IFREMER',
+                              'DFS4.3','TropFlux','DASILVA','HOAPS3','ERAInterim']
+
+      if not os.path.isfile(RefFileName) or force_compute_reference:
+         # -- Get the reference files
+         RefFiles = dict()
+         # Scan the available files for variable
+         listfiles = ds(project='ref_climatos', variable=variable)
+         files = set(str.split(listfiles.baseFiles(),' '))
+         for f in files:
+             if get_product(f) in list_of_ref_products:
+                 # -- Get the dataset and regrid to the common grid
+                 refdat = regridn( ds(variable=variable, project='ref_climatos', product=get_product(f)),
+                                   cdogrid=common_grid, option='remapdis')
+                 RefFiles.update({get_product(f):dict(variable=variable, file=cfile(refdat))})
+         #
+         # -- Create the json file RefFiles.json
+         # -- It contains the paths to the netcdf files of the reference observational datasets
+         # -- associated with the names used in the plots
+         with open(RefFileName, 'w') as fp:
+            json.dump(RefFiles, fp)
+         fp.close()
+
+      # --------------------------------------------------------------------------------------------- #
+      # -->   Then, we deal with the model datasets
+      # --------------------------------------------------------------------------------------------- #
+
+      # -- Add the reference_models python list => list of models used as reference results (CMIP5, AMIP...)
+      Wmodels = Wmodels + reference_models
+      #
+      # -- Get the tested datasets
+      TestFiles = dict()
+      names_to_keep_order_in_atlas = []
+      for model in Wmodels:
+          # 
+          # -- Copy the dictionary to modify it without modifying the original dictionaries
+          model.update(dict(variable=variable))
+          #
+          # -- Apply the frequency and time manager
+          frequency_manager_for_diag(model, diag='SE')
+          get_period_manager(model)
+          wmodel = model.copy()
+          print 'wmodel = ',wmodel
+          #
+          # -- Get the dataset, compute the annual cycle and regrid to the common grid
+          dat = regridn( annual_cycle( ds(**wmodel) ), cdogrid=common_grid, option='remapdis')
+          #
+          # -- Get the name that will be used in the plot => customname
+          # -- It will also serve to identify the dataset in the json file TestFiles
+          if 'customname' in wmodel:
+             customname = wmodel['customname']
+          else:
+             customname = str.replace(build_plot_title(wmodel, None),' ','_')
+             if 'clim_period' in wmodel: wperiod=wmodel['clim_period']
+             if 'period' in wmodel:
+                if wmodel['period'] not in 'fx': wperiod=wmodel['period']
+             if wperiod not in customname: customname = customname+'_'+wperiod
+          #
+          # -- Build a string that identifies the dataset in the output files names
+          # -- More complete version of customname
+          dataset_name_in_filename = ''
+          for key in ['project','model','login','experiment','simulation','realization']:
+              ds_for_keys = ds(**wmodel)
+              if key in ds_for_keys.kvp:
+                 if ds_for_keys.kvp[key] not in '*':
+                    if dataset_name_in_filename=='':
+                       dataset_name_in_filename = ds_for_keys.kvp[key]
+                    else:
+                       dataset_name_in_filename += '_'+ds_for_keys.kvp[key]
+          # Add the customname if the user provided one (this for plotting issues)
+          if 'customname' in wmodel:
+             dataset_name_in_filename += '_'+str.replace(customname,' ','_')
+          else:
+             # Add the period
+             dataset_name_in_filename += '_'+wperiod
+          # -- From this, we build the names of the output files = hard coded
+          # -- Names of the json file and the plots of the CEOFs
+          output_res_hotelling_json_file = hotelling_outputdir+'json_files/Res-Hotelling_'+dataset_name_in_filename+'-'+variable+'.json'
+          output_ceof1_figname = hotelling_outputdir+'CEOFs_plots/'+dataset_name_in_filename+'-'+variable+'-CEOFs1.pdf'
+          output_ceof2_figname = hotelling_outputdir+'CEOFs_plots/'+dataset_name_in_filename+'-'+variable+'-CEOFs2.pdf'
+          #
+          # -- Make the output directory of the hotelling results json file if it doesn't exist
+          if not os.path.isdir(os.path.dirname(output_res_hotelling_json_file)): os.makedirs(output_res_hotelling_json_file)
+          #
+          # -- If the result json file is not in the main output directory (hotelling_outputdir+'json_files/'),
+          # -- we check whether it's available in the scientific_packages/Hotelling_Test/results/json_files
+          # -- If so, we link the file in hotelling_outputdir+'json_files/'
+          ref_res_hotelling_json_file = str.replace(output_res_hotelling_json_file,
+                                                    hotelling_outputdir,
+                                                    main_cesmep_path+'share/scientific_packages/Hotelling_Test/results/json_files/')
+          #
+          dataset_description_dict = dict(variable = variable,
+                                          dataset_name_in_filename = dataset_name_in_filename,
+                                          output_res_hotelling_json_file = output_res_hotelling_json_file,
+                                          output_ceof1_figname = output_ceof1_figname,
+                                          output_ceof2_figname = output_ceof2_figname,
+                                          )
+          # -------------------------------------------------------
+          # -- Let's now compute the Hotelling Test
+          # -------------------------------------------------------
+          # --> We treat separately the tested models and the reference models to keep control on whether we want
+          # --> to force recompute results for each batch of datasets
+          # -->
+          # --> The main_Hotelling.R script will use the instruction compute_hotelling='FALSE'/'TRUE'
+          # --> to compute or not the Hotelling Test.
+          # --> We use this mechanism rather than removing the dataset of the TestFiles list
+          # --> because we need the complete list of datasets to do the plots eventually.
+          # -->
+          # --> First, we treat the tested models
+          # ---------------------------------------
+          if model not in reference_models:
+            if force_compute_test==True:
+               try:
+                   wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+                   names_to_keep_order_in_atlas.append(customname)
+               except:
+                   print 'Force compute = True but No dataset available for wmodel = ',wmodel
+            else:
+               # -- Normal case = we use the existing results (force_compute_test=False)
+               if os.path.isfile(output_res_hotelling_json_file) or os.path.isfile(ref_res_hotelling_json_file):
+                   # -- If the result json file is not in the main output directory (hotelling_outputdir+'json_files/'),
+                   # -- we check whether it's available in the share/scientific_packages/Hotelling_Test/results/json_files
+                   # -- If so, we link the file in hotelling_outputdir+'json_files/'
+                   if not os.path.isfile(output_res_hotelling_json_file): os.system('ln -s '+ref_res_hotelling_json_file+' '+output_res_hotelling_json_file)
+                   wmodel.update(dict(file="", compute_hotelling='FALSE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+                   names_to_keep_order_in_atlas.append(customname)
+               else:
+                   # -- If we have no file already
+                   try:
+                      wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                      TestFiles.update({customname:wmodel})
+                      names_to_keep_order_in_atlas.append(customname)
+                   except:
+                      print 'Force compute = False and No dataset available for wmodel = ',wmodel
+          else:
+            # --> Then, we treat the reference models
+            # ---------------------------------------
+            if force_compute_reference_results==True:
+               # -- If we force recomputing, just (try to) do it and add it to the list of test files if successfull:
+               try:
+                   wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+               except:
+                   print 'Force compute = True but No dataset available for wmodel = ',wmodel
+            else:
+               if os.path.isfile(output_res_hotelling_json_file) or os.path.isfile(ref_res_hotelling_json_file):
+                   # -- If the json file already exists...
+                   if not os.path.isfile(output_res_hotelling_json_file): os.system('ln -s '+ref_res_hotelling_json_file+' '+output_res_hotelling_json_file)
+                   wmodel.update(dict(file="", compute_hotelling='FALSE', **dataset_description_dict))
+                   TestFiles.update({customname:wmodel})
+               else:
+                   # -- If it's not there yet...
+                   try:
+                      wmodel.update(dict(file=cfile(dat), compute_hotelling='TRUE', **dataset_description_dict))
+                      TestFiles.update({customname:wmodel})
+                   except:
+                      print 'Force compute = False and No dataset available for wmodel = ',wmodel
+      #
+      # -- Create the json file TestFiles.json
+      # ------------------------------------------------
+      TestFileName = main_cesmep_path+'/'+opts.comparison+'/HotellingTest/test_files_'+opts.comparison+'_'+variable+'.json'
+      with open(TestFileName, 'w') as fp:
+         json.dump(TestFiles, fp)
+      fp.close()
+      #
+      # --> Now run the main_Hotelling.R script to compute the Hotelling Test on the datasets defined in TestFiles
+      # --------------------------------------------------------------------------------------------------------------
+      cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/main_Hotelling.R --test_json_file '+TestFileName+' --reference_json_file '+RefFileName+' --hotelling_outputdir '+hotelling_outputdir+' --main_dir '+main_cesmep_path+'share/scientific_packages/Hotelling_Test'
+      print cmd
+      p=subprocess.Popen(shlex.split(cmd))
+      p.communicate()
+      #
+      # -- We now have the Hotelling results = both metrics (but not the plot, TBD below) and CEOFs plots  
+      #
+      # -- Start an html section to receive the plots
+      # ----------------------------------------------------------------------------------------------
+      index += section('Hotelling Test Metrics (T2) in the intertropical band -20/20N (left plot) ; Annual Mean raw spatial average (right plot)', level=4)
+      index+=start_line(varlongname(variable)+' ('+variable+')')
+
+      # --> We start with the Hotelling metrics plot
+      # --> by running share/scientific_packages/Hotelling_Test/Plot-Hotelling-test-results-one-variable.R
+      # ----------------------------------------------------------------------------------------------
+      # --> Make the plot now with the list of datasets in input
+      for stat in ['T2']:
+          figname = subdir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/Plot-Hotelling-test-results-one-variable.R --test_json_files '+TestFileName+' --figname '+figname+' --main_dir '+main_cesmep_path+'share/scientific_packages/Hotelling_Test --statistic '+stat
+          print cmd
+          p=subprocess.Popen(shlex.split(cmd))
+          p.communicate()
+          # -- Add the figure (hard coded) to the html line in a cell (climaf.html function)
+          pngfigname = str.replace(figname,'pdf','png')
+          os.system('convert -density 150 '+figname+' -quality 90 '+pngfigname)
+          index+=cell("", os.path.basename(pngfigname), thumbnail="650*600", hover=False)
+      #
+      # --> The Hotelling statistic is about the spatio-temporal variability of the annual cycle
+      # --> Here we add a plot with the raw spatial averages over the domain and other potential domains
+      # --> to give a more comprehensive view of the evaluation of the turbulent fluxes 
+      #
+      # --> Include the plot of the averages over defined regions
+      regions_for_spatial_averages = [ dict(region_name='Intertropical_Band', domain=[-20,20,0,360] ) ]
+      # -- Prepare the references
+      references = []
+      for ref in list_of_ref_products:
+          ref_dict = dict(product=ref, variable=variable, project='ref_climatos')
+          try:
+             cfile(ds(**ref_dict))
+             ref_dict.update(dict(customname=ref))
+             references.append( ref_dict )
+          except:
+             print 'No dataset for ', variable, ref
+      #
+      # -- We need to apply the same mask to all the datasets to compute the same spatial average
+      # -- For this, we build the mask from the ensemble mean of the annual means of the regridded references on the common grid
+      ens_dict = dict()
+      cdogrid='r180x90'
+      for ref in references:
+          ens_dict.update({ref['product']:llbox(regridn(clim_average(ds(**ref),season), cdogrid=cdogrid, option='remapdis'),
+                                                lonmin=0,lonmax=360,latmin=-20,latmax=20)})
+      ens = cens(ens_dict)
+      ens_mean = ccdo_ens(ens, operator='ensavg')
+      # -- We obtain the mask (Fill_values and 1) by dividing the ensemble mean of the references by itself
+      mask = divide(ens_mean,ens_mean)
+      #
+      # ------------------------------------------------
+      # -- Start computing the spatial averages
+      # ------------------------------------------------
+      all_dataset_dicts = Wmodels + references # -> reference_models already is in Wmodels from above
+      #
+      results = dict()
+      for dataset_dict in all_dataset_dicts:
+          #
+          # -- We already applied time manager, no need to re-do it (loosing time searching for the available periods)
+          wdataset_dict = dataset_dict.copy()
+          #
+          # -- Build customname and update dictionnary => we need customname anyway, for references too
+          if 'customname' in wdataset_dict:
+              customname = wdataset_dict['customname']
+          else:
+              customname = str.replace(build_plot_title(wdataset_dict, None),' ','_')
+   	      wperiod = ''
+	      if 'clim_period' in wdataset_dict: wperiod=wdataset_dict['clim_period']
+	      if 'period' in wdataset_dict:
+                  if wdataset_dict['period'] not in 'fx': wperiod=wdataset_dict['period']
+              if wperiod not in customname: customname = customname+'_'+wperiod
+          customname = str.replace(customname,' ','_')
+          wdataset_dict.update(dict(customname = customname))
+          #
+          # -- We tag the datasets to identify if they are: test_dataset, reference_dataset or obs_reference
+          # -- This information is used by the plotting R script.
+          if dataset_dict in Wmodels: 
+             wdataset_dict.update(dict(dataset_type='test_dataset'))
+          if dataset_dict in reference_models:
+             wdataset_dict.update(dict(dataset_type='reference_dataset'))
+          if dataset_dict in references:
+             wdataset_dict.update(dict(dataset_type='obs_reference'))
+          dataset_name = customname
+          results[dataset_name] = dict(results=dict(), dataset_dict=wdataset_dict)
+          #
+          # -- Loop on the regions; build the results dictionary and save it in the json file variable_comparison_spatial_averages_over_regions.json
+          for region in regions_for_spatial_averages:
+              dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid=cdogrid, option='remapdis'),
+                          lonmin=region['domain'][2], lonmax=region['domain'][3],
+                          latmin=region['domain'][0], latmax=region['domain'][1])
+              metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+              results[dataset_name]['results'].update( {region['region_name']: str(metric) })
+
+      outjson = main_cesmep_path+'/'+opts.comparison+'/HotellingTest/'+variable+'_'+opts.comparison+'_spatial_averages_over_regions.json'
+      results.update(dict(json_structure=['dataset_name','results','region_name'],
+                          variable=dict(variable=variable, varlongname=varlongname(variable))))
+      #
+      # -- Eventually, do the plots
+      for region in regions_for_spatial_averages:
+          with open(outjson, 'w') as outfile:
+               json.dump(results, outfile, sort_keys = True, indent = 4)
+          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/plot_space_averages_over_regions.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
+          print(cmd)
+          os.system(cmd)
+          index+=cell("", os.path.basename(figname), thumbnail="650*600", hover=False)
+
+      # -- Close the line and the section
+      index += close_line() + close_table()
+
+
+      # --> Then we add a section for the variable to store the plots of the CEOFs 
+      # --> that are produced automatically by main_Hotelling.R -> Hotelling_routine.R -> Fig-common-EOFS-First-reduction.R 
+      # ----------------------------------------------------------------------------------------------------------------------
+      index += section('First (CEOF1) and second (CEOF2) Common EOFs with the projections', level=4)
+      index+=start_line(varlongname(variable)+' ('+variable+')')
+      for dataset_name in names_to_keep_order_in_atlas:
+          # -- Add the CEOF1 plot figure (hard coded) to the html line in a cell (climaf.html function)
+          pdffigname_ceof1 = TestFiles[dataset_name]['output_ceof1_figname']
+          pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', subdir)
+          os.system('convert -density 150 '+pdffigname_ceof1+' -quality 90 '+pngfigname_ceof1)
+          if variable=='hfls':
+             ceof_thumbnail = "650*450"
+          else:
+             ceof_thumbnail = "650*300"
+          index+=cell("", os.path.basename(pngfigname_ceof1), thumbnail=ceof_thumbnail, hover=False)
+          # -- Add the CEOF2 plot figure (hard coded) to the html line in a cell (climaf.html function)
+          # --> To do if needed
+      # -- Close the line and the section
+      index += close_line() + close_table()
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -1245,8 +1823,18 @@ if do_Tropics_SFlux_maps:
         index+=start_line(line_title)
         # -- Plot the reference
         plot_climato_ref_ANM = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
+        #
+        # -- We apply the frequency and time manager once per variable
+        # -- For this we create a Wmodels_var per variable
+        from copy import deepcopy
+        Wmodels_var = deepcopy(Wmodels)
+        for model in Wmodels_var:
+            model.update(dict(variable=variable))
+            frequency_manager_for_diag(model, diag='SE')
+            get_period_manager(model)
+
         # And loop over the models
-        for model in Wmodels:
+        for model in Wmodels_var:
             wmodel = model.copy()
             sim = ds(**wmodel)
             plot_climato_sim_ANM = plot_climato_TurbFlux_GB2015(variable, wmodel, climatology='ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
@@ -1280,7 +1868,7 @@ if do_Tropics_SFlux_maps:
                                   )
         index+=cell("", safe_mode_cfile_plot(seas_ref_clim_plot, safe_mode=safe_mode, do_cfile=True), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         # And loop over the models
-        for model in Wmodels:
+        for model in Wmodels_var:
             wmodel = model.copy()
             sim = ds(**wmodel)
             plot_climato_sim_DJF = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
@@ -1303,7 +1891,7 @@ if do_Tropics_SFlux_maps:
         # Add a blank space
         index+=cell("", blank_cell, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         # And loop over the models
-        for model in Wmodels:
+        for model in Wmodels_var:
             wmodel = model.copy()
             sim = ds(**wmodel)
             plot_bias_DJF = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
@@ -1317,14 +1905,14 @@ if do_Tropics_SFlux_maps:
                                   x=30, y=40,
                                   font='Waree-Bold'
                                  )
-            #if safe_mode==True:
-            #   try:
-            #      index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-            #   except:
-            #      index+=cell("", blank_cell, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-            #else:
-            #   index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-            index+=cell("", safe_mode_cfile(seas_bias_plot, safe_mode=safe_mode), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            if safe_mode==True:
+               try:
+                  index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+               except:
+                  index+=cell("", blank_cell, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            else:
+               index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            #index+=cell("", safe_mode_cfile(seas_bias_plot, safe_mode=safe_mode), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         close_line()
         index+=close_table()
         #
@@ -1653,6 +2241,353 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
                               add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
                               add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
 			                  custom_plot_params=custom_plot_params, alternative_dir=alternative_dir)
+
+
+
+
+# ----------------------------------------------
+# --                                             \
+# --  Tests O. Torres                             \
+# --  MSE export                                  /
+# --  Also used as an example of how to plug     /
+# --  an external script with cscript           /
+# --                                           /
+# --                                          /
+# -------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- MSE export maps                                                                    -- #
+if do_mse_otorres_maps:
+    #
+    # -- Declare UEVE script (O.Torres)
+    # -- After this operation, you will be able to use the script as:
+    # --    MSE_plot = ueve_otorres(ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve)
+    # -- **default_ueve is a mechanism to pass the keyword/values defined in the default_ueve dictionary
+    # -- to the function (python mechanism).
+    # -- See the documentation of cscript for more details: http://climaf.readthedocs.io/en/latest/functions_processing.html 
+    ueve_script = main_cesmep_path+'share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_plug.py'
+    cscript('ueve_otorres',
+            'python '+ueve_script+' ${in} ${in_2} ${in_3} ${in_4} "${title}" "${arrow_width}" '+
+                 '"${colorbar}" "${narrow_x}" "${narrow_y}" "${arrow_scale}" "${min}" "${max}" "${land_mask_value}" ${out}',
+            format='graph')
+    #
+    # -- Open the section and an html table
+    index += section("MSE Export", level=4)
+    #
+    # -- use season from params
+    # -- Control the size of the thumbnail -> thumbN_size
+    thumbN_size = thumbnail_size
+    #
+    # -- Open the html line with the title
+    index += open_table()
+    line_title = 'MSE Export'
+    index+=start_line(line_title)
+    #
+    # -- Loop on the models (add the results to the html line)
+    Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    for model in Wmodels:
+        # -- Apply frequency and period manager
+        wmodel_var = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+        wmodel_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
+        #                                          and get_period_manager to scan the existing files and find the requested period
+        frequency_manager_for_diag(wmodel_var, 'SE') # - Apply frequency_manager_for_diag
+        get_period_manager(wmodel_var) # - Apply get_period_manager
+        wmodel = wmodel_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
+        wmodel.pop('variable')
+        #
+        # -- Get ue and ve and compute the climatology
+        ue_dat = clim_average( ds(variable='ue', **wmodel), season )
+        ve_dat = clim_average( ds(variable='ve', **wmodel), season )
+        #
+        # -- Get aire and pourc_ter
+        aire_dat = ds(variable='aire', **wmodel)
+        pourc_ter_dat = ds(variable='pourc_ter', **wmodel)
+        #
+        # -- Build the title
+        title = build_plot_title(wmodel_var,None)#+'_'+build_period_str(wmodel_var)
+        # -- Compute the MSE export and do the plot with ueve_otorres
+        MSE_plot = ueve_otorres(ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve)
+        #
+        # -- Add the plot to the line
+        index += cell("",safe_mode_cfile_plot(MSE_plot, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        #cfile(MSE_plot, target='/home/otorres/myfigure.png')
+        #
+    # -- Close the line and the table of the climatos
+    index+=close_line() + close_table()
+    #
+    # -- Second part of the analysis = compute differences
+    # -- Declare UEVE script for differences (O.Torres)
+    ueve_script_diff = main_cesmep_path+'share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_diff_plug.py'
+    cscript('ueve_otorres_diff',
+            'python '+ueve_script_diff+' --ue_ref=${in} ${in_2} ${in_3} ${in_4} ${in_5} ${in_6} "${title}" "${arrow_width}" '+
+                 '"${colorbar}" "${narrow_x}" "${narrow_y}" "${arrow_scale}" "${min}" "${max}" "${land_mask_value}" ${out}',
+            format='graph')
+    #
+    # -- Open the html line with the title
+    index += open_table()
+    line_title = 'MSE Export Diff'
+    index+=start_line(line_title)
+    #
+    # -- Preparing the reference simulation
+    # -- Apply frequency and period manager
+    wref_var = ref_mse_diff.copy() # - copy the dictionary to avoid modifying the original dictionary
+    wref_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
+    #                                          and get_period_manager to scan the existing files and find the requested period
+    frequency_manager_for_diag(wref_var, 'SE') # - Apply frequency_manager_for_diag
+    get_period_manager(wref_var) # - Apply get_period_manager
+    wref = wref_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
+    wref.pop('variable')
+    #
+    # -- Get ue and ve and compute the climatology
+    ue_ref = clim_average( ds(variable='ue', **wref), season )
+    ve_ref = clim_average( ds(variable='ve', **wref), season )
+    #
+    # -- Copy of models to avoid modifying it
+    models_for_diff = copy.deepcopy(models)
+    # -- and remove the reference of the list
+    models_for_diff.remove(ref_mse_diff)
+
+    # -- Loop on the models (add the results to the html line)
+    Wmodels = period_for_diag_manager(models_for_diff, diag='atlas_explorer')
+    for model in Wmodels:
+        # -- Apply frequency and period manager
+        wmodel_var = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+        wmodel_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
+        #                                          and get_period_manager to scan the existing files and find the requested period
+        frequency_manager_for_diag(wmodel_var, 'SE') # - Apply frequency_manager_for_diag
+        get_period_manager(wmodel_var) # - Apply get_period_manager
+        wmodel = wmodel_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
+        wmodel.pop('variable')
+        #
+        # -- Get ue and ve and compute the climatology
+        ue_dat = clim_average( ds(variable='ue', **wmodel), season )
+        ve_dat = clim_average( ds(variable='ve', **wmodel), season )
+        #
+        # -- Get aire and pourc_ter
+        aire_dat = ds(variable='aire', **wmodel)
+        pourc_ter_dat = ds(variable='pourc_ter', **wmodel)
+        #
+        # -- Build the title
+        title = build_plot_title(wmodel_var, wref_var)#+'_'+build_period_str(wmodel_var)
+        # -- Compute the MSE export and do the plot with ueve_otorres
+        MSE_diff_plot = ueve_otorres_diff(ue_ref, ve_ref, ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve_diff)
+        #
+        # -- Add the plot to the line
+        index += cell("",safe_mode_cfile_plot(MSE_plot_diff, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        #cfile(MSE_plot, target='/home/otorres/myfigure.png')
+        #
+    # -- Close the line and the table of the climatos
+    index+=close_line() + close_table()
+
+
+
+# ----------------------------------------------
+# --                                             \
+# --  Add your own CliMAF diagnostic              \
+# --                                              /
+# --                                             /
+# --                                            /
+# ---------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- Your own diagnostic script                                                         -- #
+# -- This section is a copy of the previous section; it is a good example               -- #
+# -- of how to add your own script/diagnostic                                           -- # 
+# -- The section starting with comments with ==> at the beginning are mandatory to      -- #
+# -- build a section in the C-ESM-EP. The comments starting with /// identify code that -- #
+# -- is specific to the diagnostic presented here.                                      -- #
+if do_my_own_climaf_diag:
+    #
+    # ==> -- Open the section and an html table
+    # -----------------------------------------------------------------------------------------
+    index += section("My own CliMAF diagnostic", level=4)
+    #
+    # ==> -- Control the size of the thumbnail -> thumbN_size
+    # -----------------------------------------------------------------------------------------
+    thumbN_size = thumbnail_size
+    #
+    # ==> -- Open the html line with the title
+    # -----------------------------------------------------------------------------------------
+    index += open_table()
+    line_title = 'Diag #1 = amplitude of the annual cycle'
+    index+=start_line(line_title)
+    #
+    # ==> -- Apply the period_for_diag_manager (not actually needed here)
+    # -----------------------------------------------------------------------------------------
+    Wmodels = copy.deepcopy(models)
+    #Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    #
+    # -- Define plot parameters per variable -> better if in the params file
+    # -----------------------------------------------------------------------------------------
+    my_own_climaf_diag_plot_params = dict(
+       tas = dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
+       pr  = dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
+
+    )
+    #
+    # -- Loop on the variables defined in my_own_climaf_diag_variables -> better if in the params file
+    # -----------------------------------------------------------------------------------------
+    my_own_climaf_diag_variables = ['tas', 'pr']
+    for variable in my_own_climaf_diag_variables:
+        #
+        # -- Loop on the models
+        # -----------------------------------------------------------------------------------------
+        for model in Wmodels:
+            #
+            # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+            # -- in the list models, and add the variable
+            # -----------------------------------------------------------------------------------------
+            wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+            wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+            #
+            # ==> -- Apply frequency and period manager
+            # -----------------------------------------------------------------------------------------
+            # ==> -- They aim at finding the last SE or last XX years available when the user provides
+            # ==> -- clim_period='last_SE' or clim_period='last_XXY'...
+            # ==> -- and get_period_manager scans the existing files and find the requested period
+            # ==> -- !!! Both functions modify the wmodel so that it will point to the requested period
+            frequency_manager_for_diag(wmodel, 'SE')
+            get_period_manager(wmodel)
+            #
+            # /// -- Get the dataset and compute the annual cycle
+            # -----------------------------------------------------------------------------------------
+            dat = annual_cycle( ds(**wmodel) )
+            #
+            # -- Compute the amplitude of the annual cycle (max - min)
+            # -----------------------------------------------------------------------------------------
+            amp = minus( ccdo(dat, operator='timmax'), ccdo(dat, operator='timmin') )
+            #
+            # /// -- Build the titles
+            # -----------------------------------------------------------------------------------------
+            title = build_plot_title(wmodel,None) # > returns the model name if project=='CMIP5'
+            #                                         otherwise it returns the simulation name
+            #                                         It returns the name of the reference if you provide
+            #                                         a second argument ('dat1 - dat2')
+            LeftString = variable
+            RightString = build_str_period(wmodel)  # -> finds the right key for the period (period of clim_period)
+            CenterString = 'Seas cyc. amplitude'
+            #
+            # -- Plot the amplitude of the annual cycle
+            # -----------------------------------------------------------------------------------------
+            plot_amp = plot(dat, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
+                            **my_own_climaf_diag_plot_params[variable] )
+            #
+            # ==> -- Add the plot to the line
+            # -----------------------------------------------------------------------------------------
+            index += cell("",safe_mode_cfile_plot(plot_amp, safe_mode=safe_mode),
+                          thumbnail=thumbN_size, hover=hover, **alternative_dir)
+            #
+        # ==> -- Close the line and the table for this section
+        # -----------------------------------------------------------------------------------------
+        index+=close_line() + close_table()
+
+
+
+
+# ----------------------------------------------
+# --                                             \
+# --  Precipitation annual cycle                  \
+# --                                              /
+# --                                             /
+# --                                            /
+# ---------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- Refined annual cycle of precipitation to ease comparison of simulations and        -- #
+# -- better understand evaluation metrics.                                              -- #
+if do_annual_cycle_precip:
+    #
+    variable = 'pr'
+    # ==> -- Open the section and an html table
+    # -----------------------------------------------------------------------------------------
+    index += section("Precipitation annual cycle", level=4)
+    #
+    # ==> -- Control the size of the thumbnail -> thumbN_size
+    # -----------------------------------------------------------------------------------------
+    thumbN_size = thumbnail_size
+    #
+    # ==> -- Open the html line with the title
+    # -----------------------------------------------------------------------------------------
+    index += open_table()
+    line_title = 'Seasonal'
+    index+=start_line(line_title)
+    #
+    # ==> -- Apply the period_for_diag_manager (not actually needed here)
+    # -----------------------------------------------------------------------------------------
+    Wmodels = copy.deepcopy(models)
+    #
+    # -- Define plot parameters per variable -> better if in the params file
+    # -----------------------------------------------------------------------------------------
+    pp_annual_cycle_precip = plot_params('pr','bias')
+    pp_annual_cycle_precip.update(dict(colors='-12 -10 -8 -6 -4 -2 -1 -0.5 0.5 1 2 4 6 8 10 12 ', contours=1)) 
+    #
+    # /// -- Get the reference and compute the annual cycle
+    # -----------------------------------------------------------------------------------------
+    ref_dict = variable2reference(variable)
+    ref = annual_cycle( ds(**ref_dict) )
+    #
+    # -- Loop on the models
+    # -----------------------------------------------------------------------------------------
+    for model in Wmodels:
+        #
+        # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+        # -- in the list models, and add the variable
+        # -----------------------------------------------------------------------------------------
+        wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+        wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+        #
+        # ==> -- Apply frequency and period manager
+        # -----------------------------------------------------------------------------------------
+        frequency_manager_for_diag(wmodel, 'SE')
+        get_period_manager(wmodel)
+        #
+        # /// -- Get the dataset and compute the annual cycle
+        # -----------------------------------------------------------------------------------------
+        dat = annual_cycle( ds(**wmodel) )
+        #
+        fig_lines = []
+        options='pmLabelBarWidthF=0.065|pmLabelBarOrthogonalPosF=0.01|lbLabelFontHeightF=0.01|tmXBLabelFontHeightF=0.01|tmYLLabelFontHeightF=0.01'
+        for m in months:
+            print m
+            clim_ref = llbox( clim_average(ref,m), **domain)
+            clim_dat = llbox( regrid( clim_average(dat,m), clim_ref ), **domain)
+            anom_ref = fsub(clim_ref, str(cMA(space_average(clim_ref))[0][0][0]))
+            anom_dat = fsub(clim_dat, str(cMA(space_average(clim_dat))[0][0][0]))
+            bias_map_m = minus(clim_dat, clim_ref)
+            # -- metrics
+            bias_m = cMA(space_average(bias_map_m))[0][0][0] * 86400.
+            rms_m = cMA(ccdo( time_average(space_average( ccdo( minus(clim_dat, clim_ref), operator='sqr' ) )),
+                              operator='sqrt'))[0][0][0] * 86400.
+            num_cor_m = ccdo(multiply(anom_dat,anom_ref), operator='fldavg')
+            denom_cor_m = fmul(ccdo(anom_dat,operator='fldstd'),ccdo(anom_ref,operator='fldstd'))
+            cor_m = cMA( fdiv(num_cor_m, denom_cor_m))[0][0][0]
+            s_bias_m = '%s' % float('%.3g' % bias_m)
+            s_rms_m = '%s' % float('%.3g' % rms_m)
+            s_cor_m = '%s' % float('%.3g' % cor_m)
+            metrics = 'bias = '+s_bias_m+' ; rms = '+s_rms_m+' ; cor = '+s_cor_m
+            plot_m = plot( bias_map_m, gsnCenterString = m, gsnRightString = metrics, gsnLeftString = build_period_str(wmodel),
+                           options =  options, mpCenterLonF=200, **pp_annual_cycle_precip )
+            fig_lines.append([plot_m])
+    
+        mp = cpage(fig_lines = fig_lines,
+                   title=build_plot_title(wmodel,ref_dict),
+                   gravity='NorthWest',
+                   ybox=80, pt=30,
+                   x=30, y=40,
+                   font='Waree-Bold'
+                   )
+            
+        # -----------------------------------------------------------------------------------------
+        index += cell("",safe_mode_cfile_plot(mp, safe_mode=safe_mode),
+                           thumbnail="300*600", hover=hover, **alternative_dir)
+    #
+    # ==> -- Close the line and the table for this section
+    # -----------------------------------------------------------------------------------------
+    index+=close_line() + close_table()
+
 
 
 

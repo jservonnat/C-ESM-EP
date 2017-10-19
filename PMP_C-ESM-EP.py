@@ -18,13 +18,20 @@ import os, copy, subprocess, shlex
 from datetime import datetime
 from shutil import copyfile
 from getpass import getuser
-from PMP_MG import *
+from PMP_MG.PMP_MG_time_manager import period_manager_PMP_MG, build_metric_outpath, get_keys_for_PMP_MG, build_input_climatology_filename, pysed
 
 clog('debug')
 
+# -- Define the path to the main C-ESM-EP directory:
+# -----------------------------------------------------------------------------------
+rootmainpath = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
+if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath
+if os.path.isfile(rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/main_C-ESM-EP.py'):
+   main_cesmep_path = rootmainpath+str.split(str.split(os.getcwd(),'C-ESM-EP')[1],'/')[1]+'/'
+
 # ------------------------------------------------------------------------------------------- #
 # -- START PARAMETERS MANAGEMENT                                                           -- #
-
 
 # -- Get the parameters that the atlas takes as arguments
 # -----------------------------------------------------------------------------------
@@ -117,7 +124,8 @@ metrics_table            = 'Atmosphere'
 # - Palette that will be used by the R script 
 colorpalette = ['dodgerblue3','orangered','green','dodgerblue4','firebrick3','yellow1','royalblue','deepskyblue','mediumseagreen','violetred2','mediumturquoise','cadetblue','brown2','chartreuse1','burlywood3','coral1','burlywood4','darkgoldenrod2','darkolivegreen3','darkgoldenrod4','darkorchid']
 # Use --colors to override the colors of a subset of highlights, or directly edit colorpalette in the param file
-parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
+#parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
+parallel_coordinates_script = main_cesmep_path+'scientific_packages/parallel_coordinates/parallel_coordinates.R'
 index_filename_root = 'parallel_coordinates'
 
 
@@ -163,6 +171,7 @@ if not opts.outfigdir:
 if not reference_data_path:
   if ref_parallel_coordinates in 'CMIP5':
     reference_data_path = '/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-historical/03Nov2016'
+    #reference_data_path = main_cesmep_path+'scientific_packages/PCMDI_CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-historical/03Nov2016'#'/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-historical/03Nov2016'
   if ref_parallel_coordinates in 'AMIP':
     reference_data_path = '/data/jservon/Evaluation/metrics_results/CMIP_metrics_results/CMIP5_20161103/cmip5clims_metrics_package-amip/03Nov2016'
 
@@ -232,16 +241,104 @@ if reference=='default': reference='defaultReference'
 
 #    -> On peut donc definir une liste de variable => la premiere variable de la liste
 #       est prise pour trouver la periode avec time_manager => On met a jour la liste Wmodels
+print '===========> models before ====>', models
 Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
+print '===========> Wmodels before ====>', Wmodels
 
 for model in Wmodels:
     print '---'
     print '---'
     print '---'
     print '--- => model = ',model
+    model.update(dict(variable=vars[0]))
+    frequency_manager_for_diag(model, diag='SE')
+    get_period_manager(model)
+    model.pop('variable')
     print '---'
     print '---'
     print '---'
+
+print '===========> Wmodels ', Wmodels
+
+# -- Separate the CMIP5 - 1980-2005 results of the other datasets
+# --  => they are precomputed
+#if not CMIP5_highlights: CMIP5_highlights=[]
+#if not CMIP5_colors: CMIP5_colors=[]
+
+# -- creer la liste CMIP5_highlights et CMIP5_colors => issu de CMIP5_highlights de 
+CMIP5_names = []
+for elt in CMIP5_highlights:
+    CMIP5_names.append(elt['model'])
+    CMIP5_colors.append(elt['color'])
+
+
+print 'CMIP5_highlights = ',CMIP5_highlights
+print 'CMIP5_colors = ', CMIP5_colors
+print 'CMIP5_names = ', CMIP5_names
+
+import copy
+testWmodels = copy.deepcopy(Wmodels)
+for model in Wmodels:
+    print 'model = ',model
+    print "model['project'] = ",model['project']
+    if model['project']=='CMIP5':
+       #print "model['period'] = ", model['period']
+       if model['period'] in ['1980-2005','1980_2005']:
+          # -- We remove the dictionary model to the list Wmodels and just keep the name of the model and color
+          #print 'Found that this model ok = ', model
+          testWmodels.remove(model)
+          if model['model'] not in CMIP5_names:
+             CMIP5_names.append(model['model'])
+             tmpcolor=None
+             if 'color' in model:      tmpcolor = model['color']
+             if 'R_color' in model:    tmpcolor = model['R_color']
+             if 'line_color' in model: tmpcolor = model['line_color']
+             if not tmpcolor:
+                i=0
+                tmpcolor = colorpalette[i]
+                while tmpcolor in CMIP5_colors:
+                      i = i + 1
+                      tmpcolor = colorpalette[i]
+                      print 'CMIP5_colors = ',CMIP5_colors
+                      print 'tmpcolor = ', tmpcolor
+             CMIP5_colors.append( tmpcolor )
+          else:
+            tmpcolor=None
+            if 'color' in model:      tmpcolor = model['color']
+            if 'R_color' in model:    tmpcolor = model['R_color']
+            if 'line_color' in model: tmpcolor = model['line_color']
+            if tmpcolor:
+               if tmpcolor in CMIP5_colors:
+                  replace_color = colorpalette[i]
+                  while replace_color in CMIP5_colors:
+                        i = i+1
+                        replace_color = colorpalette[i]
+                  CMIP5_colors[ CMIP5_colors.index(tmpcolor) ] = replace_color
+               CMIP5_colors[ CMIP5_names.index(model['model']) ] = tmpcolor
+            #else:
+             
+
+print '----'
+print '----'
+print 'testWmodels = ', testWmodels
+print '----'
+print '----'
+
+
+# -- Si on a des CMIP5_names definis dans le params, ils s'accompagnent d'une couleur chacun
+# -- Si on a des datasets CMIP5 definis depuis le datasets_setup, soit:
+# --   - on utilise la couleur associee
+# --   - on attribue une couleur prise dans colorpalette qui ne soit pas encore attribuee
+
+# Par soucis de clarete, on va faire des 
+
+for model in testWmodels:
+    print '---'
+    print 'After filtering = ', model
+    print '---'
+
+Wmodels = copy.deepcopy(testWmodels)
+
 
 # -- END BLOCK 1 -------------------------------------------------------------------
 
@@ -280,19 +377,15 @@ else:
 # ---------------------------------------------------------------- #
 for wmodel in Wmodels:
     #
+    print '---'
+    print '---'
     print '---> Working on dataset ',wmodel
+    print '---'
+    print '---'
     # -- Loop on variables
     wvars = []
     for var in vars:
         #
-        # 
-        exp_dict = dict()
-        if 'simulation' in wmodel: exp_dict.update( simulationName=wmodel['simulation'] )
-        if 'model' in wmodel: exp_dict.update( simulationModel=wmodel['model'] )
-        if 'experiment' in wmodel: exp_dict.update( simulationExperiment=wmodel['experiment'] )
-        if wmodel['frequency'] in ['seasonal','annual_cycle']: exp_dict.update( simulationPeriod=wmodel['clim_period'] )
-        if wmodel['frequency'] in ['monthly']: exp_dict.update(simulationPeriod=str.replace(wmodel['period'],'-','_'))
-
         if 'Ok':
             # Searching for the json file in the tree
             found = False
@@ -345,7 +438,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
     vars=variables
     #
     # -- Copy the initial models list
-    Wmodels = copy.deepcopy(models)
+    Wmodels = period_for_diag_manager(models, diag='SE') #copy.deepcopy(models)
     #
     for model_dict in Wmodels:
         #
@@ -355,6 +448,11 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
         # 
         wmodel = model_dict.copy()
         #some keys to identify the dataset behind model_dict 
+        #
+        # We add a 'test' variable to get the available period
+        #wmodel.update(dict(variable='tas'))
+        #frequency_manager_for_diag(wmodel, diag='SE')
+        #get_period_manager(wmodel)
         
         # --> ($institute_id)
         if 'institute_id' in model_dict:
@@ -399,11 +497,12 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
             for var in w_variables:
                 wvar = str.split(var,'_')[0]
                 # -- Name of the temporary file (hard link)
-                model_dict.update(dict(variable=wvar))
-                target_filename = build_input_climatology_filename(model_dict)
+                wmodel_dict = wmodel.copy()
+                wmodel_dict.update(dict(variable=wvar))
+                target_filename = build_input_climatology_filename(wmodel_dict)
                 #
                 # -- Do the hardlink (and all necessary alias, computation of derived variable behind...)
-                model_ds = ds(**model_dict)
+                model_ds = ds(**wmodel_dict)
                 #
                 # -- Vertical interpolation for LMDz
                 #if 'LMDZ' in model_ds.kvp['project'] and wvar in ['ua','va','ta','zg']:
@@ -420,6 +519,11 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                     print cfile(wmodel_ds,
                                 target = input_climatologies_dir+'/'+target_filename,
                                 ln = True)
+                    if wmodel_dict['project']=='MGV':
+                        print 'Rename time axis for MGV simulations ==> '
+                        cmd = 'ncrename -v t_ave_02592000,time -d t_ave_02592000,time '+input_climatologies_dir+'/'+target_filename
+                        print cmd
+                        os.system(cmd)
                 except:
                     w_variables.remove(var)
                 #
@@ -488,6 +592,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
 metric_files_list = run_CliMAF_PMP(Wmodels, group=groups[0], variables=None,
                                    root_outpath=root_outpath, force_compute_metrics = False,
                                    subdir=subdir, rm_tmp_paramfile=rm_tmp_paramfile)
+
 
 # -- END BLOCK 3 ---------------------------------------------------------------
 
@@ -559,20 +664,41 @@ i = 0
 for model in Wmodels:
     customname = str.replace(build_plot_title(model, None),' ','_')
     if 'period' in model: wperiod=model['period']
-    if 'clim_period' in model: wperiod=model['clim_period']
+    #if 'clim_period' in model: wperiod=model['clim_period']
+    if 'clim_period' in model:
+       wperiod=model['clim_period']
+       if 'last' in wperiod or 'first' in wperiod: wperiod=model['period']
     if wperiod not in customname: customname = customname+'_'+wperiod
     if customname not in customnames:
         customnames.append(customname)
+    # -- Dealing with the colors
+    # 1/ First, we check if the user has provided a color with the dataset
+    #    if so, it has the highest priority compared to the other color specifications
+    tmpcolor = None
+    if 'color' in model:
+       tmpcolor=model['color']
+    if 'R_color' in model:
+       tmpcolor=model['R_color']
     if 'line_color' in model:
-       colors.append(model['line_color'])
+       tmpcolor=model['line_color']
+    if tmpcolor:
+       colors.append(tmpcolor)
+       # -- if the color specified by the user is already attributed to another dataset
+       # -- we attribute another color to this other (lower priority) dataset
+       if tmpcolor in CMIP5_colors:
+          replace_color = colorpalette[i]
+          while replace_color in colors+CMIP5_colors:
+                i = i+1
+                replace_color = colorpalette[i]
+          CMIP5_colors[ CMIP5_colors.index(tmpcolor) ] = replace_color
     else:
-       tmpcolor = colorpalette[Wmodels.index(model)]
-       if colors:
-          if tmpcolor in colors:
-             i = Wmodels.index(model) + 1
-             while tmpcolor in colors:
-                tmpcolor = colorpalette[i]
-                i = i + 1
+       # -- if the user didn't specify a color, we search for one in the list of colors colorpalette
+       tmpcolor = colorpalette[i]
+       while tmpcolor in colors+CMIP5_colors:
+             i = i + 1
+             tmpcolor = colorpalette[i]
+             print 'colors+CMIP5_colors = ',colors+CMIP5_colors
+             print 'tmpcolor = ', tmpcolor
        colors.append( tmpcolor )
 
 # -- We end up providing 'colors' to the R script (as well as 'highlights')
@@ -580,9 +706,9 @@ for model in Wmodels:
 # -- We now need to add the colors of if CMIP5_colors
 # --> We rely on the principle that if CMIP5_colors is provided, we provide the same number of colors as models
 # --> We can also 
-if CMIP5_highlights:
+if CMIP5_names:
    # -- Si on a autant de couleurs que de models, on boucle sur les couleurs et on trouve
-   if len(CMIP5_highlights)==len(CMIP5_colors):
+   if len(CMIP5_names)==len(CMIP5_colors):
       ok_CMIP5_colors = []
       for dum in CMIP5_colors:
           if isinstance(dum,dict):
@@ -590,15 +716,15 @@ if CMIP5_highlights:
           else:
              ok_CMIP5_colors.append( dum )
    else:
-      # -- We make a list of None of the length of CMIP5_highlights
-      ok_CMIP5_colors = [None]*len(CMIP5_highlights)
+      # -- We make a list of None of the length of CMIP5_names
+      ok_CMIP5_colors = [None]*len(CMIP5_names)
       # --> and we fill it with the provided specific colors
       for dum in CMIP5_colors:
           if not isinstance(dum,dict):
-             print '-- Please provide dictionaries in CMIP5_colors (params_ParallelCoordinates_Atmosphere.py)'
+             print '-- You can provide dictionaries in CMIP5_colors (params_ParallelCoordinates_Atmosphere.py)'
              print '-- Ex: CMIP5_colors = [ dict(model="IPSL-CM5A-MR",color="red"), dict(model="IPSL-CM5A-LR",color="green") ]'
           else:
-             ok_CMIP5_colors[CMIP5_highlights.index(dum['model'])] = dum['color']
+             ok_CMIP5_colors[CMIP5_names.index(dum['model'])] = dum['color']
       # -- And now, we fill the None with default colors from the colorpalette
       i_colorpalette=0
       i_ok_CMIP5_colors=0
@@ -617,10 +743,10 @@ if CMIP5_highlights:
 
 # -- Add the colors of the CMIP5 highlights, either before or after the simulations in datasets_setup
 if CMIP5_highlights_first:
-   str_highlights = ','.join(CMIP5_highlights + customnames)
+   str_highlights = ','.join(CMIP5_names + customnames)
    colors = ok_CMIP5_colors + colors
 else:
-   str_highlights = ','.join(customnames + CMIP5_highlights)
+   str_highlights = ','.join(customnames + CMIP5_names)
    colors = colors + ok_CMIP5_colors
 
 
@@ -633,7 +759,7 @@ colors = ','.join(colors)
 
 # -- BLOCK 7 -------------------------------------------------------------------
 cmd_parallel_coordinates = 'Rscript '+parallel_coordinates_script+' --test_data_path '+test_data_path+' --reference_data_path '+reference_data_path
-if CMIP5_highlights:
+if CMIP5_names:
     cmd_parallel_coordinates = cmd_parallel_coordinates+' --highlights '+str_highlights
 else:
     cmd_parallel_coordinates = cmd_parallel_coordinates+' --highlights '+','.join(customnames)
@@ -674,7 +800,7 @@ root_url = "https://vesg.ipsl.upmc.fr"
 
 # -- Start the html file
 # ---------------------------------------------------------
-index = header(index_head_title, style_file=style_file)
+index = header(atlas_head_title, style_file=style_file)
 
 
 # -- One dictionary corresponds with one section;

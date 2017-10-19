@@ -100,7 +100,7 @@ for var in atmos_variables_list:
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - Atmosphere Zonal mean - seasonal"
+atlas_head_title = "Atmosphere Zonal mean - seasonal"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

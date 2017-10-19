@@ -23,7 +23,7 @@ onCiclad = False
 args = sys.argv
 
 metrics_components = ['ParallelCoordinates_Atmosphere']
-allcomponents=['ParallelCoordinates_Atmosphere','Atmosphere_Surface','Atmosphere_StdPressLev','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','Focus_Atlantic_AMOC_Surface','PISCES','ENSO','Monsoons','ORCHIDEE','TurbulentAirSeaFluxes', 'AtlasExplorer','Essentials_CM6011_CM6012']
+allcomponents=['TuningMetrics','ParallelCoordinates_Atmosphere','Atmosphere_Surface','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','Atmosphere_StdPressLev','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','Focus_Atlantic_AMOC_Surface','PISCES','ENSO','ORCHIDEE','TurbulentAirSeaFluxes','HotellingTest', 'AtlasExplorer','Essentials_CM6011_CM6012','Monsoons']
 
 if len(args)==1:
    print 'Provide the name of a comparison setup as argument of the script'
@@ -40,6 +40,66 @@ else:
          components=str.split(argument,',')
    else:
       components=allcomponents
+
+# -- 1.1/ Prepare the html template
+# --      => add the modules available in the comparison directory
+# -----------------------------------------------------------------------------------------
+template = 'share/fp_template/C-ESM-EP_template.html'
+import nltk   
+from urllib import urlopen
+
+# -> First, we read the template of the html file in share/fp_template
+url = template    
+html = urlopen(template).read()    
+
+subdirs = next(os.walk(comparison))[1]
+# -> We loop on all the potentially available and check whether they are available in the comparison directory or not
+# -> The goal of this step is essentially to keep the same order of appearance of the links on front page
+available_components = []
+# -> First, we work on the known components listed in allcomponents. If they are in subdirs, we add them to 
+#for component in components:
+for component in allcomponents:
+  if component in subdirs: available_components.append(component)
+# -> Then, we check whether there are some components not list in allcomponents; if yes, they will be added at the end of the list
+for subdir in subdirs:
+  if subdir not in allcomponents and subdir not in 'tmp_paramfiles': available_components.append(subdir)
+
+# -- We get the atlas_head_title variable in the params_component.py file to have a more explicit string for the links
+cesmep_modules = []
+for component in available_components:
+    atlas_head_title = None
+    paramfile = comparison+'/'+component+'/params_'+component+'.py'
+    with open(paramfile, 'r') as content_file:
+        content = content_file.read()
+    content.splitlines()
+    module_title = None
+    for tmpline in content.splitlines():
+        if 'atlas_head_title' in tmpline:
+            if '"' in tmpline: sep = '"'
+            if "'" in tmpline: sep="'"
+            module_title = str.split(tmpline,sep)[1]
+    if module_title:
+        name_in_html = module_title
+    else:
+        name_in_html = component
+    cesmep_modules.append([component,name_in_html])
+
+# -> Adding the links to the html lines
+new_html_lines = html.splitlines()
+for cesmep_module in cesmep_modules:
+    newline = '<li><a href="target_'+cesmep_module[0]+'">'+cesmep_module[1]+'</a></li>'
+    new_html_lines.append(newline)
+
+# -> Add the end of the html file
+new_html_lines = new_html_lines + ['','</body>','','</html>']
+
+# -> We concatenate all the lines together
+new_html = ''
+for new_html_line in new_html_lines: new_html = new_html+new_html_line+'\n'
+
+# -> Save as the html file that will be copied on the web server
+main_html='C-ESM-EP_'+comparison+'.html'
+with open(main_html,"w") as filout : filout.write(new_html)
 
 
 # -- 2/ Set the paths (one per requested component)
@@ -66,7 +126,13 @@ if not os.path.isdir(webspace):
 # -----------------------------------------------------------------------------------------
 
 # -- Loop on the components
+#for component in available_components:
+job_components = []
 for component in components:
+    if component in available_components:
+       job_components.append(component)
+
+for component in job_components:
     print 'component = ',component
     # -- Define where the directory where the job is submitted
     submitdir = WD+'/'+comparison+'/'+component
@@ -82,7 +148,7 @@ for component in components:
     if onCiclad:
        # -- For all the components but for the parallel coordinates, we do this...
        if component not in metrics_components:
-          if 'NEMO' in component or 'Turbulent' in component:
+          if 'NEMO' in component or 'Turbulent' in component or 'PISCES' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
           else:
              queue = 'h12'
@@ -105,9 +171,9 @@ for component in components:
 season='ANM'
 
 # -- Copy the template and rename it with the comparison name
-main_html='C-ESM-EP_'+comparison+'.html'
-cmd = 'cp share/fp_template/C-ESM-EP_template.html '+main_html
-os.system(cmd)
+#main_html='C-ESM-EP_'+comparison+'.html'
+#cmd = 'cp share/fp_template/C-ESM-EP_template.html '+main_html
+#os.system(cmd)
 
 # -- Def pysed
 def pysed(file, old_pattern, new_pattern):

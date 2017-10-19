@@ -77,7 +77,7 @@ do_ENSO_CLIVAR  = True    # -> Same for the seasonal averages in the tropics
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CESMEP - ENSO CLIVAR Diagnostics"
+atlas_head_title = "ENSO CLIVAR Diagnostics"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

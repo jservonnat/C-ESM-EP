@@ -94,7 +94,7 @@ atlas_explorer_variables = ['tas', 'tos', dict(variable='ua', season='DJF', add_
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CliMAF - Atlas Explorer"
+atlas_head_title = "Atlas Explorer"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

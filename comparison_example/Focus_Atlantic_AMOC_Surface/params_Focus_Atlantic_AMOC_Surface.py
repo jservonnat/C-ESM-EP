@@ -31,7 +31,7 @@ from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = False
+safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 
@@ -140,7 +140,7 @@ calias('ref_climatos', 'tauvo', 'tauv')
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "CliMAF - Focus North Atlantic for AMOC"
+atlas_head_title = "Focus North Atlantic for AMOC"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

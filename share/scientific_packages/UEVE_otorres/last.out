@@ -1,0 +1,37 @@
+uwnd =  [[[ -1.78985318e+09  -1.78985318e+09  -1.78985318e+09 ...,  -1.78985318e+09
+    -1.78985318e+09  -1.78985318e+09]
+  [  1.82854912e+09   9.55673856e+08   1.09486744e+08 ...,   3.95334989e+09
+     3.41712486e+09   2.67270426e+09]
+  [  1.10501407e+10   9.67782605e+09   8.32827187e+09 ...,   1.44551373e+10
+     1.35327519e+10   1.23801405e+10]
+  ..., 
+  [  1.00307630e+10   1.00876646e+10   9.78514842e+09 ...,   7.80200960e+09
+     8.81947955e+09   9.55551437e+09]
+  [  5.80761600e+09   5.65273088e+09   5.40254874e+09 ...,   5.92256922e+09
+     5.88495053e+09   5.87570790e+09]
+  [  3.34484582e+09   3.34484582e+09   3.34484582e+09 ...,   3.34484582e+09
+     3.34484582e+09   3.34484582e+09]]]
+vwnd =  [[[  8.33347379e+09   8.33347379e+09   8.33347379e+09 ...,   8.33347379e+09
+     8.33347379e+09   8.33347379e+09]
+  [ -3.84917734e+09  -3.40068301e+09  -2.69870182e+09 ...,  -3.67496166e+09
+    -4.04154394e+09  -4.08825600e+09]
+  [ -5.86217523e+09  -5.75491789e+09  -5.24914944e+09 ...,  -3.51638528e+09
+    -5.09302170e+09  -5.64990106e+09]
+  ..., 
+  [  5.64671424e+08   1.66322509e+09   2.47973760e+09 ...,  -8.85581312e+08
+    -7.61268864e+08  -2.42348128e+08]
+  [  2.00023501e+09   2.26236749e+09   2.48529715e+09 ...,   1.59950464e+09
+     1.66708198e+09   1.76666701e+09]
+  [  1.83412160e+09   1.83412160e+09   1.83412160e+09 ...,   1.83412160e+09
+     1.83412160e+09   1.83412160e+09]]]
+Traceback (most recent call last):
+  File "/home/jservon/C-ESM-EP/git/share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_plug.py", line 162, in <module>
+    w = VectorWind(uwnd, vwnd)
+  File "/home/jservon/anaconda2/envs/PMP_nightly-nox/lib/python2.7/site-packages/windspharm/standard.py", line 111, in __init__
+    raise ValueError(err)
+ValueError: invalid input dimensions
+
+
+stdout and stderr of script call :
+	 python /home/jservon/C-ESM-EP/git/share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_plug.py /prodigfs/ipslfs/dods/jservon/climaf_cache/005a5/399ef/efd9f/26dd6/ec5bf/59dc4/d9bc8/0fe3d/56b9f/bb1fb/611d8/7.nc /prodigfs/ipslfs/dods/jservon/climaf_cache/034f8/d1ad5/fa2b4/fb0bb/6cc67/b4b21/320cb/de6c2/dc9f0/cf8ba/2116f/6.nc /prodigfs/ipslfs/dods/jservon/climaf_cache/ccb5c/0f5d0/827d5/bbe9f/a2abb/518f2/8d97e/a2965/678ad/06ba7/ae7af/7.nc /prodigfs/ipslfs/dods/jservon/climaf_cache/c5cec/824aa/8f550/22fbd/57dcc/7deb9/7b1a8/ad48b/19445/69524/be311/4.nc "TEST" "0.002" "RdBu" "2" "2" "9000000000.0" "8e+14" "8e+14" "1" /prodigfs/ipslfs/dods/jservon/climaf_cache/86146/17464/d4ff3/9c9c3/7281e/26ed5/f1364/a7a96/8a5a5/c4ed7/e6a85/4_56944.png
+
