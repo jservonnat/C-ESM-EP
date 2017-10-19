@@ -68,7 +68,7 @@ lwd_background         = 2
 lwd_highlights         = 6
 # -- Check the R colors here: http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf
 #colorpalette = ['dodgerblue3','orangered','mediumseagreen','firebrick3','yellow1','royalblue','deepskyblue','violetred2','mediumturquoise','cadetblue']
-colorpalette = ['dodgerblue3','orangered','green2','yellow3','navyblue','darkturquoise','mediumseagreen','firebrick3','violetred2','antiquewhite3','darkgoldenrod3','coral3','lightsalmon1','lightslateblue','darkgreen','darkkhaki','darkorchid4','darksalmon','deepink2','lightblue4']
+colorpalette = ['dodgerblue3','orangered','green2','yellow3','navyblue','darkturquoise','mediumseagreen','firebrick3','violetred2','darkgoldenrod3','coral3','lightsalmon1','lightslateblue','darkgreen','darkkhaki','darkorchid4','darksalmon','deepink2','lightblue4']
 root_outpath           = None # -- For the links to the climatologies
 force_compute_metrics  = False
 reference              = None # -- defaultReference, alternate1...

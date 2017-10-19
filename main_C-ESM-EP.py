@@ -364,7 +364,8 @@ if do_SST_for_tuning:
                                   latmin=region['domain'][0], latmax=region['domain'][1])
                  anom_ref = fsub(scyc_ref, str(cscalar(time_average(space_average(scyc_ref)))) )
                  rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
-                 results[dataset_name]['results'][region['region_name']].update( dict(rmsc = str(rmsc) ))
+                 rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                 results[dataset_name]['results'][region['region_name']].update( dict(rmsc = str(rmsc), rms=str(rms) ))
       outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_metrics_over_regions_for_tuning.json'
       #outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_bias_over_regions_for_tuning.json'
       #results.update(dict(json_structure=['dataset_name','results','region_name'],
@@ -384,6 +385,13 @@ if do_SST_for_tuning:
           # -- plot the rmsc
           figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rmsc_over_regions_for_tuning.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
+          print(cmd)
+          os.system(cmd)
+          index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
+          #
+          # -- plot the rms
+          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rms_over_regions_for_tuning.png'
+          cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname+' --statistic rms'
           print(cmd)
           os.system(cmd)
           index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
@@ -427,6 +435,20 @@ if do_atlas_explorer:
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 
 
+
+# ---------------------------------------------------------------------------------------- #
+# -- Plotting the maps of the Atlas Explorer                                            -- #
+if do_zonal_profiles_explorer:
+    print '---------------------------------'
+    print '-- Processing Zonal profiles   --'
+    print '-- do_zonal_profiles = True    --'
+    print '-- zonal_profiles_variables =  --'
+    print '-> ',zonal_profiles_variables
+    print '--                             --'
+    Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    index += section_zonal_profiles(Wmodels, reference, season, zonal_profiles_variables,
+                                    'Zonal Profiles Explorer', domain=domain,
+                                    safe_mode=safe_mode, alternative_dir=alternative_dir)
 
 
 
@@ -1162,7 +1184,13 @@ if do_ENSO_CLIVAR:
     index+=start_line(line_title)
     Wmodels = period_for_diag_manager(models, diag='ENSO')
     plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode)
-    index+=cell("", plot_annual_cycles, thumbnail="350*200", hover=hover, **alternative_dir)
+    thumbN_size="600*350"
+    index+=cell("", plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+    close_line()
+    index+=start_line('')
+    for model in Wmodels:
+        one_model_plot_annual_cycles = plot_ENSO_annual_cycles([model], safe_mode=safe_mode)
+        index+=cell("", one_model_plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
 
@@ -1172,7 +1200,13 @@ if do_ENSO_CLIVAR:
     index+=start_line(line_title)
     Wmodels = period_for_diag_manager(models, diag='ENSO')
     plot_tauu_profile = plot_ZonalWindStress_long_profile(Wmodels, safe_mode=safe_mode)
-    index+=cell("", plot_tauu_profile, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+    thumbN_size="450*400"
+    index+=cell("", plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+    close_line()
+    index+=start_line('')
+    for model in Wmodels:
+        one_model_plot_tauu_profile = plot_ZonalWindStress_long_profile([model], safe_mode=safe_mode)
+        index+=cell("", one_model_plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
 
@@ -1204,7 +1238,8 @@ if do_Monsoons_pr_anncyc:
     if not monsoon_precip_regions:
        monsoon_precip_regions = [
 	dict(name='All-India Rainfall (65/95E;5/30N)', domain=dict(lonmin=65,lonmax=95,latmin=5,latmax=30)),
-        dict(name='West African Monsoon (-20/30E;0/20N)', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
+        #dict(name='West African Monsoon (-20/30E;0/20N)', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
+        dict(name='WAM - AMMA (-10/10E;12/20N)', domain=dict(lonmin=-10,lonmax=10,latmin=12,latmax=20)),
         ]
     
     # -- Common plot parameters for monsoons precip annual cycles
@@ -1238,19 +1273,24 @@ if do_Monsoons_pr_anncyc:
     land_pr_ref_masked = fmul(pr_ref, land_ref_mask)
 
     # -- Annual cycle of precipitation over land ---------------------------------------- 
-    line_title = 'Annual cycle of precipitation over land'
-    index+=start_line(line_title)
+    #line_title = 'Annual cycle of precipitation over land'
+    #index+=start_line(line_title)
     #
     Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
     # -- Loop on regions
     #MP = []
     for region in monsoon_precip_regions:
 
+        # -- Start line
+        line_title = region['name']
+        index+=start_line(line_title)
+        #
+        # -- Reference
         anncyc_pr_ref_masked = fmul(space_average(llbox(land_pr_ref_masked, **region['domain'])), 86400)
         
         ens_for_plot = dict(GPCP=anncyc_pr_ref_masked)
         
-        # -- One plot per region
+        # -- One plot per region -- All models on the same plot ----------------------------------------------------------------
         # -> Loop on the models
         models_order = []
         for model in Wmodels:
@@ -1288,8 +1328,48 @@ if do_Monsoons_pr_anncyc:
         plot_pr_anncyc_region = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
 
         index+=cell("", plot_pr_anncyc_region, thumbnail=thumbnail_monsoon_pr_anncyc_size, hover=hover, **alternative_dir)
-    #
-    close_line()
+        close_line()
+
+        # -- One plot per region -- One model with the ref on the plot ----------------------------------------------------------------
+        # -> Loop on the models
+        index += start_line('')
+        for model in Wmodels:
+            # -- Reinitialize the climaf ensemble for the plot
+            ens_for_plot = dict(GPCP=anncyc_pr_ref_masked)
+
+            wmodel = model.copy()
+            wmodel.update(dict(variable='pr'))
+            frequency_manager_for_diag(wmodel, diag='SE')
+            get_period_manager(wmodel)
+
+            pr_sim = ds(**wmodel)
+
+            # Method 1 = regrid the model on the obs, and use the obs mask to compute the spatial average
+            land_pr_sim_masked = fmul(regrid(pr_sim,pr_ref, option='remapcon2'), land_ref_mask)
+
+            anncyc_pr_sim_masked = fmul(space_average(llbox(land_pr_sim_masked, **region['domain'])), 86400)
+            if model['project']=='CMIP5':
+               monsoon_name_in_plot = model['model']
+            else:
+               monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
+            #
+            if safe_mode:
+               try:
+                  cfile(anncyc_pr_sim_masked)
+                  ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+               except:
+                  print 'No data for Monsoon pr diagnostic for ',model
+            else:
+               ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+
+            cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
+
+            plot_pr_anncyc_region_one_model = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
+
+            index+=cell("", plot_pr_anncyc_region_one_model, thumbnail=thumbnail_monsoon_pr_anncyc_size, hover=hover, **alternative_dir)
+
+        #
+        close_line()
     index+=close_table()
 
 
@@ -2169,9 +2249,11 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
 # --                                             \
 # --  Tests O. Torres                             \
 # --  MSE export                                  /
-# --                                             /
-# --                                            /
-# ---------------------------------------------
+# --  Also used as an example of how to plug     /
+# --  an external script with cscript           /
+# --                                           /
+# --                                          /
+# -------------------------------------------
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -2179,6 +2261,11 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
 if do_mse_otorres_maps:
     #
     # -- Declare UEVE script (O.Torres)
+    # -- After this operation, you will be able to use the script as:
+    # --    MSE_plot = ueve_otorres(ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve)
+    # -- **default_ueve is a mechanism to pass the keyword/values defined in the default_ueve dictionary
+    # -- to the function (python mechanism).
+    # -- See the documentation of cscript for more details: http://climaf.readthedocs.io/en/latest/functions_processing.html 
     ueve_script = main_cesmep_path+'share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_plug.py'
     cscript('ueve_otorres',
             'python '+ueve_script+' ${in} ${in_2} ${in_3} ${in_4} "${title}" "${arrow_width}" '+
@@ -2297,7 +2384,7 @@ if do_mse_otorres_maps:
 
 # ----------------------------------------------
 # --                                             \
-# --  Add your own script                         \
+# --  Add your own CliMAF diagnostic              \
 # --                                              /
 # --                                             /
 # --                                            /
@@ -2335,8 +2422,8 @@ if do_my_own_climaf_diag:
     # -- Define plot parameters per variable -> better if in the params file
     # -----------------------------------------------------------------------------------------
     my_own_climaf_diag_plot_params = dict(
-       'tas'= dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
-       'pr' = dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
+       tas = dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
+       pr  = dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
 
     )
     #
@@ -2395,6 +2482,112 @@ if do_my_own_climaf_diag:
         # ==> -- Close the line and the table for this section
         # -----------------------------------------------------------------------------------------
         index+=close_line() + close_table()
+
+
+
+
+# ----------------------------------------------
+# --                                             \
+# --  Precipitation annual cycle                  \
+# --                                              /
+# --                                             /
+# --                                            /
+# ---------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- Refined annual cycle of precipitation to ease comparison of simulations and        -- #
+# -- better understand evaluation metrics.                                              -- #
+if do_annual_cycle_precip:
+    #
+    variable = 'pr'
+    # ==> -- Open the section and an html table
+    # -----------------------------------------------------------------------------------------
+    index += section("Precipitation annual cycle", level=4)
+    #
+    # ==> -- Control the size of the thumbnail -> thumbN_size
+    # -----------------------------------------------------------------------------------------
+    thumbN_size = thumbnail_size
+    #
+    # ==> -- Open the html line with the title
+    # -----------------------------------------------------------------------------------------
+    index += open_table()
+    line_title = 'Seasonal'
+    index+=start_line(line_title)
+    #
+    # ==> -- Apply the period_for_diag_manager (not actually needed here)
+    # -----------------------------------------------------------------------------------------
+    Wmodels = copy.deepcopy(models)
+    #
+    # -- Define plot parameters per variable -> better if in the params file
+    # -----------------------------------------------------------------------------------------
+    pp_annual_cycle_precip = plot_params('pr','bias')
+    pp_annual_cycle_precip.update(dict(colors='-12 -10 -8 -6 -4 -2 -1 -0.5 0.5 1 2 4 6 8 10 12 ', contours=1)) 
+    #
+    # /// -- Get the reference and compute the annual cycle
+    # -----------------------------------------------------------------------------------------
+    ref_dict = variable2reference(variable)
+    ref = annual_cycle( ds(**ref_dict) )
+    #
+    # -- Loop on the models
+    # -----------------------------------------------------------------------------------------
+    for model in Wmodels:
+        #
+        # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+        # -- in the list models, and add the variable
+        # -----------------------------------------------------------------------------------------
+        wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+        wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+        #
+        # ==> -- Apply frequency and period manager
+        # -----------------------------------------------------------------------------------------
+        frequency_manager_for_diag(wmodel, 'SE')
+        get_period_manager(wmodel)
+        #
+        # /// -- Get the dataset and compute the annual cycle
+        # -----------------------------------------------------------------------------------------
+        dat = annual_cycle( ds(**wmodel) )
+        #
+        fig_lines = []
+        options='pmLabelBarWidthF=0.065|pmLabelBarOrthogonalPosF=0.01|lbLabelFontHeightF=0.01|tmXBLabelFontHeightF=0.01|tmYLLabelFontHeightF=0.01'
+        for m in months:
+            print m
+            clim_ref = llbox( clim_average(ref,m), **domain)
+            clim_dat = llbox( regrid( clim_average(dat,m), clim_ref ), **domain)
+            anom_ref = fsub(clim_ref, str(cMA(space_average(clim_ref))[0][0][0]))
+            anom_dat = fsub(clim_dat, str(cMA(space_average(clim_dat))[0][0][0]))
+            bias_map_m = minus(clim_dat, clim_ref)
+            # -- metrics
+            bias_m = cMA(space_average(bias_map_m))[0][0][0] * 86400.
+            rms_m = cMA(ccdo( time_average(space_average( ccdo( minus(clim_dat, clim_ref), operator='sqr' ) )),
+                              operator='sqrt'))[0][0][0] * 86400.
+            num_cor_m = ccdo(multiply(anom_dat,anom_ref), operator='fldavg')
+            denom_cor_m = fmul(ccdo(anom_dat,operator='fldstd'),ccdo(anom_ref,operator='fldstd'))
+            cor_m = cMA( fdiv(num_cor_m, denom_cor_m))[0][0][0]
+            s_bias_m = '%s' % float('%.3g' % bias_m)
+            s_rms_m = '%s' % float('%.3g' % rms_m)
+            s_cor_m = '%s' % float('%.3g' % cor_m)
+            metrics = 'bias = '+s_bias_m+' ; rms = '+s_rms_m+' ; cor = '+s_cor_m
+            plot_m = plot( bias_map_m, gsnCenterString = m, gsnRightString = metrics, gsnLeftString = build_period_str(wmodel),
+                           options =  options, mpCenterLonF=200, **pp_annual_cycle_precip )
+            fig_lines.append([plot_m])
+    
+        mp = cpage(fig_lines = fig_lines,
+                   title=build_plot_title(wmodel,ref_dict),
+                   gravity='NorthWest',
+                   ybox=80, pt=30,
+                   x=30, y=40,
+                   font='Waree-Bold'
+                   )
+            
+        # -----------------------------------------------------------------------------------------
+        index += cell("",safe_mode_cfile_plot(mp, safe_mode=safe_mode),
+                           thumbnail="300*600", hover=hover, **alternative_dir)
+    #
+    # ==> -- Close the line and the table for this section
+    # -----------------------------------------------------------------------------------------
+    index+=close_line() + close_table()
+
 
 
 

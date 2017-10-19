@@ -664,7 +664,10 @@ i = 0
 for model in Wmodels:
     customname = str.replace(build_plot_title(model, None),' ','_')
     if 'period' in model: wperiod=model['period']
-    if 'clim_period' in model: wperiod=model['clim_period']
+    #if 'clim_period' in model: wperiod=model['clim_period']
+    if 'clim_period' in model:
+       wperiod=model['clim_period']
+       if 'last' in wperiod or 'first' in wperiod: wperiod=model['period']
     if wperiod not in customname: customname = customname+'_'+wperiod
     if customname not in customnames:
         customnames.append(customname)

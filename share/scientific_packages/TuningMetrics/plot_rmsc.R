@@ -8,6 +8,8 @@ option_list = list(
                help="Name of the figure; ", metavar="character"),
    make_option(c("-m", "--main_dir"), type="character", default="",
                help="Path to the main working directory", metavar="character"),
+   make_option(c("-s", "--statistic"), type="character", default="rmsc",
+               help="Statistic (or metric)", metavar="character"),
    make_option(c("-r", "--region"), type="character", default="",
                help="Name of the region to be plotted", metavar="character") 
     )
@@ -16,6 +18,7 @@ opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 
+statistic = opt[['statistic']]
 metrics_json_file = opt[['metrics_json_file']]
 
 region = opt[['region']]
@@ -48,13 +51,15 @@ for (tmp in names(results)){
         #}#
         # -- Get the reference_dataset tagged results
         if (results[[tmp]]$dataset_dict$dataset_type=='reference_dataset'){
-            reference_dataset = c(reference_dataset, as.numeric(results[[tmp]]$results[[region]]$rmsc))
+            reference_dataset = c(reference_dataset, as.numeric(results[[tmp]]$results[[region]][[statistic]]))
+            #reference_dataset = c(reference_dataset, as.numeric(results[[tmp]]$results[[region]]$rmsc))
             reference_dataset_names = c(reference_dataset_names, tmp)
             #test_dataset_colors = c(test_dataset_colors, 'black')
         }#
         # -- Get the test_dataset tagged results
         if (results[[tmp]]$dataset_dict$dataset_type=='test_dataset'){
-            test_dataset = c(test_dataset, as.numeric(results[[tmp]]$results[[region]]$rmsc))
+            #test_dataset = c(test_dataset, as.numeric(results[[tmp]]$results[[region]]$rmsc))
+            test_dataset = c(test_dataset, as.numeric(results[[tmp]]$results[[region]][[statistic]]))
             test_dataset_names = c(test_dataset_names, tmp)
             print('names(results[[tmp]]$dataset_dict) = ')
             print(names(results[[tmp]]$dataset_dict))
@@ -94,9 +99,10 @@ png(figname,width=900,height=750)
 # -- Test plot 2
 par(mar=c(20,5,4,1))
 nitems = 1+length(datasets4plot)
-ylab='RMSC (vs HadISST 1990-2010)'
+ylab=paste(toupper(statistic),'(vs HadISST 1990-2010)')
+
 plot(1:nitems,rep(NA,nitems),ylim=ylim,xaxt='n',xlab="",ylab=ylab,cex=1.1,cex.lab=1.75,cex.axis=1.2,xlim=c(2,nitems-1))
-mtext(paste(gsub('_',' ',region),"- RMSC"),side=3,adj=0,cex=3, font=1,line=0.75)
+mtext(paste(gsub('_',' ',region),"-",toupper(statistic)),side=3,adj=0,cex=3, font=1,line=0.75)
 mtext("annual cycle",side=3,adj=1,cex=3, font=1,line=0.75)
 
 grid()
@@ -114,36 +120,6 @@ for (i in 1:length(datasets4plot)){
     }
 }#
 
-
-if (0){
-
-png(figname,width=500,height=700)
-# -- Test plot 2
-par(mar=c(1,1,4,1))
-
-nitems = 1+length(datasets4plot)
-ylab=varlongname
-plot(1:3,rep(NA,3),ylim=ylim,xaxt='n',xlab="",ylab=ylab,cex=1.1,cex.lab=1.75,cex.axis=1.2, bty="n", yaxt="n", xlim=c(-2,7))
-#mtext(paste(gsub('_',' ',region),"- space average, annual mean (ocean only)"),side=3,adj=0,cex=2, font=2,line=0.75)
-mtext('SST bias 50S/50N',side=3,adj=0,cex=2, font=2,line=1.2)
-mtext('vs HadISST',side=3,adj=0,cex=1.5,line=0)
-
-abline(h=0)
-grid()
-axis(2,pos=2,cex.axis=1.2,lwd=2)
-for (i in 1:length(datasets4plot)){
-    if (sorted_colors[i]=='black'){
-       lines(1.3,datasets4plot[i],type="p", col=sorted_colors[i], pch=16, cex=1*sorted_pcex[i])
-       text(1.1,datasets4plot[i],names4plot[i],adj=1,col=sorted_colors[i])
-       #mtext(names4plot[i],side=1,at=0.7,col=sorted_colors[i],las=2,line=1)
-    }else{
-       lines(2.3,datasets4plot[i],type="p", col=sorted_colors[i], pch=0, cex=2*sorted_pcex[i])
-       lines(2.3,datasets4plot[i],type="p", col=sorted_colors[i], pch=16, cex=1.5*sorted_pcex[i])
-       text(2.6,datasets4plot[i],names4plot[i],adj=0,col=sorted_colors[i],font=2,cex=1.2)
-    }
-}#
-
-}#end if 0
 
 dev.off()
 

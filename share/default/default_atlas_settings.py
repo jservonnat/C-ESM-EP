@@ -36,7 +36,8 @@ do_Monsoons_pr_anncyc = False
 monsoon_precip_regions = None
 do_mse_otorres_maps = False
 do_my_own_script_diag = False
-
+do_my_own_climaf_diag = False
+do_annual_cycle_precip = False
 add_line_of_climato_plots = False
 
 style_file = None

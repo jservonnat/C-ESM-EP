@@ -65,10 +65,11 @@ domain = {}
 # ---------------------------------------------------------------------------- >
 do_Monsoons_pr_anncyc  = True    # -> Same for the seasonal averages in the tropics
 
-#monsoon_precip_regions = [
-#        dict(name='All-India Rainfall', domain=dict(lonmin=65,lonmax=95,latmin=5,latmax=30)),
-#        dict(name='West African Monsoon', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
-#      ]
+monsoon_precip_regions = [
+        dict(name='All-India Rainfall', domain=dict(lonmin=65,lonmax=95,latmin=5,latmax=30)),
+        dict(name='West African Monsoon', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
+        dict(name='WAM - AMMA', domain=dict(lonmin=12,lonmax=20,latmin=-10,latmax=10)),
+      ]
 
 # ---------------------------------------------------------------------------- >
 

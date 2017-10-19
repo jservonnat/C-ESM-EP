@@ -52,13 +52,12 @@ from urllib import urlopen
 url = template    
 html = urlopen(template).read()    
 
-#compdir = 'e/jservon/C-ESM-EP/git/toy_comparison'
 subdirs = next(os.walk(comparison))[1]
-#for subdir in subdirs:
 # -> We loop on all the potentially available and check whether they are available in the comparison directory or not
 # -> The goal of this step is essentially to keep the same order of appearance of the links on front page
 available_components = []
 # -> First, we work on the known components listed in allcomponents. If they are in subdirs, we add them to 
+#for component in components:
 for component in allcomponents:
   if component in subdirs: available_components.append(component)
 # -> Then, we check whether there are some components not list in allcomponents; if yes, they will be added at the end of the list
@@ -127,7 +126,13 @@ if not os.path.isdir(webspace):
 # -----------------------------------------------------------------------------------------
 
 # -- Loop on the components
+#for component in available_components:
+job_components = []
 for component in components:
+    if component in available_components:
+       job_components.append(component)
+
+for component in job_components:
     print 'component = ',component
     # -- Define where the directory where the job is submitted
     submitdir = WD+'/'+comparison+'/'+component
@@ -143,7 +148,7 @@ for component in components:
     if onCiclad:
        # -- For all the components but for the parallel coordinates, we do this...
        if component not in metrics_components:
-          if 'NEMO' in component or 'Turbulent' in component:
+          if 'NEMO' in component or 'Turbulent' in component or 'PISCES' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
           else:
              queue = 'h12'
