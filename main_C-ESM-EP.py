@@ -20,6 +20,9 @@ import os, copy, subprocess, shlex
 # --              - the command line (priority 1)
 # -----------------------------------------------------------------------------------
 
+#crm(pattern='CM6013.cmip6.pi-08')
+#crm(age='+30')
+#crm(pattern='zg500')
 
 # -- Description of the atlas
 # -----------------------------------------------------------------------------------
@@ -54,6 +57,8 @@ parser.add_option("--comparison",
 
 (opts, args) = parser.parse_args()
 
+
+print 'opts.comparison = ', opts.comparison
 
 # -- Get the default parameters from default_atlas_settings.py -> Priority = default
 # -----------------------------------------------------------------------------------
@@ -125,7 +130,7 @@ if onCiclad:
    # It is also possible to copy the directory somewhere else (makes it transportable)
    # subdir = '/prodigfs/ipslfs/dods/user/CESMEP/comparison'
    from climaf import cachedir
-   component = str.replace( str.replace( str.replace(index_name,'.html',''), 'atlas_', ''), '_'+opts.comparison, '' )
+   component = str.replace( str.replace( str.replace( index_name, '_'+opts.comparison, '' ), '.html',''), 'atlas_', '')
    subdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component
    if not os.path.isdir(subdir):
       os.makedirs(subdir)
@@ -473,7 +478,7 @@ if do_atmos_maps:
     print '-- thumbnail_size = ',thumbnail_size
     Wmodels = period_for_diag_manager(models, diag='atm_2D_maps')
     for model in Wmodels:
-        if model['project'] in ['CMIP5']: model.update(dict(table='Amon'))
+        if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Amon'))
     index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
                              'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
@@ -519,7 +524,7 @@ if do_ocean_2D_maps:
     print '--                              --'
     Wmodels = period_for_diag_manager(models, diag='ocean_2D_maps')
     for model in Wmodels:
-        if model['project'] in ['CMIP5']: model.update(dict(table='Omon'))
+        if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Omon'))
     index += section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables, 
                              'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
@@ -837,14 +842,17 @@ if do_ATLAS_ZONALMEAN_SLICES:
             for basin in zonmean_slices_basins:
                 ## -- Model Grid
                 index+=start_line(title_region(basin)+' '+varlongname(variable)+' ('+variable+')')
-                ref = variable2reference(variable, my_obs=custom_obs_dict)
+                if reference=='default':
+                   ref = variable2reference(variable, my_obs=custom_obs_dict)
+                else:
+                   ref = reference.copy()
                 basin_zonmean_modelgrid = zonal_mean_slice2(ref, variable, basin=basin, season=season,
                                                 ref=None, safe_mode=safe_mode, y=y, add_product_in_title=None,
                                                 custom_plot_params=custom_plot_params, method='regrid_model_on_ref')
                 index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
                 for model in Wmodels:
                     basin_zonmean_modelgrid = zonal_mean_slice2(model, variable, basin=basin, season=season,
-                                                ref=variable2reference(variable, my_obs=custom_obs_dict), safe_mode=safe_mode, y=y, add_product_in_title=None,
+                                                ref=ref, safe_mode=safe_mode, y=y, add_product_in_title=None,
                                                 custom_plot_params=custom_plot_params, method='regrid_model_on_ref')
                     index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
                 index+=close_line()+close_table()
@@ -1949,7 +1957,7 @@ if do_biogeochemistry_2D_maps:
                              'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
-   			                 alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+   			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 
 
 
@@ -2482,6 +2490,103 @@ if do_my_own_climaf_diag:
         # ==> -- Close the line and the table for this section
         # -----------------------------------------------------------------------------------------
         index+=close_line() + close_table()
+
+
+
+# ----------------------------------------------
+# --                                             \
+# --  Raw plot of climatologies on variables      \
+# --  with undefined plot parameters              /
+# --                                             /
+# --                                            /
+# ---------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- Your own diagnostic script                                                         -- #
+# -- This section is a copy of the previous section; it is a good example               -- #
+# -- of how to add your own script/diagnostic                                           -- #
+# -- The section starting with comments with ==> at the beginning are mandatory to      -- #
+# -- build a section in the C-ESM-EP. The comments starting with /// identify code that -- #
+# -- is specific to the diagnostic presented here.                                      -- #
+if do_plot_raw_climatologies:
+    #
+    # ==> -- Open the section and an html table
+    # -----------------------------------------------------------------------------------------
+    index += section("Raw climatologies", level=4)
+    #
+    # ==> -- Control the size of the thumbnail -> thumbN_size
+    # -----------------------------------------------------------------------------------------
+    thumbN_size = thumbnail_size
+    #
+    for variable in ping_2D_variables:
+        # ==> -- Open the html line with the title
+        # -----------------------------------------------------------------------------------------
+        index += open_table()
+        line_title = variable+' = '+var_description[variable]
+        index+=start_line(line_title)
+        #
+        Wmodels = copy.deepcopy(models)
+        #
+        # -- Preliminary step: check the range of values across the models
+        # -----------------------------------------------------------------------------------------
+        min_values = []
+        max_values = []
+        for model in Wmodels:
+            #
+            # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+            # -- in the list models, and add the variable
+            # -----------------------------------------------------------------------------------------
+            wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+            wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+            #
+            # /// -- Get the dataset and compute the annual cycle
+            # -----------------------------------------------------------------------------------------
+            dat = time_average( ds(**wmodel) )
+            #
+            min_values.append( cscalar(ccdo(dat,operator='fldmin')) )
+            max_values.append( cscalar(ccdo(dat,operator='fldmax')) )
+            #
+        min_val = min(min_values)
+        max_val = max(max_values)
+        #
+        for model in Wmodels:
+            #
+            # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+            # -- in the list models, and add the variable
+            # -----------------------------------------------------------------------------------------
+            wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+            wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+            #
+            # /// -- Get the dataset and compute the annual cycle
+            # -----------------------------------------------------------------------------------------
+            dat = time_average( ds(**wmodel) )
+            #        
+            # /// -- Build the titles
+            # -----------------------------------------------------------------------------------------
+            title = build_plot_title(wmodel,None) # > returns the model name if project=='CMIP5'
+            #                                         otherwise it returns the simulation name
+            #                                         It returns the name of the reference if you provide
+            #                                         a second argument ('dat1 - dat2')
+            LeftString = variable
+            RightString = build_str_period(wmodel)  # -> finds the right key for the period (period of clim_period)
+            CenterString = ''
+            #
+            # -- Plot the raw variable
+            # -----------------------------------------------------------------------------------------
+            plot_raw = plot(dat, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
+                            color='BlueWhiteOrangeRed', min=min_val, max=max_val)
+            #
+            # ==> -- Add the plot to the line
+            # -----------------------------------------------------------------------------------------
+            index += cell("",safe_mode_cfile_plot(plot_raw, safe_mode=safe_mode),
+                          thumbnail=thumbN_size, hover=hover, **alternative_dir)
+            #
+        # ==> -- Close the line and the table for this section
+        # -----------------------------------------------------------------------------------------
+        index+=close_line() + close_table()
+
+
 
 
 

@@ -39,7 +39,8 @@ do_my_own_script_diag = False
 do_my_own_climaf_diag = False
 do_annual_cycle_precip = False
 add_line_of_climato_plots = False
-
+do_plot_raw_climatologies = False
+do_zonal_profiles_explorer = False
 style_file = None
 add_product_in_title = True
 hover = False

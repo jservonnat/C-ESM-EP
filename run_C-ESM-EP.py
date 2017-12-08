@@ -23,7 +23,7 @@ onCiclad = False
 args = sys.argv
 
 metrics_components = ['ParallelCoordinates_Atmosphere']
-allcomponents=['TuningMetrics','ParallelCoordinates_Atmosphere','Atmosphere_Surface','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','Atmosphere_StdPressLev','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','Focus_Atlantic_AMOC_Surface','PISCES','ENSO','ORCHIDEE','TurbulentAirSeaFluxes','HotellingTest', 'AtlasExplorer','Essentials_CM6011_CM6012','Monsoons']
+allcomponents=['TuningMetrics','ParallelCoordinates_Atmosphere','Atmosphere_Surface','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','Atmosphere_StdPressLev','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev','Atmosphere_zonmean','NEMO_main','NEMO_depthlevels','NEMO_zonmean','Atlantic_Atmosphere_Surface','Focus_Atlantic_AMOC_Surface','PISCES','ENSO','ORCHIDEE','TurbulentAirSeaFluxes','HotellingTest', 'AtlasExplorer','Essentials_CM6011_CM6012','Monsoons']
 
 if len(args)==1:
    print 'Provide the name of a comparison setup as argument of the script'
@@ -128,8 +128,9 @@ if not os.path.isdir(webspace):
 # -- Loop on the components
 #for component in available_components:
 job_components = []
+#for component in components+subdirs:
 for component in components:
-    if component in available_components:
+    if component in available_components and component not in job_components:
        job_components.append(component)
 
 for component in job_components:
@@ -186,7 +187,7 @@ def pysed(file, old_pattern, new_pattern):
 
 
 # -- Loop on the components and edit the html file with pysed
-for component in allcomponents:
+for component in available_components:
     if component not in metrics_components:
        url = root_url+component+'_'+season+'/atlas_'+component+'_'+comparison+'_'+season+'.html'
     else:

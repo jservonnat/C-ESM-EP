@@ -59,6 +59,16 @@ proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, 
 domain = {}
 
 
+# ---------------------------------------------------------------------------- >
+# -- Add some additionnal maps with atlas explorer
+# ---------------------------------------------------------------------------- >
+do_atlas_explorer = True
+atlas_explorer_variables = [
+      dict(variable='pr', season='JJA', domain=dict(lonmin=-20,lonmax=75,latmin=15,latmax=40)),
+      dict(variable='tas', season='JJA', domain=dict(lonmin=-20,lonmax=75,latmin=15,latmax=40)),
+
+]
+add_line_of_climato_plots = True
 
 # ---------------------------------------------------------------------------- >
 # -- Monsoons - precipitation annual cycles 
