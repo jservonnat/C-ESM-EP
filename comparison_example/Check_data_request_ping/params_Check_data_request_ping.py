@@ -4,7 +4,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: NEMO_main                                                          - |
+# --             - component: AtlasExplorer                                                 - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -24,6 +24,7 @@
 
 
 
+
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
@@ -35,11 +36,13 @@ safe_mode = True
 clean_cache = 'False'
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
 #    to crm() at the end of the atlas (for a routine cache management)
-routine_cache_cleaning = [dict(access='+20'), dict(access='+10', pattern='oneVar')]
+routine_cache_cleaning = [dict(access='+20')]
 
 
 
 # -- Set the reference against which we plot the diagnostics 
+# -- If you set it in the parameter file, it will overrule
+# -- the reference set in datasets_setup.py
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -56,78 +59,27 @@ routine_cache_cleaning = [dict(access='+20'), dict(access='+10', pattern='oneVar
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
 season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-#domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30) # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2) 
-domain = {}
-
-
-
+proj = 'GLOB'   # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
 
 
 
 # ---------------------------------------------------------------------------- >
-# -- Blue Ocean : Physical Ocean diagnostics
-# -- The do_ocean_2D_maps section is based on the same mechanisms as Atlas Explorer; it is
-# -- thus possible to use the functionalities (python dictionaries to add options
-# -- with a variable)
+# -- Atlas Explorer diagnostics
+# -- Atlas Explorer is meant to be a simple and flexible way to produce an atlas
+# -- on demand.
+# -- atlas_explorer_variables is a list of variables, and/or python dictionaries
+# -- that allow to pass custom specifs with the variable, like:
+# --   - season
+# --   - region
+# --   - domain
+# --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
-# -- 2D Maps
-do_ocean_2D_maps       = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
-liste_seasons = ['ANM', 'DJF', 'JJA']
-ocean_2D_variables = []
-for var in ['tos', 'wfo', 'sos']:
-    for my_season in liste_seasons :
-        ocean_2D_variables.append ( dict(variable=var, season=my_season ))
-for my_season in liste_seasons :
-    ocean_2D_variables.append (dict (variable='zos', spatial_anomalies=True, season=my_season))
-for var in ['to200', 'to1000', 'so200', 'so1000']:
-    ocean_2D_variables.append (dict (variable=var, season='ANM'))
-remapping = True
-
-# -- Mixed Layer Depth
-do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
-
-# -- Wind stress curl
-do_curl_maps = True
-
-# -- Time Series (spatial averages over basins)
-#do_ATLAS_TIMESERIES_SPATIAL_INDEXES = True
-ts_variables = ["tos","thetao"]#,"sos","so","zos"]
-ts_basins    = ["GLO"]#,"ATL","PAC","IND"]
-
-# -- Vertical Climatological profiles over basins
-#do_ATLAS_VERTICAL_PROFILES = True
-VertProf_variables = ["thetao","so"]
-VertProf_obs       = [levitus_ac,woa13_ac]
-VertProf_basins    = ["GLO","ATL","PAC","IND"]
-
-# -- Depth/time drift profiles (averages over basins)
-#do_ATLAS_DRIFT_PROFILES  = True
-drift_profiles_variables = ["thetao","so"]
-drift_profiles_basins    = ["GLO","ATL","PAC","IND"]
-
-# -- MOC Diagnostics (over basins)
-do_ATLAS_MOC_DIAGS = True
-MOC_basins = ["GLO","ATL","PAC"]
-
-# -- Zonal Mean slices
-#do_ATLAS_ZONALMEAN_SLICES = True
-zonmean_slices_seas      = ["ANN"]#,"MAM","JJA","SON"]
-zonmean_slices_variables = ["thetao","so"]
-zonmean_slices_basins    = ["GLO","ATL","PAC","IND"]
-y = 'lin' # -> The vertical axis; choose between 'lin' (linear) or 'index' (model index levels)
-# ---------------------------------------------------------------------------- >
-
-
+do_plot_raw_climatologies = True    # -> use atlas_explorer_variables to set your own selection of variables
+#atlas_explorer_variables = ['tas', 'tos', dict(variable='ua', season='DJF', add_climato_contours=True) ]
 
 
 # ---------------------------------------------------------------------------- >
-# -- White Ocean : Sea Ice diagnostics
-# ---------------------------------------------------------------------------- >
-do_seaice_maps         = True    # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
-do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
-# ---------------------------------------------------------------------------- >
-
 
 
 
@@ -137,7 +89,7 @@ do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice v
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "NEMO - general diagnostics"
+atlas_head_title = "Check DR CMIP6: raw values"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
@@ -151,17 +103,6 @@ while not os.path.isfile(os.getcwd()+style_file):
     i=i+1
 style_file = os.getcwd()+style_file
 
-# -- Thumbnail sizes
-# ---------------------------------------------------------------------------- >
-thumbnail_size           = '300*175'
-thumbnail_polar_size     = '250*250'
-thumbnail_size_3d        = '250*250'
-thumbsize_zonalmean      = '450*250'
-thumbsize_TS             = '450*250'
-thumbsize_MOC_slice      = '475*250'
-thumbsize_MAXMOC_profile = '325*250'
-thumbsize_MOC_TS         = '325*250'
-thumbsize_VertProf       = '250*250'
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >

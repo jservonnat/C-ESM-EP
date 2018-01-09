@@ -11,7 +11,7 @@
 # --         * job failed: the user finds an 'Error' page in place of the atlas html page
 # --           (copy of an 'error' html page in place of the atlas html page if the job fails)
 # --
-# --
+# -- 
 # -- We use it like this:
 # --    python run_C-ESM-EP.py comparison [component1,component2]
 # --        -> comparison is the name of the comparison directory
@@ -22,7 +22,7 @@
 # --      > python run_C-ESM-EP.py comparison # runs all the components available in comparison
 # --      > python run_C-ESM-EP.py comparison comp1,comp2 # submit jobs for comp1 and comp2 in comparison
 # --      > python run_C-ESM-EP.py comparison url # returns the url of the frontpage
-# --
+# -- 
 # -- Author: Jerome Servonnat (LSCE-IPSL-CEA)
 # -- Contact: jerome.servonnat@lsce.ipsl.fr
 # --
@@ -36,18 +36,23 @@ import os, sys
 import getpass
 import re
 
+
+
 # -- 0/ Identify where we are...
 # -----------------------------------------------------------------------------------------
 
 # -- Working directory
 WD=os.getcwd()
 
-# -- Get user name
+# -- Get user name 
 username=getpass.getuser()
 if username=='fabric':
    username2 = str.split(os.getcwd(),'/')[4]
 else:
    username2 = username
+
+# -- Setup a season
+season='ANM'
 
 # -- Def pysed
 def pysed(file, old_pattern, new_pattern):
@@ -58,9 +63,6 @@ def pysed(file, old_pattern, new_pattern):
              sources.write(re.sub(old_pattern, new_pattern, line))
     return ''
 
-# -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-email = 'jerome.servonnat@lsce.ipsl.fr'
-#email = None
 
 
 # -- 1/ Get the arguments / Name of the comparison (comparison)
@@ -91,15 +93,16 @@ else:
 # --      => add the modules available in the comparison directory
 # -----------------------------------------------------------------------------------------
 template = 'share/fp_template/C-ESM-EP_template.html'
-#import nltk   
+import nltk   
 from urllib import urlopen
 
 # -> First, we read the template of the html file in share/fp_template
 url = template    
 html = urlopen(template).read()    
 
+# -> Get the available components (names of the directories in comparison)
 subdirs = next(os.walk(comparison))[1]
-# -> We loop on all the potentially available and check whether they are available in the comparison directory or not
+# -> We loop on all the potentially available components and check whether they are available in the comparison directory or not
 # -> The goal of this step is essentially to keep the same order of appearance of the links on front page
 available_components = []
 # -> First, we work on the known components listed in allcomponents. If they are in subdirs, we add them to 
@@ -108,11 +111,7 @@ for component in allcomponents:
   if component in subdirs: available_components.append(component)
 # -> Then, we check whether there are some components not list in allcomponents; if yes, they will be added at the end of the list
 for subdir in subdirs:
-  if subdir not in allcomponents and subdir not in 'tmp_paramfiles':
-     available_components.append(subdir)
-
-# If the user runs the C-ESM-EP by default, it runs all the available components
-if components==allcomponents: components = available_components
+  if subdir not in allcomponents and subdir not in 'tmp_paramfiles': available_components.append(subdir)
 
 # -- We get the atlas_head_title variable in the params_component.py file to have a more explicit string for the links
 cesmep_modules = []
@@ -155,7 +154,7 @@ with open(main_html,"w") as filout : filout.write(new_html)
 # -- 2/ Set the paths (one per requested component)
 # -----------------------------------------------------------------------------------------
 
-# -- Initialize positioning variables
+# -- Initialize positioning variables 
 atTGCC   = False
 onCiclad = False
 
@@ -176,6 +175,7 @@ if not os.path.isdir(webspace):
    os.makedirs(webspace)
 
 
+
 # -- 3/ Submit the jobs (one per requested component) 
 # -----------------------------------------------------------------------------------------
 
@@ -189,13 +189,11 @@ for component in components:
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
     if component not in metrics_components:
-       url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
+       url = root_url+component+'_'+season+'/atlas_'+component+'_'+comparison+'_'+season+'.html'
     else:
        url = root_url+component+'/'+component+'_'+comparison+'.html'
     if component in job_components:
        atlas_pathfilename = str.replace(url, base_url, pathwebspace)
-       if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
-          os.makedirs(os.path.dirname(atlas_pathfilename))
        # -- Copy an html template to say that the atlas is not yet available
        # 1. copy the template to the target html page
        os.system('cp share/fp_template/Running_template.html '+atlas_pathfilename)
@@ -210,14 +208,6 @@ for component in job_components:
     # -- Define where the directory where the job is submitted
     submitdir = WD+'/'+comparison+'/'+component
     #
-    # -- Needed to copy the html error page if necessary
-    if component not in metrics_components:
-       url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
-    else:
-       url = root_url+component+'/'+component+'_'+comparison+'.html'
-    if component in job_components:
-       atlas_pathfilename = str.replace(url, base_url, pathwebspace)
-    #
     # -- Build the command line that will submit the job
     # ---------------------------------------------------
     # -- Case atTGCC
@@ -228,19 +218,15 @@ for component in job_components:
     # -- Case onCiclad
     if onCiclad:
        # -- For all the components but for the parallel coordinates, we do this...
-       if email:
-          add_email = ' -m e -M '+email
-       else:
-          add_email = ''
        if component not in metrics_components:
           if 'NEMO' in component or 'Turbulent' in component or 'PISCES' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
           else:
              queue = 'h12'
-          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+          cmd = 'cd '+submitdir+' ; qsub -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
        else:
           # -- ... and for the parallel coordinates, we do that.
-          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_PMP_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD} ../../share/fp_template/copy_html_error_page.sh ; cd -'
+          cmd = 'cd '+submitdir+' ; qsub -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_PMP_C-ESM-EP.sh ; cd -'
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs
@@ -251,19 +237,22 @@ for component in job_components:
 
 
 
-# -- 4/ Create the C-ESM-EP html front page for 'comparison' from the template 
+# -- 3/ Create the C-ESM-EP html front page for 'comparison' from the template 
 # -----------------------------------------------------------------------------------------
 
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
     if component not in metrics_components:
-       url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
+       url = root_url+component+'_'+season+'/atlas_'+component+'_'+comparison+'_'+season+'.html'
     else:
        url = root_url+component+'/'+component+'_'+comparison+'.html'
     pysed(main_html, 'target_'+component, url)
 
+    
+
 # -- Edit the comparison name
 pysed(main_html, 'target_comparison', comparison)
+
 
 # -- Copy the edited html front page
 if atTGCC:
@@ -276,6 +265,7 @@ if atTGCC:
 if onCiclad: cmd = 'mv '+main_html+' '+webspace
 os.system(cmd)
 
+
 # -- Copy the top image
 if not os.path.isfile(webspace+'/CESMEP_bandeau.png'):
    if atTGCC:
@@ -284,10 +274,7 @@ if not os.path.isfile(webspace+'/CESMEP_bandeau.png'):
    if onCiclad: cmd='cp share/fp_template/CESMEP_bandeau.png '+webspace
    os.system(cmd)
 
-
-
-# -- Final: Print the final message with the address of the C-ESM-EP front page
-# -----------------------------------------------------------------------------------------
+# -- Print the final message with the address of the C-ESM-EP front page
 address=root_url+main_html
 
 

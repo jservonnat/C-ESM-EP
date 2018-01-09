@@ -3,6 +3,8 @@
 verbose = 'critical'
 clean_cache='False'
 safe_mode = True
+routine_cache_cleaning = False
+
 
 season = 'ANM'
 region = 'GLOB'

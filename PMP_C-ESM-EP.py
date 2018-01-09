@@ -165,7 +165,7 @@ if not opts.outfigdir:
        if not os.path.isdir(outfigdir):
           os.makedirs(outfigdir)
        else:
-          os.system('rm -f '+outfigdir+'*')
+          os.system('rm -f '+outfigdir+'*.png')
 
 # -- Reference (results displaid in background)
 if not reference_data_path:
@@ -278,6 +278,7 @@ print 'CMIP5_names = ', CMIP5_names
 
 import copy
 testWmodels = copy.deepcopy(Wmodels)
+print 'testWmodels before = ',testWmodels
 for model in Wmodels:
     print 'model = ',model
     print "model['project'] = ",model['project']
@@ -285,7 +286,7 @@ for model in Wmodels:
        #print "model['period'] = ", model['period']
        if model['period'] in ['1980-2005','1980_2005']:
           # -- We remove the dictionary model to the list Wmodels and just keep the name of the model and color
-          #print 'Found that this model ok = ', model
+          print 'Found that this model ok = ', model
           testWmodels.remove(model)
           if model['model'] not in CMIP5_names:
              CMIP5_names.append(model['model'])
@@ -644,7 +645,8 @@ for wmodel in Wmodels:
         #print file_hermes
         if tmp_path in file_hermes and tmp_path not in path_for_pmp_plot:
             path_for_pmp_plot.append(tmp_path)
-print path_for_pmp_plot
+print 'path_for_pmp_plot = ',path_for_pmp_plot
+
 
 # -- END BLOCK 5 ---------------------------------------------------------------
 
@@ -796,7 +798,7 @@ from climaf.html import *
 # --------------------------------------------------------- 
 index_name = outfigdir+index_filename_root+'_'+comparison+'.html'
 alt_dir_name = '/thredds/fileServer/IPSLFS'+str.split(outfigdir,'dods')[1]
-root_url = "https://vesg.ipsl.upmc.fr"
+root_url = "https://vesgint-data.ipsl.upmc.fr"
 
 # -- Start the html file
 # ---------------------------------------------------------

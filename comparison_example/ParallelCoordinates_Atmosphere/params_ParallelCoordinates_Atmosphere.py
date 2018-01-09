@@ -30,6 +30,9 @@
 
 safe_mode=True
 
+# -- routine_cache_cleaning is a dictionary or list of dictionaries provided
+#    to crm() at the end of the atlas (for a routine cache management)
+routine_cache_cleaning = [dict(access='+20')]
 
 # -- Import modules
 from climaf.site_settings import atTGCC, onCiclad

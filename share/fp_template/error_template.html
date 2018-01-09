@@ -1,0 +1,55 @@
+<style type="text/css" media=screen>
+body {
+background-color: white;
+font-family:"Trebuchet MS",Verdana,Geneva,Arial,Helvetica,sans-serif;
+margin:5px 70px 70px 5px;
+}
+
+h1 {
+font-family:verdana, sans-serif;
+font-size:175%;
+color:#3104B4;
+margin-top:200px;
+margin-left:190px;
+background-color:transparent;
+text-align:left;
+}
+
+h2 {
+font-family:verdana, sans-serif;
+font-size:125%;
+color:black;
+margin-top:30px;
+margin-left:190px;
+background-color:transparent;
+text-align:left;
+}
+
+li {
+font-size:100%;
+margin-left:190px;
+}
+
+
+</style>
+
+<html>
+
+<head>
+
+
+</head>
+
+
+<h1>Sorry, target_component has failed for comparison target_comparison :(</h1>
+<h2>Try the following checks:</h2>
+
+
+<li><a>check the last .e and .o files in the directory of the component to see the error</a></li>
+<li><a>run the component interactively with safe_mode = False (in the parameter file): ./job_C-ESM-EP.sh component</a></li>
+<li><a>verify that the datasets are correctly specified in datasets_setup.py (File not found)</a></li>
+<li><a>ultimately run with safe_mode = True </a></li>
+<li><a>if 'Quota disk exceeded': clean the cache (from parameter file or add a crm(pattern=...) at the beginning of main_C-ESM-EP.py or using clean_cache from the parameter file (totally erase the cache)</a></li>
+<li><a>Time exceeded: simply try to re-run the atlas </a></li>
+
+

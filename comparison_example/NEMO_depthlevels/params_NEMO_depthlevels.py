@@ -73,49 +73,17 @@ domain = {}
 # ---------------------------------------------------------------------------- >
 # -- 2D Maps
 do_ocean_2D_maps       = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
-liste_seasons = ['ANM', 'DJF', 'JJA']
 ocean_2D_variables = []
-for var in ['tos', 'wfo', 'sos']:
-    for my_season in liste_seasons :
-        ocean_2D_variables.append ( dict(variable=var, season=my_season ))
-for my_season in liste_seasons :
-    ocean_2D_variables.append (dict (variable='zos', spatial_anomalies=True, season=my_season))
 for var in ['to200', 'to1000', 'so200', 'so1000']:
     ocean_2D_variables.append (dict (variable=var, season='ANM'))
 remapping = True
 
 # -- Mixed Layer Depth
-do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
+#do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
 
 # -- Wind stress curl
-do_curl_maps = True
+#do_curl_maps = True
 
-# -- Time Series (spatial averages over basins)
-#do_ATLAS_TIMESERIES_SPATIAL_INDEXES = True
-ts_variables = ["tos","thetao"]#,"sos","so","zos"]
-ts_basins    = ["GLO"]#,"ATL","PAC","IND"]
-
-# -- Vertical Climatological profiles over basins
-#do_ATLAS_VERTICAL_PROFILES = True
-VertProf_variables = ["thetao","so"]
-VertProf_obs       = [levitus_ac,woa13_ac]
-VertProf_basins    = ["GLO","ATL","PAC","IND"]
-
-# -- Depth/time drift profiles (averages over basins)
-#do_ATLAS_DRIFT_PROFILES  = True
-drift_profiles_variables = ["thetao","so"]
-drift_profiles_basins    = ["GLO","ATL","PAC","IND"]
-
-# -- MOC Diagnostics (over basins)
-do_ATLAS_MOC_DIAGS = True
-MOC_basins = ["GLO","ATL","PAC"]
-
-# -- Zonal Mean slices
-#do_ATLAS_ZONALMEAN_SLICES = True
-zonmean_slices_seas      = ["ANN"]#,"MAM","JJA","SON"]
-zonmean_slices_variables = ["thetao","so"]
-zonmean_slices_basins    = ["GLO","ATL","PAC","IND"]
-y = 'lin' # -> The vertical axis; choose between 'lin' (linear) or 'index' (model index levels)
 # ---------------------------------------------------------------------------- >
 
 
@@ -124,8 +92,8 @@ y = 'lin' # -> The vertical axis; choose between 'lin' (linear) or 'index' (mode
 # ---------------------------------------------------------------------------- >
 # -- White Ocean : Sea Ice diagnostics
 # ---------------------------------------------------------------------------- >
-do_seaice_maps         = True    # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
-do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
+#do_seaice_maps         = True    # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
+#do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
 # ---------------------------------------------------------------------------- >
 
 
@@ -137,7 +105,7 @@ do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice v
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "NEMO - general diagnostics"
+atlas_head_title = "NEMO - T & S @depth"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

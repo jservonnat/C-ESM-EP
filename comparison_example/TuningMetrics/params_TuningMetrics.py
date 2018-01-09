@@ -34,6 +34,9 @@ verbose='critical'
 safe_mode = False
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
+# -- routine_cache_cleaning is a dictionary or list of dictionaries provided
+#    to crm() at the end of the atlas (for a routine cache management)
+routine_cache_cleaning = [dict(access='+20')]
 
 
 

@@ -21,6 +21,14 @@ dict_plot_params = {
             'bias'        : {'colors': '-50 -40 -30 -20 -10 -5 -2 2 5 10 20 30 40 50' , 'color':'BlueWhiteOrangeRed' },
             'model_model' : {'min':-50,'max':50,'delta':5, 'color':'BlueWhiteOrangeRed'},
         },
+    'gpp' : {
+        'default' : { 'color' : 'precip3_16lev' }
+    },
+
+
+
+
+
 
 
 }
