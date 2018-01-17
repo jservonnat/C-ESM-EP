@@ -187,7 +187,8 @@ for component in components:
 
 
 # -- Loop on the components and edit the html file with pysed
-for component in available_components:
+if argument.lower() not in ['url']:
+  for component in available_components:
     if component not in metrics_components:
        url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
@@ -237,7 +238,7 @@ for component in job_components:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
           else:
              queue = 'h12'
-          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
        else:
           # -- ... and for the parallel coordinates, we do that.
           cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_PMP_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD} ../../share/fp_template/copy_html_error_page.sh ; cd -'

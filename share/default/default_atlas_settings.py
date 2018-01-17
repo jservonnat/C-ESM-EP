@@ -13,6 +13,8 @@ domain = {}
 custom_obs_dict = dict()
 
 reference_models=[]
+period_manager_test_variable = None
+apply_period_manager_once_for_all_diags = False
 do_SST_for_tuning = False
 do_atlas_explorer = False
 atlas_explorer_climato_variables=None
@@ -43,6 +45,7 @@ do_annual_cycle_precip = False
 add_line_of_climato_plots = False
 do_plot_raw_climatologies = False
 do_zonal_profiles_explorer = False
+do_main_time_series = False
 style_file = None
 add_product_in_title = True
 hover = False

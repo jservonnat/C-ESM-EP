@@ -230,7 +230,14 @@ subdir = datetime.today().strftime("%Y-%m-%d")
 
 
 # -- Get datasets_setup.py
-execfile(datasets_setup)
+#execfile(datasets_setup)
+datasets_setup_period_set_file = str.replace(datasets_setup,'.py','_period_set.py')
+if os.path.isfile(datasets_setup_period_set_file):
+   use_set_period = True
+   execfile(datasets_setup_period_set_file)
+else:
+   execfile(datasets_setup)
+   use_set_period = False
 
 # -- Fix (in case)
 if reference=='default': reference='defaultReference'
@@ -238,26 +245,26 @@ if reference=='default': reference='defaultReference'
 # - Si l'utilisateur donne un PMP_MG_clim_period qui est une liste de periodes a la mail, on reconstruit
 #   une liste models (sans recherche de l'existant)
 #models = split_periods_in_models(models)
+if use_set_period:
+   Wmodels = copy.deepcopy(Wmodels_clim)
+else:
+   #    -> On peut donc definir une liste de variable => la premiere variable de la liste
+   #       est prise pour trouver la periode avec time_manager => On met a jour la liste Wmodels
+   Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
 
-#    -> On peut donc definir une liste de variable => la premiere variable de la liste
-#       est prise pour trouver la periode avec time_manager => On met a jour la liste Wmodels
-print '===========> models before ====>', models
-Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
-print '===========> Wmodels before ====>', Wmodels
-
-for model in Wmodels:
-    print '---'
-    print '---'
-    print '---'
-    print '--- => model = ',model
-    model.update(dict(variable=vars[0]))
-    frequency_manager_for_diag(model, diag='SE')
-    get_period_manager(model)
-    model.pop('variable')
-    print '---'
-    print '---'
-    print '---'
-
+#for model in Wmodels:
+#    print '---'
+#    print '---'
+#    print '---'
+#    print '--- => model = ',model
+#    model.update(dict(variable=vars[0]))
+#    frequency_manager_for_diag(model, diag='SE')
+#    get_period_manager(model)
+#    model.pop('variable')
+#    print '---'
+#    print '---'
+#    print '---'
+#
 print '===========> Wmodels ', Wmodels
 
 # -- Separate the CMIP5 - 1980-2005 results of the other datasets
@@ -280,8 +287,6 @@ import copy
 testWmodels = copy.deepcopy(Wmodels)
 print 'testWmodels before = ',testWmodels
 for model in Wmodels:
-    print 'model = ',model
-    print "model['project'] = ",model['project']
     if model['project']=='CMIP5':
        #print "model['period'] = ", model['period']
        if model['period'] in ['1980-2005','1980_2005']:
@@ -319,19 +324,10 @@ for model in Wmodels:
             #else:
              
 
-print '----'
-print '----'
-print 'testWmodels = ', testWmodels
-print '----'
-print '----'
-
-
 # -- Si on a des CMIP5_names definis dans le params, ils s'accompagnent d'une couleur chacun
 # -- Si on a des datasets CMIP5 definis depuis le datasets_setup, soit:
 # --   - on utilise la couleur associee
 # --   - on attribue une couleur prise dans colorpalette qui ne soit pas encore attribuee
-
-# Par soucis de clarete, on va faire des 
 
 for model in testWmodels:
     print '---'
@@ -702,6 +698,8 @@ for model in Wmodels:
              print 'colors+CMIP5_colors = ',colors+CMIP5_colors
              print 'tmpcolor = ', tmpcolor
        colors.append( tmpcolor )
+
+colors = colors_manager(Wmodels,cesmep_R_colors,colors_list=CMIP5_colors,method='end_with_colors_list')
 
 # -- We end up providing 'colors' to the R script (as well as 'highlights')
 # -- colors contains the list of colors for the simulations in datasets_setup;

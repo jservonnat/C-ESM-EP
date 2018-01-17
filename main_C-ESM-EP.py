@@ -476,6 +476,7 @@ cscript('ensemble_ts_plot','python /home/jservon/Evaluation/CliMAF/ensemble_time
         '--highlight_period_lw="${highlight_period_lw}" '+\
         '--xlabel="${xlabel}" --ylabel="${ylabel}" '+\
         '--xlabel_fontsize="${xlabel_fontsize}" --ylabel_fontsize="${ylabel_fontsize}" '+\
+        '--xlim="${xlim}" --ylim="${ylim}" '+\
         '--tick_size="${tick_size}" '+\
         '--text="${text}" '+\
         '--text_fontsize="${text_fontsize}" '+\
@@ -539,7 +540,7 @@ if do_main_time_series:
     print '-- time_series_specs =         --'
     print '-> ',time_series_specs
     print '--                             --'
-
+    #
     # ==> -- Open the section and an html table
     # -----------------------------------------------------------------------------------------
     index += section("Main Time Series", level=4)
@@ -558,14 +559,14 @@ if do_main_time_series:
         line_title = ''
         index+=start_line(line_title)
         #
-        Wmodels = period_for_diag_manager(models, diag='MOC_timeseries')
-        clim_models = period_for_diag_manager(models, diag='atlas_explorer')
-        #
+        WTSmodels = copy.deepcopy(models)
         # -- Remove CMIP5 models
-        Wmodelsbis = copy.deepcopy(Wmodels)
-        for model in Wmodelsbis:
+        for model in models:
             if model['project'] in 'CMIP5':
-               Wmodels.remove(model)
+               WTSmodels.remove(model)
+
+        Wmodels = period_for_diag_manager(WTSmodels, diag='MOC_timeseries')
+        clim_models = period_for_diag_manager(WTSmodels, diag='atlas_explorer')
         #
         ens_ts_dict = dict()
         names_ens = []
@@ -587,16 +588,21 @@ if do_main_time_series:
             frequency_manager_for_diag(wdataset_dict, diag='TS')
             get_period_manager(wdataset_dict)
             #
+            # -- Get the dataset
+            dat = ds(**wdataset_dict)
+            #
+            # -- select a domain if the user provided one
             if 'domain' in time_series:
                 lonmin = str(time_series['domain']['lonmin'])
                 lonmax = str(time_series['domain']['lonmax'])
                 latmin = str(time_series['domain']['latmin'])
                 latmax = str(time_series['domain']['latmax'])
-                str_domain = latmin+','+latmax+','+lonmin+','+lonmax
-                wdataset_dict.update(dict(domain=str_domain))
+                # -- We regrid the dataset if 
+                if time_series['variable'] in ocean_variables:
+                   dat = regridn(dat, cdogrid='r360x180')
+                #
+                dat = llbox(dat,lonmin=lonmin,lonmax=lonmax,latmin=latmin,latmax=latmax) 
             #
-            # -- Get the dataset
-            dat = ds(**wdataset_dict)
             #
             # -- Apply the operation
             if 'operation_kwargs' in time_series:
@@ -621,13 +627,22 @@ if do_main_time_series:
         if 'operation' in p: p.pop('operation')
         if 'operation_kwargs' in p: p.pop('operation_kwargs')
         if 'domain' in p: p.pop('domain')
-        if highlight_period: p.update(dict(highlight_period = highlight_period))
+        if highlight_period:
+           p.update(dict(highlight_period = highlight_period))
+        else:
+           print '==> No highlight period provided => ', highlight_period
         myplot = ts_plot(ens_ts, **p)
 
         # ==> -- Add the plot to the line
         # -----------------------------------------------------------------------------------------
+        if 'fig_size' in time_series:
+           fig_size = time_series['fig_size']
+        else:
+           fig_size = '15*5'
+        thumbnail_main_ts = str(int(str.split(fig_size,'*')[0])*75)+'*'+str(int(str.split(fig_size,'*')[1])*75)
         index += cell("",safe_mode_cfile_plot(myplot, safe_mode=safe_mode),
-                       thumbnail=thumbN_size, hover=hover, **alternative_dir)
+                       #hover=hover, **alternative_dir)
+                       thumbnail=thumbnail_main_ts, hover=hover, **alternative_dir)
             #
     # ==> -- Close the line and the table for this section
     # -----------------------------------------------------------------------------------------
