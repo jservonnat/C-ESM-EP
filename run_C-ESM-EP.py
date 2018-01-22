@@ -189,6 +189,7 @@ with open(main_html,"w") as filout : filout.write(new_html)
 atTGCC   = False
 onCiclad = False
 
+suffix = username+'/C-ESM-EP/'+comparison+'_'+username2+'/'
 if os.path.exists ('/ccc') and not os.path.exists ('/data')  :
     atTGCC   = True
     if '/dsm/' in os.getcwd():
@@ -206,7 +207,6 @@ if 'ciclad' in os.uname()[1].strip().lower():
     base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/'
     pathwebspace='/prodigfs/ipslfs/dods/'
 
-suffix = username+'/C-ESM-EP/'+comparison+'_'+username2+'/'
 root_url = base_url + suffix
 webspace = pathwebspace + suffix
 
