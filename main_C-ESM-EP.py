@@ -68,7 +68,13 @@ execfile(os.getcwd()+default_file)
 # -- If we specify a datasets_setup from the command line, we use 'models' from this file
 # -----------------------------------------------------------------------------------
 if opts.datasets_setup:
-   execfile(opts.datasets_setup)
+   datasets_setup_available_period_set_file = str.replace(opts.datasets_setup,'.py','_available_period_set.py')
+   if os.path.isfile(datasets_setup_available_period_set_file):
+      use_available_period_set = True
+      execfile(datasets_setup_available_period_set_file)
+   else:
+      execfile(opts.datasets_setup)
+      use_available_period_set = False
 
 
 # -- Get the parameters from the param file -> Priority = 2
@@ -121,10 +127,6 @@ if clean_cache=='True':
 # -> Specific Ciclad (fabric): set the url of the web server and the paths where the
 # -> images are stored
 # -----------------------------------------------------------------------------------
-
-
-
-
 if onCiclad:
    # Create a directory: /prodigfs/ipslfs/dods/user/CESMEP/comparison
    # The atlas will be available in a self-consistent directory, containing the html and the figures.
@@ -139,7 +141,9 @@ if onCiclad:
    else:
       os.system('rm -f '+subdir+'/*.png')
    alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(subdir,'dods')[1]
-   root_url = "https://vesgint-data.ipsl.upmc.fr"
+   root_url = "https://vesg.ipsl.upmc.fr"
+
+
 
 # -> Specif TGCC: Creation du repertoire de l'atlas, ou nettoyage de celui-ci si il existe deja
 # -----------------------------------------------------------------------------------
@@ -148,9 +152,9 @@ if atTGCC:
    CWD = os.getcwd()
    if '/dsm/' in CWD: wspace='dsm'
    if '/gencmip6/' in CWD: wspace='gencmip6'
-   scratch_alt_dir_name = '/ccc/scratch/cont003/'+wspace+'/'+user_login+'/C-ESM-EP/out/'+opts.comparison+'_'+user_login+'/'+component_season+'/'
+   scratch_alt_dir_name = '/ccc/scratch/cont003/'+wspace+'/'+user_login+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'
    work_alt_dir_name = scratch_alt_dir_name.replace('scratch', 'work')
-   root_url = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
+   root_url = "https://vesg.ipsl.upmc.fr"
    alt_dir_name = scratch_alt_dir_name
    if not os.path.isdir(scratch_alt_dir_name):
       os.makedirs(scratch_alt_dir_name)
@@ -205,6 +209,7 @@ for model in models:
     print '  --'
 
 
+
 # -- Define the path to the main C-ESM-EP directory:
 # -----------------------------------------------------------------------------------
 rootmainpath = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
@@ -256,6 +261,7 @@ index = header(atlas_head_title, style_file=style_file)
 # ---------------------------------------------
 
 
+           
 
 # ---------------------------------------------------------------------------------------- #
 # -- Compute the SST biases over 50S/50N for the reference models and the test datasets -- #
@@ -267,36 +273,20 @@ if do_SST_for_tuning:
       index += section('Spatial averages = metrics for tuning', level=4)
       index+=start_line('SST 50S/50N')
 
-      Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
-      tuning_colors = []
+      if not use_available_period_set:
+	 Wmodels = period_for_diag_manager(models, diag='clim')
+      else:
+         Wmodels = copy.deepcopy(Wmodels_clim)
+      tuning_colors = colors_manager(Wmodels,cesmep_R_colors)
       for model in Wmodels:
-         if 'R_color' in model or 'color' in model:
-            if 'color' in model: tmp_color = model['color']
-            if 'R_color' in model: tmp_color = model['R_color']
-            if tmp_color in tuning_colors:
-               i=0
-               while R_colorpalette[i] in tuning_colors: i = i + 1
-               tuning_colors[tuning_colors.index(tmp_color)] = R_colorpalette[i]
-               tuning_colors.append(tmp_color)
-         else:
-            i=0
-            while R_colorpalette[i] in tuning_colors: i = i + 1
-            tmp_color = R_colorpalette[i]
-
-         tuning_colors.append(tmp_color)
-         model.update(dict(R_color=tmp_color))
+          model.update(dict(color=tuning_colors[Wmodels.index(model)]))
 
       # ------------------------------------------------
       # -- Start computing the spatial averages
       # ------------------------------------------------
       if not reference_models: reference_models = []
       reference_datasets = [
-         #dict(project='ref_climatos', product='WOA13-v2', clim_period='195501-201212', dataset_type='obs_reference'),
-         #dict(project='ref_climatos', product='UKMETOFFICE-HadISST-v1-1', clim_period='198002-200501', dataset_type='obs_reference'),
-         #dict(project='ref_climatos', product='NOAA-OISST-v2', clim_period='198202-201201', dataset_type='obs_reference'),
          dict(project='ref_ts', product='HadISST', period='1990-2010', dataset_type='obs_reference', frequency='monthly'),
-         #dict(project='ref_ts', product='HadISST', period='1980-2005', dataset_type='obs_reference', frequency='monthly'),
-         #dict(project='ref_ts', product='HadISST', period='1979-2000', dataset_type='obs_reference', frequency='monthly'),
          dict(project='ref_ts', product='HadISST', period='1875-1899', dataset_type='obs_reference', frequency='monthly'),
 
       ]
@@ -311,8 +301,9 @@ if do_SST_for_tuning:
           wdataset_dict = dataset_dict.copy()
           wdataset_dict.update(dict(variable='tos'))
           #
-          frequency_manager_for_diag(wdataset_dict, diag='SE')
-          get_period_manager(wdataset_dict)
+          if not use_available_period_set:
+             frequency_manager_for_diag(wdataset_dict, diag='clim')
+             get_period_manager(wdataset_dict)
           
           # -- Build customname and update dictionnary => we need customname anyway, for references too
           if 'customname' in wdataset_dict:
@@ -326,7 +317,6 @@ if do_SST_for_tuning:
               if wperiod not in customname: customname = customname+'_'+wperiod
           customname = str.replace(customname,' ','_')
           wdataset_dict.update(dict(customname = customname))
-          print 'customname = ', customname
           #
           # -- We tag the datasets to identify if they are: test_dataset, reference_dataset or obs_reference
           # -- This information is used by the plotting R script.
@@ -340,23 +330,25 @@ if do_SST_for_tuning:
           # -- Loop on the regions; build the results dictionary and save it in the json file variable_comparison_spatial_averages_over_regions.json
           regions_for_spatial_averages = [ dict(region_name='50S_50N', domain=[-50,50,0,360]) ]
           season='ANM'
-          #tos_ref = variable2reference('tos')
-          #tos_ref = dict(project='ref_ts', product=)
           for region in regions_for_spatial_averages:
               dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid='r360x180', option='remapdis'),
                           lonmin=region['domain'][2], lonmax=region['domain'][3],
                           latmin=region['domain'][0], latmax=region['domain'][1])
-              #ref = llbox(regridn(clim_average(ds(**tos_ref), season), cdogrid='r360x180', option='remapdis'),
-              #            lonmin=region['domain'][2], lonmax=region['domain'][3],
-              #            latmin=region['domain'][0], latmax=region['domain'][1])
-              rawvalue = cMA(space_average(dat))[0][0][0]
+              if safe_mode:
+                 try:
+                    rawvalue = cMA(space_average(dat))[0][0][0]
+                 except:
+                    rawvalue = 'NA'
+                    print '!! => Computing rawvalue failed for ',wdataset_dict
+                    print '--> Return NA'
+              else:
+                 rawvalue = cMA(space_average(dat))[0][0][0]
+              #
               if 'product' in wdataset_dict:
                  if wdataset_dict['product']=='WOA13-v2': rawvalue = rawvalue[0]
               # -- Add offset to convert in Celsius
               rawvalue = rawvalue - 273.15
-              #results[dataset_name]['results'].update( {region['region_name']: str(metric) })
-              ## -- Compute bias
-              #bias = cMA(minus(space_average(dat),space_average(ref)))[0][0][0]
+              # -- Compute bias
               results[dataset_name]['results'].update( {region['region_name']: {'rawvalue': str(rawvalue)} } )
               #
               # -- Compute the centered RMSE rmsc
@@ -370,13 +362,21 @@ if do_SST_for_tuning:
                                   lonmin=region['domain'][2], lonmax=region['domain'][3],
                                   latmin=region['domain'][0], latmax=region['domain'][1])
                  anom_ref = fsub(scyc_ref, str(cscalar(time_average(space_average(scyc_ref)))) )
-                 rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
-                 rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                 if safe_mode:
+                    try:
+                       rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                       rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                    except:
+                       print '!! => Computing RMSC and RMS failed for ',wdataset_dict
+                       print '--> Return NA'
+                       rmsc = 'NA'
+                       rms = 'NA'
+                 else:
+                    rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                    rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                 #
                  results[dataset_name]['results'][region['region_name']].update( dict(rmsc = str(rmsc), rms=str(rms) ))
       outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_metrics_over_regions_for_tuning.json'
-      #outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_bias_over_regions_for_tuning.json'
-      #results.update(dict(json_structure=['dataset_name','results','region_name'],
-      #                    variable=dict(variable=variable, varlongname=varlongname(variable))))
       with open(outjson, 'w') as outfile:
            json.dump(results, outfile, sort_keys = True, indent = 4)
       #
@@ -429,17 +429,25 @@ if do_atlas_explorer:
     print '-- atlas_explorer_variables =  --'
     print '-> ',atlas_explorer_variables
     print '--                             --'
-    Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
                              'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager)
     if atlas_explorer_climato_variables:
        index += section_climato_2D_maps(Wmodels, reference, proj, season, atlas_explorer_climato_variables,
                              'Atlas Explorer Climatologies', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager)
 
 
 
@@ -452,10 +460,17 @@ if do_zonal_profiles_explorer:
     print '-- zonal_profiles_variables =  --'
     print '-> ',zonal_profiles_variables
     print '--                             --'
-    Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='clim')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     index += section_zonal_profiles(Wmodels, reference, season, zonal_profiles_variables,
                                     'Zonal Profiles Explorer', domain=domain,
-                                    safe_mode=safe_mode, alternative_dir=alternative_dir)
+                                    safe_mode=safe_mode, alternative_dir=alternative_dir,
+                                    apply_period_manager=apply_period_manager)
 
 
 
@@ -467,35 +482,6 @@ if do_zonal_profiles_explorer:
 # --                                             /
 # --                                            /
 # ---------------------------------------------
-
-
-cscript('ensemble_ts_plot','python /home/jservon/Evaluation/CliMAF/ensemble_time_series_plot.py --filenames="${mmin}" --outfig=${out} '+\
-        '--labels=\'\"${labels}\"\' --variable=${var} --colors="${colors}" --min="${min}" --max="${max}" --lw="${lw}" '+\
-        '--offset="${offset}" --scale="${scale}" '+\
-        '--highlight_period="${highlight_period}" '+\
-        '--highlight_period_lw="${highlight_period_lw}" '+\
-        '--xlabel="${xlabel}" --ylabel="${ylabel}" '+\
-        '--xlabel_fontsize="${xlabel_fontsize}" --ylabel_fontsize="${ylabel_fontsize}" '+\
-        '--xlim="${xlim}" --ylim="${ylim}" '+\
-        '--tick_size="${tick_size}" '+\
-        '--text="${text}" '+\
-        '--text_fontsize="${text_fontsize}" '+\
-        '--text_colors="${text_colors}" '+\
-        '--text_verticalalignment="${text_verticalalignment}" '+\
-        '--text_horizontalalignment="${text_horizontalalignment}" '+\
-        '--legend_colors="${leg_colors}" --legend_labels="${legend_labels}" '+\
-        '--left_string="${left_string}" --right_string="${right_string}" --center_string="${center_string}" '+\
-        '--left_string_fontsize="${left_string_fontsize}" --right_string_fontsize="${right_string_fontsize}" --center_string_fontsize="${center_string_fontsize}" '+\
-        '--legend_loc="${legend_loc}" --legend_xy_pos="${legend_xy_pos}" --legend_labels="${legend_labels}" --legend_colors="${legend_colors}" '+\
-        '--legend_fontsize="${legend_fontsize}" --legend_ncol="${legend_ncol}" --legend_lw="${legend_lw}" '+\
-        '--draw_legend="${draw_legend}" --legend_frame="${legend_frame}" '+\
-        '--append_custom_legend_to_default="${append_custom_legend_to_default}" '+\
-        '--left_margin="${left_margin}" --right_margin="${right_margin}" --top_margin="${top_margin}" --bottom_margin="${bottom_margin}" '+\
-        '--horizontal_lines_values="${horizontal_lines_values}" --horizontal_lines_styles="${horizontal_lines_styles}" '+\
-        '--horizontal_lines_lw="${horizontal_lines_lw}" --horizontal_lines_colors="${horizontal_lines_colors}" '+\
-        '--vertical_lines_values="${vertical_lines_values}" --vertical_lines_styles="${vertical_lines_styles}" '+\
-        '--vertical_lines_lw="${vertical_lines_lw}" --vertical_lines_colors="${vertical_lines_colors}" '+\
-        '--fig_size="${fig_size}" ', format='png')
 
 def convert_list_to_string(dum,separator1=',', separator2='|'):
     string = ''
@@ -549,44 +535,58 @@ if do_main_time_series:
     # -----------------------------------------------------------------------------------------
     thumbN_size = thumbnail_size
     #
+    # -- Period Manager
+    if not use_available_period_set:
+       WWmodels_ts = period_for_diag_manager(models, diag='TS')
+       WWmodels_clim = period_for_diag_manager(models, diag='clim')
+       apply_period_manager = True
+    else:
+       WWmodels_ts = copy.deepcopy(Wmodels_ts)
+       WWmodels_clim = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
+    #
+    # -- Remove CMIP5 models
+    WTSmodels = copy.deepcopy(WWmodels_ts)
+    for model in WTSmodels:
+        if model['project'] in 'CMIP5':
+           WWmodels_ts.remove(model)
+    WCLIMmodels = copy.deepcopy(WWmodels_clim)
+    for model in WCLIMmodels:
+        if model['project'] in 'CMIP5':
+           WWmodels_clim.remove(model)
+
+    #
     # -- Loop on the time series specified in the params file
     # -----------------------------------------------------------------------------------------
     for time_series in time_series_specs:
         # ==> -- Open the html line with the title
         # -----------------------------------------------------------------------------------------
         index += open_table()
-        #line_title = variable+' = '+var_description[variable]
         line_title = ''
         index+=start_line(line_title)
         #
-        WTSmodels = copy.deepcopy(models)
-        # -- Remove CMIP5 models
-        for model in models:
-            if model['project'] in 'CMIP5':
-               WTSmodels.remove(model)
-
-        Wmodels = period_for_diag_manager(WTSmodels, diag='MOC_timeseries')
-        clim_models = period_for_diag_manager(WTSmodels, diag='atlas_explorer')
-        #
         ens_ts_dict = dict()
         names_ens = []
-        colors = []
         #
         highlight_period = []
         if 'highlight_period' in time_series:
             if time_series['highlight_period']=='clim_period':
-                for dataset_dict in clim_models:
-                    dataset_dict.update(dict(variable=time_series['variable']))
-                    frequency_manager_for_diag(dataset_dict, diag='SE')
-                    get_period_manager(dataset_dict)
+                for dataset_dict in WWmodels_clim:
+                    # -- Apply period manager if needed
+                    if not use_available_period_set:
+                       dataset_dict.update(dict(variable=time_series['variable']))
+                       frequency_manager_for_diag(dataset_dict, diag='clim')
+                       get_period_manager(dataset_dict)
                     highlight_period.append( build_period_str(dataset_dict) )
 
-        for dataset_dict in Wmodels:
+        for dataset_dict in WWmodels_ts:
             #
             wdataset_dict = dataset_dict.copy()
             wdataset_dict.update(dict(variable=time_series['variable']))
-            frequency_manager_for_diag(wdataset_dict, diag='TS')
-            get_period_manager(wdataset_dict)
+            # -- Apply period manager if needed
+            if not use_available_period_set:
+               frequency_manager_for_diag(wdataset_dict, diag='TS')
+               get_period_manager(wdataset_dict)
             #
             # -- Get the dataset
             dat = ds(**wdataset_dict)
@@ -631,6 +631,8 @@ if do_main_time_series:
            p.update(dict(highlight_period = highlight_period))
         else:
            print '==> No highlight period provided => ', highlight_period
+        # -- Colors
+        p.update(dict(colors=colors_manager(WWmodels_ts,cesmep_python_colors)))
         myplot = ts_plot(ens_ts, **p)
 
         # ==> -- Add the plot to the line
@@ -641,7 +643,6 @@ if do_main_time_series:
            fig_size = '15*5'
         thumbnail_main_ts = str(int(str.split(fig_size,'*')[0])*75)+'*'+str(int(str.split(fig_size,'*')[1])*75)
         index += cell("",safe_mode_cfile_plot(myplot, safe_mode=safe_mode),
-                       #hover=hover, **alternative_dir)
                        thumbnail=thumbnail_main_ts, hover=hover, **alternative_dir)
             #
     # ==> -- Close the line and the table for this section
@@ -672,14 +673,21 @@ if do_atmos_maps:
     print '-> ',atmos_variables
     print '--                                  --'
     print '-- thumbnail_size = ',thumbnail_size
-    Wmodels = period_for_diag_manager(models, diag='atm_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='atm_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     for model in Wmodels:
         if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Amon'))
     index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
                              'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
-			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager)
 
 
 
@@ -718,14 +726,21 @@ if do_ocean_2D_maps:
     print '-- ocean_variables =            --'
     print '-> ',ocean_2D_variables
     print '--                              --'
-    Wmodels = period_for_diag_manager(models, diag='ocean_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ocean_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     for model in Wmodels:
         if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Omon'))
     index += section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables, 
                              'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
-      	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+      	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager)
 
 
 
@@ -751,6 +766,14 @@ if do_MLD_maps:
     # -- MLD Diags -> Season and proj
     if not MLD_diags: MLD_diags=[('ANM','GLOB'),('JFM','GLOB'),('JAS','GLOB'),('JFM','NH40'),('Annual Max','NH40'),('JAS','SH30'),('Annual Max','SH30')]
     #
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='MLD_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
+    #
     # -- Loop on the MLD diags
     for MLD_diag in MLD_diags:
         season = MLD_diag[0]
@@ -773,47 +796,25 @@ if do_MLD_maps:
         wref = ref.copy()
         if 'frequency_for_annual_cycle' in wref: wref.update( dict(frequency = wref['frequency_for_annual_cycle']) )
         ref_MLD_climato   = plot_climato(variable, wref, season, proj, custom_plot_params=custom_plot_params,
-                                         safe_mode=safe_mode, regrid_option='remapdis')
+                                         safe_mode=safe_mode, regrid_option='remapdis', apply_period_manager=apply_period_manager)
         #
         # -- Add the climatology to the line
         index += cell("", ref_MLD_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
         #
         # -- Loop on the models (add the results to the html line)
-        Wmodels = period_for_diag_manager(models, diag='MLD_maps')
+        if not use_available_period_set:
+           Wmodels = period_for_diag_manager(models, diag='MLD_maps')
         for model in Wmodels:
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
             wmodel = model.copy()
             if 'frequency_for_annual_cycle' in wmodel: wmodel.update( dict(frequency = wmodel['frequency_for_annual_cycle']) )
             MLD_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
-                                       safe_mode=safe_mode, regrid_option='remapdis')
+                                       safe_mode=safe_mode, regrid_option='remapdis', apply_period_manager=apply_period_manager)
             index += cell("",MLD_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
             #
         # -- Close the line and the table of the climatos
         close_line()
-        #
-	## -- Open the table and line for the plots
-        #index += open_line('')
-	##
-        ## -- Add a blank space (no bias map below the climatology map that is right above)
-        #index += cell("", blank_cell, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-        ##
-        ## -- Loop on the models (add the results to the html line)
-        #Wmodels = period_for_diag_manager(models, diag='MLD_maps')
-        #for model in Wmodels:
-        #    #
-        #    # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
-        #    # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
-        #    wmodel = model.copy()
-        #    if 'frequency_for_annual_cycle' in wmodel: wmodel.update( dict(frequency = wmodel['frequency_for_annual_cycle']) )
-        #    #
-        #    # -- Plot the bias
-        #    MLD_bias = plot_diff(variable, wmodel, ref, season, proj, custom_plot_params=custom_plot_params,
-        #                         safe_mode=safe_mode, regrid_option='remapdis')
-        #    index += cell("", MLD_bias, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-        #    #
-        ## -- Close the line
-        #close_line()
         #
         # -- Close the table
         index += close_table()
@@ -825,9 +826,6 @@ if do_MLD_maps:
 # -- Winter and annual max                                                              -- #
 if do_curl_maps:
     # -- Open the section and an html table
-    #cscript('ccdfcurl',
-    #        'ln -s ${mesh_hgr} mesh_hgr.nc ; /opt/cdfTools-3.0/cdfcurl -u ${in_1} tauuo -v ${in_2} tauvo -l 1 -surf -o ${out} ; '+
-    #        'ncatted -O -a coordinates,socurl,o,c,"nav_lon nav_lat time" ${out}', _var='socurl')
     index += section("Wind stress Curl", level=4)
     #
     # -- Zonal and meridional components of the wind stress
@@ -848,6 +846,14 @@ if do_curl_maps:
                     PAC=dict(lonmin=-80,lonmax=0,latmin=20,latmax=90),
                   )
     #
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
+    #
     # -- Loop on the wind stress curl diags
     for curl_diag in curl_diags:
         season = curl_diag['season']
@@ -867,7 +873,8 @@ if do_curl_maps:
         index+=start_line(line_title)
         #
         # -- Loop on the models (add the results to the html line)
-        Wmodels = period_for_diag_manager(models, diag='2D_maps')
+        if not use_available_period_set:
+           Wmodels = period_for_diag_manager(models, diag='2D_maps')
         for model in Wmodels:
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
@@ -876,7 +883,7 @@ if do_curl_maps:
             # -- Compute the curl with tauu and tauv
             #if 'frequency_for_annual_cycle' in wmodel: wmodel.update( dict(frequency = wmodel['frequency_for_annual_cycle']) )
             curl_climato = plot_curl(tauu_variable, tauv_variable, curl_variable, wmodel, season, proj, domain=domain, custom_plot_params=custom_plot_params,
-                                       safe_mode=safe_mode, regrid_option='remapdis')
+                                       safe_mode=safe_mode, regrid_option='remapdis', apply_period_manager=apply_period_manager)
             index += cell("",curl_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
             #
         # -- Close the line and the table of the climatos
@@ -897,28 +904,33 @@ if do_ATLAS_TIMESERIES_SPATIAL_INDEXES:
 
     index+=section("Time-serie of Spatial Indexes",level=4)
     #
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='TS')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_ts)
+       apply_period_manager = False
+    #
     # Loop on variables,one per line
     for variable in ts_variables:
         # -- Loop on the regions
         for region in ts_basins:
             # -- Open the line with the title
-	        #index+=open_table()
-            #index+=open_line(title_region(region)+' '+varlongname(variable)+' ('+variable+')') + close_line()+ close_table()
-	        # -- Open the line for the plots
-	        #index += open_table() + open_line('')
             index+=start_line(title_region(region)+' '+varlongname(variable)+' ('+variable+')')
 	        #
             # -- Loop on the models
-            Wmodels = period_for_diag_manager(models, diag='ocean_basin_timeseries')
+            if not use_available_period_set:
+               Wmodels = period_for_diag_manager(models, diag='ocean_basin_timeseries')
             for model in Wmodels:
                 if variable=="tos" and region=="GLO":
                    print("=> comparison with HadISST")
-                   basin_index=index_timeserie(model, variable, region=region, obs=hadisst_ts, prang=None, safe_mode=safe_mode)
+                   basin_index=index_timeserie(model, variable, region=region, obs=hadisst_ts, prang=None, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
                 if variable=="zos" and region=="GLO":
                    print("=> comparisin with AVISO-L4")
-                   basin_index=index_timeserie(model, variable, region=region, obs=aviso_ts, prang=None, safe_mode=safe_mode)
+                   basin_index=index_timeserie(model, variable, region=region, obs=aviso_ts, prang=None, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
                 else:
-                    basin_index=index_timeserie(model, variable, region=region, obs=None, prang=None, safe_mode=safe_mode)
+                   basin_index=index_timeserie(model, variable, region=region, obs=None, prang=None, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
                 index+=cell("", basin_index, thumbnail=thumbsize_TS, hover=hover, **alternative_dir)
             index += close_line() + close_table()
 
@@ -930,29 +942,32 @@ if do_ATLAS_MOC_DIAGS:
 
     index+=section("MOC Diagnoses",level=4)
     #
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='TS')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_ts)
+       apply_period_manager = False
+    #
     # List of regions (i.e. basins)
     for region in MOC_basins:
         #
 	    # -- Loop on models
         # --> Vertical levels
         index+=start_line(title_region(region)+" MOC (Depth)")
-	    #index+=open_table() + open_line(title_region(region)+" MOC (Depth)") + close_line()+ close_table()
-	    # -- Open the line for the plots
-	    #index += open_table() + open_line('')
         #
-        Wmodels = period_for_diag_manager(models, diag='MOC_slice')
+        if not use_available_period_set:
+           Wmodels = period_for_diag_manager(models, diag='MOC_slice')
         #
         for model in Wmodels:
-            basin_moc_slice=moc_slice(model, region=region, y='lin')
+            basin_moc_slice=moc_slice(model, region=region, y='lin', apply_period_manager=apply_period_manager)
             index+=cell("", basin_moc_slice, thumbnail=thumbsize_MOC_slice, hover=hover, **alternative_dir)
         index += close_line() + close_table()
         # -- Model levels
         index+=start_line(title_region(region)+" MOC (model levels)")
-        #index+=open_table() + open_line(title_region(region)+" MOC (model levels)") + close_line()+ close_table()
-	    # -- Open the line for the plots
-	    #index += open_table() + open_line('')
         for model in Wmodels:
-            basin_moc_slice=moc_slice(model, region=region, y='index')
+            basin_moc_slice=moc_slice(model, region=region, y='index', apply_period_manager=apply_period_manager)
             index+=cell("", basin_moc_slice, thumbnail=thumbsize_MOC_slice, hover=hover, **alternative_dir)
         index += close_line() + close_table()
     #
@@ -976,15 +991,16 @@ if do_ATLAS_MOC_DIAGS:
        for latitude in llats:
            # -- Line title
            index+=start_line("maxMoc at latitude "+str(latitude))
-       	   #index+=open_table() + open_line("maxMoc at latitude "+str(latitude)) + close_line()+ close_table()
     	   # -- Loop on models
-           Wmodels = period_for_diag_manager(models, diag='MOC_timeseries')
+           if not use_available_period_set:
+              Wmodels = period_for_diag_manager(models, diag='MOC_timeseries')
     	   for model in Wmodels:
                wmodel = model.copy()
                if 'frequency' in wmodel:
                   if wmodel['frequency'] in ['seasonal','annual_cycle']:
                      wmodel.update(dict(frequency = 'monthly', period = model['clim_period']))
-               maxmoc_tserie = maxmoc_time_serie(wmodel, region='ATL', latitude=latitude, safe_mode=safe_mode)
+               maxmoc_tserie = maxmoc_time_serie(wmodel, region='ATL', latitude=latitude, safe_mode=safe_mode,
+                                                 apply_period_manager=apply_period_manager)
                index+=cell("", maxmoc_tserie, thumbnail=thumbsize_MOC_TS, hover=hover, **alternative_dir)
            index+=close_line()+close_table()
 
@@ -996,30 +1012,33 @@ if do_ATLAS_VERTICAL_PROFILES:
 
     index+=section("Vertical Profiles",level=4)
     # Loop on variables, one per line
-    Wmodels = period_for_diag_manager(models, diag='ocean_vertical_profiles')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ocean_vertical_profiles')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     for variable  in VertProf_variables:
         for obs in VertProf_obs:
             for region in VertProf_basins:
 	            # -- Line title
                 index+=start_line(title_region(region)+' '+varlongname(variable)+' ('+variable+') vs '+obs.get("product"))
-	            #index+=open_table()+open_line(title_region(region)+' '+varlongname(variable)+' ('+variable+') vs '+obs.get("product"))+close_line()+close_table()
-		        #index+=open_table()+open_line('')
                 for model in Wmodels:
                     if region=="GLO":
                        basin_profile = vertical_profile(model, variable, obs=obs, region=region,
-                                                        box=None, safe_mode=safe_mode)
+                                                        box=None, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
                     else:
                        #mpm_to_improve: pour l'instant, pas de comparaison aux obs dans les sous-basins
                        basin_profile = vertical_profile(model, variable, obs=None, region=region,
-                                                        box=None, safe_mode=safe_mode)
+                                                        box=None, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
                     index+=cell("", basin_profile, thumbnail=thumbsize_VertProf, hover=hover, **alternative_dir)
                 index+=close_line()+close_table()
-	    # -- Line title
-        #index+=open_table()+open_line('Gibraltar '+varlongname(variable)+' ('+variable+') vs '+obs.get("product"))+close_line()+close_table()
+	# -- Line title
         index+=start_line('Gibraltar '+varlongname(variable)+' ('+variable+') vs '+obs.get("product"))
         for model in Wmodels:
             gibr_profile = vertical_profile(model, variable, obs=obs, region='GLO',
-                                            box=boxes.get("gibraltar"), safe_mode=safe_mode)
+                                            box=boxes.get("gibraltar"), safe_mode=safe_mode, apply_period_manager=apply_period_manager)
             index+=cell("", gibr_profile, thumbnail=thumbsize_VertProf, hover=hover, **alternative_dir)
         index+=close_line()+close_table()
 
@@ -1030,7 +1049,13 @@ if do_ATLAS_ZONALMEAN_SLICES:
 
     index+=section("Zonal Means Sections per ocean basin --> Model regridded on reference (before computing the zonal mean)",level=4)
     # Loop over variables
-    Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     for variable in zonmean_slices_variables:
         # Loop over seasons
         for season in zonmean_slices_seas:
@@ -1044,36 +1069,18 @@ if do_ATLAS_ZONALMEAN_SLICES:
                    ref = reference.copy()
                 basin_zonmean_modelgrid = zonal_mean_slice2(ref, variable, basin=basin, season=season,
                                                 ref=None, safe_mode=safe_mode, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref')
+                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
+                                                apply_period_manager=apply_period_manager)
                 index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
                 for model in Wmodels:
                     basin_zonmean_modelgrid = zonal_mean_slice2(model, variable, basin=basin, season=season,
                                                 ref=ref, safe_mode=safe_mode, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref')
+                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
+                                                apply_period_manager=apply_period_manager)
                     index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
                 index+=close_line()+close_table()
 
     index+=section("Zonal Means Sections with CDFtools per basin",level=4)
-    # Loop over variables
-    #Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
-    #for variable in zonmean_slices_variables:
-    #    # Loop over seasons
-    #    for season in zonmean_slices_seas:
-    #        #index+=open_table()+open_line(variable+"-"+season)+close_line()+close_table()
-    #        for region in zonmean_slices_basins:
-    #            ## -- Model Grid
-    #            #index+=start_line(title_region(region)+' '+varlongname(variable)+' ('+variable+') Model Grid')
-    #            #ref = variable2reference(variable, my_obs=custom_obs_dict)
-    #            #basin_zonmean_modelgrid = zonal_mean_slice2(ref, variable, basin=basin, season=season,
-    #            #                                ref=None, safe_mode=safe_mode, y=y, add_product_in_title=None,
-    #            #                                custom_plot_params=custom_plot_params, method='regrid_ref_on_model')
-    #            #index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
-    #            #for model in Wmodels:
-    #            #    basin_zonmean_modelgrid = zonal_mean_slice2(model, variable, basin=basin, season=season,
-    #            #                                ref=variable2reference(variable, my_obs=custom_obs_dict), safe_mode=safe_mode, y=y, add_product_in_title=None,
-    #            #                                custom_plot_params=custom_plot_params, method='regrid_ref_on_model')
-    #            #    index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
-    #		#index+=close_line()+close_table()
 
 
 
@@ -1083,15 +1090,20 @@ if do_ATLAS_ZONALMEAN_SLICES:
 if do_ATLAS_DRIFT_PROFILES:
 
     index+=section("Drift Profiles (Hovmoller)",level=4)
-    # Loop over variables
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ocean_drift_profiles')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     Wmodels = period_for_diag_manager(models, diag='ocean_drift_profiles')
+    # Loop over variables
     for variable in drift_profiles_variables:
         for region in drift_profiles_basins:
-            #index+=open_table()+open_line('Drift vs T0: '+title_region(region)+' '+varlongname(variable)+' ('+variable+')')+close_line()+close_table()
-	        #index+=open_table()+open_line()
             index+=start_line('Drift vs T0: '+title_region(region)+' '+varlongname(variable)+' ('+variable+')')
             for model in Wmodels:
-                basin_drift = hovmoller_drift_profile(model, variable, region=region, y=y, safe_mode=safe_mode)
+                basin_drift = hovmoller_drift_profile(model, variable, region=region, y=y, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
                 index+=cell("", basin_drift, thumbnail=thumbsize_TS, hover=hover, **alternative_dir)
             index+=close_line()+close_table()
 
@@ -1126,15 +1138,16 @@ if do_seaice_annual_cycle:
    index += section("Sea Ice volume - annual cycle", level=4)
    index += open_table()
    #
-   Wmodels = period_for_diag_manager(models, diag='sea_ice_volume_annual_cycle')
+   # -- Period Manager
+   if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='sea_ice_volume_annual_cycle')
+       apply_period_manager = True
+   else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
    # -- Do the plots and the availability check
-   print '---'
-   print '---'
-   print '--- safe_mode = ',safe_mode
-   print '---'
-   print '---'
-   siv_NH = plot_SIV(Wmodels, 'NH', safe_mode=safe_mode)
-   siv_SH = plot_SIV(Wmodels, 'SH', safe_mode=safe_mode)
+   siv_NH = plot_SIV(Wmodels, 'NH', safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+   siv_SH = plot_SIV(Wmodels, 'SH', safe_mode=safe_mode, apply_period_manager=apply_period_manager)
    #
    # -- Gather the figures in an html line
    index+=open_line('Sea Ice Volume (km3))')+\
@@ -1160,6 +1173,14 @@ if do_seaice_maps:
     # -- Sea Ice Diags -> Season and Pole
     if not sea_ice_diags: sea_ice_diags=[('March','NH'),('September','NH'),('March','SH'),('September','SH')]
     #
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='sea_ice_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
+    #
     # -- Loop on the sea ice diags: region and season
     for sea_ice_diag in sea_ice_diags:
         season = sea_ice_diag[0]
@@ -1182,7 +1203,8 @@ if do_seaice_maps:
         index+= start_line(line_title)
         #
         # -- Loop on the models (in order to add the results to the html line)
-        Wmodels = period_for_diag_manager(models, diag='sea_ice_maps')
+        if not use_available_period_set:
+           Wmodels = period_for_diag_manager(models, diag='sea_ice_maps')
         for model in Wmodels:
             #
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
@@ -1192,31 +1214,11 @@ if do_seaice_maps:
             #
             # -- Do the plot
             SI_climato = plot_sic_climato_with_ref(variable, wmodel, ref, season, proj,
-                                                   custom_plot_params=custom_plot_params, safe_mode=safe_mode)
+                                                   custom_plot_params=custom_plot_params, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
             # -- And add to the html line
             index += cell("", SI_climato, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
             #
         index+=close_line()
-        #
-        ## --> Sea Ice Concentration bias
-	## -- Open the line for the plots
-        #index += open_line('') #+ cell("", blank_cell, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-        ##
-        ## -- Loop on the models (in order to add the results to the html line)
-        #for model in Wmodels:
-        #    # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
-        #    # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
-        #    wmodel = model.copy()
-        #    if 'frequency_for_annual_cycle' in wmodel: wmodel.update( dict(frequency = wmodel['frequency_for_annual_cycle']) )
-        #    #
-        #    # -- Do the plot
-        #    SI_bias = plot_diff(variable, wmodel, ref, season, proj, custom_plot_params=custom_plot_params,
-        #                        safe_mode=safe_mode)
-        #    #
-        #    # -- And add to the html line
-        #    index += cell("", SI_bias, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-        #    #
-        #index+=close_line()+close_table()
         #
         # --> Sea Ice thickness climato ----------------------------------------------
         variable='sit'
@@ -1234,7 +1236,7 @@ if do_seaice_maps:
             #
             # -- Do the plot
             SIT_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
-                                       safe_mode=safe_mode)
+                                       safe_mode=safe_mode, apply_period_manager=apply_period_manager)
             #
             # -- And add to the html line
             index=index+cell("", SIT_climato, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
@@ -1257,7 +1259,7 @@ if do_seaice_maps:
             #
             # -- Do the plot
             SIT_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
-                                       safe_mode=safe_mode)
+                                       safe_mode=safe_mode, apply_period_manager=apply_period_manager)
             #
             # -- And add to the html line
             index=index+cell("", SIT_climato, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
@@ -1285,7 +1287,7 @@ if do_ENSO_CLIVAR:
     print '----------------------------------------------'
     # -- Open the section ---------------------------------------------------------------
     index += section("ENSO - CLIVAR diagnostics", level=4)
-
+    #
     # -- Time series of SST anomalies (departures from annual cycle ---------------
     line_title = 'Time Series of Nino3 SST anomalies (departures from annual cycle)'
     index+=start_line(line_title)
@@ -1294,9 +1296,17 @@ if do_ENSO_CLIVAR:
     plot_ref_ENSO_ts_ssta =  ENSO_ts_ssta(ref_ENSO_tos)
     index+=cell("", plot_ref_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
     # And loop over the models
+    # -- Period Manager
     Wmodels = period_for_diag_manager(models, diag='ENSO')
+    for dataset_dict in Wmodels:
+        dataset_dict.update(dict(variable='tos'))
+        frequency_manager_for_diag(dataset_dict, diag='TS')
+        get_period_manager(dataset_dict)
+        dataset_dict.pop('variable')
+    apply_period_manager = False
+    #
     for model in Wmodels:
-        plot_model_ENSO_ts_ssta = ENSO_ts_ssta(model)
+        plot_model_ENSO_ts_ssta = ENSO_ts_ssta(model, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1306,13 +1316,11 @@ if do_ENSO_CLIVAR:
     line_title = 'Standard Deviation of SST anomalies (deviations from annual cycle)'
     index+=start_line(line_title)
     # -- Plot the reference
-    #ref_ENSO_tos = dict(project='ref_ts', period='1980-2005', product='HadISST')
-    plot_ref_ENSO_std_ssta =  ENSO_std_ssta(ref_ENSO_tos)
+    plot_ref_ENSO_std_ssta =  ENSO_std_ssta(ref_ENSO_tos, apply_period_manager=apply_period_manager)
     index+=cell("", plot_ref_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
     for model in Wmodels:
-        plot_model_ENSO_std_ssta =  ENSO_std_ssta(model)
+        plot_model_ENSO_std_ssta =  ENSO_std_ssta(model, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1322,12 +1330,11 @@ if do_ENSO_CLIVAR:
     index+=start_line(line_title)
     # -- Plot the reference
     ref_ENSO_pr = variable2reference('pr')# ; ref_ENSO_pr.update(dict(frequency='seasonal'))
-    plot_ref_ENSO_pr_clim = ENSO_pr_clim(ref_ENSO_pr, safe_mode=safe_mode)
+    plot_ref_ENSO_pr_clim = ENSO_pr_clim(ref_ENSO_pr, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     index+=cell("", plot_ref_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
     for model in Wmodels:
-        plot_model_ENSO_pr_clim = ENSO_pr_clim(model, safe_mode=safe_mode)
+        plot_model_ENSO_pr_clim = ENSO_pr_clim(model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1337,12 +1344,11 @@ if do_ENSO_CLIVAR:
     index+=start_line(line_title)
     # -- Plot the reference
     ref_ENSO_tauu = variable2reference('tauu')# ; ref_ENSO_tauu.update(dict(frequency='seasonal'))
-    plot_ref_ENSO_tauu_clim = ENSO_tauu_clim(ref_ENSO_tauu, safe_mode=safe_mode)
+    plot_ref_ENSO_tauu_clim = ENSO_tauu_clim(ref_ENSO_tauu, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     index+=cell("", plot_ref_ENSO_tauu_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
     for model in Wmodels:
-        plot_model_ENSO_tauu_clim =  ENSO_tauu_clim(model, safe_mode=safe_mode)
+        plot_model_ENSO_tauu_clim =  ENSO_tauu_clim(model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_tauu_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1353,14 +1359,13 @@ if do_ENSO_CLIVAR:
     # -- Plot the reference
     ref_ENSO_tauu = dict(project='ref_ts', product='ERAInterim', period='2001-2010', variable='tauu')
     ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010')
-    plot_ref_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(ref_ENSO_tauu, ref_ENSO_tos, safe_mode=safe_mode)
+    plot_ref_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(ref_ENSO_tauu, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     index+=cell("", plot_ref_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
     for model in Wmodels:
         tos_model = model.copy() ; tos_model.update(variable='tos')
         tauu_model = model.copy() ; tauu_model.update(variable='tauu')
-        plot_model_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(tauu_model,tos_model, safe_mode=safe_mode)
+        plot_model_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(tauu_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1371,14 +1376,13 @@ if do_ENSO_CLIVAR:
     # -- Plot the reference
     ref_ENSO_rsds = dict(project='ref_ts', product='CERES-EBAF-Ed2-7', period='2001-2010', variable='rsds')
     ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010')
-    plot_ref_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(ref_ENSO_rsds, ref_ENSO_tos, safe_mode=safe_mode)
+    plot_ref_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(ref_ENSO_rsds, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     index+=cell("", plot_ref_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
     for model in Wmodels:
         tos_model = model.copy() ; tos_model.update(variable='tos')
         rsds_model = model.copy() ; rsds_model.update(variable='rsds')
-        plot_model_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(rsds_model,tos_model, safe_mode=safe_mode)
+        plot_model_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(rsds_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1386,14 +1390,13 @@ if do_ENSO_CLIVAR:
     # -- Annual Cycles -----------------------------------------------------------------
     line_title = 'Annual cycles Nino3 (SST, SSTA, Std.dev)'
     index+=start_line(line_title)
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
-    plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode)
+    plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     thumbN_size="600*350"
     index+=cell("", plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=start_line('')
     for model in Wmodels:
-        one_model_plot_annual_cycles = plot_ENSO_annual_cycles([model], safe_mode=safe_mode)
+        one_model_plot_annual_cycles = plot_ENSO_annual_cycles([model], safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", one_model_plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1402,14 +1405,13 @@ if do_ENSO_CLIVAR:
     # -- Longitudinal profile of Zonal Wind Stress --------------------------------------
     line_title = 'Annual Mean Climatology of Zonal Wind Stress (-5/5N profile)'
     index+=start_line(line_title)
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
-    plot_tauu_profile = plot_ZonalWindStress_long_profile(Wmodels, safe_mode=safe_mode)
+    plot_tauu_profile = plot_ZonalWindStress_long_profile(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     thumbN_size="450*400"
     index+=cell("", plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=start_line('')
     for model in Wmodels:
-        one_model_plot_tauu_profile = plot_ZonalWindStress_long_profile([model], safe_mode=safe_mode)
+        one_model_plot_tauu_profile = plot_ZonalWindStress_long_profile([model], safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", one_model_plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1442,7 +1444,6 @@ if do_Monsoons_pr_anncyc:
     if not monsoon_precip_regions:
        monsoon_precip_regions = [
 	dict(name='All-India Rainfall (65/95E;5/30N)', domain=dict(lonmin=65,lonmax=95,latmin=5,latmax=30)),
-        #dict(name='West African Monsoon (-20/30E;0/20N)', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
         dict(name='WAM - AMMA (-10/10E;12/20N)', domain=dict(lonmin=-10,lonmax=10,latmin=12,latmax=20)),
         ]
     
@@ -1477,12 +1478,12 @@ if do_Monsoons_pr_anncyc:
     land_pr_ref_masked = fmul(pr_ref, land_ref_mask)
 
     # -- Annual cycle of precipitation over land ---------------------------------------- 
-    #line_title = 'Annual cycle of precipitation over land'
-    #index+=start_line(line_title)
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='clim')
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
     #
-    Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
     # -- Loop on regions
-    #MP = []
     for region in monsoon_precip_regions:
 
         # -- Start line
@@ -1501,8 +1502,9 @@ if do_Monsoons_pr_anncyc:
             
             wmodel = model.copy()
             wmodel.update(dict(variable='pr'))
-            frequency_manager_for_diag(wmodel, diag='SE')
-            get_period_manager(wmodel)
+            if not use_available_period_set:
+               frequency_manager_for_diag(wmodel, diag='clim')
+               get_period_manager(wmodel)
   
             pr_sim = ds(**wmodel)
 
@@ -1543,7 +1545,7 @@ if do_Monsoons_pr_anncyc:
 
             wmodel = model.copy()
             wmodel.update(dict(variable='pr'))
-            frequency_manager_for_diag(wmodel, diag='SE')
+            frequency_manager_for_diag(wmodel, diag='clim')
             get_period_manager(wmodel)
 
             pr_sim = ds(**wmodel)
@@ -1561,12 +1563,12 @@ if do_Monsoons_pr_anncyc:
                try:
                   cfile(anncyc_pr_sim_masked)
                   ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+                  cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
                except:
                   print 'No data for Monsoon pr diagnostic for ',model
             else:
                ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
-
-            cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
+               cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
 
             plot_pr_anncyc_region_one_model = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
 
@@ -1596,7 +1598,13 @@ if do_Monsoons_pr_anncyc:
 # -- Hotelling Test: evaluation metric for the spatio-temporal variability              -- #
 # -- of the annual cycle                                                                -- #
 if do_Hotelling_Test:
-  Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+  # -- Period Manager
+  if not use_available_period_set:
+     Wmodels = period_for_diag_manager(models, diag='clim')
+     apply_period_manager = True
+  else:
+     Wmodels = copy.deepcopy(Wmodels_clim)
+     apply_period_manager = False
   #
   # -- For the Hotelling Test, the scripts are not declared properly as CliMAF operators
   # -- because CliMAF doesn't handle json output files at the moment (and also because of
@@ -1621,24 +1629,9 @@ if do_Hotelling_Test:
   # -- If the user didn't assign one, we take one from R_colorpalette defined in params_HotellingTest.py
   # -- If the user assigned one that was already attributed automatically with the mechanism above,
   # -- we replace it with another one.
-  hotelling_colors = []
+  hotelling_colors = colors_manager(Wmodels, cesmep_R_colors)
   for model in Wmodels:
-      if 'R_color' in model or 'color' in model:
-         if 'color' in model: tmp_color = model['color']
-         if 'R_color' in model: tmp_color = model['R_color']
-         if tmp_color in hotelling_colors:
-            i=0
-            while R_colorpalette[i] in hotelling_colors: i = i + 1
-            hotelling_colors[hotelling_colors.index(tmp_color)] = R_colorpalette[i]
-            hotelling_colors.append(tmp_color)
-      else:
-         i=0
-         while R_colorpalette[i] in hotelling_colors: i = i + 1
-         tmp_color = R_colorpalette[i]
-  
-      hotelling_colors.append(tmp_color)
-      model.update(dict(R_color=tmp_color))
-
+      model.update(dict(color=hotelling_colors[Wmodels.index(model)]))
 
   # -- Loop on the variables
   for variable in hotelling_variables:
@@ -1691,10 +1684,10 @@ if do_Hotelling_Test:
           model.update(dict(variable=variable))
           #
           # -- Apply the frequency and time manager
-          frequency_manager_for_diag(model, diag='SE')
-          get_period_manager(model)
+          if not use_available_period_set:
+             frequency_manager_for_diag(model, diag='clim')
+             get_period_manager(model)
           wmodel = model.copy()
-          print 'wmodel = ',wmodel
           #
           # -- Get the dataset, compute the annual cycle and regrid to the common grid
           dat = regridn( annual_cycle( ds(**wmodel) ), cdogrid=common_grid, option='remapdis')
@@ -1917,7 +1910,15 @@ if do_Hotelling_Test:
               dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid=cdogrid, option='remapdis'),
                           lonmin=region['domain'][2], lonmax=region['domain'][3],
                           latmin=region['domain'][0], latmax=region['domain'][1])
-              metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+              if safe_mode:
+                 try:
+                    metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+                 except:
+                    print 'cMA(space_average(multiply(dat,mask)))[0][0][0] has failed for wdataset_dict = ',wdataset_dict
+                    metric = 'NA'
+              else:
+                 metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+              #
               results[dataset_name]['results'].update( {region['region_name']: str(metric) })
 
       outjson = main_cesmep_path+'/'+opts.comparison+'/HotellingTest/'+variable+'_'+opts.comparison+'_spatial_averages_over_regions.json'
@@ -1965,7 +1966,13 @@ if do_GLB_SFlux_maps:
     # -- Open the section and an html table
     index += section("Turbulent Fluxes Annual Mean", level=4)
     #
-    Wmodels = period_for_diag_manager(models, diag='TurbulentAirSeaFluxes')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='TurbulentAirSeaFluxes')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     #
     # -- Loop on the turbulent fluxes variables
     for variable in TurbFluxes_variables:
@@ -1990,7 +1997,6 @@ if do_GLB_SFlux_maps:
         index += start_line(line_title)
 	#
         # -- Add the plots at the beginning line
-        print 'Do climato plots for '+variable
         # --> First, the climatology of the reference
         index += cell("", GLB_plot_climato_ref_ANM, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
         # --> Then, the climatology of the first model
@@ -2000,7 +2006,6 @@ if do_GLB_SFlux_maps:
         for model in Wmodels:
             wmodel = model.copy()
             wmodel.update(dict(variable=variable,table='Amon'))
-            print 'Do bias plots for '+variable , model
             GLB_bias_ANM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, climatology='ANM', region='Global', custom_plot_params=custom_plot_params)
             index=index+cell("", GLB_bias_ANM, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
             #
@@ -2017,7 +2022,13 @@ if do_Tropics_SFlux_maps:
     # -- Open the section and an html table
     index += section("Turbulent Air-Sea Fluxes Tropics = Gainusa-Bogdan et al. 2015", level=4)
     #
-    Wmodels = period_for_diag_manager(models, diag='TurbulentAirSeaFluxes')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='TurbulentAirSeaFluxes')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     #
     for variable in TurbFluxes_variables:
         # -- Second Line: Climatos seasons REF + models
@@ -2026,7 +2037,7 @@ if do_Tropics_SFlux_maps:
         line_title = varlongname(variable)+' ('+variable+') => Annual Mean Climatology - GB2015, Model and bias map'
         index+=start_line(line_title)
         # -- Plot the reference
-        plot_climato_ref_ANM = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
+        plot_climato_ref_ANM = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
         #
         # -- We apply the frequency and time manager once per variable
         # -- For this we create a Wmodels_var per variable
@@ -2034,15 +2045,16 @@ if do_Tropics_SFlux_maps:
         Wmodels_var = deepcopy(Wmodels)
         for model in Wmodels_var:
             model.update(dict(variable=variable))
-            frequency_manager_for_diag(model, diag='SE')
-            get_period_manager(model)
+            if not use_available_period_set:
+               frequency_manager_for_diag(model, diag='clim')
+               get_period_manager(model)
 
         # And loop over the models
         for model in Wmodels_var:
             wmodel = model.copy()
             sim = ds(**wmodel)
-            plot_climato_sim_ANM = plot_climato_TurbFlux_GB2015(variable, wmodel, climatology='ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-            plot_bias_ANM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
+            plot_climato_sim_ANM = plot_climato_TurbFlux_GB2015(variable, wmodel, climatology='ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+            plot_bias_ANM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'ANM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
             plot_ANM = cpage(fig_lines=[[plot_climato_sim_ANM],[plot_climato_ref_ANM],[plot_bias_ANM]], fig_trim=True, page_trim=True,
                              title=sim.model+' '+sim.simulation+' (vs GB2015)',
                              gravity='NorthWest',
@@ -2116,7 +2128,6 @@ if do_Tropics_SFlux_maps:
                   index+=cell("", blank_cell, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
             else:
                index+=cell("", cfile(seas_bias_plot), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
-            #index+=cell("", safe_mode_cfile(seas_bias_plot, safe_mode=safe_mode), thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
         close_line()
         index+=close_table()
         #
@@ -2148,12 +2159,19 @@ if do_biogeochemistry_2D_maps:
     print '-- ocebio_2D_variables =             --'
     print '-> ',ocebio_2D_variables
     print '--                              --'
-    Wmodels = period_for_diag_manager(models, diag='PISCES_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='PISCES_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     index += section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
                              'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
-   			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+   			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager)
 
 
 
@@ -2191,7 +2209,13 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
            wvariables_energy_budget_bias.append(tmpvar)
         except:
            print 'No obs for '+tmpvar
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2200,7 +2224,8 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
                                                          'ORCHIDEE Energy Budget, Climato OBS, Bias and model-model differences',
                                                          domain=domain, add_product_in_title=add_product_in_title,
 							 custom_plot_params=custom_plot_params, shade_missing=True, safe_mode=safe_mode,
-							 alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+							 alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                                                         apply_period_manager=apply_period_manager)
 
 
 if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
@@ -2218,7 +2243,13 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
            wvariables_energy_budget_bias.append(tmpvar)
         except:
            print 'No obs for '+tmpvar
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2227,7 +2258,8 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
                              'ORCHIDEE Energy Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
                              domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode, 
                              add_line_of_climato_plots=add_line_of_climato_plots,
-	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager)
 
 
 if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
@@ -2244,7 +2276,13 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
         except:
            wvariables_energy_budget_modelmodel.append(tmpvar)
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2253,7 +2291,8 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
                              'ORCHIDEE Energy Budget, difference with first simulation', domain=domain, 
                               add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
                               add_line_of_climato_plots=add_line_of_climato_plots,
-			      custom_plot_params=custom_plot_params, alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+			      custom_plot_params=custom_plot_params, alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                              apply_period_manager=apply_period_manager)
 
 
 
@@ -2266,7 +2305,13 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
     print '--                                                                    --'
     for tmpvar in variables_energy_budget:
         if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2275,7 +2320,8 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
                              'ORCHIDEE Energy Budget, difference with a reference (climatological month, season)', domain=domain,
                               add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
                               add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-	 		      custom_plot_params=custom_plot_params, alternative_dir=alternative_dir)
+	 		      custom_plot_params=custom_plot_params, alternative_dir=alternative_dir,
+                              apply_period_manager=apply_period_manager)
 
 
 
@@ -2296,7 +2342,13 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
            wvariables_water_budget_bias.append(tmpvar)
         except:
            print 'No obs for '+tmpvar
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2306,7 +2358,8 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
                                                          domain=domain, add_product_in_title=add_product_in_title,
 							 shade_missing=True, safe_mode=safe_mode, custom_plot_params=custom_plot_params,
                                                          custom_obs_dict=custom_obs_dict,
-							 alternative_dir=alternative_dir)
+							 alternative_dir=alternative_dir,
+                                                         apply_period_manager=apply_period_manager)
 
 
 if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
@@ -2324,7 +2377,13 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
            wvariables_water_budget_bias.append(tmpvar)
         except:
            print 'No obs for '+tmpvar
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2333,7 +2392,7 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
                              'ORCHIDEE Water Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
                              domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-			                 alternative_dir=alternative_dir)
+			     alternative_dir=alternative_dir, apply_period_manager=apply_period_manager)
 
 
 if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
@@ -2350,7 +2409,13 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
         except:
            wvariables_water_budget_modelmodel.append(tmpvar)
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2359,7 +2424,8 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
                              'ORCHIDEE Water Budget, difference with first simulation', domain=domain,
                               add_product_in_title=add_product_in_title, custom_plot_params=custom_plot_params,
                               add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-			                  shade_missing=True, safe_mode=safe_mode, alternative_dir=alternative_dir)
+			      shade_missing=True, safe_mode=safe_mode, alternative_dir=alternative_dir,
+                              apply_period_manager=apply_period_manager)
 
 
 
@@ -2380,7 +2446,13 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
            wvariables_carbon_budget_bias.append(tmpvar)
         except:
            print 'No obs for '+tmpvar
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2388,9 +2460,9 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_carbon_budget_bias,
                                                          'ORCHIDEE Carbon Budget, Climato OBS, Bias and model-model differences',
                                                          domain=domain, add_product_in_title=add_product_in_title,
-							                             shade_missing=True, safe_mode=safe_mode, custom_plot_params=custom_plot_params,
-                                                         custom_obs_dict=custom_obs_dict,
-							                             alternative_dir=alternative_dir)
+							 shade_missing=True, safe_mode=safe_mode, custom_plot_params=custom_plot_params,
+                                                         custom_obs_dict=custom_obs_dict, alternative_dir=alternative_dir,
+                                                         apply_period_manager=apply_period_manager)
 
 
 if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
@@ -2408,7 +2480,13 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
            wvariables_carbon_budget_bias.append(tmpvar)
         except:
            print 'No obs for '+tmpvar
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
@@ -2417,7 +2495,8 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
                              'ORCHIDEE Carbon Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
                              domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                             alternative_dir=alternative_dir)
+                             alternative_dir=alternative_dir,
+                             apply_period_manager=apply_period_manager)
 
 
 
@@ -2435,16 +2514,23 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
         except:
            wvariables_carbon_budget_modelmodel.append(tmpvar)
-    Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
     for model in Wmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_carbon_budget_modelmodel,
                              'ORCHIDEE Carbon Budget, difference with first simulation', domain=domain,
-                              add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-			                  custom_plot_params=custom_plot_params, alternative_dir=alternative_dir)
+                             add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
+                             add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
+			     custom_plot_params=custom_plot_params, alternative_dir=alternative_dir,
+                             apply_period_manager=apply_period_manager)
 
 
 
@@ -2489,13 +2575,13 @@ if do_mse_otorres_maps:
     index+=start_line(line_title)
     #
     # -- Loop on the models (add the results to the html line)
-    Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+    Wmodels = period_for_diag_manager(models, diag='clim')
     for model in Wmodels:
         # -- Apply frequency and period manager
         wmodel_var = model.copy() # - copy the dictionary to avoid modifying the original dictionary
         wmodel_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
         #                                          and get_period_manager to scan the existing files and find the requested period
-        frequency_manager_for_diag(wmodel_var, 'SE') # - Apply frequency_manager_for_diag
+        frequency_manager_for_diag(wmodel_var, 'clim') # - Apply frequency_manager_for_diag
         get_period_manager(wmodel_var) # - Apply get_period_manager
         wmodel = wmodel_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
         wmodel.pop('variable')
@@ -2538,7 +2624,7 @@ if do_mse_otorres_maps:
     wref_var = ref_mse_diff.copy() # - copy the dictionary to avoid modifying the original dictionary
     wref_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
     #                                          and get_period_manager to scan the existing files and find the requested period
-    frequency_manager_for_diag(wref_var, 'SE') # - Apply frequency_manager_for_diag
+    frequency_manager_for_diag(wref_var, 'clim') # - Apply frequency_manager_for_diag
     get_period_manager(wref_var) # - Apply get_period_manager
     wref = wref_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
     wref.pop('variable')
@@ -2553,13 +2639,13 @@ if do_mse_otorres_maps:
     models_for_diff.remove(ref_mse_diff)
 
     # -- Loop on the models (add the results to the html line)
-    Wmodels = period_for_diag_manager(models_for_diff, diag='atlas_explorer')
+    Wmodels = period_for_diag_manager(models_for_diff, diag='clim')
     for model in Wmodels:
         # -- Apply frequency and period manager
         wmodel_var = model.copy() # - copy the dictionary to avoid modifying the original dictionary
         wmodel_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
         #                                          and get_period_manager to scan the existing files and find the requested period
-        frequency_manager_for_diag(wmodel_var, 'SE') # - Apply frequency_manager_for_diag
+        frequency_manager_for_diag(wmodel_var, 'clim') # - Apply frequency_manager_for_diag
         get_period_manager(wmodel_var) # - Apply get_period_manager
         wmodel = wmodel_var.copy() # - copy wmodel_var to do a new dictionary wmodel without the variable name (used below to get the datasets)
         wmodel.pop('variable')
@@ -2579,7 +2665,6 @@ if do_mse_otorres_maps:
         #
         # -- Add the plot to the line
         index += cell("",safe_mode_cfile_plot(MSE_plot_diff, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
-        #cfile(MSE_plot, target='/home/otorres/myfigure.png')
         #
     # -- Close the line and the table of the climatos
     index+=close_line() + close_table()
@@ -2621,7 +2706,6 @@ if do_my_own_climaf_diag:
     # ==> -- Apply the period_for_diag_manager (not actually needed here)
     # -----------------------------------------------------------------------------------------
     Wmodels = copy.deepcopy(models)
-    #Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
     #
     # -- Define plot parameters per variable -> better if in the params file
     # -----------------------------------------------------------------------------------------
@@ -2652,7 +2736,7 @@ if do_my_own_climaf_diag:
             # ==> -- clim_period='last_SE' or clim_period='last_XXY'...
             # ==> -- and get_period_manager scans the existing files and find the requested period
             # ==> -- !!! Both functions modify the wmodel so that it will point to the requested period
-            frequency_manager_for_diag(wmodel, 'SE')
+            frequency_manager_for_diag(wmodel, 'clim')
             get_period_manager(wmodel)
             #
             # /// -- Get the dataset and compute the annual cycle
@@ -2842,7 +2926,7 @@ if do_annual_cycle_precip:
         #
         # ==> -- Apply frequency and period manager
         # -----------------------------------------------------------------------------------------
-        frequency_manager_for_diag(wmodel, 'SE')
+        frequency_manager_for_diag(wmodel, 'clim')
         get_period_manager(wmodel)
         #
         # /// -- Get the dataset and compute the annual cycle
@@ -2852,7 +2936,6 @@ if do_annual_cycle_precip:
         fig_lines = []
         options='pmLabelBarWidthF=0.065|pmLabelBarOrthogonalPosF=0.01|lbLabelFontHeightF=0.01|tmXBLabelFontHeightF=0.01|tmYLLabelFontHeightF=0.01'
         for m in months:
-            print m
             clim_ref = llbox( clim_average(ref,m), **domain)
             clim_dat = llbox( regrid( clim_average(dat,m), clim_ref ), **domain)
             anom_ref = fsub(clim_ref, str(cMA(space_average(clim_ref))[0][0][0]))
@@ -2938,24 +3021,19 @@ if alt_dir_name :
        print(' -- ')
        print(' -- ')
        print(' -- ')
-       print("index actually written as : "+outfile)
-       print("may be seen at "+root_url+outfile.replace(subdir,alt_dir_name))
+       print("index written as : "+outfile)
+       print("Available at this address "+root_url+outfile.replace(subdir,alt_dir_name))
     #
     if atTGCC:
        # -- Ecriture du fichier html dans le repertoire sur scratch
        outfile=scratch_alt_dir_name+index_name
        with open(outfile,"w") as filout : filout.write(index)
        print("index actually written as : "+outfile)
-       # -- Copie du repertoire de resultat du scratch vers le work (avant copie sur le dods)
-       #subdir = opts.comparison+'_'+user_login+'/'+component
-       #work_alt_dir_name = os.getcwd()+'/'+subdir
-
        if not os.path.isdir(work_alt_dir_name):
           os.makedirs(work_alt_dir_name)
        else:
           print 'rm -rf '+work_alt_dir_name+'/*'
           os.system('rm -rf '+work_alt_dir_name+'/*')
-       #cmd1 = 'cp -r '+scratch_alt_dir_name+' '+work_alt_dir_name.replace('/'+subdir,'')
        cmd1 = 'cp -r '+scratch_alt_dir_name+'* '+work_alt_dir_name
        print cmd1
        os.system(cmd1)
@@ -2969,15 +3047,17 @@ if alt_dir_name :
        cmd12 = 'rm -rf '+public_space+'/'+component_season
        print cmd12
        os.system(cmd12)
-       #'dods_cp root_url+C-ESM-EP/out/comparison_user/component public_space'
        cmd2 = 'dods_cp '+work_alt_dir_name+' '+public_space+'/'
        print cmd2
        os.system(cmd2)
        print(' -- ')
        print(' -- ')
        print(' -- ')
-       #print('Index available at : https://esgf.extra.cea.fr/thredds/fileServer/work/'+getuser()+'/'+subdir+'/'+index_name)
-       print('Index available at : https://esgf.extra.cea.fr/thredds/fileServer/work/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'+index_name)
+       if 'gencmip6' in getcwd():
+          print('Index available at : https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'+index_name)
+       if '/dsm/' in getcwd():
+          print('Index available at : https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'+index_name)
+
     #
 else :
     with open(index_name,"w") as filout : filout.write(index)

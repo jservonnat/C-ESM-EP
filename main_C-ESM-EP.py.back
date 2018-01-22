@@ -97,7 +97,8 @@ if not index_name:
    if opts.comparison:
       index_name = str.replace(index_name,'.py', '_'+opts.comparison+'.html')
    # Add the season
-   index_name = str.replace(index_name,'.html','_'+season+'.html')
+   #index_name = str.replace(index_name,'.py','_'+season+'.html')
+   index_name = str.replace(index_name,'.py','.html')
 
 
 # -- Add the user to the html file name
@@ -138,7 +139,7 @@ if onCiclad:
    else:
       os.system('rm -f '+subdir+'/*.png')
    alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(subdir,'dods')[1]
-   root_url = "https://vesg.ipsl.upmc.fr"
+   root_url = "https://vesgint-data.ipsl.upmc.fr"
 
 # -> Specif TGCC: Creation du repertoire de l'atlas, ou nettoyage de celui-ci si il existe deja
 # -----------------------------------------------------------------------------------
@@ -455,6 +456,200 @@ if do_zonal_profiles_explorer:
     index += section_zonal_profiles(Wmodels, reference, season, zonal_profiles_variables,
                                     'Zonal Profiles Explorer', domain=domain,
                                     safe_mode=safe_mode, alternative_dir=alternative_dir)
+
+
+
+
+# ----------------------------------------------
+# --                                             \
+# --  Main Time series                            \
+# --                                              /
+# --                                             /
+# --                                            /
+# ---------------------------------------------
+
+
+cscript('ensemble_ts_plot','python /home/jservon/Evaluation/CliMAF/ensemble_time_series_plot.py --filenames="${mmin}" --outfig=${out} '+\
+        '--labels=\'\"${labels}\"\' --variable=${var} --colors="${colors}" --min="${min}" --max="${max}" --lw="${lw}" '+\
+        '--offset="${offset}" --scale="${scale}" '+\
+        '--highlight_period="${highlight_period}" '+\
+        '--highlight_period_lw="${highlight_period_lw}" '+\
+        '--xlabel="${xlabel}" --ylabel="${ylabel}" '+\
+        '--xlabel_fontsize="${xlabel_fontsize}" --ylabel_fontsize="${ylabel_fontsize}" '+\
+        '--xlim="${xlim}" --ylim="${ylim}" '+\
+        '--tick_size="${tick_size}" '+\
+        '--text="${text}" '+\
+        '--text_fontsize="${text_fontsize}" '+\
+        '--text_colors="${text_colors}" '+\
+        '--text_verticalalignment="${text_verticalalignment}" '+\
+        '--text_horizontalalignment="${text_horizontalalignment}" '+\
+        '--legend_colors="${leg_colors}" --legend_labels="${legend_labels}" '+\
+        '--left_string="${left_string}" --right_string="${right_string}" --center_string="${center_string}" '+\
+        '--left_string_fontsize="${left_string_fontsize}" --right_string_fontsize="${right_string_fontsize}" --center_string_fontsize="${center_string_fontsize}" '+\
+        '--legend_loc="${legend_loc}" --legend_xy_pos="${legend_xy_pos}" --legend_labels="${legend_labels}" --legend_colors="${legend_colors}" '+\
+        '--legend_fontsize="${legend_fontsize}" --legend_ncol="${legend_ncol}" --legend_lw="${legend_lw}" '+\
+        '--draw_legend="${draw_legend}" --legend_frame="${legend_frame}" '+\
+        '--append_custom_legend_to_default="${append_custom_legend_to_default}" '+\
+        '--left_margin="${left_margin}" --right_margin="${right_margin}" --top_margin="${top_margin}" --bottom_margin="${bottom_margin}" '+\
+        '--horizontal_lines_values="${horizontal_lines_values}" --horizontal_lines_styles="${horizontal_lines_styles}" '+\
+        '--horizontal_lines_lw="${horizontal_lines_lw}" --horizontal_lines_colors="${horizontal_lines_colors}" '+\
+        '--vertical_lines_values="${vertical_lines_values}" --vertical_lines_styles="${vertical_lines_styles}" '+\
+        '--vertical_lines_lw="${vertical_lines_lw}" --vertical_lines_colors="${vertical_lines_colors}" '+\
+        '--fig_size="${fig_size}" ', format='png')
+
+def convert_list_to_string(dum,separator1=',', separator2='|'):
+    string = ''
+    if isinstance(dum,list):
+        for elt in dum:
+            concat_elt = elt
+            if isinstance(elt, list):
+                substring = ''
+                for elt2 in elt:                    
+                    if substring=='':
+                        substring = str(elt2)
+                    else:
+                        substring += separator1+str(elt2)
+                concat_elt = substring    
+                if string=='':
+                    string = concat_elt
+                else:
+                    string += separator2+concat_elt
+            else:
+                if string=='':
+                    string = str(concat_elt)
+                else:
+                    string += separator1+str(concat_elt)
+                
+        return string
+    else:
+        return dum
+
+def ts_plot(ens_ts, **kwargs):
+    w_kwargs = kwargs.copy()
+    for kwarg in w_kwargs:
+        w_kwargs[kwarg] = convert_list_to_string(w_kwargs[kwarg])
+    return ensemble_ts_plot(ens_ts, **w_kwargs)
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- Plotting the time series for the IGCMG meetings                                     -- #
+if do_main_time_series:
+    print '---------------------------------'
+    print '-- Processing Main Time Series --'
+    print '-- do_main_time_series = True  --'
+    print '-- time_series_specs =         --'
+    print '-> ',time_series_specs
+    print '--                             --'
+    #
+    # ==> -- Open the section and an html table
+    # -----------------------------------------------------------------------------------------
+    index += section("Main Time Series", level=4)
+    #
+    # ==> -- Control the size of the thumbnail -> thumbN_size
+    # -----------------------------------------------------------------------------------------
+    thumbN_size = thumbnail_size
+    #
+    # -- Loop on the time series specified in the params file
+    # -----------------------------------------------------------------------------------------
+    for time_series in time_series_specs:
+        # ==> -- Open the html line with the title
+        # -----------------------------------------------------------------------------------------
+        index += open_table()
+        #line_title = variable+' = '+var_description[variable]
+        line_title = ''
+        index+=start_line(line_title)
+        #
+        WTSmodels = copy.deepcopy(models)
+        # -- Remove CMIP5 models
+        for model in models:
+            if model['project'] in 'CMIP5':
+               WTSmodels.remove(model)
+
+        Wmodels = period_for_diag_manager(WTSmodels, diag='MOC_timeseries')
+        clim_models = period_for_diag_manager(WTSmodels, diag='atlas_explorer')
+        #
+        ens_ts_dict = dict()
+        names_ens = []
+        colors = []
+        #
+        highlight_period = []
+        if 'highlight_period' in time_series:
+            if time_series['highlight_period']=='clim_period':
+                for dataset_dict in clim_models:
+                    dataset_dict.update(dict(variable=time_series['variable']))
+                    frequency_manager_for_diag(dataset_dict, diag='SE')
+                    get_period_manager(dataset_dict)
+                    highlight_period.append( build_period_str(dataset_dict) )
+
+        for dataset_dict in Wmodels:
+            #
+            wdataset_dict = dataset_dict.copy()
+            wdataset_dict.update(dict(variable=time_series['variable']))
+            frequency_manager_for_diag(wdataset_dict, diag='TS')
+            get_period_manager(wdataset_dict)
+            #
+            # -- Get the dataset
+            dat = ds(**wdataset_dict)
+            #
+            # -- select a domain if the user provided one
+            if 'domain' in time_series:
+                lonmin = str(time_series['domain']['lonmin'])
+                lonmax = str(time_series['domain']['lonmax'])
+                latmin = str(time_series['domain']['latmin'])
+                latmax = str(time_series['domain']['latmax'])
+                # -- We regrid the dataset if 
+                if time_series['variable'] in ocean_variables:
+                   dat = regridn(dat, cdogrid='r360x180')
+                #
+                dat = llbox(dat,lonmin=lonmin,lonmax=lonmax,latmin=latmin,latmax=latmax) 
+            #
+            #
+            # -- Apply the operation
+            if 'operation_kwargs' in time_series:
+                ts_dat = time_series['operation'](dat, **time_series['operation_kwargs'])
+            else:
+                ts_dat = time_series['operation'](dat)
+            #
+            # -- Get the name
+            mem_name = build_plot_title(wdataset_dict)
+            names_ens.append(mem_name)
+            #
+            # -- Add to the ensemble for plot
+            ens_ts_dict.update({mem_name:ts_dat})
+            #
+        #
+        # -- Finalize the CliMAF ensemble
+        ens_ts = cens(ens_ts_dict, order=names_ens)
+        #
+        # -- Do the plot
+        p = time_series.copy()
+        p.pop('variable')
+        if 'operation' in p: p.pop('operation')
+        if 'operation_kwargs' in p: p.pop('operation_kwargs')
+        if 'domain' in p: p.pop('domain')
+        if highlight_period:
+           p.update(dict(highlight_period = highlight_period))
+        else:
+           print '==> No highlight period provided => ', highlight_period
+        myplot = ts_plot(ens_ts, **p)
+
+        # ==> -- Add the plot to the line
+        # -----------------------------------------------------------------------------------------
+        if 'fig_size' in time_series:
+           fig_size = time_series['fig_size']
+        else:
+           fig_size = '15*5'
+        thumbnail_main_ts = str(int(str.split(fig_size,'*')[0])*75)+'*'+str(int(str.split(fig_size,'*')[1])*75)
+        index += cell("",safe_mode_cfile_plot(myplot, safe_mode=safe_mode),
+                       #hover=hover, **alternative_dir)
+                       thumbnail=thumbnail_main_ts, hover=hover, **alternative_dir)
+            #
+    # ==> -- Close the line and the table for this section
+    # -----------------------------------------------------------------------------------------
+    index+=close_line() + close_table()
+
+
+
 
 
 

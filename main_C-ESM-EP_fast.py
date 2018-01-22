@@ -20,6 +20,10 @@ import os, copy, subprocess, shlex
 # --              - the command line (priority 1)
 # -----------------------------------------------------------------------------------
 
+#crm(pattern='glo_mask')
+#crm(pattern='atl_mask')
+#crm(pattern='pac_mask')
+#crm(pattern='ind_mask')
 
 # -- Description of the atlas
 # -----------------------------------------------------------------------------------
@@ -341,6 +345,7 @@ if do_SST_for_tuning:
           wdataset_dict.update(dict(variable='tos'))
           #
           if not use_available_period_set:
+             print '=============> No'
              frequency_manager_for_diag(wdataset_dict, diag='clim')
              get_period_manager(wdataset_dict)
           
@@ -371,10 +376,22 @@ if do_SST_for_tuning:
           regions_for_spatial_averages = [ dict(region_name='50S_50N', domain=[-50,50,0,360]) ]
           season='ANM'
           for region in regions_for_spatial_averages:
+              print "==> Computing metrics on region : ",region
               dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid='r360x180', option='remapdis'),
                           lonmin=region['domain'][2], lonmax=region['domain'][3],
                           latmin=region['domain'][0], latmax=region['domain'][1])
-              rawvalue = cMA(space_average(dat))[0][0][0]
+              print '====> Computing rawvalue :'
+              if safe_mode:
+                 try:
+                    rawvalue = cMA(space_average(dat))[0][0][0]
+                 except:
+                    print '!! => Computing rawvalue failed for ',wdataset_dict
+                    print '--> Return NA'
+                    rawvalue = 'NA'
+              else:
+                 rawvalue = cMA(space_average(dat))[0][0][0]
+              print '====> Rawvalue done'
+              #
               if 'product' in wdataset_dict:
                  if wdataset_dict['product']=='WOA13-v2': rawvalue = rawvalue[0]
               # -- Add offset to convert in Celsius
@@ -393,8 +410,21 @@ if do_SST_for_tuning:
                                   lonmin=region['domain'][2], lonmax=region['domain'][3],
                                   latmin=region['domain'][0], latmax=region['domain'][1])
                  anom_ref = fsub(scyc_ref, str(cscalar(time_average(space_average(scyc_ref)))) )
-                 rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
-                 rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                 print '===> Computing RMSC and RMS'
+                 if safe_mode:
+                    try:
+                       rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                       rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                    except:
+                       print '!! => Computing RMSC and RMS failed for ',wdataset_dict
+                       print '--> Return NA'
+                       rmsc = 'NA'
+                       rms = 'NA'
+                 else:
+                    rmsc = cMA( ccdo( time_average(space_average( ccdo( minus(anom_dat, anom_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                    rms = cMA( ccdo( time_average(space_average( ccdo( minus(scyc_dat, scyc_ref), operator='sqr' ) )), operator='sqrt') )[0][0][0]
+                 print '===> RMSC and RMS done'
+                 #
                  results[dataset_name]['results'][region['region_name']].update( dict(rmsc = str(rmsc), rms=str(rms) ))
       outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_metrics_over_regions_for_tuning.json'
       with open(outjson, 'w') as outfile:
@@ -1539,7 +1569,12 @@ if do_Monsoons_pr_anncyc:
     #line_title = 'Annual cycle of precipitation over land'
     #index+=start_line(line_title)
     #
-    Wmodels = period_for_diag_manager(models, diag='clim')
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='clim')
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+    #
+    #Wmodels = period_for_diag_manager(models, diag='clim')
     # -- Loop on regions
     #MP = []
     for region in monsoon_precip_regions:
@@ -1560,8 +1595,9 @@ if do_Monsoons_pr_anncyc:
             
             wmodel = model.copy()
             wmodel.update(dict(variable='pr'))
-            frequency_manager_for_diag(wmodel, diag='clim')
-            get_period_manager(wmodel)
+            if not use_available_period_set:
+               frequency_manager_for_diag(wmodel, diag='clim')
+               get_period_manager(wmodel)
   
             pr_sim = ds(**wmodel)
 
@@ -1620,12 +1656,12 @@ if do_Monsoons_pr_anncyc:
                try:
                   cfile(anncyc_pr_sim_masked)
                   ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
+                  cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
                except:
                   print 'No data for Monsoon pr diagnostic for ',model
             else:
                ens_for_plot.update({monsoon_name_in_plot:anncyc_pr_sim_masked})
-
-            cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
+               cens_for_plot = cens(ens_for_plot, order=['GPCP'] + [monsoon_name_in_plot])
 
             plot_pr_anncyc_region_one_model = safe_mode_cfile_plot( curves(cens_for_plot, title=region['name'], X_axis='aligned',  **cpp), True, safe_mode)
 
@@ -1687,23 +1723,28 @@ if do_Hotelling_Test:
   # -- If the user didn't assign one, we take one from R_colorpalette defined in params_HotellingTest.py
   # -- If the user assigned one that was already attributed automatically with the mechanism above,
   # -- we replace it with another one.
-  hotelling_colors = []
+  #hotelling_colors = []
+  #for model in Wmodels:
+  #    if 'R_color' in model or 'color' in model:
+  #       if 'color' in model: tmp_color = model['color']
+  #       if 'R_color' in model: tmp_color = model['R_color']
+  #       if tmp_color in hotelling_colors:
+  #          i=0
+  #          while R_colorpalette[i] in hotelling_colors: i = i + 1
+  #          hotelling_colors[hotelling_colors.index(tmp_color)] = R_colorpalette[i]
+  #          hotelling_colors.append(tmp_color)
+  #    else:
+  #       i=0
+  #       while R_colorpalette[i] in hotelling_colors: i = i + 1
+  #       tmp_color = R_colorpalette[i]
+  # 
+  #    hotelling_colors.append(tmp_color)
+  #    model.update(dict(R_color=tmp_color))
+  #
+  hotelling_colors = colors_manager(Wmodels, cesmep_R_colors)
   for model in Wmodels:
-      if 'R_color' in model or 'color' in model:
-         if 'color' in model: tmp_color = model['color']
-         if 'R_color' in model: tmp_color = model['R_color']
-         if tmp_color in hotelling_colors:
-            i=0
-            while R_colorpalette[i] in hotelling_colors: i = i + 1
-            hotelling_colors[hotelling_colors.index(tmp_color)] = R_colorpalette[i]
-            hotelling_colors.append(tmp_color)
-      else:
-         i=0
-         while R_colorpalette[i] in hotelling_colors: i = i + 1
-         tmp_color = R_colorpalette[i]
-  
-      hotelling_colors.append(tmp_color)
-      model.update(dict(R_color=tmp_color))
+      model.update(dict(color=hotelling_colors[Wmodels.index(model)]))
+   
 
 
   # -- Loop on the variables
@@ -1984,7 +2025,15 @@ if do_Hotelling_Test:
               dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid=cdogrid, option='remapdis'),
                           lonmin=region['domain'][2], lonmax=region['domain'][3],
                           latmin=region['domain'][0], latmax=region['domain'][1])
-              metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+              if safe_mode:
+                 try:
+                    metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+                 except:
+                    print 'cMA(space_average(multiply(dat,mask)))[0][0][0] has failed for wdataset_dict = ',wdataset_dict
+                    metric = 'NA'
+              else:
+                 metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+              #
               results[dataset_name]['results'].update( {region['region_name']: str(metric) })
 
       outjson = main_cesmep_path+'/'+opts.comparison+'/HotellingTest/'+variable+'_'+opts.comparison+'_spatial_averages_over_regions.json'

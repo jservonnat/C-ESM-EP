@@ -1,0 +1,1124 @@
+{
+    "ACCESS1-0": {
+        "dataset_dict": {
+            "customname": "ACCESS1-0", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "ACCESS1-0", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.1446777344", 
+                "rms": "1.23617", 
+                "rmsc": "1.21872"
+            }
+        }
+    }, 
+    "ACCESS1-3": {
+        "dataset_dict": {
+            "customname": "ACCESS1-3", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "ACCESS1-3", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.2936035156", 
+                "rms": "1.21167", 
+                "rmsc": "1.21082"
+            }
+        }
+    }, 
+    "BNU-ESM": {
+        "dataset_dict": {
+            "customname": "BNU-ESM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "BNU-ESM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.5427185059", 
+                "rms": "2.61678", 
+                "rmsc": "2.60106"
+            }
+        }
+    }, 
+    "CCSM4": {
+        "dataset_dict": {
+            "customname": "CCSM4", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CCSM4", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.8192382813", 
+                "rms": "1.24348", 
+                "rmsc": "1.1296"
+            }
+        }
+    }, 
+    "CESM1-BGC": {
+        "dataset_dict": {
+            "customname": "CESM1-BGC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-BGC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.8684936523", 
+                "rms": "1.27533", 
+                "rmsc": "1.14105"
+            }
+        }
+    }, 
+    "CESM1-CAM5": {
+        "dataset_dict": {
+            "customname": "CESM1-CAM5", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-CAM5", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.078515625", 
+                "rms": "1.06583", 
+                "rmsc": "1.04271"
+            }
+        }
+    }, 
+    "CESM1-CAM5-1-FV2": {
+        "dataset_dict": {
+            "customname": "CESM1-CAM5-1-FV2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-CAM5-1-FV2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.4036499023", 
+                "rms": "1.2768", 
+                "rmsc": "1.27266"
+            }
+        }
+    }, 
+    "CESM1-FASTCHEM": {
+        "dataset_dict": {
+            "customname": "CESM1-FASTCHEM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-FASTCHEM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.8883911133", 
+                "rms": "1.27517", 
+                "rmsc": "1.13089"
+            }
+        }
+    }, 
+    "CESM1-WACCM": {
+        "dataset_dict": {
+            "customname": "CESM1-WACCM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-WACCM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.848840332", 
+                "rms": "1.48484", 
+                "rmsc": "1.38006"
+            }
+        }
+    }, 
+    "CM6014-pd-split-D-01_2010_2029": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "firebrick1", 
+            "customname": "CM6014-pd-split-D-01_2010_2029", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86maf", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2010_2029", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pd-split-D-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.0501647949", 
+                "rms": "1.19118", 
+                "rmsc": "1.16034"
+            }
+        }
+    }, 
+    "CM6014-pd-splitf-01_2030_2049": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "green4", 
+            "customname": "CM6014-pd-splitf-01_2030_2049", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86fair", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2030_2049", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pd-splitf-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.8806091309", 
+                "rms": "1.21745", 
+                "rmsc": "1.13565"
+            }
+        }
+    }, 
+    "CM6014-pd-splith-01_2080_2099": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "goldenrod1", 
+            "customname": "CM6014-pd-splith-01_2080_2099", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86fair", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2080_2099", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pd-splith-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.1788574219", 
+                "rms": "1.15759", 
+                "rmsc": "1.14909"
+            }
+        }
+    }, 
+    "CM6014-pd-spliti-01_2040_2059": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "navyblue", 
+            "customname": "CM6014-pd-spliti-01_2040_2059", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86fair", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2040_2059", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pd-spliti-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.2512145996", 
+                "rms": "1.19078", 
+                "rmsc": "1.18884"
+            }
+        }
+    }, 
+    "CM6014-pd-ttop-01_2170_2189": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "dodgerblue3", 
+            "customname": "CM6014-pd-ttop-01_2170_2189", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86maf", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2170_2189", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pd-ttop-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.2031188965", 
+                "rms": "1.29396", 
+                "rmsc": "1.28874"
+            }
+        }
+    }, 
+    "CM6014-pd-ttop-ssh-02_2000_2019": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "firebrick1", 
+            "customname": "CM6014-pd-ttop-ssh-02_2000_2019", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86mign", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2000_2019", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pd-ttop-ssh-02", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.347833252", 
+                "rms": "1.29939", 
+                "rmsc": "1.29909"
+            }
+        }
+    }, 
+    "CM6014-pi-split-D-01_1900_1919": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "firebrick1", 
+            "customname": "CM6014-pi-split-D-01_1900_1919", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86maf", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "1900_1919", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pi-split-D-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.1950317383", 
+                "rms": "1.60807", 
+                "rmsc": "1.14973"
+            }
+        }
+    }, 
+    "CM6014-pi-splitf-01_2030_2049": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "green4", 
+            "customname": "CM6014-pi-splitf-01_2030_2049", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86fair", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2030_2049", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pi-splitf-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "20.8623291016", 
+                "rms": "1.83285", 
+                "rmsc": "1.11297"
+            }
+        }
+    }, 
+    "CM6014-pi-splith-01_2020_2039": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "green2", 
+            "customname": "CM6014-pi-splith-01_2020_2039", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86fair", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2020_2039", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pi-splith-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "20.982019043", 
+                "rms": "1.76511", 
+                "rmsc": "1.15364"
+            }
+        }
+    }, 
+    "CM6014-pi-ttop-01_2080_2099": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "clim_period": "last_20Y", 
+            "color": "dodgerblue3", 
+            "customname": "CM6014-pi-ttop-01_2080_2099", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.1_grid.nc", 
+            "login": "p86maf", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2080_2099", 
+            "project": "IGCM_OUT_fast", 
+            "root": "/ccc/store/cont003/thredds", 
+            "simulation": "CM6014-pi-ttop-01", 
+            "ts_period": "full", 
+            "variable": "tos", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "20.9221130371", 
+                "rms": "1.87337", 
+                "rmsc": "1.24804"
+            }
+        }
+    }, 
+    "CMCC-CESM": {
+        "dataset_dict": {
+            "customname": "CMCC-CESM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CMCC-CESM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.3196044922", 
+                "rms": "1.9044", 
+                "rmsc": "1.90446"
+            }
+        }
+    }, 
+    "CMCC-CM": {
+        "dataset_dict": {
+            "customname": "CMCC-CM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CMCC-CM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.035546875", 
+                "rms": "1.3411", 
+                "rmsc": "1.30805"
+            }
+        }
+    }, 
+    "CMCC-CMS": {
+        "dataset_dict": {
+            "customname": "CMCC-CMS", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CMCC-CMS", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.3635803223", 
+                "rms": "1.34494", 
+                "rmsc": "1.34476"
+            }
+        }
+    }, 
+    "CMIP5_IPSL-CM5A-MR": {
+        "dataset_dict": {
+            "color": "darkturquoise", 
+            "customname": "CMIP5_IPSL-CM5A-MR", 
+            "dataset_type": "test_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5A-MR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.7937255859", 
+                "rms": "1.60423", 
+                "rmsc": "1.51053"
+            }
+        }
+    }, 
+    "CNRM-CM5": {
+        "dataset_dict": {
+            "customname": "CNRM-CM5", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CNRM-CM5", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.077722168", 
+                "rms": "1.38816", 
+                "rmsc": "1.36447"
+            }
+        }
+    }, 
+    "CNRM-CM5-2": {
+        "dataset_dict": {
+            "customname": "CNRM-CM5-2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CNRM-CM5-2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.9028259277", 
+                "rms": "1.3951", 
+                "rmsc": "1.32704"
+            }
+        }
+    }, 
+    "CanCM4": {
+        "dataset_dict": {
+            "customname": "CanCM4", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CanCM4", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.0730529785", 
+                "rms": "1.29348", 
+                "rmsc": "1.26472"
+            }
+        }
+    }, 
+    "CanESM2": {
+        "dataset_dict": {
+            "customname": "CanESM2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CanESM2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.1404968262", 
+                "rms": "1.27047", 
+                "rmsc": "1.25411"
+            }
+        }
+    }, 
+    "FGOALS-g2": {
+        "dataset_dict": {
+            "customname": "FGOALS-g2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "FGOALS-g2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.4926086426", 
+                "rms": "1.72746", 
+                "rmsc": "1.52467"
+            }
+        }
+    }, 
+    "FGOALS-s2": {
+        "dataset_dict": {
+            "customname": "FGOALS-s2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "FGOALS-s2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.2679382324", 
+                "rms": "1.44024", 
+                "rmsc": "1.43837"
+            }
+        }
+    }, 
+    "GFDL-CM3": {
+        "dataset_dict": {
+            "customname": "GFDL-CM3", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GFDL-CM3", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.7802978516", 
+                "rms": "1.37609", 
+                "rmsc": "1.25819"
+            }
+        }
+    }, 
+    "GFDL-ESM2G": {
+        "dataset_dict": {
+            "customname": "GFDL-ESM2G", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GFDL-ESM2G", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.9600158691", 
+                "rms": "1.4648", 
+                "rmsc": "1.41362"
+            }
+        }
+    }, 
+    "GFDL-ESM2M": {
+        "dataset_dict": {
+            "customname": "GFDL-ESM2M", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GFDL-ESM2M", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.1931396484", 
+                "rms": "1.43775", 
+                "rmsc": "1.43071"
+            }
+        }
+    }, 
+    "GISS-E2-H": {
+        "dataset_dict": {
+            "customname": "GISS-E2-H", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-H", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "23.232019043", 
+                "rms": "1.80312", 
+                "rmsc": "1.61552"
+            }
+        }
+    }, 
+    "GISS-E2-H-CC": {
+        "dataset_dict": {
+            "customname": "GISS-E2-H-CC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-H-CC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "23.1610351563", 
+                "rms": "1.64545", 
+                "rmsc": "1.48037"
+            }
+        }
+    }, 
+    "GISS-E2-R": {
+        "dataset_dict": {
+            "customname": "GISS-E2-R", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-R", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.7683349609", 
+                "rms": "1.35102", 
+                "rmsc": "1.30323"
+            }
+        }
+    }, 
+    "GISS-E2-R-CC": {
+        "dataset_dict": {
+            "customname": "GISS-E2-R-CC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-R-CC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.7923828125", 
+                "rms": "1.37765", 
+                "rmsc": "1.32396"
+            }
+        }
+    }, 
+    "HadCM3": {
+        "dataset_dict": {
+            "customname": "HadCM3", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadCM3", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.0895019531", 
+                "rms": "1.71144", 
+                "rmsc": "1.69209"
+            }
+        }
+    }, 
+    "HadGEM2-AO": {
+        "dataset_dict": {
+            "customname": "HadGEM2-AO", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadGEM2-AO", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.3208251953", 
+                "rms": "1.26988", 
+                "rmsc": "1.26988"
+            }
+        }
+    }, 
+    "HadGEM2-CC": {
+        "dataset_dict": {
+            "customname": "HadGEM2-CC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadGEM2-CC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.6876464844", 
+                "rms": "1.43968", 
+                "rmsc": "1.2948"
+            }
+        }
+    }, 
+    "HadGEM2-ES": {
+        "dataset_dict": {
+            "customname": "HadGEM2-ES", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadGEM2-ES", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.8624511719", 
+                "rms": "1.32336", 
+                "rmsc": "1.24257"
+            }
+        }
+    }, 
+    "HadISST_1875-1899": {
+        "dataset_dict": {
+            "customname": "HadISST_1875-1899", 
+            "dataset_type": "obs_reference", 
+            "frequency": "monthly", 
+            "period": "1875-1899", 
+            "product": "HadISST", 
+            "project": "ref_ts", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.8343444824"
+            }
+        }
+    }, 
+    "HadISST_1990-2010": {
+        "dataset_dict": {
+            "customname": "HadISST_1990-2010", 
+            "dataset_type": "obs_reference", 
+            "frequency": "monthly", 
+            "period": "1990-2010", 
+            "product": "HadISST", 
+            "project": "ref_ts", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.3151489258"
+            }
+        }
+    }, 
+    "IPSL-CM5A-LR": {
+        "dataset_dict": {
+            "customname": "IPSL-CM5A-LR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5A-LR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.1846862793", 
+                "rms": "1.94727", 
+                "rmsc": "1.57141"
+            }
+        }
+    }, 
+    "IPSL-CM5A-MR": {
+        "dataset_dict": {
+            "customname": "IPSL-CM5A-MR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5A-MR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.7937255859", 
+                "rms": "1.60423", 
+                "rmsc": "1.51053"
+            }
+        }
+    }, 
+    "IPSL-CM5B-LR": {
+        "dataset_dict": {
+            "customname": "IPSL-CM5B-LR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5B-LR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.3348022461", 
+                "rms": "1.89836", 
+                "rmsc": "1.89838"
+            }
+        }
+    }, 
+    "MIROC-ESM": {
+        "dataset_dict": {
+            "customname": "MIROC-ESM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MIROC-ESM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.7057739258", 
+                "rms": "1.63957", 
+                "rmsc": "1.52127"
+            }
+        }
+    }, 
+    "MIROC-ESM-CHEM": {
+        "dataset_dict": {
+            "customname": "MIROC-ESM-CHEM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MIROC-ESM-CHEM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.6715332031", 
+                "rms": "1.64606", 
+                "rmsc": "1.51407"
+            }
+        }
+    }, 
+    "NorESM1-M": {
+        "dataset_dict": {
+            "customname": "NorESM1-M", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "NorESM1-M", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.9679199219", 
+                "rms": "1.51262", 
+                "rmsc": "1.47565"
+            }
+        }
+    }, 
+    "NorESM1-ME": {
+        "dataset_dict": {
+            "customname": "NorESM1-ME", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "NorESM1-ME", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "21.7790161133", 
+                "rms": "1.54267", 
+                "rmsc": "1.45158"
+            }
+        }
+    }, 
+    "bcc-csm1-1": {
+        "dataset_dict": {
+            "customname": "bcc-csm1-1", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "bcc-csm1-1", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.1609130859", 
+                "rms": "1.31327", 
+                "rmsc": "1.30627"
+            }
+        }
+    }, 
+    "bcc-csm1-1-m": {
+        "dataset_dict": {
+            "customname": "bcc-csm1-1-m", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "bcc-csm1-1-m", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.6833740234", 
+                "rms": "1.30044", 
+                "rmsc": "1.24823"
+            }
+        }
+    }, 
+    "inmcm4": {
+        "dataset_dict": {
+            "customname": "inmcm4", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "inmcm4", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "ocean", 
+            "variable": "tos"
+        }, 
+        "results": {
+            "50S_50N": {
+                "rawvalue": "22.4731384277", 
+                "rms": "1.67885", 
+                "rmsc": "1.67002"
+            }
+        }
+    }
+}

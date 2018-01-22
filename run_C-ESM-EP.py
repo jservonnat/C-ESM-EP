@@ -30,11 +30,16 @@
 # --------------------------------------------------------------------------------------------------------------------- #
 
 
+# -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
+#email = 'jerome.servonnat@lsce.ipsl.fr'
+email = None
 
-# -- Import python modules
+
+# -- Import python modules ----------------------------------------------------------------
 import os, sys
 import getpass
 import re
+
 
 # -- 0/ Identify where we are...
 # -----------------------------------------------------------------------------------------
@@ -58,9 +63,6 @@ def pysed(file, old_pattern, new_pattern):
              sources.write(re.sub(old_pattern, new_pattern, line))
     return ''
 
-# -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-email = 'jerome.servonnat@lsce.ipsl.fr'
-#email = None
 
 
 # -- 1/ Get the arguments / Name of the comparison (comparison)
@@ -68,9 +70,35 @@ email = 'jerome.servonnat@lsce.ipsl.fr'
 # -----------------------------------------------------------------------------------------
 args = sys.argv
 
-metrics_components = ['ParallelCoordinates_Atmosphere']
-allcomponents=['TuningMetrics','ParallelCoordinates_Atmosphere','Atmosphere_Surface','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','Atmosphere_StdPressLev','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev','Atmosphere_zonmean','NEMO_main','NEMO_depthlevels','NEMO_zonmean','Atlantic_Atmosphere_Surface','Focus_Atlantic_AMOC_Surface','PISCES','ENSO','ORCHIDEE','TurbulentAirSeaFluxes','HotellingTest', 'AtlasExplorer','Essentials_CM6011_CM6012','Monsoons']
+# -- List of all existing components
+allcomponents=['TuningMetrics',
+               'ParallelCoordinates_Atmosphere',
+               'Atmosphere_Surface',
+               'NH_Polar_Atmosphere_Surface',
+               'SH_Polar_Atmosphere_Surface',
+               'Atmosphere_StdPressLev',
+               'NH_Polar_Atmosphere_StdPressLev',
+               'SH_Polar_Atmosphere_StdPressLev',
+               'Atmosphere_zonmean',
+               'NEMO_main',
+               'NEMO_depthlevels',
+               'NEMO_zonmean',
+               'Atlantic_Atmosphere_Surface',
+               'Focus_Atlantic_AMOC_Surface',
+               'PISCES',
+               'ENSO',
+               'ORCHIDEE',
+               'TurbulentAirSeaFluxes',
+               'HotellingTest',
+               'AtlasExplorer',
+               'Essentials_CM6011_CM6012',
+               'Monsoons']
 
+# -- Component that runs the PCMDI Metrics Package (specific job script)
+metrics_components = ['ParallelCoordinates_Atmosphere']
+
+# -- Get the arguments passed to the script
+# --> If we do not specify the component(s), run all available components
 if len(args)==1:
    print 'Provide the name of a comparison setup as argument of the script'
 else:
@@ -87,23 +115,24 @@ else:
    else:
       components=allcomponents
 
+
 # -- 1.1/ Prepare the html template
 # --      => add the modules available in the comparison directory
 # -----------------------------------------------------------------------------------------
 template = 'share/fp_template/C-ESM-EP_template.html'
-#import nltk   
 from urllib import urlopen
 
 # -> First, we read the template of the html file in share/fp_template
 url = template    
 html = urlopen(template).read()    
 
+# -- Get the subdirectories available in the comparison directory
+# --> we will extract the available components from this list
 subdirs = next(os.walk(comparison))[1]
 # -> We loop on all the potentially available and check whether they are available in the comparison directory or not
 # -> The goal of this step is essentially to keep the same order of appearance of the links on front page
 available_components = []
 # -> First, we work on the known components listed in allcomponents. If they are in subdirs, we add them to 
-#for component in components:
 for component in allcomponents:
   if component in subdirs: available_components.append(component)
 # -> Then, we check whether there are some components not list in allcomponents; if yes, they will be added at the end of the list
@@ -152,7 +181,7 @@ main_html='C-ESM-EP_'+comparison+'.html'
 with open(main_html,"w") as filout : filout.write(new_html)
 
 
-# -- 2/ Set the paths (one per requested component)
+# -- 2/ Set the paths (one per requested component) and url for the html pages
 # -----------------------------------------------------------------------------------------
 
 # -- Initialize positioning variables
@@ -161,8 +190,17 @@ onCiclad = False
 
 if os.path.exists ('/ccc') and not os.path.exists ('/data')  :
     atTGCC   = True
-    base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
-    pathwebspace='/ccc/work/cont003/dods/public/'
+    if '/dsm/' in os.getcwd():
+       wspace='dsm'
+       base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
+       pathwebspace='/ccc/work/cont003/dods/public/'
+    if '/gencmip6/' in os.getcwd():
+       wspace='gencmip6'
+       base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'
+       pathwebspace='/ccc/work/cont003/thredds/'
+    #outworkdir = '/ccc/work/cont003/'+wspace+'/'+username+'/C-ESM-EP/out/'+comparison+'_'+username+'/'
+    outworkdir = '/ccc/work/cont003/'+wspace+'/'+suffix
+    if not os.path.isdir(outworkdir): os.makedirs(outworkdir)
 if 'ciclad' in os.uname()[1].strip().lower():
     onCiclad = True
     base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/'
@@ -193,19 +231,34 @@ if argument.lower() not in ['url']:
        url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
        url = root_url+component+'/'+component+'_'+comparison+'.html'
-    if component in job_components:
-       atlas_pathfilename = str.replace(url, base_url, pathwebspace)
-       if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
-          os.makedirs(os.path.dirname(atlas_pathfilename))
-       # -- Copy an html template to say that the atlas is not yet available
-       # 1. copy the template to the target html page
-       os.system('cp share/fp_template/Running_template.html '+atlas_pathfilename)
-       # 2. Edit target_component and target_comparison
-       pysed(atlas_pathfilename, 'target_component', component)
+    if onCiclad:
+       if component in job_components:
+          atlas_pathfilename = str.replace(url, base_url, pathwebspace)
+          if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
+             os.makedirs(os.path.dirname(atlas_pathfilename))
+          # -- Copy an html template to say that the atlas is not yet available
+          # 1. copy the template to the target html page
+          os.system('cp share/fp_template/Running_template.html '+atlas_pathfilename)
+          # 2. Edit target_component and target_comparison
+          pysed(atlas_pathfilename, 'target_component', component)
+          pysed(atlas_pathfilename, 'target_comparison', comparison)
+    if atTGCC:
+       if component in job_components:
+          atlas_pathfilename = str.replace(url, base_url, outworkdir)
+          if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
+             os.makedirs(os.path.dirname(atlas_pathfilename))
+          # -- Copy an html template to say that the atlas is not yet available
+          # 1. copy the template to the target html page
+          os.system('cp share/fp_template/Running_template.html '+atlas_pathfilename)
+          # 2. Edit target_component and target_comparison
+          pysed(atlas_pathfilename, 'target_component', component)
+          pysed(atlas_pathfilename, 'target_comparison', comparison)
+          # 3. dods_cp
+          os.system('dods_cp '+atlas_pathfilename+' '+webspace+component)
        pysed(atlas_pathfilename, 'target_comparison', comparison)
 
 
-
+# -- Submit the jobs
 for component in job_components:
     print 'component = ',component
     # -- Define where the directory where the job is submitted
@@ -234,7 +287,7 @@ for component in job_components:
        else:
           add_email = ''
        if component not in metrics_components:
-          if 'NEMO' in component or 'Turbulent' in component or 'PISCES' in component:
+          if 'NEMO' in component or 'Turbulent' in component or 'PISCES' in component or 'Essentials' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
           else:
              queue = 'h12'
@@ -247,7 +300,6 @@ for component in job_components:
     # -- Otherwise it submits the jobs
     # ----------------------------------------------------------------------------------------------------------------------------
     if argument.lower() not in ['url']:
-       print cmd
        os.system(cmd)
 
 
@@ -268,12 +320,15 @@ pysed(main_html, 'target_comparison', comparison)
 
 # -- Copy the edited html front page
 if atTGCC:
-   if '/dsm/' in os.getcwd(): wspace='dsm'
-   if '/gencmip6/' in os.getcwd(): wspace='gencmip6'
-   outworkdir = '/ccc/work/cont003/'+wspace+'/'+username+'/C-ESM-EP/out/'+comparison+'_'+username+'/'
-   if not os.path.isdir(outworkdir): os.makedirs(outworkdir)
+   #if '/dsm/' in os.getcwd(): wspace='dsm'
+   #if '/gencmip6/' in os.getcwd(): wspace='gencmip6'
+   #outworkdir = '/ccc/work/cont003/'+wspace+'/'+username+'/C-ESM-EP/out/'+comparison+'_'+username+'/'
+   #if not os.path.isdir(outworkdir): os.makedirs(outworkdir)
+   #cmd1 = 'cp '+main_html+' '+outworkdir ; print cmd1 ; os.system(cmd1)
+   #cmd = 'dods_cp '+outworkdir+main_html+' '+webspace+' ; rm '+main_html
    cmd1 = 'cp '+main_html+' '+outworkdir ; print cmd1 ; os.system(cmd1)
    cmd = 'dods_cp '+outworkdir+main_html+' '+webspace+' ; rm '+main_html
+
 if onCiclad: cmd = 'mv '+main_html+' '+webspace
 os.system(cmd)
 

@@ -1,0 +1,1139 @@
+{
+    "ACCESS1-0": {
+        "dataset_dict": {
+            "customname": "ACCESS1-0", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "ACCESS1-0", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0406395"
+        }
+    }, 
+    "ACCESS1-3": {
+        "dataset_dict": {
+            "customname": "ACCESS1-3", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "ACCESS1-3", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0412266"
+        }
+    }, 
+    "CCSM4": {
+        "dataset_dict": {
+            "customname": "CCSM4", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CCSM4", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0439853"
+        }
+    }, 
+    "CESM1-BGC": {
+        "dataset_dict": {
+            "customname": "CESM1-BGC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-BGC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0433814"
+        }
+    }, 
+    "CESM1-CAM5": {
+        "dataset_dict": {
+            "customname": "CESM1-CAM5", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-CAM5", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0425137"
+        }
+    }, 
+    "CESM1-FASTCHEM": {
+        "dataset_dict": {
+            "customname": "CESM1-FASTCHEM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-FASTCHEM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0440888"
+        }
+    }, 
+    "CESM1-WACCM": {
+        "dataset_dict": {
+            "customname": "CESM1-WACCM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CESM1-WACCM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0422308"
+        }
+    }, 
+    "CM6010.1-LR-pdCtrl-01_2060_2089": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "firebrick3", 
+            "clim_period": "last_30Y", 
+            "customname": "CM6010.1-LR-pdCtrl-01_2060_2089", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2060_2089", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM6010.1-LR-pdCtrl-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0457159"
+        }
+    }, 
+    "CM6010.2-LR-pdCtrl-02_2090_2119": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "violetred2", 
+            "clim_period": "last_30Y", 
+            "customname": "CM6010.2-LR-pdCtrl-02_2090_2119", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2090_2119", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM6010.2-LR-pdCtrl-02", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0451158"
+        }
+    }, 
+    "CM6011.2-pd-01_2210_2239": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "antiquewhite3", 
+            "clim_period": "last_30Y", 
+            "customname": "CM6011.2-pd-01_2210_2239", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2210_2239", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM6011.2-pd-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0437653"
+        }
+    }, 
+    "CM6012.1-pd-01_1950_1959": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "darkgoldenrod3", 
+            "clim_period": "last_30Y", 
+            "customname": "CM6012.1-pd-01_1950_1959", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "1950_1959", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM6012.1-pd-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0427625"
+        }
+    }, 
+    "CM6013-pd-01_1870_1899": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "coral3", 
+            "clim_period": "last_30Y", 
+            "customname": "CM6013-pd-01_1870_1899", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86denv", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "1870_1899", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM6013-pd-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0458573"
+        }
+    }, 
+    "CM6013-pd-split-D-05_2100_2129": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "lightsalmon1", 
+            "clim_period": "last_30Y", 
+            "customname": "CM6013-pd-split-D-05_2100_2129", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p48ethe", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2100_2129", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM6013-pd-split-D-05", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0460371"
+        }
+    }, 
+    "CM6013-pd-ttop-05_2100_2129": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "lightslateblue", 
+            "clim_period": "last_30Y", 
+            "customname": "CM6013-pd-ttop-05_2100_2129", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p48ethe", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2100_2129", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM6013-pd-ttop-05", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0463957"
+        }
+    }, 
+    "CM605-LR-pdCtrl-01_2270_2299": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "green2", 
+            "clim_period": "last_30Y", 
+            "customname": "CM605-LR-pdCtrl-01_2270_2299", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2270_2299", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM605-LR-pdCtrl-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0461327"
+        }
+    }, 
+    "CM606-LR-pdCtrl-01_2030_2059": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "yellow3", 
+            "clim_period": "last_30Y", 
+            "customname": "CM606-LR-pdCtrl-01_2030_2059", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2030_2059", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM606-LR-pdCtrl-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0487917"
+        }
+    }, 
+    "CM607-LR-pdCtrl-01_2390_2419": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "navyblue", 
+            "clim_period": "last_30Y", 
+            "customname": "CM607-LR-pdCtrl-01_2390_2419", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2390_2419", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM607-LR-pdCtrl-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0470132"
+        }
+    }, 
+    "CM608-LR-pdCtrl-01_2060_2089": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "darkturquoise", 
+            "clim_period": "last_30Y", 
+            "customname": "CM608-LR-pdCtrl-01_2060_2089", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2060_2089", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM608-LR-pdCtrl-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0465471"
+        }
+    }, 
+    "CM609-LR-pdCtrl-01_2720_2749": {
+        "dataset_dict": {
+            "ENSO_ts_period": "last_80Y", 
+            "R_color": "mediumseagreen", 
+            "clim_period": "last_30Y", 
+            "customname": "CM609-LR-pdCtrl-01_2720_2749", 
+            "dataset_type": "test_dataset", 
+            "diag": "clim", 
+            "experiment": "pdControl", 
+            "frequency": "monthly", 
+            "gridfile": "/data/igcmg/database/grids/eORCA1.0_grid.nc", 
+            "login": "p86caub", 
+            "mesh_hgr": "/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc", 
+            "model": "IPSLCM6", 
+            "period": "2720_2749", 
+            "project": "IGCM_OUT", 
+            "simulation": "CM609-LR-pdCtrl-01", 
+            "ts_period": "full", 
+            "variable": "tauu", 
+            "varname_area": "area"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0451009"
+        }
+    }, 
+    "CMCC-CESM": {
+        "dataset_dict": {
+            "customname": "CMCC-CESM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CMCC-CESM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0425937"
+        }
+    }, 
+    "CMCC-CMS": {
+        "dataset_dict": {
+            "customname": "CMCC-CMS", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CMCC-CMS", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0456672"
+        }
+    }, 
+    "CNRM-CM5": {
+        "dataset_dict": {
+            "customname": "CNRM-CM5", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CNRM-CM5", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0396781"
+        }
+    }, 
+    "CNRM-CM5-2": {
+        "dataset_dict": {
+            "customname": "CNRM-CM5-2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CNRM-CM5-2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0400212"
+        }
+    }, 
+    "CORE2": {
+        "dataset_dict": {
+            "customname": "CORE2", 
+            "dataset_type": "obs_reference", 
+            "product": "CORE2", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0422716"
+        }
+    }, 
+    "CSIRO-Mk3-6-0": {
+        "dataset_dict": {
+            "customname": "CSIRO-Mk3-6-0", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CSIRO-Mk3-6-0", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0441046"
+        }
+    }, 
+    "CanCM4": {
+        "dataset_dict": {
+            "customname": "CanCM4", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CanCM4", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0444132"
+        }
+    }, 
+    "CanESM2": {
+        "dataset_dict": {
+            "customname": "CanESM2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "CanESM2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.043707"
+        }
+    }, 
+    "DASILVA": {
+        "dataset_dict": {
+            "customname": "DASILVA", 
+            "dataset_type": "obs_reference", 
+            "product": "DASILVA", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0359173"
+        }
+    }, 
+    "DFS4.3": {
+        "dataset_dict": {
+            "customname": "DFS4.3", 
+            "dataset_type": "obs_reference", 
+            "product": "DFS4.3", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.041688"
+        }
+    }, 
+    "ERAInterim": {
+        "dataset_dict": {
+            "customname": "ERAInterim", 
+            "dataset_type": "obs_reference", 
+            "product": "ERAInterim", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0414361"
+        }
+    }, 
+    "FGOALS-g2": {
+        "dataset_dict": {
+            "customname": "FGOALS-g2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "FGOALS-g2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0399476"
+        }
+    }, 
+    "FGOALS-s2": {
+        "dataset_dict": {
+            "customname": "FGOALS-s2", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "FGOALS-s2", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0448344"
+        }
+    }, 
+    "FIO-ESM": {
+        "dataset_dict": {
+            "customname": "FIO-ESM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "FIO-ESM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "0.0463875"
+        }
+    }, 
+    "FSU3": {
+        "dataset_dict": {
+            "customname": "FSU3", 
+            "dataset_type": "obs_reference", 
+            "product": "FSU3", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0403813"
+        }
+    }, 
+    "GFDL-CM3": {
+        "dataset_dict": {
+            "customname": "GFDL-CM3", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GFDL-CM3", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0496397"
+        }
+    }, 
+    "GFDL-ESM2G": {
+        "dataset_dict": {
+            "customname": "GFDL-ESM2G", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GFDL-ESM2G", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.048456"
+        }
+    }, 
+    "GFDL-ESM2M": {
+        "dataset_dict": {
+            "customname": "GFDL-ESM2M", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GFDL-ESM2M", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0484948"
+        }
+    }, 
+    "GISS-E2-H": {
+        "dataset_dict": {
+            "customname": "GISS-E2-H", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-H", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0392378"
+        }
+    }, 
+    "GISS-E2-H-CC": {
+        "dataset_dict": {
+            "customname": "GISS-E2-H-CC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-H-CC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0412338"
+        }
+    }, 
+    "GISS-E2-R": {
+        "dataset_dict": {
+            "customname": "GISS-E2-R", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-R", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0406211"
+        }
+    }, 
+    "GISS-E2-R-CC": {
+        "dataset_dict": {
+            "customname": "GISS-E2-R-CC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "GISS-E2-R-CC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0405623"
+        }
+    }, 
+    "GSSTFM3": {
+        "dataset_dict": {
+            "customname": "GSSTFM3", 
+            "dataset_type": "obs_reference", 
+            "product": "GSSTFM3", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0441073"
+        }
+    }, 
+    "HadCM3": {
+        "dataset_dict": {
+            "customname": "HadCM3", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadCM3", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0434959"
+        }
+    }, 
+    "HadGEM2-AO": {
+        "dataset_dict": {
+            "customname": "HadGEM2-AO", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadGEM2-AO", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0447488"
+        }
+    }, 
+    "HadGEM2-CC": {
+        "dataset_dict": {
+            "customname": "HadGEM2-CC", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadGEM2-CC", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0444771"
+        }
+    }, 
+    "HadGEM2-ES": {
+        "dataset_dict": {
+            "customname": "HadGEM2-ES", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "HadGEM2-ES", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0458525"
+        }
+    }, 
+    "IFREMER": {
+        "dataset_dict": {
+            "customname": "IFREMER", 
+            "dataset_type": "obs_reference", 
+            "product": "IFREMER", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "[-0.0519181527197361]"
+        }
+    }, 
+    "IPSL-CM5A-LR": {
+        "dataset_dict": {
+            "customname": "IPSL-CM5A-LR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5A-LR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0442033"
+        }
+    }, 
+    "IPSL-CM5A-LR_1980_2005": {
+        "dataset_dict": {
+            "R_color": "dodgerblue3", 
+            "customname": "IPSL-CM5A-LR_1980_2005", 
+            "dataset_type": "test_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5A-LR", 
+            "period": "1980_2005", 
+            "project": "CMIP5", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0442033"
+        }
+    }, 
+    "IPSL-CM5A-MR": {
+        "dataset_dict": {
+            "customname": "IPSL-CM5A-MR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5A-MR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0436115"
+        }
+    }, 
+    "IPSL-CM5A-MR_1980_2005": {
+        "dataset_dict": {
+            "R_color": "orangered", 
+            "customname": "IPSL-CM5A-MR_1980_2005", 
+            "dataset_type": "test_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5A-MR", 
+            "period": "1980_2005", 
+            "project": "CMIP5", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0436115"
+        }
+    }, 
+    "IPSL-CM5B-LR": {
+        "dataset_dict": {
+            "customname": "IPSL-CM5B-LR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "IPSL-CM5B-LR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0390783"
+        }
+    }, 
+    "J-OFURO2": {
+        "dataset_dict": {
+            "customname": "J-OFURO2", 
+            "dataset_type": "obs_reference", 
+            "product": "J-OFURO2", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0370729"
+        }
+    }, 
+    "MIROC-ESM": {
+        "dataset_dict": {
+            "customname": "MIROC-ESM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MIROC-ESM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.050761"
+        }
+    }, 
+    "MIROC-ESM-CHEM": {
+        "dataset_dict": {
+            "customname": "MIROC-ESM-CHEM", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MIROC-ESM-CHEM", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0510615"
+        }
+    }, 
+    "MPI-ESM-LR": {
+        "dataset_dict": {
+            "customname": "MPI-ESM-LR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MPI-ESM-LR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0421308"
+        }
+    }, 
+    "MPI-ESM-MR": {
+        "dataset_dict": {
+            "customname": "MPI-ESM-MR", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MPI-ESM-MR", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0420642"
+        }
+    }, 
+    "MPI-ESM-P": {
+        "dataset_dict": {
+            "customname": "MPI-ESM-P", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MPI-ESM-P", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0416539"
+        }
+    }, 
+    "MRI-CGCM3": {
+        "dataset_dict": {
+            "customname": "MRI-CGCM3", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MRI-CGCM3", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0379579"
+        }
+    }, 
+    "MRI-ESM1": {
+        "dataset_dict": {
+            "customname": "MRI-ESM1", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "MRI-ESM1", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0378243"
+        }
+    }, 
+    "NCEP": {
+        "dataset_dict": {
+            "customname": "NCEP", 
+            "dataset_type": "obs_reference", 
+            "product": "NCEP", 
+            "project": "ref_climatos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0375028"
+        }
+    }, 
+    "NorESM1-M": {
+        "dataset_dict": {
+            "customname": "NorESM1-M", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "NorESM1-M", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0492154"
+        }
+    }, 
+    "NorESM1-ME": {
+        "dataset_dict": {
+            "customname": "NorESM1-ME", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "NorESM1-ME", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0511268"
+        }
+    }, 
+    "bcc-csm1-1": {
+        "dataset_dict": {
+            "customname": "bcc-csm1-1", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "bcc-csm1-1", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0464273"
+        }
+    }, 
+    "bcc-csm1-1-m": {
+        "dataset_dict": {
+            "customname": "bcc-csm1-1-m", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "bcc-csm1-1-m", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0432542"
+        }
+    }, 
+    "inmcm4": {
+        "dataset_dict": {
+            "customname": "inmcm4", 
+            "dataset_type": "reference_dataset", 
+            "experiment": "historical", 
+            "frequency": "monthly", 
+            "model": "inmcm4", 
+            "period": "1980-2005", 
+            "project": "CMIP5", 
+            "realm": "atmos", 
+            "variable": "tauu"
+        }, 
+        "results": {
+            "Intertropical_Band": "-0.0430796"
+        }
+    }, 
+    "json_structure": [
+        "dataset_name", 
+        "results", 
+        "region_name"
+    ], 
+    "variable": {
+        "variable": "tauu", 
+        "varlongname": "Zonal Wind Stress"
+    }
+}
