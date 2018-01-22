@@ -71,7 +71,8 @@ def pysed(file, old_pattern, new_pattern):
 args = sys.argv
 
 # -- List of all existing components
-allcomponents=['TuningMetrics',
+allcomponents=['MainTimeSeries',
+               'TuningMetrics',
                'ParallelCoordinates_Atmosphere',
                'Atmosphere_Surface',
                'NH_Polar_Atmosphere_Surface',
@@ -198,7 +199,6 @@ if os.path.exists ('/ccc') and not os.path.exists ('/data')  :
        wspace='gencmip6'
        base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'
        pathwebspace='/ccc/work/cont003/thredds/'
-    #outworkdir = '/ccc/work/cont003/'+wspace+'/'+username+'/C-ESM-EP/out/'+comparison+'_'+username+'/'
     outworkdir = '/ccc/work/cont003/'+wspace+'/'+suffix
     if not os.path.isdir(outworkdir): os.makedirs(outworkdir)
 if 'ciclad' in os.uname()[1].strip().lower():

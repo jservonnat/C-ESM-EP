@@ -82,13 +82,11 @@ season='ANM'
 # -- Set CliMAF cache (automatically)
 # -------------------------------------------------------- >
 if [[ -d "/ccc" && ! -d "/data" ]]; then
-export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}_TEST
-#export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}_${season}
+export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
 fi
 
 if [[ -d "/data" ]]; then
-#export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_${season}
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_TEST
+export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
 fi
 
 # -- Run the atlas...

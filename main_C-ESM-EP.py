@@ -72,6 +72,16 @@ if opts.datasets_setup:
    if os.path.isfile(datasets_setup_available_period_set_file):
       use_available_period_set = True
       execfile(datasets_setup_available_period_set_file)
+      # Create Wmodels_ts and Wmodels_clim from Wmodels
+      Wmodels_clim = copy.deepcopy(Wmodels)
+      for item in Wmodels_clim:
+          clim_period_args = copy.deepcopy(item['clim_period'])
+          item.update(clim_period_args)
+      # 
+      Wmodels_ts = copy.deepcopy(Wmodels)
+      for item in Wmodels_ts:
+          ts_period_args = copy.deepcopy(item['ts_period'])
+          item.update(ts_period_args)
    else:
       execfile(opts.datasets_setup)
       use_available_period_set = False
@@ -112,7 +122,6 @@ if not index_name:
 user_login = ( str.split(getcwd(),'/')[4] if getuser()=='fabric' else getuser() )
 index_name = 'atlas_'+index_name
 
-#print 'target_html = ',subdir+'/'+index_name
 
 
 # -> Clean the cache if specified by the user
