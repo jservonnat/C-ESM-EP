@@ -1,1 +1,0 @@
-/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc
