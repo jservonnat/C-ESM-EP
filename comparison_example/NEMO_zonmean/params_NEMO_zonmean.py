@@ -35,6 +35,8 @@ verbose='debug'
 safe_mode = False 
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
+# -- Patterns to clean the cache at the end of the execution of the atlas
+routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar', age='+10')]
 
 
 

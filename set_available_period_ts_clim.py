@@ -27,10 +27,13 @@ from CM_atlas import *
 args = sys.argv
 if len(args)==1:
     print '--> Provide a comparison name'
-if len(args)==2:
+if len(args)>=2:
     comparison = args[1]
     if not comparison[len(comparison)-1]=='/': comparison+='/'
     datasets_setup_file = comparison+'datasets_setup.py'
+check = None
+if len(args)==3:
+    if args[2]=='check': check=True
 
 # -- Create the datasets_setup_period_set.py file
 datasets_setup_available_period_set_file = str.replace(datasets_setup_file,'.py','_available_period_set.py')
@@ -67,6 +70,7 @@ for dataset_dict in Wmodels_clim:
             dataset_dict.update(dict(variable=period_manager_test_variable))
             frequency_manager_for_diag(dataset_dict, diag='clim')
             get_period_manager(dataset_dict)
+            if check: cfile(ds(**dataset_dict))
             dataset_dict.pop('variable')
    
 

@@ -136,6 +136,8 @@
   
 # ---------------------------------------------------------------------------- >
 
+# -- Patterns to clean the cache at the end of the execution of the atlas
+routine_cache_cleaning = [dict(age='+20')]
 
 
 models = [
