@@ -286,7 +286,7 @@ if do_SST_for_tuning:
 	 Wmodels = period_for_diag_manager(models, diag='clim')
       else:
          Wmodels = copy.deepcopy(Wmodels_clim)
-      tuning_colors = colors_manager(Wmodels,cesmep_R_colors)
+      tuning_colors = colors_manager(Wmodels,cesmep_python_colors)
       for model in Wmodels:
           model.update(dict(color=tuning_colors[Wmodels.index(model)]))
 
@@ -1638,7 +1638,7 @@ if do_Hotelling_Test:
   # -- If the user didn't assign one, we take one from R_colorpalette defined in params_HotellingTest.py
   # -- If the user assigned one that was already attributed automatically with the mechanism above,
   # -- we replace it with another one.
-  hotelling_colors = colors_manager(Wmodels, cesmep_R_colors)
+  hotelling_colors = colors_manager(Wmodels, cesmep_python_colors)
   for model in Wmodels:
       model.update(dict(color=hotelling_colors[Wmodels.index(model)]))
 
