@@ -78,11 +78,11 @@ source ${env}
 # -- Set CliMAF cache (automatically)
 # -------------------------------------------------------- >
 if [[ -d "/ccc" && ! -d "/data" ]]; then
-export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_Atmosphere_zonmean_ANM
+export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_Atmosphere_zonmean
 fi
 
 if [[ -d "/data" ]]; then
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_Atmosphere_zonmean_ANM
+export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_Atmosphere_zonmean
 fi
 
 # -- Run the atlas...

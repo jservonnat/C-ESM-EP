@@ -31,8 +31,8 @@
 
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-#email = 'jerome.servonnat@lsce.ipsl.fr'
-email = None
+email = 'jerome.servonnat@lsce.ipsl.fr'
+#email = None
 
 
 # -- Import python modules ----------------------------------------------------------------
@@ -294,7 +294,7 @@ for component in job_components:
           cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
        else:
           # -- ... and for the parallel coordinates, we do that.
-          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_PMP_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD} ../../share/fp_template/copy_html_error_page.sh ; cd -'
+          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_PMP_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs

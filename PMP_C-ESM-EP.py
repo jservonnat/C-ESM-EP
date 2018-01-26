@@ -252,19 +252,6 @@ else:
    #       est prise pour trouver la periode avec time_manager => On met a jour la liste Wmodels
    Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
 
-#for model in Wmodels:
-#    print '---'
-#    print '---'
-#    print '---'
-#    print '--- => model = ',model
-#    model.update(dict(variable=vars[0]))
-#    frequency_manager_for_diag(model, diag='SE')
-#    get_period_manager(model)
-#    model.pop('variable')
-#    print '---'
-#    print '---'
-#    print '---'
-#
 print '===========> Wmodels ', Wmodels
 
 # -- Separate the CMIP5 - 1980-2005 results of the other datasets
@@ -288,8 +275,7 @@ testWmodels = copy.deepcopy(Wmodels)
 print 'testWmodels before = ',testWmodels
 for model in Wmodels:
     if model['project']=='CMIP5':
-       #print "model['period'] = ", model['period']
-       if model['period'] in ['1980-2005','1980_2005']:
+       if model['period'] in ['1900-2005','1900_2005']:
           # -- We remove the dictionary model to the list Wmodels and just keep the name of the model and color
           print 'Found that this model ok = ', model
           testWmodels.remove(model)
@@ -435,7 +421,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
     vars=variables
     #
     # -- Copy the initial models list
-    Wmodels = period_for_diag_manager(models, diag='SE') #copy.deepcopy(models)
+    Wmodels = copy.deepcopy(models)#period_for_diag_manager(models, diag='SE') #copy.deepcopy(models)
     #
     for model_dict in Wmodels:
         #
@@ -684,22 +670,22 @@ for model in Wmodels:
        # -- if the color specified by the user is already attributed to another dataset
        # -- we attribute another color to this other (lower priority) dataset
        if tmpcolor in CMIP5_colors:
-          replace_color = colorpalette[i]
+          replace_color = cesmep_python_colors[i]
           while replace_color in colors+CMIP5_colors:
                 i = i+1
-                replace_color = colorpalette[i]
+                replace_color = cesmep_python_colors[i]
           CMIP5_colors[ CMIP5_colors.index(tmpcolor) ] = replace_color
     else:
        # -- if the user didn't specify a color, we search for one in the list of colors colorpalette
-       tmpcolor = colorpalette[i]
+       tmpcolor = cesmep_python_colors[i]
        while tmpcolor in colors+CMIP5_colors:
              i = i + 1
-             tmpcolor = colorpalette[i]
+             tmpcolor = cesmep_python_colors[i]
              print 'colors+CMIP5_colors = ',colors+CMIP5_colors
              print 'tmpcolor = ', tmpcolor
        colors.append( tmpcolor )
 
-colors = colors_manager(Wmodels,cesmep_R_colors,colors_list=CMIP5_colors,method='end_with_colors_list')
+colors = colors_manager(Wmodels,cesmep_python_colors,colors_list=CMIP5_colors,method='end_with_colors_list')
 
 # -- We end up providing 'colors' to the R script (as well as 'highlights')
 # -- colors contains the list of colors for the simulations in datasets_setup;

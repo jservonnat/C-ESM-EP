@@ -16,7 +16,7 @@
 # -- Contact: jerome.servonnat at lsce.ipsl.fr
 # -----------------------------------------------------------------------------------------------------
 from CM_atlas import *
-
+clog('debug')
 # -- Copy the existing one if there is one
 # -- Update!! if the list models is not the same in datasets_setup and datasets_setup_available_period,
 # -- we update it.
@@ -59,31 +59,50 @@ execfile(datasets_setup_file)
 
 
 # -- Which variable do we use to test the availability of the files?
-period_manager_test_variable = 'tas'
+period_manager_test_variable = 'tair'
 
 # -- Clim ---------------------------------------------
 Wmodels_clim = period_for_diag_manager(models, diag='clim')
 for dataset_dict in Wmodels_clim:
    #
+   print 'dataset_dict = ',dataset_dict
+   dataset_dict.update(dict(variable=period_manager_test_variable))
    if 'clim_period' in dataset_dict:
-        if 'last' in dataset_dict['clim_period'].lower() or 'first' in dataset_dict['clim_period'].lower():
-            dataset_dict.update(dict(variable=period_manager_test_variable))
-            frequency_manager_for_diag(dataset_dict, diag='clim')
-            get_period_manager(dataset_dict)
-            if check: cfile(ds(**dataset_dict))
-            dataset_dict.pop('variable')
+        #if 'last' in dataset_dict['clim_period'].lower() or 'first' in dataset_dict['clim_period'].lower():
+        #    dataset_dict.update(dict(variable=period_manager_test_variable))
+        #    frequency_manager_for_diag(dataset_dict, diag='clim')
+        #    get_period_manager(dataset_dict)
+        #    if check:
+        #       print '-----> Proceed checking = ', cfile(ds(**dataset_dict))
+        #    dataset_dict.pop('variable')
+        frequency_manager_for_diag(dataset_dict, diag='clim')
+        get_period_manager(dataset_dict)
+   if check:
+        print '-----> Proceed checking clim = '
+        print cfile(ds(**dataset_dict))
+   dataset_dict.pop('variable')
    
 
 # -- TS ---------------------------------------------
 Wmodels_ts = period_for_diag_manager(models, diag='TS')
 for dataset_dict in Wmodels_ts:
    #
+   print 'dataset_dict = ',dataset_dict
+   dataset_dict.update(dict(variable=period_manager_test_variable))
    if 'ts_period' in dataset_dict:
-        if 'last' in dataset_dict['ts_period'].lower() or 'first' in dataset_dict['ts_period'].lower() or 'full' in dataset_dict['ts_period'].lower():
-            dataset_dict.update(dict(variable=period_manager_test_variable))
-            frequency_manager_for_diag(dataset_dict, diag='TS')
-            get_period_manager(dataset_dict)
-            dataset_dict.pop('variable')
+        #if 'last' in dataset_dict['ts_period'].lower() or 'first' in dataset_dict['ts_period'].lower() or 'full' in dataset_dict['ts_period'].lower():
+        #    dataset_dict.update(dict(variable=period_manager_test_variable))
+        #    #frequency_manager_for_diag(dataset_dict, diag='TS')
+        #    #get_period_manager(dataset_dict)
+        #    dataset_dict.pop('variable')
+        #if 'last' in dataset_dict['ts_period'].lower() or 'first' in dataset_dict['ts_period'].lower() or 'full' in dataset_dict['ts_period'].lower():
+        #    dataset_dict.update(dict(variable=period_manager_test_variable))
+        frequency_manager_for_diag(dataset_dict, diag='TS')
+        get_period_manager(dataset_dict)
+   if check:
+        print '-----> Proceed checking TS = '
+        print cfile(ds(**dataset_dict))
+   dataset_dict.pop('variable')
 
 
 

@@ -76,11 +76,15 @@ if opts.datasets_setup:
       Wmodels_clim = copy.deepcopy(Wmodels)
       for item in Wmodels_clim:
           clim_period_args = copy.deepcopy(item['clim_period'])
+          item.pop('clim_period')
+          item.pop('ts_period')
           item.update(clim_period_args)
       # 
       Wmodels_ts = copy.deepcopy(Wmodels)
       for item in Wmodels_ts:
           ts_period_args = copy.deepcopy(item['ts_period'])
+          item.pop('ts_period')
+          item.pop('clim_period')
           item.update(ts_period_args)
    else:
       execfile(opts.datasets_setup)
@@ -287,6 +291,7 @@ if do_SST_for_tuning:
       else:
          Wmodels = copy.deepcopy(Wmodels_clim)
       tuning_colors = colors_manager(Wmodels,cesmep_python_colors)
+      print 'tuning_colors = ',tuning_colors
       for model in Wmodels:
           model.update(dict(color=tuning_colors[Wmodels.index(model)]))
 
@@ -581,6 +586,7 @@ if do_main_time_series:
         if 'highlight_period' in time_series:
             if time_series['highlight_period']=='clim_period':
                 for dataset_dict in WWmodels_clim:
+                    print 'dataset_dict in time_series = ', dataset_dict
                     # -- Apply period manager if needed
                     if not use_available_period_set:
                        dataset_dict.update(dict(variable=time_series['variable']))
@@ -643,7 +649,7 @@ if do_main_time_series:
         # -- Colors
         p.update(dict(colors=colors_manager(WWmodels_ts,cesmep_python_colors)))
         myplot = ts_plot(ens_ts, **p)
-
+        #
         # ==> -- Add the plot to the line
         # -----------------------------------------------------------------------------------------
         if 'fig_size' in time_series:
@@ -813,11 +819,19 @@ if do_MLD_maps:
         # -- Loop on the models (add the results to the html line)
         if not use_available_period_set:
            Wmodels = period_for_diag_manager(models, diag='MLD_maps')
+           apply_period_manager = True
+        else:
+           Wmodels = copy.deepcopy(Wmodels_clim)
+           apply_period_manager = False
+           print 'Yes its fine ====>'
+           print 'Wmodels_clim = ',Wmodels_clim
+           print 'Wmodels = ',Wmodels
         for model in Wmodels:
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
             wmodel = model.copy()
             if 'frequency_for_annual_cycle' in wmodel: wmodel.update( dict(frequency = wmodel['frequency_for_annual_cycle']) )
+            print 'wmodel = '
             MLD_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
                                        safe_mode=safe_mode, regrid_option='remapdis', apply_period_manager=apply_period_manager)
             index += cell("",MLD_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
@@ -1554,8 +1568,9 @@ if do_Monsoons_pr_anncyc:
 
             wmodel = model.copy()
             wmodel.update(dict(variable='pr'))
-            frequency_manager_for_diag(wmodel, diag='clim')
-            get_period_manager(wmodel)
+            if not use_available_period_set:
+               frequency_manager_for_diag(wmodel, diag='clim')
+               get_period_manager(wmodel)
 
             pr_sim = ds(**wmodel)
 
@@ -1996,10 +2011,10 @@ if do_GLB_SFlux_maps:
         # --> Global Annual Mean
         # --> For the simulation
         GLB_plot_climato_sim_ANM = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='ANM', region='Global',
-                                                                custom_plot_params=custom_plot_params)
+                                                                custom_plot_params=custom_plot_params, apply_period_manager=apply_period_manager)
         # --> And for the reference
         GLB_plot_climato_ref_ANM = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='ANM', region='Global',
-                                                                custom_plot_params=custom_plot_params)
+                                                                custom_plot_params=custom_plot_params, apply_period_manager=apply_period_manager)
         #
         # -- Open the html line with the title
         line_title = 'GLOBAL Annual Mean '+varlongname(variable)+' ('+variable+')'
@@ -2015,7 +2030,7 @@ if do_GLB_SFlux_maps:
         for model in Wmodels:
             wmodel = model.copy()
             wmodel.update(dict(variable=variable,table='Amon'))
-            GLB_bias_ANM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, climatology='ANM', region='Global', custom_plot_params=custom_plot_params)
+            GLB_bias_ANM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, climatology='ANM', region='Global', custom_plot_params=custom_plot_params, apply_period_manager=apply_period_manager)
             index=index+cell("", GLB_bias_ANM, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
             #
         # -- Close the line
@@ -2079,10 +2094,10 @@ if do_Tropics_SFlux_maps:
         line_title = varlongname(variable)+' ('+variable+') => Seasonal climatologies (top line) and bias maps (bottom line)'
         index+=start_line(line_title)
         # -- Plot the reference
-        plot_climato_ref_DJF = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-        plot_climato_ref_MAM = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='MAM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-        plot_climato_ref_JJA = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='JJA', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-        plot_climato_ref_SON = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='SON', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
+        plot_climato_ref_DJF = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+        plot_climato_ref_MAM = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='MAM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+        plot_climato_ref_JJA = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='JJA', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+        plot_climato_ref_SON = plot_climato_TurbFlux_GB2015(variable,'GB2015',climatology='SON', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
         seas_ref_clim_plot = cpage(fig_lines=[[plot_climato_ref_DJF],[plot_climato_ref_MAM],[plot_climato_ref_JJA],[plot_climato_ref_SON]],
                                    fig_trim=True,page_trim=True,
                                    title='Climatology GB2015',
@@ -2096,10 +2111,10 @@ if do_Tropics_SFlux_maps:
         for model in Wmodels_var:
             wmodel = model.copy()
             sim = ds(**wmodel)
-            plot_climato_sim_DJF = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-            plot_climato_sim_MAM = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='MAM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-            plot_climato_sim_JJA = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='JJA', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-            plot_climato_sim_SON = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='SON', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
+            plot_climato_sim_DJF = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+            plot_climato_sim_MAM = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='MAM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+            plot_climato_sim_JJA = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='JJA', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+            plot_climato_sim_SON = plot_climato_TurbFlux_GB2015(variable,wmodel,climatology='SON', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
             seas_sim_clim_plot = cpage(fig_lines=[[plot_climato_sim_DJF],[plot_climato_sim_MAM],[plot_climato_sim_JJA],[plot_climato_sim_SON]],
                                        fig_trim=True,page_trim=True,
                                        title='Climatology '+sim.model+' '+sim.simulation,
@@ -2119,10 +2134,10 @@ if do_Tropics_SFlux_maps:
         for model in Wmodels_var:
             wmodel = model.copy()
             sim = ds(**wmodel)
-            plot_bias_DJF = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-            plot_bias_MAM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'MAM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-            plot_bias_JJA = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'JJA', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
-            plot_bias_SON = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'SON', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False)
+            plot_bias_DJF = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'DJF', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+            plot_bias_MAM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'MAM', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+            plot_bias_JJA = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'JJA', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
+            plot_bias_SON = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, 'SON', region='Tropics', custom_plot_params=custom_plot_params, do_cfile=False, apply_period_manager=apply_period_manager)
             seas_bias_plot= cpage(fig_lines=[[plot_bias_DJF],[plot_bias_MAM],[plot_bias_JJA],[plot_bias_SON]],fig_trim=True,page_trim=True,
                                   title=sim.model+' '+sim.simulation+' (vs GB2015)',
                                   gravity='NorthWest',
@@ -2226,7 +2241,8 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
@@ -2260,7 +2276,8 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
@@ -2293,7 +2310,8 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_energy_budget_modelmodel,
@@ -2322,7 +2340,8 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, refsimulation, proj, season, variables_energy_budget,
@@ -2359,7 +2378,8 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_water_budget_bias,
@@ -2394,7 +2414,8 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_water_budget_bias,
@@ -2426,7 +2447,8 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_water_budget_modelmodel,
@@ -2463,7 +2485,8 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_carbon_budget_bias,
@@ -2497,7 +2520,8 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_carbon_budget_bias,
@@ -2531,7 +2555,8 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     # -- Garde fou to avoid missing the first simulation
-    for model in Wmodels:
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
         if model['project'] not in ['IGCM_OUT']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_carbon_budget_modelmodel,
