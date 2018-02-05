@@ -231,13 +231,20 @@ subdir = datetime.today().strftime("%Y-%m-%d")
 
 # -- Get datasets_setup.py
 #execfile(datasets_setup)
-datasets_setup_period_set_file = str.replace(datasets_setup,'.py','_period_set.py')
-if os.path.isfile(datasets_setup_period_set_file):
-   use_set_period = True
-   execfile(datasets_setup_period_set_file)
+datasets_setup_available_period_set_file = str.replace(datasets_setup,'.py','_available_period_set.py')
+if os.path.isfile(datasets_setup_available_period_set_file):
+      use_available_period_set = True
+      execfile(datasets_setup_available_period_set_file)
+      # Create Wmodels_ts and Wmodels_clim from Wmodels
+      Wmodels_clim = copy.deepcopy(Wmodels)
+      for item in Wmodels_clim:
+          clim_period_args = copy.deepcopy(item['clim_period'])
+          item.pop('clim_period')
+          item.pop('ts_period')
+          item.update(clim_period_args)
 else:
    execfile(datasets_setup)
-   use_set_period = False
+   use_available_period_set = False
 
 # -- Fix (in case)
 if reference=='default': reference='defaultReference'
@@ -245,7 +252,7 @@ if reference=='default': reference='defaultReference'
 # - Si l'utilisateur donne un PMP_MG_clim_period qui est une liste de periodes a la mail, on reconstruit
 #   une liste models (sans recherche de l'existant)
 #models = split_periods_in_models(models)
-if use_set_period:
+if use_available_period_set:
    Wmodels = copy.deepcopy(Wmodels_clim)
 else:
    #    -> On peut donc definir une liste de variable => la premiere variable de la liste

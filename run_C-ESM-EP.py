@@ -255,7 +255,8 @@ if argument.lower() not in ['url']:
           pysed(atlas_pathfilename, 'target_comparison', comparison)
           # 3. dods_cp
           os.system('dods_cp '+atlas_pathfilename+' '+webspace+component)
-       pysed(atlas_pathfilename, 'target_comparison', comparison)
+          pysed(atlas_pathfilename, 'target_comparison', comparison)
+          pysed(atlas_pathfilename, 'target_comparison', comparison)
 
 
 # -- Submit the jobs
@@ -276,9 +277,12 @@ for component in job_components:
     # ---------------------------------------------------
     # -- Case atTGCC
     if atTGCC:
-       cmd=''
+       if email:
+          add_email = ' -@ '+email
+       else:
+          cmd=''
        if component not in metrics_components:
-          cmd = 'cd '+submitdir+' ; export comparison='+comparison+' ; export component='+component+' ; ccc_msub -r '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
+          cmd = 'cd '+submitdir+' ; export comparison='+comparison+' ; export component='+component+' ; ccc_msub'+add_email+' -r '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
     # -- Case onCiclad
     if onCiclad:
        # -- For all the components but for the parallel coordinates, we do this...

@@ -24,8 +24,8 @@ dict_plot_params = {
     'gpp' : {
         'default' : { 'color' : 'precip3_16lev' }
     },
-
-
+    #'mrro':{'full_field':dict(colors='0 0.1 0.25 0.5 0.75 1 2 5')},
+    #'mrros':{'full_field':dict(colors='0 0.1 0.25 0.5 0.75 1 2 5')},
 
 
 

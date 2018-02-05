@@ -31,9 +31,13 @@ if len(args)>=2:
     comparison = args[1]
     if not comparison[len(comparison)-1]=='/': comparison+='/'
     datasets_setup_file = comparison+'datasets_setup.py'
+# -- Which variable do we use to test the availability of the files?
 check = None
 if len(args)==3:
-    if args[2]=='check': check=True
+    period_manager_test_variable = args[2]
+    check=True
+else:
+    period_manager_test_variable = 'tas'
 
 # -- Create the datasets_setup_period_set.py file
 datasets_setup_available_period_set_file = str.replace(datasets_setup_file,'.py','_available_period_set.py')
@@ -58,8 +62,6 @@ execfile(datasets_setup_file)
 
 
 
-# -- Which variable do we use to test the availability of the files?
-period_manager_test_variable = 'tair'
 
 # -- Clim ---------------------------------------------
 Wmodels_clim = period_for_diag_manager(models, diag='clim')

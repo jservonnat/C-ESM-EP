@@ -755,6 +755,7 @@ if do_ocean_2D_maps:
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
       	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             ocean_variables=ocean_variables,
                              apply_period_manager=apply_period_manager)
 
 
