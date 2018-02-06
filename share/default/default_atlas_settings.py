@@ -69,7 +69,8 @@ do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = False
 do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = False
 
-thumbnail_size="300*175"
+thumbnail_size=None
+thumbnail_size_global="300*175"
 thumbnail_polar_size="250*250"
 thumbnail_size_3d="250*250"
 thumbsize_zonalmean='450*250'

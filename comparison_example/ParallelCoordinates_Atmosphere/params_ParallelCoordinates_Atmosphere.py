@@ -53,10 +53,7 @@ sort                   = 'TRUE'
 # --      -> the models that were not attributed a color will be assigned a default color
 #CMIP5_colors                 = ['blue','navyblue','darkturquoise','green2']
 # -- Set the CMIP5 models you want to highlight
-CMIP5_highlights             = [dict(model='IPSL-CM5A-MR',color='blue'),
-                                dict(model='IPSL-CM5A-LR',color='navyblue'),
-                                dict(model='IPSL-CM5B-LR',color='darkturquoise'),
-                                dict(model='CNRM-CM5', color='green2')
+CMIP5_highlights             = [dict(model='IPSL-CM5A-MR',color='black'),
                                ]
 # -- Show only the highlighted simulations/models in the legend
 highlights_only        = "FALSE"

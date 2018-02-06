@@ -36,6 +36,8 @@ verbose='debug'
 safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
+# -- Patterns to clean the cache at the end of the execution of the atlas
+routine_cache_cleaning = [dict(age='+20')]
 
 
 # -- Set the reference against which we plot the diagnostics 

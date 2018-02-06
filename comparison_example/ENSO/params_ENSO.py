@@ -34,6 +34,8 @@ verbose='debug'
 safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
+# -- Patterns to clean the cache at the end of the execution of the atlas
+routine_cache_cleaning = [dict(age='+20')]
 
 
 
@@ -96,15 +98,9 @@ style_file = os.getcwd()+style_file
 
 # -- Thumbnail sizes
 # ---------------------------------------------------------------------------- >
-thumbnail_size           = '300*175'
-thumbnail_polar_size     = '250*250'
-thumbnail_size_3d        = '250*250'
-thumbsize_zonalmean      = '450*250'
-thumbsize_TS             = '450*250'
-thumbsize_MOC_slice      = '475*250'
-thumbsize_MAXMOC_profile = '325*250'
-thumbsize_MOC_TS         = '325*250'
-thumbsize_VertProf       = '250*250'
+#thumbnail_ENSO_size="400*175"
+#thumbnail_ENSO_ts_size="400*175"
+
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >

@@ -455,13 +455,13 @@ if do_atlas_explorer:
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager)
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbnail_size)
     if atlas_explorer_climato_variables:
        index += section_climato_2D_maps(Wmodels, reference, proj, season, atlas_explorer_climato_variables,
                              'Atlas Explorer Climatologies', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager)
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbnail_size)
 
 
 
@@ -687,7 +687,6 @@ if do_atmos_maps:
     print '-- atmos_variables =                --'
     print '-> ',atmos_variables
     print '--                                  --'
-    print '-- thumbnail_size = ',thumbnail_size
     # -- Period Manager
     if not use_available_period_set:
        Wmodels = period_for_diag_manager(models, diag='atm_2D_maps')
@@ -702,6 +701,7 @@ if do_atmos_maps:
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
 			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             thumbnail_size=thumbnail_size,
                              apply_period_manager=apply_period_manager)
 
 
@@ -755,6 +755,7 @@ if do_ocean_2D_maps:
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
       	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             thumbnail_size=thumbnail_size,
                              ocean_variables=ocean_variables,
                              apply_period_manager=apply_period_manager)
 
@@ -796,7 +797,7 @@ if do_MLD_maps:
         proj = MLD_diag[1]
         #
         # -- Control the size of the thumbnail -> thumbN_size
-        thumbN_size = (thumbnail_polar_size if 'SH' in proj or 'NH' in proj else thumbnail_size)
+        thumbN_size = (thumbnail_polar_size if 'SH' in proj or 'NH' in proj else thumbnail_size_global)
         #
         # -- Open the html line with the title
         index += open_table()
