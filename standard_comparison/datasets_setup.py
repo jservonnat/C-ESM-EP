@@ -153,7 +153,8 @@ models = [
            experiment='pdControl',
            simulation='CM607-LR-pdCtrl-01',
            clim_period='2000_2009',
-           customname='CM607 2000_2009'
+           customname='CM607 2000_2009',
+           color='ref'
            ),
 
       dict(project='IGCM_OUT',
@@ -163,7 +164,8 @@ models = [
            simulation='CM607-LR-pdCtrl-01',
            frequency='monthly',
            clim_period='last_10Y',
-	   customname='CM607 last_10Y'
+	   customname='CM607 last_10Y',
+           color='blue',
           ),
 
 ]
