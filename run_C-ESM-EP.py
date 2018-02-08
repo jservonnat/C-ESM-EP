@@ -107,10 +107,18 @@ else:
    argument='None'
    if len(args)==3:
       argument=args[2]
-      if argument in ['OA']:
-         if argument=='OA': components = ['Atmosphere_Surface','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','ENSO','PISCES']
-      elif  argument.lower() in ['url']:
+      #if argument in ['OA']:
+      #   if argument=='OA': components = ['Atmosphere_Surface','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','ENSO','PISCES']
+      #elif  argument.lower() in ['url']:
+      #   components=allcomponents
+      if argument.lower() in ['url']:
          components=allcomponents
+      elif argument=='OA':
+         components = ['Atmosphere_Surface','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','Atlantic_Atmosphere_Surface','ENSO','PISCES']
+      elif argument=='LMDZ':
+         components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLevs']
+      elif argument=='LMDZOR':
+         components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLevs','ORCHIDEE']
       else:
          components=str.split(argument,',')
    else:
