@@ -139,13 +139,15 @@
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 
+# -- Localize the path to the grids
+from climaf.site_settings import onCiclad, atTGCC
+if onCiclad:
+   gridpath='/data/igcmg/database/grids/'
+if atTGCC:
+   gridpath='/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+
 
 models = [
-
-      dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
-           frequency='monthly', period='1980-2005',
-           customname='CMIP5 IPSL-CM5A-MR'
-           ),
 
       dict(project='IGCM_OUT',
            login='p86caub',
@@ -154,7 +156,7 @@ models = [
            simulation='CM607-LR-pdCtrl-01',
            clim_period='2000_2009',
            customname='CM607 2000_2009',
-           color='ref'
+           color='red'
            ),
 
       dict(project='IGCM_OUT',
@@ -168,20 +170,23 @@ models = [
            color='blue',
           ),
 
+      dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
+           frequency='monthly', period='1980-2005',
+           customname='CMIP5 IPSL-CM5A-MR'
+           ),
+
 ]
 
 # -- Provide a set of common keys to the elements of models
 # ---------------------------------------------------------------------------- >
 common_keys = dict(
            root='/ccc/store/cont003/thredds', login='*',
-           frequency='seasonal',
-           clim_period='last_SE',
+           frequency='monthly',
+           clim_period='last_30Y',
            ts_period='full',
            ENSO_ts_period='last_80Y',
-           #mesh_hgr='/ccc/work/cont003/igcmg/igcmg/Database/grids/eORCA1.2_mesh_mask_glo.nc',
-           #gridfile='/ccc/work/cont003/igcmg/igcmg/Database/grids/eORCA1.1_grid.nc',
-           mesh_hgr='/data/igcmg/database/grids/eORCA1.2_mesh_mask_glo.nc',
-           gridfile='/data/igcmg/database/grids/eORCA1.1_grid.nc',
+           mesh_hgr=gridpath+'eORCA1.2_mesh_mask_glo.nc',
+           gridfile=gridpath+'eORCA1.1_grid.nc',
            varname_area='area',
            )
 
@@ -201,6 +206,8 @@ common_period_variable='tas'
 common_clim_period=None
 
 if common_clim_period: find_common_period(models, common_period_variable, common_clim_period)
+
+crm(pattern='CM607-LR-pdCtrl-01')
 
 # -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >

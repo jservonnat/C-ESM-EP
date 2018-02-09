@@ -177,10 +177,11 @@ if atTGCC:
 # -> Specif TGCC: Copy the empty.png image in the cache
 # -----------------------------------------------------------------------------------
 if atTGCC:
+   from climaf import cachedir
    if not os.path.isdir(cachedir):
       os.makedirs(cachedir)
    if not os.path.isfile(cachedir+'/Empty.png'):
-      cmd = 'cp '+cpath[0]+'/plot/Empty.png '+cachedir
+      cmd = 'cp '+cpath+'/plot/Empty.png '+cachedir
       print cmd
       os.system(cmd)
 
@@ -450,18 +451,22 @@ if do_atlas_explorer:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = thumbnail_size_global
     index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
                              'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbnail_size)
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
     if atlas_explorer_climato_variables:
        index += section_climato_2D_maps(Wmodels, reference, proj, season, atlas_explorer_climato_variables,
                              'Atlas Explorer Climatologies', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbnail_size)
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
 
 
 
@@ -696,12 +701,16 @@ if do_atmos_maps:
        apply_period_manager = False
     for model in Wmodels:
         if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Amon'))
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = thumbnail_size_global
     index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
                              'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
 			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbnail_size,
+                             thumbnail_size=thumbN_size,
                              apply_period_manager=apply_period_manager)
 
 
@@ -750,12 +759,16 @@ if do_ocean_2D_maps:
        apply_period_manager = False
     for model in Wmodels:
         if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Omon'))
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = thumbnail_size_global
     index += section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables, 
                              'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
       	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbnail_size,
+                             thumbnail_size=thumbN_size,
                              ocean_variables=ocean_variables,
                              apply_period_manager=apply_period_manager)
 
@@ -1176,8 +1189,8 @@ if do_seaice_annual_cycle:
    #
    # -- Gather the figures in an html line
    index+=open_line('Sea Ice Volume (km3))')+\
-                     cell("", siv_NH, thumbnail=thumbnail_size, hover=hover, **alternative_dir)+\
-                     cell("", siv_SH, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
+                     cell("", siv_NH, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir)+\
+                     cell("", siv_SH, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir)
    close_line()
    #
    # -- Close this table
@@ -2024,16 +2037,16 @@ if do_GLB_SFlux_maps:
 	#
         # -- Add the plots at the beginning line
         # --> First, the climatology of the reference
-        index += cell("", GLB_plot_climato_ref_ANM, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
+        index += cell("", GLB_plot_climato_ref_ANM, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir)
         # --> Then, the climatology of the first model
-        index += cell("", GLB_plot_climato_sim_ANM, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
+        index += cell("", GLB_plot_climato_sim_ANM, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir)
         #
         # -- Loop on the models (add the results to the html line)
         for model in Wmodels:
             wmodel = model.copy()
             wmodel.update(dict(variable=variable,table='Amon'))
             GLB_bias_ANM = plot_bias_TurbFlux_vs_GB2015(variable, wmodel, climatology='ANM', region='Global', custom_plot_params=custom_plot_params, apply_period_manager=apply_period_manager)
-            index=index+cell("", GLB_bias_ANM, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
+            index=index+cell("", GLB_bias_ANM, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir)
             #
         # -- Close the line
         index+=close_line()+close_table()
@@ -2603,7 +2616,10 @@ if do_mse_otorres_maps:
     #
     # -- use season from params
     # -- Control the size of the thumbnail -> thumbN_size
-    thumbN_size = thumbnail_size
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = thumbnail_size_global
     #
     # -- Open the html line with the title
     index += open_table()
@@ -2731,7 +2747,10 @@ if do_my_own_climaf_diag:
     #
     # ==> -- Control the size of the thumbnail -> thumbN_size
     # -----------------------------------------------------------------------------------------
-    thumbN_size = thumbnail_size
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = thumbnail_size_global
     #
     # ==> -- Open the html line with the title
     # -----------------------------------------------------------------------------------------
@@ -2833,7 +2852,10 @@ if do_plot_raw_climatologies:
     #
     # ==> -- Control the size of the thumbnail -> thumbN_size
     # -----------------------------------------------------------------------------------------
-    thumbN_size = thumbnail_size
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = thumbnail_size_global
     #
     for variable in ping_2D_variables:
         # ==> -- Open the html line with the title
@@ -2928,7 +2950,10 @@ if do_annual_cycle_precip:
     #
     # ==> -- Control the size of the thumbnail -> thumbN_size
     # -----------------------------------------------------------------------------------------
-    thumbN_size = thumbnail_size
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = thumbnail_size_global
     #
     # ==> -- Open the html line with the title
     # -----------------------------------------------------------------------------------------

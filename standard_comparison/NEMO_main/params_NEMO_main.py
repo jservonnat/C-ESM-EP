@@ -126,7 +126,7 @@ y = 'lin' # -> The vertical axis; choose between 'lin' (linear) or 'index' (mode
 # -- White Ocean : Sea Ice diagnostics
 # ---------------------------------------------------------------------------- >
 do_seaice_maps         = True    # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
-do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
+#do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
 # ---------------------------------------------------------------------------- >
 
 

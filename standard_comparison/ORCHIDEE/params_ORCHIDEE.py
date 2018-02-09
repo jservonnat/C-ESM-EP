@@ -153,7 +153,7 @@ derive("IGCM_OUT", 'GPP_c3PftFrac', 'ccdo', 'GPP1012', operator='vertsum -selnam
 derive('IGCM_OUT', 'GPP1113','select_veget_types','GPPmaxvegetfracContfrac',selection='-d veget,10 -d veget,12')
 derive("IGCM_OUT", 'GPP_c4PftFrac', 'ccdo', 'GPP1113', operator='vertsum -selname,GPP1113')
 
-
+thumbnail_size='300*175'
 # ---------------------------------------------------------------------------- >
 
 

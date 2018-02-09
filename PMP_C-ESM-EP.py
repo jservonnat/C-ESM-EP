@@ -290,8 +290,6 @@ for model in Wmodels:
              CMIP5_names.append(model['model'])
              tmpcolor=None
              if 'color' in model:      tmpcolor = model['color']
-             if 'R_color' in model:    tmpcolor = model['R_color']
-             if 'line_color' in model: tmpcolor = model['line_color']
              if not tmpcolor:
                 i=0
                 tmpcolor = colorpalette[i]

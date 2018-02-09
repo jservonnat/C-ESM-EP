@@ -112,9 +112,9 @@ else:
       elif argument=='OA':
          components = ['Atmosphere_Surface','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','NEMO_depthlevels','Atlantic_Atmosphere_Surface','ENSO','PISCES']
       elif argument=='LMDZ':
-         components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLevs']
+         components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLev','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev']
       elif argument=='LMDZOR':
-         components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLevs','ORCHIDEE']
+         components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLev','ORCHIDEE']
       elif argument=='NEMO':
          components = ['NEMO_main','NEMO_zonmean','NEMO_depthlevels','PISCES']
       else:
@@ -296,15 +296,15 @@ for component in job_components:
           add_email = ' -m e -M '+email
        else:
           add_email = ''
+       queue = 'h12'
        if component not in metrics_components:
+          job_script = 'job_C-ESM-EP.sh'
           if 'NEMO' in component or 'Turbulent' in component or 'PISCES' in component or 'Essentials' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
-          else:
-             queue = 'h12'
-          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
        else:
+          job_script = 'job_PMP_C-ESM-EP.sh'
           # -- ... and for the parallel coordinates, we do that.
-          cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../job_PMP_C-ESM-EP.sh) ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs
