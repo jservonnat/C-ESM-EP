@@ -207,7 +207,6 @@ common_clim_period=None
 
 if common_clim_period: find_common_period(models, common_period_variable, common_clim_period)
 
-crm(pattern='CM607-LR-pdCtrl-01')
 
 # -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
