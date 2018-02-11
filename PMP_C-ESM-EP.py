@@ -18,7 +18,7 @@ import os, copy, subprocess, shlex
 from datetime import datetime
 from shutil import copyfile
 from getpass import getuser
-from PMP_MG.PMP_MG_time_manager import period_manager_PMP_MG, build_metric_outpath, get_keys_for_PMP_MG, build_input_climatology_filename, pysed
+from PMP_MG.PMP_MG_time_manager import build_metric_outpath, get_keys_for_PMP_MG, build_input_climatology_filename, pysed
 
 clog('debug')
 
@@ -122,7 +122,7 @@ ref_parallel_coordinates = 'CMIP5'
 reference_data_path      = None
 metrics_table            = 'Atmosphere'
 # - Palette that will be used by the R script 
-colorpalette = ['dodgerblue3','orangered','green','dodgerblue4','firebrick3','yellow1','royalblue','deepskyblue','mediumseagreen','violetred2','mediumturquoise','cadetblue','brown2','chartreuse1','burlywood3','coral1','burlywood4','darkgoldenrod2','darkolivegreen3','darkgoldenrod4','darkorchid']
+#colorpalette = ['dodgerblue3','orangered','green','dodgerblue4','firebrick3','yellow1','royalblue','deepskyblue','mediumseagreen','violetred2','mediumturquoise','cadetblue','brown2','chartreuse1','burlywood3','coral1','burlywood4','darkgoldenrod2','darkolivegreen3','darkgoldenrod4','darkorchid']
 # Use --colors to override the colors of a subset of highlights, or directly edit colorpalette in the param file
 #parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
 parallel_coordinates_script = main_cesmep_path+'scientific_packages/parallel_coordinates/parallel_coordinates.R'
@@ -261,10 +261,6 @@ else:
 
 print '===========> Wmodels ', Wmodels
 
-# -- Separate the CMIP5 - 1980-2005 results of the other datasets
-# --  => they are precomputed
-#if not CMIP5_highlights: CMIP5_highlights=[]
-#if not CMIP5_colors: CMIP5_colors=[]
 
 # -- creer la liste CMIP5_highlights et CMIP5_colors => issu de CMIP5_highlights de 
 CMIP5_names = []
@@ -280,39 +276,39 @@ print 'CMIP5_names = ', CMIP5_names
 import copy
 testWmodels = copy.deepcopy(Wmodels)
 print 'testWmodels before = ',testWmodels
-for model in Wmodels:
-    if model['project']=='CMIP5':
-       if model['period'] in ['1900-2005','1900_2005']:
-          # -- We remove the dictionary model to the list Wmodels and just keep the name of the model and color
-          print 'Found that this model ok = ', model
-          testWmodels.remove(model)
-          if model['model'] not in CMIP5_names:
-             CMIP5_names.append(model['model'])
-             tmpcolor=None
-             if 'color' in model:      tmpcolor = model['color']
-             if not tmpcolor:
-                i=0
-                tmpcolor = colorpalette[i]
-                while tmpcolor in CMIP5_colors:
-                      i = i + 1
-                      tmpcolor = colorpalette[i]
-                      print 'CMIP5_colors = ',CMIP5_colors
-                      print 'tmpcolor = ', tmpcolor
-             CMIP5_colors.append( tmpcolor )
-          else:
-            tmpcolor=None
-            if 'color' in model:      tmpcolor = model['color']
-            if 'R_color' in model:    tmpcolor = model['R_color']
-            if 'line_color' in model: tmpcolor = model['line_color']
-            if tmpcolor:
-               if tmpcolor in CMIP5_colors:
-                  replace_color = colorpalette[i]
-                  while replace_color in CMIP5_colors:
-                        i = i+1
-                        replace_color = colorpalette[i]
-                  CMIP5_colors[ CMIP5_colors.index(tmpcolor) ] = replace_color
-               CMIP5_colors[ CMIP5_names.index(model['model']) ] = tmpcolor
-            #else:
+#for model in Wmodels:
+#    if model['project']=='CMIP5':
+#       if model['period'] in ['1900-2005','1900_2005']:
+#          # -- We remove the dictionary model to the list Wmodels and just keep the name of the model and color
+#          print 'Found that this model ok = ', model
+#          testWmodels.remove(model)
+#          if model['model'] not in CMIP5_names:
+#             CMIP5_names.append(model['model'])
+#             tmpcolor=None
+#             if 'color' in model:      tmpcolor = model['color']
+#             if not tmpcolor:
+#                i=0
+#                tmpcolor = colorpalette[i]
+#                while tmpcolor in CMIP5_colors:
+#                      i = i + 1
+#                      tmpcolor = colorpalette[i]
+#                      print 'CMIP5_colors = ',CMIP5_colors
+#                      print 'tmpcolor = ', tmpcolor
+#             CMIP5_colors.append( tmpcolor )
+#          else:
+#            tmpcolor=None
+#            if 'color' in model:      tmpcolor = model['color']
+#            if 'R_color' in model:    tmpcolor = model['R_color']
+#            if 'line_color' in model: tmpcolor = model['line_color']
+#            if tmpcolor:
+#               if tmpcolor in CMIP5_colors:
+#                  replace_color = colorpalette[i]
+#                  while replace_color in CMIP5_colors:
+#                        i = i+1
+#                        replace_color = colorpalette[i]
+#                  CMIP5_colors[ CMIP5_colors.index(tmpcolor) ] = replace_color
+#               CMIP5_colors[ CMIP5_names.index(model['model']) ] = tmpcolor
+#            #else:
              
 
 # -- Si on a des CMIP5_names definis dans le params, ils s'accompagnent d'une couleur chacun
@@ -660,44 +656,18 @@ for model in Wmodels:
     if wperiod not in customname: customname = customname+'_'+wperiod
     if customname not in customnames:
         customnames.append(customname)
-    # -- Dealing with the colors
-    # 1/ First, we check if the user has provided a color with the dataset
-    #    if so, it has the highest priority compared to the other color specifications
-    tmpcolor = None
-    if 'color' in model:
-       tmpcolor=model['color']
-    if 'R_color' in model:
-       tmpcolor=model['R_color']
-    if 'line_color' in model:
-       tmpcolor=model['line_color']
-    if tmpcolor:
-       colors.append(tmpcolor)
-       # -- if the color specified by the user is already attributed to another dataset
-       # -- we attribute another color to this other (lower priority) dataset
-       if tmpcolor in CMIP5_colors:
-          replace_color = cesmep_python_colors[i]
-          while replace_color in colors+CMIP5_colors:
-                i = i+1
-                replace_color = cesmep_python_colors[i]
-          CMIP5_colors[ CMIP5_colors.index(tmpcolor) ] = replace_color
-    else:
-       # -- if the user didn't specify a color, we search for one in the list of colors colorpalette
-       tmpcolor = cesmep_python_colors[i]
-       while tmpcolor in colors+CMIP5_colors:
-             i = i + 1
-             tmpcolor = cesmep_python_colors[i]
-             print 'colors+CMIP5_colors = ',colors+CMIP5_colors
-             print 'tmpcolor = ', tmpcolor
-       colors.append( tmpcolor )
 
-colors = colors_manager(Wmodels,cesmep_python_colors,colors_list=CMIP5_colors,method='end_with_colors_list')
+colors = colors_manager(Wmodels,cesmep_python_colors,colors_list=CMIP5_colors,method='start_with_colors_list')
+
+print 'colors after colors_manager = ',colors
 
 # -- We end up providing 'colors' to the R script (as well as 'highlights')
 # -- colors contains the list of colors for the simulations in datasets_setup;
 # -- We now need to add the colors of if CMIP5_colors
 # --> We rely on the principle that if CMIP5_colors is provided, we provide the same number of colors as models
 # --> We can also 
-if CMIP5_names:
+bla=None
+if bla:
    # -- Si on a autant de couleurs que de models, on boucle sur les couleurs et on trouve
    if len(CMIP5_names)==len(CMIP5_colors):
       ok_CMIP5_colors = []
@@ -735,10 +705,10 @@ if CMIP5_names:
 # -- Add the colors of the CMIP5 highlights, either before or after the simulations in datasets_setup
 if CMIP5_highlights_first:
    str_highlights = ','.join(CMIP5_names + customnames)
-   colors = ok_CMIP5_colors + colors
+   #   colors = ok_CMIP5_colors + colors
 else:
    str_highlights = ','.join(customnames + CMIP5_names)
-   colors = colors + ok_CMIP5_colors
+#   colors = colors + ok_CMIP5_colors
 
 
 colors = ','.join(colors)

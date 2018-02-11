@@ -103,6 +103,8 @@ period_manager_test_variable = 'ua'
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
+thumbnail_size="250*250"
+
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "Atmosphere Zonal mean - seasonal"
