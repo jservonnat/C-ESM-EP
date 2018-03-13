@@ -121,6 +121,8 @@ hover = False
 # ---------------------------------------------------------------------------- >
 add_compareCompanion = True
 
+thumbnail_size="250*250"
+
 
 # -- Name of the html file
 # -- if index_name is set to None, it will be build as user_comparisonname_season

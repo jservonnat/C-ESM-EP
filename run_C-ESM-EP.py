@@ -304,12 +304,13 @@ for component in job_components:
        else:
           job_script = 'job_PMP_C-ESM-EP.sh'
           # -- ... and for the parallel coordinates, we do that.
-       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q h12 -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs
     # ----------------------------------------------------------------------------------------------------------------------------
     if argument.lower() not in ['url']:
+       print cmd
        os.system(cmd)
 
 

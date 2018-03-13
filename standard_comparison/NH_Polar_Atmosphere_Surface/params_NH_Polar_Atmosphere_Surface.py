@@ -129,6 +129,9 @@ add_compareCompanion = True
 # ---------------------------------------------------------------------------- >
 index_name = None
 
+thumbnail_size="250*250"
+
+
 # -- Custom plot params
 # -- Changing the plot parameters of the plots
 # ---------------------------------------------------------------------------- >

@@ -85,6 +85,8 @@ for var in atmos_variables_list:
         atmos_variables.append(dict(variable=var, season=seas))
 period_manager_test_variable = 'ua'
 
+thumbnail_size="250*250"
+
 # ---------------------------------------------------------------------------- >
 
 

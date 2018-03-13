@@ -2846,84 +2846,169 @@ if do_my_own_climaf_diag:
 # -- is specific to the diagnostic presented here.                                      -- #
 if do_plot_raw_climatologies:
     #
-    # ==> -- Open the section and an html table
-    # -----------------------------------------------------------------------------------------
-    index += section("Raw climatologies", level=4)
-    #
-    # ==> -- Control the size of the thumbnail -> thumbN_size
-    # -----------------------------------------------------------------------------------------
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
     if thumbnail_size:
        thumbN_size = thumbnail_size
     else:
        thumbN_size = thumbnail_size_global
+    if atlas_explorer_climato_variables:
+       #
+       for variable in ping_2D_variables:
+         if isinstance(variable,dict):
+           #
+           # -- Preliminary step: check the range of values across the models
+           # -----------------------------------------------------------------------------------------
+           min_values = []
+           max_values = []
+           for model in Wmodels:
+               #
+               # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+               # -- in the list models, and add the variable
+               # -----------------------------------------------------------------------------------------
+               wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+               wmodel.update(variable) # - add a variable to the dictionary with update
+               #wmodel.update(dict(variable=variable['variable'])) # - add a variable to the dictionary with update
+               if apply_period_manager:
+                  frequency_manager_for_diag(wmodel, 'clim')
+                  get_period_manager(wmodel)
+               #
+               # /// -- Get the dataset and compute the annual cycle
+               # -----------------------------------------------------------------------------------------
+               try:
+                  print 'wmodel =======> ',wmodel
+                  dat = time_average( ds(**wmodel) )
+                  #
+                  min_values.append( cscalar(ccdo(dat,operator='fldmin')) )
+                  max_values.append( cscalar(ccdo(dat,operator='fldmax')) )
+               except:
+                  print 'No data found for wmodel = ',wmodel
+               #
+           min_val = float('%s' % float('%.2g' % min(min_values)))
+           max_val = float('%s' % float('%.2g' % max(max_values)))
+           import numpy as np
+           my_colors_list = np.linspace(min_val,max_val,num=11)
+           my_colors_str=''
+           for cl in my_colors_list:
+               if my_colors_str=='':
+                  my_colors_str+=str(cl)
+               else:
+                  my_colors_str+=' '+str(cl)
+           variable.update(dict(colors=my_colors_str))   
+       index += section_climato_2D_maps(Wmodels, reference, proj, season, ping_2D_variables,
+                             'Atlas Explorer Climatologies', domain=domain, custom_plot_params=custom_plot_params,
+                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
     #
-    for variable in ping_2D_variables:
-        # ==> -- Open the html line with the title
-        # -----------------------------------------------------------------------------------------
-        index += open_table()
-        line_title = variable+' = '+var_description[variable]
-        index+=start_line(line_title)
-        #
-        Wmodels = copy.deepcopy(models)
-        #
-        # -- Preliminary step: check the range of values across the models
-        # -----------------------------------------------------------------------------------------
-        min_values = []
-        max_values = []
-        for model in Wmodels:
-            #
-            # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
-            # -- in the list models, and add the variable
-            # -----------------------------------------------------------------------------------------
-            wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
-            wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
-            #
-            # /// -- Get the dataset and compute the annual cycle
-            # -----------------------------------------------------------------------------------------
-            dat = time_average( ds(**wmodel) )
-            #
-            min_values.append( cscalar(ccdo(dat,operator='fldmin')) )
-            max_values.append( cscalar(ccdo(dat,operator='fldmax')) )
-            #
-        min_val = min(min_values)
-        max_val = max(max_values)
-        #
-        for model in Wmodels:
-            #
-            # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
-            # -- in the list models, and add the variable
-            # -----------------------------------------------------------------------------------------
-            wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
-            wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
-            #
-            # /// -- Get the dataset and compute the annual cycle
-            # -----------------------------------------------------------------------------------------
-            dat = time_average( ds(**wmodel) )
-            #        
-            # /// -- Build the titles
-            # -----------------------------------------------------------------------------------------
-            title = build_plot_title(wmodel,None) # > returns the model name if project=='CMIP5'
-            #                                         otherwise it returns the simulation name
-            #                                         It returns the name of the reference if you provide
-            #                                         a second argument ('dat1 - dat2')
-            LeftString = variable
-            RightString = build_str_period(wmodel)  # -> finds the right key for the period (period of clim_period)
-            CenterString = ''
-            #
-            # -- Plot the raw variable
-            # -----------------------------------------------------------------------------------------
-            plot_raw = plot(dat, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
-                            color='BlueWhiteOrangeRed', min=min_val, max=max_val)
-            #
-            # ==> -- Add the plot to the line
-            # -----------------------------------------------------------------------------------------
-            index += cell("",safe_mode_cfile_plot(plot_raw, safe_mode=safe_mode),
-                          thumbnail=thumbN_size, hover=hover, **alternative_dir)
-            #
-        # ==> -- Close the line and the table for this section
-        # -----------------------------------------------------------------------------------------
-        index+=close_line() + close_table()
-
+    #
+    ## ==> -- Open the section and an html table
+    ## -----------------------------------------------------------------------------------------
+    #index += section("Raw climatologies", level=4)
+    ##
+    ## ==> -- Control the size of the thumbnail -> thumbN_size
+    ## -----------------------------------------------------------------------------------------
+    #if thumbnail_size:
+    #   thumbN_size = thumbnail_size
+    #else:
+    #  # thumbN_size = thumbnail_size_global
+    ##
+    #for var in ping_2D_variables:
+    #    # -- decompose the var dictionary
+    #    # -----------------------------------------------------------------------------------------
+    #    if isinstance(var,dict):
+    #       variable = var['variable']
+    #       #p = var.copy()
+    #       #p.pop('variable')
+    #       if 'line_title' in var:
+    #          line_title = var['line_title']
+    #          var.pop('line_title')
+    #       else:
+    #          line_title = variable
+    #       #if 'display_field_stats' in var:
+    #       #   display_field_stats=var['display_field_stats']
+    #       #   p.pop('display_field_stats')
+    #       #else:
+    #       #   display_field_stats=False
+    #    else:
+    #       variable = var
+    #       line_title = variable
+    #       p = dict()
+    #    #
+    #    # ==> -- Open the html line with the title
+    #    # -----------------------------------------------------------------------------------------
+    #    index += open_table()
+    #    #line_title = variable+' = '+var_description[variable]
+    #    index+=start_line(line_title)
+    #    #
+    #    Wmodels = copy.deepcopy(models)
+    #    #
+    #    # -- Preliminary step: check the range of values across the models
+    #    # -----------------------------------------------------------------------------------------
+    #    min_values = []
+    #    max_values = []
+    #    for model in Wmodels:
+    #        #
+    #        # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+    #        # -- in the list models, and add the variable
+    #        # -----------------------------------------------------------------------------------------
+    #        wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+    #        wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+    #        #
+    #        # /// -- Get the dataset and compute the annual cycle
+    #        # -----------------------------------------------------------------------------------------
+    #        dat = time_average( ds(**wmodel) )
+    #        #
+    #        min_values.append( cscalar(ccdo(dat,operator='fldmin')) )
+    #        max_values.append( cscalar(ccdo(dat,operator='fldmax')) )
+    #        #
+    #    min_val = '%s' % float('%.3g' % min(min_values))
+    #    max_val = '%s' % float('%.3g' % max(max_values))
+    #    var.update(dict(min=min_val, max=max_val))
+    #    #
+    #    for model in Wmodels:
+    #        #
+    #        # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
+    #        # -- in the list models, and add the variable
+    #        # -----------------------------------------------------------------------------------------
+    #        wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
+    #        wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+    #        #
+    #        # /// -- Get the dataset and compute the annual cycle
+    #        # -----------------------------------------------------------------------------------------
+    #        dat = time_average( ds(**wmodel) )
+    #        #        
+    #        # /// -- Build the titles
+    #        # -----------------------------------------------------------------------------------------
+    #        title = build_plot_title(wmodel,None) # > returns the model name if project=='CMIP5'
+    #        #                                         otherwise it returns the simulation name
+    #        #                                         It returns the name of the reference if you provide
+    #        #                                         a second argument ('dat1 - dat2')
+    #        LeftString = variable
+    #        RightString = build_period_str(wmodel)  # -> finds the right key for the period (period of clim_period)
+    #        CenterString = ''
+    #        #
+    #        # -- Plot the raw variable
+    #        # -----------------------------------------------------------------------------------------
+    #        #plot_raw = plot(dat, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
+    #        #                color='BlueWhiteOrangeRed', min=min_val, max=max_val, **p)
+    #        plot_raw = plot_climato(var, dat, 'ANM',
+    #                        color='BlueWhiteOrangeRed', )
+    #        #
+    #        # ==> -- Add the plot to the line
+    #        # -----------------------------------------------------------------------------------------
+    #        index += cell("",safe_mode_cfile_plot(plot_raw, safe_mode=safe_mode),
+    #                      thumbnail=thumbN_size, hover=hover, **alternative_dir)
+    #        #
+    #    # ==> -- Close the line and the table for this section
+    #    # -----------------------------------------------------------------------------------------
+    #    index+=close_line() + close_table()
+#
 
 
 
