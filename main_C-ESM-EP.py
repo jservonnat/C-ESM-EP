@@ -454,7 +454,8 @@ if do_atlas_explorer:
     if thumbnail_size:
        thumbN_size = thumbnail_size
     else:
-       thumbN_size = thumbnail_size_global
+       thumbN_size = None
+       #thumbN_size = thumbnail_size_global
     index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
                              'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
@@ -701,16 +702,16 @@ if do_atmos_maps:
        apply_period_manager = False
     for model in Wmodels:
         if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Amon'))
-    if thumbnail_size:
-       thumbN_size = thumbnail_size
-    else:
-       thumbN_size = thumbnail_size_global
+    #if thumbnail_size:
+    #   thumbN_size = thumbnail_size
+    #else:
+    #   thumbN_size = thumbnail_size_global
     index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
                              'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
 			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbN_size,
+                             #thumbnail_size=thumbN_size,
                              apply_period_manager=apply_period_manager)
 
 
