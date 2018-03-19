@@ -654,7 +654,10 @@ if do_main_time_series:
            print '==> No highlight period provided => ', highlight_period
         # -- Colors
         p.update(dict(colors=colors_manager(WWmodels_ts,cesmep_python_colors)))
+        print 'ens_ts = ', ens_ts
+        print 'p = ', p
         myplot = ts_plot(ens_ts, **p)
+        #cdrop(myplot)
         #
         # ==> -- Add the plot to the line
         # -----------------------------------------------------------------------------------------
@@ -669,6 +672,8 @@ if do_main_time_series:
     # ==> -- Close the line and the table for this section
     # -----------------------------------------------------------------------------------------
     index+=close_line() + close_table()
+
+
 
 
 

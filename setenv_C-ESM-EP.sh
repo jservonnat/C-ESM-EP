@@ -93,8 +93,10 @@ if [[ -d "/data" ]] ; then
   module load ncl/6.3.0
   #module load python/2.7-anaconda
   source deactivate
+  #my_append -bp PATH /prodigfs/ipslfs/dods/jservon/anaconda2-5.1.0/bin
   my_append -bp PATH /home/jservon/anaconda2/bin
   working_conda=/home/jservon/anaconda2/envs/PMP_nightly-nox
+  #working_conda=/prodigfs/ipslfs/dods/jservon/anaconda2-5.1.0/envs/cesmep_env
   source activate ${working_conda}
   my_append -bp PATH ${working_conda}/lib
   my_append -bp LD_LIBRARY_PATH ${working_conda}/lib

@@ -89,6 +89,7 @@ def annual_seaice_volume(dat, **kwargs):
             operator='fldsum')
 
 derive('IGCM_OUT','sicsit','multiply','sic','sit')
+derive('IGCM_OUT','to_12','ccdo','thetao', operator='intlevel,100')
 
 time_series_specs = [
     dict(variable='tos',
@@ -102,6 +103,8 @@ time_series_specs = [
          ylim=[20,23],
          text_fontsize=15,
     ),
+
+
 
     dict(variable='tas',
          operation=annual_mean_space_average,
