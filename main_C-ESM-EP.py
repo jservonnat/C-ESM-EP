@@ -2215,6 +2215,7 @@ if do_biogeochemistry_2D_maps:
                              'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
+                             ocean_variables=ocean_variables,
    			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
                              apply_period_manager=apply_period_manager)
 

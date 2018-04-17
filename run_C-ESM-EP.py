@@ -286,7 +286,7 @@ for component in job_components:
        if email:
           add_email = ' -@ '+email
        else:
-          cmd=''
+          add_email=''
        if component not in metrics_components:
           cmd = 'cd '+submitdir+' ; export comparison='+comparison+' ; export component='+component+' ; ccc_msub'+add_email+' -r '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
     # -- Case onCiclad

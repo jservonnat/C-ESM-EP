@@ -483,6 +483,9 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                 # -- Name of the temporary file (hard link)
                 wmodel_dict = wmodel.copy()
                 wmodel_dict.update(dict(variable=wvar))
+                # -- Fix!!! for tas IGCM_OUT we use ATM
+                if wmodel['project']=='IGCM_OUT' and variable=='tas':
+                   wmodel_dict.update(dict(DIR='ATM'))
                 target_filename = build_input_climatology_filename(wmodel_dict)
                 #
                 # -- Do the hardlink (and all necessary alias, computation of derived variable behind...)
@@ -500,6 +503,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                         wmodel_ds = annual_cycle(model_ds)
                     else:
                         wmodel_ds = model_ds
+                    cdrop(wmodel_ds)
                     print cfile(wmodel_ds,
                                 target = input_climatologies_dir+'/'+target_filename,
                                 ln = True)
