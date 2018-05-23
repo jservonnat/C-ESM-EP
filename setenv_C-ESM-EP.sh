@@ -102,7 +102,7 @@ if [[ -d "/data" ]] ; then
   my_append -bp LD_LIBRARY_PATH ${working_conda}/lib
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.0.3_CESMEP
+  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.0.3_CESMEP_test
   my_append -bp PYTHONPATH ${CLIMAF}
   my_append -bp PATH ${CLIMAF}
   export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/atlas_explorer

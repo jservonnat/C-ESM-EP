@@ -14,6 +14,17 @@ import json
 import os, copy, subprocess, shlex
 
 
+# - For Time Manager
+#IGCM_OUT, IGCM_SPAOCE, IGCM_TROHLL...
+#CMIP6_OUT, CMIP5
+#if 'IGCM' in model['project']: # -- Use the IGCM_OUT pattern to retrieve the dates
+#if 'MIP' in model['project']:  # -- Use the MIP pattern to retrieve the dates => the period is the last block of _-separated string
+
+# - Read the period in the files?
+
+# - Pass instructions with the variable that are 'project-dependant'
+
+
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
 # --              - the default values
