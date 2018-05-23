@@ -93,7 +93,18 @@ allcomponents=['MainTimeSeries',
                'HotellingTest',
                'AtlasExplorer',
                'Essentials_CM6011_CM6012',
-               'Monsoons']
+               'Monsoons',
+               'ParallelCoordinates_Atmosphere',
+               'Atmosphere_Surface_DR_CMIP6',
+               'Atmosphere_StdPressLev_DR_CMIP6',
+               'Atmosphere_zonmean_DR_CMIP6',
+               'NEMO_main_DR_CMIP6',
+               'NEMO_depthlevels_DR_CMIP6',
+               'NEMO_zonmean_DR_CMIP6',
+               'PISCES_DR_CMIP6',
+               'ENSO_DR_CMIP6',
+               'ORCHIDEE_DR_CMIP6',
+]
 
 # -- Component that runs the PCMDI Metrics Package (specific job script)
 metrics_components = ['ParallelCoordinates_Atmosphere']

@@ -13,6 +13,7 @@ from climaf import __path__ as cpath
 import json
 import os, copy, subprocess, shlex
 
+
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
 # --              - the default values
@@ -705,8 +706,8 @@ if do_atmos_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
-    for model in Wmodels:
-        if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Amon'))
+    for model in Wmodels: model.update(dict(table='Amon'))
+    #    if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Amon'))
     #if thumbnail_size:
     #   thumbN_size = thumbnail_size
     #else:
@@ -763,8 +764,8 @@ if do_ocean_2D_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
-    for model in Wmodels:
-        if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Omon'))
+    for model in Wmodels: model.update(dict(table='Omon'))
+    #    if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Omon'))
     if thumbnail_size:
        thumbN_size = thumbnail_size
     else:
@@ -844,13 +845,14 @@ if do_MLD_maps:
         else:
            Wmodels = copy.deepcopy(Wmodels_clim)
            apply_period_manager = False
-           print 'Yes its fine ====>'
-           print 'Wmodels_clim = ',Wmodels_clim
-           print 'Wmodels = ',Wmodels
+           #print 'Yes its fine ====>'
+           #print 'Wmodels_clim = ',Wmodels_clim
+           #print 'Wmodels = ',Wmodels
         for model in Wmodels:
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
             wmodel = model.copy()
+            wmodel.update(dict(table='Omon', grid='gn'))
             if 'frequency_for_annual_cycle' in wmodel: wmodel.update( dict(frequency = wmodel['frequency_for_annual_cycle']) )
             print 'wmodel = '
             MLD_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
@@ -1100,6 +1102,8 @@ if do_ATLAS_ZONALMEAN_SLICES:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Omon', grid='gn'))
     for variable in zonmean_slices_variables:
         # Loop over seasons
         for season in zonmean_slices_seas:
@@ -1189,6 +1193,9 @@ if do_seaice_annual_cycle:
    else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+   # -- Add table
+   for model in Wmodels: model.update(dict(table='SImon', grid='gn'))
+   #
    # -- Do the plots and the availability check
    siv_NH = plot_SIV(Wmodels, 'NH', safe_mode=safe_mode, apply_period_manager=apply_period_manager)
    siv_SH = plot_SIV(Wmodels, 'SH', safe_mode=safe_mode, apply_period_manager=apply_period_manager)
@@ -1224,6 +1231,8 @@ if do_seaice_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='SImon', grid='gn'))
     #
     # -- Loop on the sea ice diags: region and season
     for sea_ice_diag in sea_ice_diags:
@@ -1343,6 +1352,8 @@ if do_ENSO_CLIVAR:
     # -- Period Manager
     Wmodels = period_for_diag_manager(models, diag='ENSO')
     for dataset_dict in Wmodels:
+        # -- Add table
+        dataset_dict.update(dict(table='Omon', grid='gn'))
         dataset_dict.update(dict(variable='tos'))
         frequency_manager_for_diag(dataset_dict, diag='TS')
         get_period_manager(dataset_dict)
@@ -1378,6 +1389,7 @@ if do_ENSO_CLIVAR:
     index+=cell("", plot_ref_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
     for model in Wmodels:
+        model.update(dict(table='Amon', grid='gr'))
         plot_model_ENSO_pr_clim = ENSO_pr_clim(model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
@@ -1407,8 +1419,8 @@ if do_ENSO_CLIVAR:
     index+=cell("", plot_ref_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
     for model in Wmodels:
-        tos_model = model.copy() ; tos_model.update(variable='tos')
-        tauu_model = model.copy() ; tauu_model.update(variable='tauu')
+        tos_model = model.copy() ; tos_model.update(variable='tos', table='Omon', grid='gn')
+        tauu_model = model.copy() ; tauu_model.update(variable='tauu', table='Amon', grid='gr')
         plot_model_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(tauu_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
@@ -1424,8 +1436,8 @@ if do_ENSO_CLIVAR:
     index+=cell("", plot_ref_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
     for model in Wmodels:
-        tos_model = model.copy() ; tos_model.update(variable='tos')
-        rsds_model = model.copy() ; rsds_model.update(variable='rsds')
+        tos_model = model.copy() ; tos_model.update(variable='tos', table='Omon', grid='gn')
+        rsds_model = model.copy() ; rsds_model.update(variable='rsds', table='Amon', grid='gr')
         plot_model_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(rsds_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
         index+=cell("", plot_model_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
@@ -1434,6 +1446,7 @@ if do_ENSO_CLIVAR:
     # -- Annual Cycles -----------------------------------------------------------------
     line_title = 'Annual cycles Nino3 (SST, SSTA, Std.dev)'
     index+=start_line(line_title)
+    for model in Wmodels: model.update(dict(table='Amon', grid='gr'))
     plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     thumbN_size="600*350"
     index+=cell("", plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
@@ -1515,8 +1528,11 @@ if do_Monsoons_pr_anncyc:
     # -- Get the reference
     pr_ref = ds(**variable2reference('pr'))
     # -- The GPCP mask is obtained by remapping the land-sea mask of the 280*280 LMDz mask on GPCP (nearest neighbour)
-    ref_mask = regrid( fds('/data/igcmg/database/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
-
+    #ref_mask = regrid( fds('/data/igcmg/database/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
+    if onCiclad:
+       ref_mask = regrid( fds('/data/igcmg/database/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
+    if atTGCC:
+       ref_mask = regrid( fds('/ccc/work/cont003/igcmg/igcmg/Database/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
     # -- Land mask for reference
     land_ref_mask = mask(ref_mask,miss=0)
     land_pr_ref_masked = fmul(pr_ref, land_ref_mask)
@@ -1545,7 +1561,7 @@ if do_Monsoons_pr_anncyc:
         for model in Wmodels:
             
             wmodel = model.copy()
-            wmodel.update(dict(variable='pr'))
+            wmodel.update(dict(variable='pr', table='Amon', grid='gr'))
             if not use_available_period_set:
                frequency_manager_for_diag(wmodel, diag='clim')
                get_period_manager(wmodel)
@@ -2211,6 +2227,8 @@ if do_biogeochemistry_2D_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Omon'))
     index += section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
                              'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
@@ -2262,10 +2280,12 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
                                                          'ORCHIDEE Energy Budget, Climato OBS, Bias and model-model differences',
@@ -2297,6 +2317,8 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
@@ -2331,10 +2353,12 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_energy_budget_modelmodel,
                              'ORCHIDEE Energy Budget, difference with first simulation', domain=domain, 
@@ -2361,10 +2385,12 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, refsimulation, proj, season, variables_energy_budget,
                              'ORCHIDEE Energy Budget, difference with a reference (climatological month, season)', domain=domain,
@@ -2399,10 +2425,12 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_water_budget_bias,
                                                          'ORCHIDEE Water Budget, Climato OBS, Bias and model-model differences',
@@ -2435,10 +2463,12 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_water_budget_bias,
                              'ORCHIDEE Water Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
@@ -2468,10 +2498,12 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_water_budget_modelmodel,
                              'ORCHIDEE Water Budget, difference with first simulation', domain=domain,
@@ -2498,7 +2530,7 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
            wvariables_carbon_budget_bias.append(tmpvar)
         except:
-           print 'No obs for '+tmpvar
+           print 'No obs for ',tmpvar
     # -- Period Manager
     if not use_available_period_set:
        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -2506,11 +2538,17 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
+    # -- Work on SBG file (for IGCM_OUT)
+    for model in Wmodels:
+        if model['project'] in ['IGCM_OUT']:
+           model.update(dict(DIR='SBG'))
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_carbon_budget_bias,
                                                          'ORCHIDEE Carbon Budget, Climato OBS, Bias and model-model differences',
                                                          domain=domain, add_product_in_title=add_product_in_title,
@@ -2533,7 +2571,7 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
            wvariables_carbon_budget_bias.append(tmpvar)
         except:
-           print 'No obs for '+tmpvar
+           print 'No obs for ',tmpvar
     # -- Period Manager
     if not use_available_period_set:
        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -2541,11 +2579,17 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
+    # -- Work on SBG file (for IGCM_OUT)
+    for model in Wmodels:
+        if model['project'] in ['IGCM_OUT']:
+           model.update(dict(DIR='SBG'))
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_carbon_budget_bias,
                              'ORCHIDEE Carbon Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
                              domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
@@ -2576,11 +2620,17 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
     else:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
+    # -- Work on SBG file (for IGCM_OUT)
+    for model in Wmodels:
+        if model['project'] in ['IGCM_OUT']:
+           model.update(dict(DIR='SBG'))
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_carbon_budget_modelmodel,
                              'ORCHIDEE Carbon Budget, difference with first simulation', domain=domain,
                              add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
