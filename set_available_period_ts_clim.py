@@ -67,31 +67,54 @@ execfile(datasets_setup_file)
 Wmodels_clim = period_for_diag_manager(models, diag='clim')
 for dataset_dict in Wmodels_clim:
    #
-   print 'dataset_dict = ',dataset_dict
-   dataset_dict.update(dict(variable=period_manager_test_variable))
-   if 'clim_period' in dataset_dict:
-        frequency_manager_for_diag(dataset_dict, diag='clim')
-        get_period_manager(dataset_dict)
+   wdataset_dict = dataset_dict.copy()
+   # -- Fix CMIP6 --
+   if dataset_dict['project']=='IGCM_CMIP6':
+      wdataset_dict.update(dict(project='IGCM_OUT', model='IPSLCM6'))
+      if 'root' in wdataset_dict: wdataset_dict.update(dict(root=str.replace(wdataset_dict['root'],'work','store')))
+   # ---
+   print 'wdataset_dict = ',wdataset_dict
+   wdataset_dict.update(dict(variable=period_manager_test_variable))
+   if 'clim_period' in wdataset_dict:
+        frequency_manager_for_diag(wdataset_dict, diag='clim')
+        get_period_manager(wdataset_dict)
    if check:
         print '-----> Proceed checking clim = '
-        cdrop(ds(**dataset_dict))
-        print cfile(ds(**dataset_dict))
-   dataset_dict.pop('variable')
+        cdrop(ds(**wdataset_dict))
+        print cfile(ds(**wdataset_dict))
+   # -- Fix CMIP6 --
+   if 'period' in wdataset_dict:    dataset_dict.update(dict(period=wdataset_dict['period']))
+   if 'frequency' in wdataset_dict: dataset_dict.update(dict(frequency=wdataset_dict['frequency']))
+
+   #dataset_dict.pop('variable')
    
+
 
 # -- TS ---------------------------------------------
 Wmodels_ts = period_for_diag_manager(models, diag='TS')
 for dataset_dict in Wmodels_ts:
    #
-   print 'dataset_dict = ',dataset_dict
-   dataset_dict.update(dict(variable=period_manager_test_variable))
-   if 'ts_period' in dataset_dict:
-        frequency_manager_for_diag(dataset_dict, diag='TS')
-        get_period_manager(dataset_dict)
+   wdataset_dict = dataset_dict.copy()
+   # -- Fix CMIP6 --
+   if dataset_dict['project']=='IGCM_CMIP6':
+      wdataset_dict.update(dict(project='IGCM_OUT', model='IPSLCM6'))
+      if 'root' in wdataset_dict: wdataset_dict.update(dict(root=str.replace(wdataset_dict['root'],'work','store')))
+   # ---
+   print 'wdataset_dict = ',wdataset_dict
+   wdataset_dict.update(dict(variable=period_manager_test_variable))
+   if 'ts_period' in wdataset_dict:
+        frequency_manager_for_diag(wdataset_dict, diag='TS')
+        get_period_manager(wdataset_dict)
    if check:
         print '-----> Proceed checking TS = '
-        print cfile(ds(**dataset_dict))
-   dataset_dict.pop('variable')
+        cdrop(ds(**wdataset_dict))
+        print cfile(ds(**wdataset_dict))
+   # -- Fix CMIP6 --
+   if 'period' in wdataset_dict:    dataset_dict.update(dict(period=wdataset_dict['period']))
+   if 'frequency' in wdataset_dict: dataset_dict.update(dict(frequency=wdataset_dict['frequency']))
+   # --
+   #dataset_dict.pop('variable')
+
 
 
 

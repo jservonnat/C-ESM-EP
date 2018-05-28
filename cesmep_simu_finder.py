@@ -45,7 +45,7 @@ if dat.baseFiles():
    for found_file in str.split(dat.baseFiles(),' '):
        print found_file
    print '  '
-   print ' -- Check that your request points to only one simulation, variable and frequency (table)'
+   print ' -- Check that your request points to only one simulation, variable and frequency (and table for MIP simulations)'
    print '  '
 else:
    print '  '

@@ -14,16 +14,6 @@ import json
 import os, copy, subprocess, shlex
 
 
-# - For Time Manager
-#IGCM_OUT, IGCM_SPAOCE, IGCM_TROHLL...
-#CMIP6_OUT, CMIP5
-#if 'IGCM' in model['project']: # -- Use the IGCM_OUT pattern to retrieve the dates
-#if 'MIP' in model['project']:  # -- Use the MIP pattern to retrieve the dates => the period is the last block of _-separated string
-
-# - Read the period in the files?
-
-# - Pass instructions with the variable that are 'project-dependant'
-
 
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
@@ -718,17 +708,11 @@ if do_atmos_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     for model in Wmodels: model.update(dict(table='Amon'))
-    #    if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Amon'))
-    #if thumbnail_size:
-    #   thumbN_size = thumbnail_size
-    #else:
-    #   thumbN_size = thumbnail_size_global
     index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
                              'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
 			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             #thumbnail_size=thumbN_size,
                              apply_period_manager=apply_period_manager)
 
 
@@ -776,7 +760,6 @@ if do_ocean_2D_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     for model in Wmodels: model.update(dict(table='Omon'))
-    #    if model['project'] in ['CMIP5','CMIP6']: model.update(dict(table='Omon'))
     if thumbnail_size:
        thumbN_size = thumbnail_size
     else:
@@ -849,16 +832,6 @@ if do_MLD_maps:
         # -- Add the climatology to the line
         index += cell("", ref_MLD_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
         #
-        # -- Loop on the models (add the results to the html line)
-        if not use_available_period_set:
-           Wmodels = period_for_diag_manager(models, diag='MLD_maps')
-           apply_period_manager = True
-        else:
-           Wmodels = copy.deepcopy(Wmodels_clim)
-           apply_period_manager = False
-           #print 'Yes its fine ====>'
-           #print 'Wmodels_clim = ',Wmodels_clim
-           #print 'Wmodels = ',Wmodels
         for model in Wmodels:
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
@@ -1364,8 +1337,7 @@ if do_ENSO_CLIVAR:
     Wmodels = period_for_diag_manager(models, diag='ENSO')
     for dataset_dict in Wmodels:
         # -- Add table
-        dataset_dict.update(dict(table='Omon', grid='gn'))
-        dataset_dict.update(dict(variable='tos'))
+        dataset_dict.update(dict(variable='tos', table='Omon', grid='gn'))
         frequency_manager_for_diag(dataset_dict, diag='TS')
         get_period_manager(dataset_dict)
         dataset_dict.pop('variable')
@@ -2648,6 +2620,11 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
 			     custom_plot_params=custom_plot_params, alternative_dir=alternative_dir,
                              apply_period_manager=apply_period_manager)
+    index += section_climato_2D_maps(Wmodels, None, proj, season, wvariables_carbon_budget_modelmodel,
+                             'ORCHIDEE Carbon Budget, climatologies', domain=domain, custom_plot_params=custom_plot_params,
+                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbnail_size)
 
 
 
