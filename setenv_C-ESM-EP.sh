@@ -66,9 +66,12 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
   unset PYTHONPATH
   module switch python/2.7.8
   module load ncview ncl_ncarg nco cdo
-  my_append -bp PATH $(ccc_home -u p86jser --cccwork)/anaconda2/bin:$PATH
-  working_conda=$(ccc_home -u p86jser --cccwork)/anaconda2/envs/uvcdat
-  source activate ${working_conda}
+  #my_append -bp PATH $(ccc_home -u p86jser --cccwork)/anaconda2/bin:$PATH
+  #working_conda=$(ccc_home -u p86jser --cccwork)/anaconda2/envs/uvcdat
+  #my_append -bp PATH $(ccc_home -u p86jser --cccwork)/miniconda/bin:$PATH
+  source /ccc/work/cont003/dsm/p86jser/miniconda/etc/profile.d/conda.sh
+  working_conda=/ccc/work/cont003/dsm/p86jser/miniconda/envs/cesmep_env
+  conda activate ${working_conda}
   LD_LIBRARY_PATH=${working_conda}/lib:${LD_LIBRARY_PATH}
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
@@ -92,14 +95,16 @@ if [[ -d "/data" ]] ; then
   module load cdo
   module load ncl/6.3.0
   #module load python/2.7-anaconda
-  source deactivate
   #my_append -bp PATH /prodigfs/ipslfs/dods/jservon/anaconda2-5.1.0/bin
-  my_append -bp PATH /home/jservon/anaconda2/bin
-  working_conda=/home/jservon/anaconda2/envs/PMP_nightly-nox
+  #my_append -bp PATH /home/jservon/anaconda2/bin
+  #working_conda=/home/jservon/anaconda2/envs/PMP_nightly-nox
+  #my_append -bp PATH /prodigfs/ipslfs/dods/jservon/miniconda/bin
+  source /prodigfs/ipslfs/dods/jservon/miniconda/etc/profile.d/conda.sh
+  working_conda=/prodigfs/ipslfs/dods/jservon/miniconda/envs/cesmep_env
   #working_conda=/prodigfs/ipslfs/dods/jservon/anaconda2-5.1.0/envs/cesmep_env
-  source activate ${working_conda}
-  my_append -bp PATH ${working_conda}/lib
-  my_append -bp LD_LIBRARY_PATH ${working_conda}/lib
+  conda activate ${working_conda}
+  #my_append -bp PATH ${working_conda}/lib
+  LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
   export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.0.3_CESMEP_test

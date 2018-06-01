@@ -2859,7 +2859,7 @@ if do_my_own_climaf_diag:
             #
             # -- Plot the amplitude of the annual cycle
             # -----------------------------------------------------------------------------------------
-            plot_amp = plot(dat, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
+            plot_amp = plot(amp, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
                             **my_own_climaf_diag_plot_params[variable] )
             #
             # ==> -- Add the plot to the line
