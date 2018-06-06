@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>Access_to_your_own_reference_datasets</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>Access_to_your_own_datasets_CESMEP</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11826,116 +11826,6 @@ Available macros read from ~/.climaf.macros are : []
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Example-of-how-to-declare-a-new-MY_REFs-CliMAF-project">Example of how to declare a new MY_REFs CliMAF project<a class="anchor-link" href="#Example-of-how-to-declare-a-new-MY_REFs-CliMAF-project">&#182;</a></h1>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># -- Start with the path/filename pattern.</span>
-<span class="c1"># -- Include the keywords</span>
-<span class="n">pattern</span><span class="o">=</span><span class="s1">&#39;/ccc/store/cont003/thredds/alekseee/MY_REFs/${product}/${variable}_${product}_${frequency}_${resolution}.nc&#39;</span>
-
-<span class="c1"># -- Declare that your new project takes the following arguments/keywords</span>
-<span class="n">cproject</span><span class="p">(</span><span class="s1">&#39;MY_REFs&#39;</span><span class="p">,</span><span class="s1">&#39;frequency&#39;</span><span class="p">,</span><span class="s1">&#39;product&#39;</span><span class="p">,</span><span class="s1">&#39;resolution&#39;</span><span class="p">)</span>
-<span class="c1"># -- Finalize the project with dataloc</span>
-<span class="n">dataloc</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s1">&#39;MY_REFs&#39;</span><span class="p">,</span> <span class="n">organization</span><span class="o">=</span><span class="s1">&#39;generic&#39;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span>
-
-<span class="c1"># -- Add an alias for MY_REFs: if I want to use &#39;alk&#39;, CliMAF will replace &#39;alk&#39; with &#39;Alkalini&#39;</span>
-<span class="c1">#    when trying to get my data; if it doesn&#39;t find a file with &#39;Alkalini&#39;, it will try by replacing &#39;Alkalini&#39;</span>
-<span class="c1">#    with filenameVar, here &#39;TALK&#39;</span>
-<span class="n">calias</span><span class="p">(</span><span class="s1">&#39;MY_REFs&#39;</span><span class="p">,</span> <span class="s1">&#39;alk&#39;</span><span class="p">,</span> <span class="s1">&#39;Alkalini&#39;</span><span class="p">,</span> <span class="n">filenameVar</span><span class="o">=</span><span class="s1">&#39;TALK&#39;</span><span class="p">)</span>
-
-<span class="c1"># -- Specify a default value for &#39;period&#39; for project &#39;MY_REFs&#39; (and also for &#39;resolution&#39;)</span>
-<span class="n">cdef</span><span class="p">(</span><span class="s1">&#39;period&#39;</span><span class="p">,</span> <span class="s1">&#39;fx&#39;</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s1">&#39;MY_REFs&#39;</span><span class="p">)</span>
-<span class="n">cdef</span><span class="p">(</span><span class="s1">&#39;resolution&#39;</span><span class="p">,</span> <span class="s1">&#39;r360x180xl31&#39;</span><span class="p">,</span> <span class="n">project</span><span class="o">=</span><span class="s1">&#39;MY_REFs&#39;</span><span class="p">)</span>
-
-<span class="c1"># -- Example of an alias that applies a scale and an offset</span>
-<span class="n">calias</span><span class="p">(</span><span class="s1">&#39;IGCM_OUT&#39;</span><span class="p">,</span> <span class="s1">&#39;alk&#39;</span><span class="p">,</span> <span class="s1">&#39;Alkalini&#39;</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.</span><span class="o">/</span><span class="mf">86400.</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mf">273.15</span><span class="p">,</span> <span class="n">filenameVar</span><span class="o">=</span><span class="s1">&#39;ptrc_T&#39;</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Finally,-try-to-access-your-data...">Finally, try to access your data...<a class="anchor-link" href="#Finally,-try-to-access-your-data...">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[3]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">my_dat</span> <span class="o">=</span> <span class="n">ds</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s1">&#39;MY_REFs&#39;</span><span class="p">,</span> <span class="n">variable</span><span class="o">=</span><span class="s1">&#39;alk&#39;</span><span class="p">,</span> <span class="n">product</span><span class="o">=</span><span class="s1">&#39;GLODAP&#39;</span><span class="p">)</span>
-
-<span class="c1"># -- See the details of your request with summary(): keywords used and files found</span>
-<span class="n">summary</span><span class="p">(</span><span class="n">my_dat</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Apply-a-CliMAF-operator-to-check-that-your-file-is-supported">Apply a CliMAF operator to check that your file is supported<a class="anchor-link" href="#Apply-a-CliMAF-operator-to-check-that-your-file-is-supported">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">ANM</span> <span class="o">=</span> <span class="n">clim_average</span><span class="p">(</span><span class="n">my_dat</span><span class="p">,</span> <span class="s1">&#39;ANM&#39;</span><span class="p">)</span>
-<span class="n">cfile</span><span class="p">(</span><span class="n">ANM</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="And-try-to-make-a-plot">And try to make a plot<a class="anchor-link" href="#And-try-to-make-a-plot">&#182;</a></h2>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="n">my_plot</span> <span class="o">=</span> <span class="n">plot</span><span class="p">(</span><span class="n">ANM</span><span class="p">)</span>
-
-<span class="c1"># -- iplot is a function that does the cfile on my_plot, and display the result interactively in the notebook</span>
-<span class="n">iplot</span><span class="p">(</span><span class="n">my_plot</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="-"> <a class="anchor-link" href="#-">&#182;</a></h1>
 </div>
 </div>
@@ -11944,15 +11834,7 @@ Available macros read from ~/.climaf.macros are : []
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="You-will-find-many-examples-of-how-to-create-your-project-in-${CLIMAF}/climaf/projects">You will find many examples of how to create your project in ${CLIMAF}/climaf/projects<a class="anchor-link" href="#You-will-find-many-examples-of-how-to-create-your-project-in-${CLIMAF}/climaf/projects">&#182;</a></h1>
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Here-is-another-example-with-the-ref_climatos-and-ref_ts-projects">Here is another example with the ref_climatos and ref_ts projects<a class="anchor-link" href="#Here-is-another-example-with-the-ref_climatos-and-ref_ts-projects">&#182;</a></h1><h2 id="We-start-with-ref_climatos">We start with ref_climatos<a class="anchor-link" href="#We-start-with-ref_climatos">&#182;</a></h2>
+<h2 id="We-start-with-ref_climatos">We start with ref_climatos<a class="anchor-link" href="#We-start-with-ref_climatos">&#182;</a></h2><h3 id="Everything-you-need-to-declare-this-new-project-is-within-the-following-cell.-If-you-wanted-to-add-this-project-to-the-C-ESM-EP,-copy-the-whole-block-of-code-(the-whole-cell)-and-paste-it-either-in-datasets_setup.py-(if-you-want-it-to-be-available-for-all-the-projects)-or-in-your-parameter-file-(if-you-prefer-to-work-only-from-one-parameter-file)">Everything you need to declare this new project is within the following cell. If you wanted to add this project to the C-ESM-EP, copy the whole block of code (the whole cell) and paste it either in datasets_setup.py (if you want it to be available for all the projects) or in your parameter file (if you prefer to work only from one parameter file)<a class="anchor-link" href="#Everything-you-need-to-declare-this-new-project-is-within-the-following-cell.-If-you-wanted-to-add-this-project-to-the-C-ESM-EP,-copy-the-whole-block-of-code-(the-whole-cell)-and-paste-it-either-in-datasets_setup.py-(if-you-want-it-to-be-available-for-all-the-projects)-or-in-your-parameter-file-(if-you-prefer-to-work-only-from-one-parameter-file)">&#182;</a></h3>
 </div>
 </div>
 </div>
@@ -11961,7 +11843,9 @@ Available macros read from ~/.climaf.macros are : []
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># -- We start with a typical path/filename in the &#39;climatos&#39; data tree:</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># -- Declaration of ref_climatos</span>
+
+<span class="c1"># -- We start with a typical path/filename in the &#39;climatos&#39; data tree:</span>
 <span class="c1"># /data/jservon/Evaluation/ReferenceDatasets/climatos/</span>
 <span class="c1">#  ocn/mo/tos/UKMETOFFICE-HadISST-v1-1/ac/tos_pcmdi-metrics_Omon_UKMETOFFICE-HadISST-v1-1_198002-200501-clim.nc</span>
 <span class="c1"># -- The principle is to insert the standard keywords and optional keywords of your choice</span>
@@ -11976,7 +11860,7 @@ Available macros read from ~/.climaf.macros are : []
 <span class="k">if</span> <span class="n">onCiclad</span><span class="p">:</span>
     <span class="n">root</span><span class="o">=</span><span class="s2">&quot;/data/jservon/Evaluation/ReferenceDatasets/&quot;</span>
 <span class="k">if</span> <span class="n">atTGCC</span><span class="p">:</span>
-    <span class="n">root</span><span class="o">=</span><span class="s2">&quot;/ccc/work/cont003/igcmg/igcmg/IGCM/ReferenceDatasets/&quot;</span>
+    <span class="n">root</span><span class="o">=</span><span class="s2">&quot;path_to_ReferenceDatasets&quot;</span>
 
 <span class="c1"># -- Then, we take the path/filename pattern and insert the keywords.</span>
 <span class="c1"># -- Standard keywords: variable, frequency, period, simulation</span>
@@ -14622,7 +14506,9 @@ tQvfMQAAAABJRU5ErkJggg==
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># -- As for ref_climatos (and all the projects you want to add), we start with</span>
+<div class=" highlight hl-ipython2"><pre><span></span><span class="c1"># -- Declaration of ref_ts</span>
+
+<span class="c1"># -- As for ref_climatos (and all the projects you want to add), we start with</span>
 <span class="c1">#    the path/filename pattern:</span>
 <span class="c1"># -&gt; /data/jservon/Evaluation/ReferenceDatasets/ts/atm/mo/uas/uas_Amon_ERAInterim_reanalysis_197901-201112.nc</span>
 <span class="c1">#    To use the smart period selection, we incorporate:</span>
@@ -17351,6 +17237,14 @@ MDE4LTA1LTMwVDE1OjQ2OjM5KzAyOjAwU47MVgAAAABJRU5ErkJggg==
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="You-will-find-many-examples-of-how-to-create-your-project-in-${CLIMAF}/climaf/projects">You will find many examples of how to create your project in ${CLIMAF}/climaf/projects<a class="anchor-link" href="#You-will-find-many-examples-of-how-to-create-your-project-in-${CLIMAF}/climaf/projects">&#182;</a></h1>
+</div>
+</div>
 </div>
     </div>
   </div>
