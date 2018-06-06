@@ -1,3 +1,4 @@
+from CM_atlas import *
 
 # --------------------------------------------------------------------------
 # -- USER INTERFACE
@@ -8,7 +9,7 @@
 # -- Dictionary of your requested dataset -> same dictionary as in the models list in datasets_setup.py
 dat_dict = dict(project = 'IGCM_OUT',
                 root    = '/ccc/store/cont003/thredds',
-                login   = 'p86denv',
+                login   = 'p86denvb',
                 model   = 'IPSLCM6',
                 experiment = 'historical',
                 simulation = '*',
@@ -17,8 +18,11 @@ dat_dict = dict(project = 'IGCM_OUT',
                 )
 
 # -- Variable dictionary -> specifications that might be project-dependant to reach one file
-var_dict = dict(variable = 'tas',
-                DIR      = 'ATM')
+var_dict = dict(variable = 'tas')#,
+#                DIR      = 'ATM')
+
+# -- control the verbosity (debug for maximum, critical for minimum)
+clog('debug')
 # --------------------------------------------------------------------------
 
 
@@ -29,7 +33,6 @@ var_dict = dict(variable = 'tas',
 # --------------------------------------------------------------------------
 # -- CESMEP SIMU FINDER
 
-from climaf.api import *
 
 
 # -- Get the comparison name and build the datasets_setup.py file name
@@ -47,7 +50,10 @@ if len(args)==3:
 
 # -- Analyse if we use the datasets_setup of a comparison or dat_dict (provided by the user)
 if not models:
+   apply_period_manager = False
    models = [ dat_dict ]
+else:
+   apply_period_manager = True
 
 if not dataset_number:
    ind = range(len(models))
@@ -63,8 +69,9 @@ for i in ind:
   model.update(var_dict)
 
   # -- Apply frequency and period manager
-  frequency_manager_for_diag(model, diag='clim')
-  get_period_manager(model)
+  if apply_period_manager:
+     frequency_manager_for_diag(model, diag='clim')
+     get_period_manager(model)
   
   # -- Find the datasets
   dat = ds(**model)
