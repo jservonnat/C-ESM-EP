@@ -2255,7 +2255,7 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
            wvariables_energy_budget_bias.append(tmpvar)
         except:
-           print 'No obs for '+tmpvar
+           print 'No obs for ',tmpvar
     # -- Period Manager
     if not use_available_period_set:
        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -2292,7 +2292,7 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
            wvariables_energy_budget_bias.append(tmpvar)
         except:
-           print 'No obs for '+tmpvar
+           print 'No obs for ',tmpvar
     # -- Period Manager
     if not use_available_period_set:
        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -2400,7 +2400,7 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
            wvariables_water_budget_bias.append(tmpvar)
         except:
-           print 'No obs for '+tmpvar
+           print 'No obs for ',tmpvar
     # -- Period Manager
     if not use_available_period_set:
        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -2438,7 +2438,7 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
            cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
            wvariables_water_budget_bias.append(tmpvar)
         except:
-           print 'No obs for '+tmpvar
+           print 'No obs for ',tmpvar
     # -- Period Manager
     if not use_available_period_set:
        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')

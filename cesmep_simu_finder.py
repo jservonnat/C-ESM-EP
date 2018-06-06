@@ -25,33 +25,66 @@ var_dict = dict(variable = 'tas',
 
 
 
+
 # --------------------------------------------------------------------------
 # -- CESMEP SIMU FINDER
 
 from climaf.api import *
 
-# -- Update dictionary
-dat_dict.update(var_dict)
 
-# -- Find the datasets
-dat = ds(**dat_dict)
+# -- Get the comparison name and build the datasets_setup.py file name
+args = sys.argv
+dataset_number = None
+models = None
+if len(args)>=2:
+    comparison = args[1]
+    if not comparison[len(comparison)-1]=='/': comparison+='/'
+    datasets_setup_file = comparison+'datasets_setup.py'
+    execfile(datasets_setup_file)
+if len(args)==3:
+    dataset_number = int(args[2])
 
-if dat.baseFiles():
-   print '  '
-   print '  '
-   print '  '
-   print ' CliMAF found those files with your request ',dat_dict
-   print '-->  '
-   for found_file in str.split(dat.baseFiles(),' '):
-       print found_file
-   print '  '
-   print ' -- Check that your request points to only one simulation, variable and frequency (and table for MIP simulations)'
-   print '  '
+
+# -- Analyse if we use the datasets_setup of a comparison or dat_dict (provided by the user)
+if not models:
+   models = [ dat_dict ]
+
+if not dataset_number:
+   ind = range(len(models))
 else:
-   print '  '
-   print '  '
-   print '  '
-   print 'No File found for your request -- ',dat_dict
-   print '  '
+   ind = [ dataset_number - 1 ]
+
+# -- Loop on models
+for i in ind:
+
+  model = models[i]
+
+  # -- Update dictionary
+  model.update(var_dict)
+
+  # -- Apply frequency and period manager
+  frequency_manager_for_diag(model, diag='clim')
+  get_period_manager(model)
+  
+  # -- Find the datasets
+  dat = ds(**model)
+
+  if dat.baseFiles():
+     print '  '
+     print '  '
+     print '  '
+     print ' CliMAF found those files with your request ',model
+     print '-->  '
+     for found_file in str.split(dat.baseFiles(),' '):
+         print found_file
+     print '  '
+     print ' -- Check that your request points to only one simulation, variable and frequency (and table for MIP simulations)'
+     print '  '
+  else:
+     print '  '
+     print '  '
+     print '  '
+     print 'No File found for your request -- ',model
+     print '  '
 # --------------------------------------------------------------------------
 
