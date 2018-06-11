@@ -75,7 +75,13 @@ domain = {}
 do_ocean_2D_maps       = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
 ocean_2D_variables = []
 for var in ['to200', 'to1000', 'so200', 'so1000']:
-    ocean_2D_variables.append (dict (variable=var, season='ANM'))
+    ocean_2D_variables.append (dict(variable=var, season='ANM',
+                                    project_specs = dict(
+                                                         CMIP5      = dict(table = 'Omon'),
+                                                         IGCM_OUT   = dict(DIR   = 'OCE'),
+                                                         IGCM_CMIP6 = dict(table = 'Omon'),
+                                                        ),
+                                    ))
 remapping = True
 
 # -- Mixed Layer Depth

@@ -31,7 +31,7 @@ from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = True
+safe_mode = False
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
@@ -93,6 +93,10 @@ derive('IGCM_OUT','to_12','ccdo','thetao', operator='intlevel,100')
 
 time_series_specs = [
     dict(variable='tos',
+         project_specs = dict(
+                              CMIP5    = dict(table='Omon'),
+                              IGCM_OUT = dict(DIR='OCE'),
+                             ),
          domain=dict(lonmin=0,lonmax=360,latmin=-50,latmax=50),
          operation=annual_mean_space_average,
          offset=-273.15,
@@ -107,6 +111,10 @@ time_series_specs = [
 
 
     dict(variable='tas',
+         project_specs = dict(
+                              CMIP5    = dict(table='Amon'),
+                              IGCM_OUT = dict(DIR='ATM'),
+                             ),
          operation=annual_mean_space_average,
          offset=-273.15,
          left_string='2m Temperature Global average',

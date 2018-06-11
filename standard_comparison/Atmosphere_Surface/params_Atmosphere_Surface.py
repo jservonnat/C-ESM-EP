@@ -79,7 +79,13 @@ atmos_variables_list = ['tas','pr','hfls','hfss','uas','vas','tauu','tauv','psl'
 atmos_variables = []
 for var in atmos_variables_list:
     for seas in my_seasons:
-        atmos_variables.append(dict(variable=var, season=seas))
+        atmos_variables.append(dict(variable=var, season=seas,
+                                    project_specs = dict(
+                                                         CMIP5      = dict(table = 'Amon'),
+                                                         IGCM_OUT   = dict(DIR   = 'ATM'),
+                                                         IGCM_CMIP6 = dict(table = 'Amon'),
+                                                        ),
+                                    ))
 
 period_manager_test_variable = 'tas'
 # ---------------------------------------------------------------------------- >

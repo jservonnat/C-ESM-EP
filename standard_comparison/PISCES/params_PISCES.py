@@ -75,6 +75,12 @@ ocebio_2D_variables        = ["NO3_surf", "PO4_surf", "Si_surf", "O2_surf",
                               "NO3_300m", "PO4_300m", "Si_300m", "O2_300m",
                               "NO3_1000m", "PO4_1000m", "Si_1000m", "O2_1000m",
                               "NO3_2500m", "PO4_2500m", "Si_2500m", "O2_2500m"]
+#                                    project_specs = dict(
+#                                                         CMIP5      = dict(table = 'Amon'),
+#                                                         IGCM_OUT   = dict(DIR   = 'ATM'),
+#                                                         IGCM_CMIP6 = dict(table = 'Amon'),
+#                                                        ),
+#                                    ))
 period_manager_test_variable = 'NO3_surf'
 
 # ---------------------------------------------------------------------------- >

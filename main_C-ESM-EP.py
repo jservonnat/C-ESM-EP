@@ -569,13 +569,13 @@ if do_main_time_series:
     #
     # -- Remove CMIP5 models
     WTSmodels = copy.deepcopy(WWmodels_ts)
-    for model in WTSmodels:
-        if model['project'] in 'CMIP5':
-           WWmodels_ts.remove(model)
+    #for model in WTSmodels:
+    #    if model['project'] in 'CMIP5':
+    #       WWmodels_ts.remove(model)
     WCLIMmodels = copy.deepcopy(WWmodels_clim)
-    for model in WCLIMmodels:
-        if model['project'] in 'CMIP5':
-           WWmodels_clim.remove(model)
+    #for model in WCLIMmodels:
+    #    if model['project'] in 'CMIP5':
+    #       WWmodels_clim.remove(model)
 
     #
     # -- Loop on the time series specified in the params file
@@ -591,9 +591,24 @@ if do_main_time_series:
         names_ens = []
         #
         highlight_period = []
+        #
+        # -- Project specs: pass project-specific arguments
+        if 'project_specs' in time_series:
+           for dataset_dict in WWmodels_clim:
+               if dataset_dict['project'] in time_series['project_specs']:
+                  dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
+           for dataset_dict in WWmodels_ts:
+               if dataset_dict['project'] in time_series['project_specs']:
+                  dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
+           time_series.pop('project_specs')
+        #
         if 'highlight_period' in time_series:
             if time_series['highlight_period']=='clim_period':
                 for dataset_dict in WWmodels_clim:
+                    # -- project_specs
+                    #if 'project_specs' in time_series:
+                    #   if dataset_dict['project'] in time_series['project_specs']:
+                    #      dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
                     print 'dataset_dict in time_series = ', dataset_dict
                     # -- Apply period manager if needed
                     if not use_available_period_set:
@@ -606,6 +621,11 @@ if do_main_time_series:
             #
             wdataset_dict = dataset_dict.copy()
             wdataset_dict.update(dict(variable=time_series['variable']))
+            # -- project_specs
+            #if 'project_specs' in time_series:
+            #    if dataset_dict['project'] in time_series['project_specs']:
+            #       dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
+
             # -- Apply period manager if needed
             if not use_available_period_set:
                frequency_manager_for_diag(wdataset_dict, diag='TS')

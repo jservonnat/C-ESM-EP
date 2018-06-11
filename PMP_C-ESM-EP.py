@@ -18,7 +18,7 @@ import os, copy, subprocess, shlex
 from datetime import datetime
 from shutil import copyfile
 from getpass import getuser
-from PMP_MG.PMP_MG_time_manager import build_metric_outpath, get_keys_for_PMP_MG, build_input_climatology_filename, pysed
+from PMP_MG.PMP_MG_time_manager import build_metric_outpath, get_keys_for_PMP_MG, build_input_climatology_filename, pysed, frequency_manager_for_diag_type, period_for_diag_manager 
 
 clog('debug')
 
@@ -252,12 +252,35 @@ if reference=='default': reference='defaultReference'
 # - Si l'utilisateur donne un PMP_MG_clim_period qui est une liste de periodes a la mail, on reconstruit
 #   une liste models (sans recherche de l'existant)
 #models = split_periods_in_models(models)
+#def period_manager_PMP_MG(models, diag='', diag_type='clim', testvar=None):
+#    Wmodels = period_for_diag_manager(copy.deepcopy(models), diag=diag)
+#    NewList_models = []
+#    for Wmodel in Wmodels:
+#        model = Wmodel.copy()
+#        if testvar:
+#            model.update(dict(variable=testvar))
+#        else:
+#            print '----> No testvar provided in period_manager_PMP_MG'
+#        frequency_manager_for_diag_type(model, diag_type=diag_type)
+#        wmodel = get_period_manager(model)
+#        if isinstance(wmodel,dict):
+#            NewList_models.append(wmodel)
+#        if isinstance(wmodel,list):
+#            NewList_models = NewList_models + wmodel
+#
+#    return NewList_models
+
+
 if use_available_period_set:
    Wmodels = copy.deepcopy(Wmodels_clim)
 else:
    #    -> On peut donc definir une liste de variable => la premiere variable de la liste
    #       est prise pour trouver la periode avec time_manager => On met a jour la liste Wmodels
-   Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
+   #Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
+   Wmodels = period_for_diag_manager(models, diag='clim')
+   for dataset_dict in Wmodels:
+       frequency_manager_for_diag(dataset_dict, diag='clim')
+       get_period_manager(dataset_dict)
 
 print '===========> Wmodels ', Wmodels
 
@@ -276,40 +299,6 @@ print 'CMIP5_names = ', CMIP5_names
 import copy
 testWmodels = copy.deepcopy(Wmodels)
 print 'testWmodels before = ',testWmodels
-#for model in Wmodels:
-#    if model['project']=='CMIP5':
-#       if model['period'] in ['1900-2005','1900_2005']:
-#          # -- We remove the dictionary model to the list Wmodels and just keep the name of the model and color
-#          print 'Found that this model ok = ', model
-#          testWmodels.remove(model)
-#          if model['model'] not in CMIP5_names:
-#             CMIP5_names.append(model['model'])
-#             tmpcolor=None
-#             if 'color' in model:      tmpcolor = model['color']
-#             if not tmpcolor:
-#                i=0
-#                tmpcolor = colorpalette[i]
-#                while tmpcolor in CMIP5_colors:
-#                      i = i + 1
-#                      tmpcolor = colorpalette[i]
-#                      print 'CMIP5_colors = ',CMIP5_colors
-#                      print 'tmpcolor = ', tmpcolor
-#             CMIP5_colors.append( tmpcolor )
-#          else:
-#            tmpcolor=None
-#            if 'color' in model:      tmpcolor = model['color']
-#            if 'R_color' in model:    tmpcolor = model['R_color']
-#            if 'line_color' in model: tmpcolor = model['line_color']
-#            if tmpcolor:
-#               if tmpcolor in CMIP5_colors:
-#                  replace_color = colorpalette[i]
-#                  while replace_color in CMIP5_colors:
-#                        i = i+1
-#                        replace_color = colorpalette[i]
-#                  CMIP5_colors[ CMIP5_colors.index(tmpcolor) ] = replace_color
-#               CMIP5_colors[ CMIP5_names.index(model['model']) ] = tmpcolor
-#            #else:
-             
 
 # -- Si on a des CMIP5_names definis dans le params, ils s'accompagnent d'une couleur chacun
 # -- Si on a des datasets CMIP5 definis depuis le datasets_setup, soit:
@@ -431,12 +420,6 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
         #    and we return a new list of dataset dictionaries
         # 
         wmodel = model_dict.copy()
-        #some keys to identify the dataset behind model_dict 
-        #
-        # We add a 'test' variable to get the available period
-        #wmodel.update(dict(variable='tas'))
-        #frequency_manager_for_diag(wmodel, diag='SE')
-        #get_period_manager(wmodel)
         
         # --> ($institute_id)
         if 'institute_id' in model_dict:
@@ -482,7 +465,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                 wvar = str.split(var,'_')[0]
                 # -- Name of the temporary file (hard link)
                 wmodel_dict = wmodel.copy()
-                wmodel_dict.update(dict(variable=wvar))
+                wmodel_dict.update(dict(variable=wvar, table='Amon'))
                 # -- Fix!!! for tas IGCM_OUT we use ATM
                 if wmodel['project']=='IGCM_OUT' and variable=='tas':
                    wmodel_dict.update(dict(DIR='ATM'))
@@ -626,12 +609,17 @@ for path_filename in requested_json_files:
 # -- BLOCK 5 -------------------------------------------------------------------
 path_for_pmp_plot = [] # -- We store the paths to the metrics
 for wmodel in Wmodels:
+    print 'wmodel in block 5 : ',wmodel
+    for key in wmodel:
+        if wmodel[key]=='*': wmodel[key]=key+'_not_defined'
     tmp_path = build_metric_outpath(wmodel, group=groups[0], subdir='tmp_hermes', root_outpath=root_outpath)
-    #print tmp_path
+    print 'tmp_path = ', tmp_path
     for file_hermes in files_in_tmp_hermes:
-        #print file_hermes
         if tmp_path in file_hermes and tmp_path not in path_for_pmp_plot:
+            print '-> This goes in path_for_pmp_plot => tmp_path = ',tmp_path,' ; file_hermes = ',file_hermes
             path_for_pmp_plot.append(tmp_path)
+        else:
+            print '-> Rejected: not in path_for_pmp_plot => tmp_path = ',tmp_path,' ; file_hermes = ',file_hermes
 print 'path_for_pmp_plot = ',path_for_pmp_plot
 
 
@@ -643,6 +631,8 @@ print 'path_for_pmp_plot = ',path_for_pmp_plot
 # -- BLOCK 6 -------------------------------------------------------------------
 # -- Test data sets
 test_data_path = ','.join(path_for_pmp_plot)
+
+print 'test_data_path 1 = ',test_data_path
 
 # -- Customization
 from CM_atlas import build_plot_title
@@ -724,6 +714,8 @@ colors = ','.join(colors)
 
 # -- BLOCK 7 -------------------------------------------------------------------
 cmd_parallel_coordinates = 'Rscript '+parallel_coordinates_script+' --test_data_path '+test_data_path+' --reference_data_path '+reference_data_path
+print 'cmd_parallel_coordinates avant = ', cmd_parallel_coordinates
+
 if CMIP5_names:
     cmd_parallel_coordinates = cmd_parallel_coordinates+' --highlights '+str_highlights
 else:
@@ -746,6 +738,7 @@ if colors:
     cmd_parallel_coordinates = cmd_parallel_coordinates+' --colors '+str(colors)
 if image_size:
     cmd_parallel_coordinates = cmd_parallel_coordinates+' --image_size '+image_size
+print 'cmd_parallel_coordinates apres = ', cmd_parallel_coordinates
 
 
 
@@ -798,6 +791,9 @@ for metrics_section in metrics_sections:
                delay = datetime.utcnow() - datetime(2015,1,1) ; nb = str(delay.microseconds)
                figname = statistic+'_'+season+'_'+region+'_'+comparison+'_parallel_coordinates_'+nb+'.png'
                cmd_parallel_coordinates_final = cmd_parallel_coordinates+' --figname '+outfigdir+figname+' --statistic '+statistic+' --region '+region+' --season '+season
+               print 'statistic = ',statistic
+               print 'region = ', region
+               print 'season = ',season
                print ' --> cmd_parallel_coordinates_final for statistic = '+statistic+' region = '+region+' season = '+season
                print cmd_parallel_coordinates_final
                p=subprocess.Popen(shlex.split(cmd_parallel_coordinates_final))

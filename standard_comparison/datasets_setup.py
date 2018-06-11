@@ -149,50 +149,52 @@ if atTGCC:
 
 models = [
 
-      dict(project='IGCM_OUT',
-           login='p86caub',
-           model='IPSLCM6',
-           experiment='pdControl',
-           simulation='CM607-LR-pdCtrl-01',
-           clim_period='2000_2009',
-           customname='CM607 2000_2009',
+      dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
+           frequency='monthly',
+           customname='CM5A-MR',
+           color='blue'
+           ),
+      dict(project = 'CMIP5', model='IPSL-CM5A-LR', experiment='historical',
+           frequency='monthly',
+           customname='CM5A-LR'
+           ),
+      dict(project = 'CMIP5', model='IPSL-CM5B-LR', experiment='historical',
+           frequency='monthly',
+           customname='CM5B-LR',
            color='red'
            ),
-
-      dict(project='IGCM_OUT',
-           login='p86caub',
-           model='IPSLCM6',
-           experiment='pdControl',
-           simulation='CM607-LR-pdCtrl-01',
+      dict(project = 'CMIP5', model='CNRM-CM5', experiment='historical',
            frequency='monthly',
-           clim_period='last_10Y',
-	   customname='CM607 last_10Y',
-           color='blue',
-          ),
-
-      dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
-           frequency='monthly', period='1980-2005',
-           customname='CMIP5 IPSL-CM5A-MR'
+           customname='CNRM-CM5',
+           color='green'
+           ),
+      dict(project='IGCM_OUT',
+           login='lurtont',
+           model='IPSLCM6',
+           experiment='historical',
+           simulation='CM61-LR-hist-03-10',
            ),
 
 ]
+
+#models = [ models[len(models)-1] ]
 
 # -- Provide a set of common keys to the elements of models
 # ---------------------------------------------------------------------------- >
 common_keys = dict(
            root='/ccc/store/cont003/thredds', login='*',
            frequency='monthly',
-           clim_period='last_30Y',
+           clim_period='1990-2005',
            ts_period='full',
-           ENSO_ts_period='last_80Y',
+           ENSO_ts_period='1870-2005',
            mesh_hgr=gridpath+'eORCA1.2_mesh_mask_glo.nc',
            gridfile=gridpath+'eORCA1.1_grid.nc',
            varname_area='area',
            )
 
 for model in models:
-  if model['project']=='IGCM_OUT':
-    for key in common_keys:
+  #if model['project']=='IGCM_OUT':
+  for key in common_keys:
         if key not in model:
            model.update({key:common_keys[key]})
 

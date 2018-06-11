@@ -18,8 +18,8 @@ dat_dict = dict(project = 'IGCM_OUT',
                 )
 
 # -- Variable dictionary -> specifications that might be project-dependant to reach one file
-var_dict = dict(variable = 'tas')#,
-#                DIR      = 'ATM')
+var_dict = dict(variable = 'ua',
+                DIR      = 'ATM')
 
 # -- control the verbosity (debug for maximum, critical for minimum)
 clog('debug')
@@ -46,6 +46,7 @@ if len(args)>=2:
     execfile(datasets_setup_file)
 if len(args)==3:
     dataset_number = int(args[2])
+
 
 
 # -- Analyse if we use the datasets_setup of a comparison or dat_dict (provided by the user)

@@ -76,9 +76,21 @@ liste_seasons = ['ANM', 'DJF', 'JJA']
 ocean_2D_variables = []
 for var in ['tos', 'wfo', 'sos']:
     for my_season in liste_seasons :
-        ocean_2D_variables.append ( dict(variable=var, season=my_season ))
+        ocean_2D_variables.append(dict(variable=var, season=my_season,
+                                       project_specs = dict(
+                                                            CMIP5      = dict(table = 'Omon'),
+                                                            IGCM_OUT   = dict(DIR   = 'OCE'),
+                                                            IGCM_CMIP6 = dict(table = 'Omon'),
+                                                           )
+                                    ))
 for my_season in liste_seasons :
-    ocean_2D_variables.append (dict (variable='zos', spatial_anomalies=True, season=my_season))
+    ocean_2D_variables.append (dict(variable='zos', spatial_anomalies=True, season=my_season,
+                                    project_specs = dict(
+                                                         CMIP5      = dict(table = 'Omon'),
+                                                         IGCM_OUT   = dict(DIR   = 'OCE'),
+                                                         IGCM_CMIP6 = dict(table = 'Omon'),
+                                                        ),
+                                    ))
 #for var in ['to200', 'to1000', 'so200', 'so1000']:
 #    ocean_2D_variables.append (dict (variable=var, season='ANM'))
 remapping = True
@@ -89,7 +101,7 @@ period_manager_test_variable = 'tos'
 do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
 
 # -- Wind stress curl
-do_curl_maps = True
+#do_curl_maps = True
 
 # -- Time Series (spatial averages over basins)
 #do_ATLAS_TIMESERIES_SPATIAL_INDEXES = True
@@ -108,7 +120,7 @@ drift_profiles_variables = ["thetao","so"]
 drift_profiles_basins    = ["GLO","ATL","PAC","IND"]
 
 # -- MOC Diagnostics (over basins)
-do_ATLAS_MOC_DIAGS = True
+#do_ATLAS_MOC_DIAGS = True
 MOC_basins = ["GLO","ATL","PAC"]
 
 # -- Zonal Mean slices
