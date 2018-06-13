@@ -75,11 +75,9 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
 do_atlas_explorer        = True    # -> use atlas_explorer_variables to set your own selection of variables
-atlas_explorer_variables = [#'tas', 'tos',
+atlas_explorer_variables = ['tas', 'tos',
                             dict(variable='ua', season='DJF',
-                                 data_access_specs = dict(),
-                                 plot_specs = dict(add_climato_contours=True),
-                                 project_specs = dict(IGCM_OUT=dict(DIR='ATM'), CMIP6_OUT=dict(table='Amon'))) ]
+                                 project_specs = dict(IGCM_OUT=dict(DIR='ATM'), IGCM_CMIP6=dict(table='Amon'))) ]
 
 #atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',

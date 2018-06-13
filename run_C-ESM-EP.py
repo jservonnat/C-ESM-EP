@@ -211,7 +211,7 @@ if os.path.exists ('/ccc') and not os.path.exists ('/data')  :
     if '/dsm/' in os.getcwd():
        wspace='dsm'
        base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
-       pathwebspace='/ccc/work/cont003/dods/public/'
+       pathwebspace='/ccc/work/cont003/thredds/'
     if '/gencmip6/' in os.getcwd():
        wspace='gencmip6'
        base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'
