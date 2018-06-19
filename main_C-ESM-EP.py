@@ -2270,9 +2270,13 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
     print '--                                                                    --'
     wvariables_energy_budget_bias=[]
     for tmpvar in variables_energy_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
            wvariables_energy_budget_bias.append(tmpvar)
         except:
            print 'No obs for ',tmpvar
@@ -2307,9 +2311,13 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
     print '--                                                                    --'
     wvariables_energy_budget_bias=[]
     for tmpvar in variables_energy_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
            wvariables_energy_budget_bias.append(tmpvar)
         except:
            print 'No obs for ',tmpvar
@@ -2325,7 +2333,7 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if model['project'] not in ['IGCM_OUT']:
+        if 'IGCM' not in model['project']:
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
                              'ORCHIDEE Energy Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
@@ -2344,9 +2352,13 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
     print '--                                                                    --'
     wvariables_energy_budget_modelmodel=[]
     for tmpvar in variables_energy_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
            wvariables_energy_budget_modelmodel.append(tmpvar)
     # -- Period Manager
@@ -2415,9 +2427,13 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
     print '--                                                                    --'
     wvariables_water_budget_bias=[]
     for tmpvar in variables_water_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
            wvariables_water_budget_bias.append(tmpvar)
         except:
            print 'No obs for ',tmpvar
@@ -2453,9 +2469,13 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
     print '--                                                                    --'
     wvariables_water_budget_bias=[]
     for tmpvar in variables_water_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
            wvariables_water_budget_bias.append(tmpvar)
         except:
            print 'No obs for ',tmpvar
@@ -2489,9 +2509,13 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
     print '--                                                                    --'
     wvariables_water_budget_modelmodel=[]
     for tmpvar in variables_water_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
            wvariables_water_budget_modelmodel.append(tmpvar)
     # -- Period Manager
@@ -2516,6 +2540,39 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
                               apply_period_manager=apply_period_manager)
 
 
+if do_ORCHIDEE_Water_Budget_climatology_maps:
+    print '------------------------------------------------------------------------'
+    print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
+    print '-- do_ORCHIDEE_Water_Budget_climatology_maps = True                  --'
+    print '-- variables_water_budget =                                          --'
+    print '-> ',variables_water_budget
+    print '--                                                                    --'
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
+    # -- Garde fou to avoid missing the first simulation
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
+        if 'IGCM' not in model['project']:
+           Wmodels.remove(model)
+    # -- Work on SBG file (for IGCM_OUT)
+    for model in Wmodels:
+        if model['project'] in ['IGCM_OUT']:
+           model.update(dict(DIR='SBG'))
+    index += section_climato_2D_maps(Wmodels, None, proj, season, variables_water_budget,
+                             'ORCHIDEE Water Budget, climatologies', domain=domain, custom_plot_params=custom_plot_params,
+                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbnail_size)
+
+
+
 
 # ---------------------------------------------------------------------------------------- #
 # -- ORCHIDEE Carbon Budget                                                             -- #
@@ -2528,9 +2585,13 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
     print '--                                                                    --'
     wvariables_carbon_budget_bias=[]
     for tmpvar in variables_carbon_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
            wvariables_carbon_budget_bias.append(tmpvar)
         except:
            print 'No obs for ',tmpvar
@@ -2569,9 +2630,13 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
     print '--                                                                    --'
     wvariables_carbon_budget_bias=[]
     for tmpvar in variables_carbon_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
            wvariables_carbon_budget_bias.append(tmpvar)
         except:
            print 'No obs for ',tmpvar
@@ -2611,9 +2676,13 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
     print '--                                                                    --'
     wvariables_carbon_budget_modelmodel=[]
     for tmpvar in variables_carbon_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if isinstance(tmpvar,dict):
+           ttmpvar = tmpvar['variable']
+        else:
+           ttmpvar = tmpvar
+        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(tmpvar, my_obs=custom_obs_dict)))
+           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
            wvariables_carbon_budget_modelmodel.append(tmpvar)
     # -- Period Manager
@@ -2640,7 +2709,33 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
 			     custom_plot_params=custom_plot_params, alternative_dir=alternative_dir,
                              apply_period_manager=apply_period_manager)
-    index += section_climato_2D_maps(Wmodels, None, proj, season, wvariables_carbon_budget_modelmodel,
+
+if do_ORCHIDEE_Carbon_Budget_climatology_maps:
+    print '------------------------------------------------------------------------'
+    print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
+    print '-- do_ORCHIDEE_Carbon_Budget_climatology_maps = True                  --'
+    print '-- variables_carbon_budget =                                          --'
+    print '-> ',variables_carbon_budget
+    print '--                                                                    --'
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
+    # -- Add table
+    for model in Wmodels: model.update(dict(table='Lmon'))
+    # -- Garde fou to avoid missing the first simulation
+    WWmodels = copy.deepcopy(Wmodels)
+    for model in WWmodels:
+        if 'IGCM' not in model['project']:
+           Wmodels.remove(model)
+    # -- Work on SBG file (for IGCM_OUT)
+    for model in Wmodels:
+        if model['project'] in ['IGCM_OUT']:
+           model.update(dict(DIR='SBG'))
+    index += section_climato_2D_maps(Wmodels, None, proj, season, variables_carbon_budget,
                              'ORCHIDEE Carbon Budget, climatologies', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
@@ -3251,10 +3346,7 @@ if alt_dir_name :
        #
        # Rajouter thredds si sur gencmip6
        # -- dods_cp du repertoire copie sur le work
-       if 'gencmip6' in getcwd():
-          public_space = '/ccc/work/cont003/thredds/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login
-       if 'dsm' in getcwd():
-          public_space = '/ccc/work/cont003/dods/public/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login
+       public_space = '/ccc/work/cont003/thredds/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login
        cmd12 = 'rm -rf '+public_space+'/'+component_season
        print cmd12
        os.system(cmd12)
