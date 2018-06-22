@@ -279,8 +279,10 @@ else:
    #Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
    Wmodels = period_for_diag_manager(models, diag='clim')
    for dataset_dict in Wmodels:
+       dataset_dict.update(dict(variable='tas'))
        frequency_manager_for_diag(dataset_dict, diag='clim')
        get_period_manager(dataset_dict)
+       dataset_dict.pop('variable')
 
 print '===========> Wmodels ', Wmodels
 
