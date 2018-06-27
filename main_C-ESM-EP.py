@@ -1,4 +1,4 @@
-# ------------------------------------------------------------------------------------ #
+# ----------------------------------------------------------------------------------- #
 # -- Header of the atlas.py ; import the useful python modules (CliMAF, NEMO_atlas, -- #
 # -- and potentially your own stuff stored in my_plot_functions.py in the current   -- #
 # -- working directory.                                                             -- #
@@ -166,6 +166,7 @@ if atTGCC:
    component_season = str.replace( str.replace( str.replace(index_name,'.html',''), 'atlas_', ''), '_'+opts.comparison, '' )
    CWD = os.getcwd()
    if '/dsm/' in CWD: wspace='dsm'
+   if '/drf/' in CWD: wspace='drf'
    if '/gencmip6/' in CWD: wspace='gencmip6'
    scratch_alt_dir_name = '/ccc/scratch/cont003/'+wspace+'/'+user_login+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'
    work_alt_dir_name = scratch_alt_dir_name.replace('scratch', 'work')
@@ -3358,7 +3359,7 @@ if alt_dir_name :
        print(' -- ')
        if 'gencmip6' in getcwd():
           print('Index available at : https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'+index_name)
-       if '/dsm/' in getcwd():
+       else:
           print('Index available at : https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'+index_name)
 
     #

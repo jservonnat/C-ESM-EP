@@ -4,7 +4,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: PISCES                                                             - |
+# --             - component: NEMO_PISCES                                                             - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -95,7 +95,7 @@ period_manager_test_variable = 'NO3_surf'
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "PISCES"
+atlas_head_title = "NEMO PISCES"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >

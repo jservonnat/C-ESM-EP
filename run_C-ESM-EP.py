@@ -86,7 +86,7 @@ allcomponents=['MainTimeSeries',
                'NEMO_zonmean',
                'Atlantic_Atmosphere_Surface',
                'Focus_Atlantic_AMOC_Surface',
-               'PISCES',
+               'NEMO_PISCES',
                'ENSO',
                'ORCHIDEE',
                'TurbulentAirSeaFluxes',
@@ -100,7 +100,7 @@ allcomponents=['MainTimeSeries',
                'NEMO_main_DR_CMIP6',
                'NEMO_depthlevels_DR_CMIP6',
                'NEMO_zonmean_DR_CMIP6',
-               'PISCES_DR_CMIP6',
+               'NEMO_PISCES_DR_CMIP6',
                'ENSO_DR_CMIP6',
                'ORCHIDEE_DR_CMIP6',
 ]
@@ -120,13 +120,13 @@ else:
       if argument.lower() in ['url']:
          components=allcomponents
       elif argument=='OA':
-         components = ['Atmosphere_Surface','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','NEMO_depthlevels','Atlantic_Atmosphere_Surface','ENSO','PISCES']
+         components = ['Atmosphere_Surface','Atmosphere_zonmean','NEMO_main','NEMO_zonmean','NEMO_depthlevels','Atlantic_Atmosphere_Surface','ENSO','NEMO_PISCES']
       elif argument=='LMDZ':
          components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLev','NH_Polar_Atmosphere_Surface','SH_Polar_Atmosphere_Surface','NH_Polar_Atmosphere_StdPressLev','SH_Polar_Atmosphere_StdPressLev']
       elif argument=='LMDZOR':
          components = ['Atmosphere_Surface','Atmosphere_zonmean','Atmosphere_StdPressLev','ORCHIDEE']
       elif argument=='NEMO':
-         components = ['NEMO_main','NEMO_zonmean','NEMO_depthlevels','PISCES']
+         components = ['NEMO_main','NEMO_zonmean','NEMO_depthlevels','NEMO_PISCES']
       else:
          components=str.split(argument,',')
    else:
@@ -208,14 +208,18 @@ onCiclad = False
 suffix = username+'/C-ESM-EP/'+comparison+'_'+username2+'/'
 if os.path.exists ('/ccc') and not os.path.exists ('/data')  :
     atTGCC   = True
-    if '/dsm/' in os.getcwd():
-       wspace='dsm'
-       base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
-       pathwebspace='/ccc/work/cont003/thredds/'
+    wspace = None
+    base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
+    pathwebspace='/ccc/work/cont003/thredds/'
+    if '/drf/' in os.getcwd():
+       wspace='drf'
+       #base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
+       #pathwebspace='/ccc/work/cont003/thredds/'
     if '/gencmip6/' in os.getcwd():
        wspace='gencmip6'
        base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'
        pathwebspace='/ccc/work/cont003/thredds/'
+    if not wspace: wspace = str.split(WD,'/')[str.split(WD,'/').index(username)-1]
     outworkdir = '/ccc/work/cont003/'+wspace+'/'+suffix
     if not os.path.isdir(outworkdir): os.makedirs(outworkdir)
 if 'ciclad' in os.uname()[1].strip().lower():
@@ -309,7 +313,7 @@ for component in job_components:
        queue = 'h12'
        if component not in metrics_components:
           job_script = 'job_C-ESM-EP.sh'
-          if 'NEMO' in component or 'Turbulent' in component or 'PISCES' in component or 'Essentials' in component:
+          if 'NEMO' in component or 'Turbulent' in component or 'Essentials' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
        else:
           job_script = 'job_PMP_C-ESM-EP.sh'
@@ -341,12 +345,6 @@ pysed(main_html, 'target_comparison', comparison)
 
 # -- Copy the edited html front page
 if atTGCC:
-   #if '/dsm/' in os.getcwd(): wspace='dsm'
-   #if '/gencmip6/' in os.getcwd(): wspace='gencmip6'
-   #outworkdir = '/ccc/work/cont003/'+wspace+'/'+username+'/C-ESM-EP/out/'+comparison+'_'+username+'/'
-   #if not os.path.isdir(outworkdir): os.makedirs(outworkdir)
-   #cmd1 = 'cp '+main_html+' '+outworkdir ; print cmd1 ; os.system(cmd1)
-   #cmd = 'dods_cp '+outworkdir+main_html+' '+webspace+' ; rm '+main_html
    cmd1 = 'cp '+main_html+' '+outworkdir ; print cmd1 ; os.system(cmd1)
    cmd = 'dods_cp '+outworkdir+main_html+' '+webspace+' ; rm '+main_html
 
