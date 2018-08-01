@@ -7,7 +7,7 @@ from climaf.api import *
 from climaf.html import * 
 from climaf import cachedir
 from CM_atlas import *
-from climaf.site_settings import onCiclad, atTGCC
+from climaf.site_settings import onCiclad, atTGCC, atCNRM
 from getpass import getuser
 from climaf import __path__ as cpath
 import json
@@ -148,7 +148,6 @@ if onCiclad:
    # This way it is possible to clean the cache without removing the figures.
    # It is also possible to copy the directory somewhere else (makes it transportable)
    # subdir = '/prodigfs/ipslfs/dods/user/CESMEP/comparison'
-   from climaf import cachedir
    component = str.replace( str.replace( str.replace( index_name, '_'+opts.comparison, '' ), '.html',''), 'atlas_', '')
    subdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component
    if not os.path.isdir(subdir):
@@ -158,6 +157,17 @@ if onCiclad:
    alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(subdir,'dods')[1]
    root_url = "https://vesg.ipsl.upmc.fr"
 
+if atCNRM:
+   # Import locations and create a sub-directory for the comparison 
+   # The atlas will be available in this self-consistent directory, containing the html and the figures.
+   # This way it is possible to clean the cache without removing the figures.
+   # It is also possible to copy the directory somewhere else (makes it transportable)
+   # We enforce the username in subdir name, thus allowing to share a root dir 
+   component = str.replace( str.replace( str.replace( index_name, '_'+opts.comparison, '' ), '.html',''), 'atlas_', '')
+   from locations import workspace,pathwebspace as alt_dir_name,username, root_url
+   subdir = workspace +'/C-ESM-EP/' +"/"+ opts.comparison+'_'+username+'/'+component
+   if not os.path.isdir(subdir): os.makedirs(subdir)
+   else                        : os.system('rm -f '+subdir+'/*.png')
 
 
 # -> Specif TGCC: Creation du repertoire de l'atlas, ou nettoyage de celui-ci si il existe deja
@@ -180,7 +190,6 @@ if atTGCC:
 # -> Specif TGCC: Copy the empty.png image in the cache
 # -----------------------------------------------------------------------------------
 if atTGCC:
-   from climaf import cachedir
    if not os.path.isdir(cachedir):
       os.makedirs(cachedir)
    if not os.path.isfile(cachedir+'/Empty.png'):
@@ -195,7 +204,7 @@ if atTGCC:
 # -> and an 'altdir' on Ciclad
 # -----------------------------------------------------------------------------------
 if atTGCC:   alternative_dir = {'dirname': scratch_alt_dir_name}
-if onCiclad: alternative_dir = {'dirname' : subdir}
+if onCiclad or atCNRM : alternative_dir = {'dirname' : subdir}
 
 
 
@@ -3321,7 +3330,7 @@ index += trailer()
 import os 
 if alt_dir_name :
     #
-    if onCiclad:
+    if onCiclad or atCNRM :
        outfile=subdir+"/"+index_name
        print 'outfile = ',outfile
        with open(outfile,"w") as filout : filout.write(index)

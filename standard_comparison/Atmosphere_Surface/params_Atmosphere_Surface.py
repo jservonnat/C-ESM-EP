@@ -82,6 +82,7 @@ for var in atmos_variables_list:
         atmos_variables.append(dict(variable=var, season=seas,
                                     project_specs = dict(
                                                          CMIP5      = dict(table = 'Amon'),
+                                                         CMIP6      = dict(table = 'Amon'),
                                                          IGCM_OUT   = dict(DIR   = 'ATM'),
                                                          IGCM_CMIP6 = dict(table = 'Amon'),
                                                         ),
