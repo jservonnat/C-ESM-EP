@@ -31,8 +31,8 @@
 
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-email = 'senesi@meteo.fr'
-#email = None
+#email = "senesi@meteo.fr" 
+email = None
 
 
 # -- Import python modules ----------------------------------------------------------------
@@ -321,7 +321,9 @@ for component in job_components:
        else:
           add_email=''
        if component not in metrics_components:
-          cmd = 'cd '+submitdir+' ; export comparison='+comparison+' ; export component='+component+' ; ccc_msub'+add_email+' -r '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
+          cmd = 'cd '+submitdir+' ; export comparison='+comparison+\
+                ' ; export component='+component+' ; ccc_msub'+add_email+' -r '+\
+                component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
     #
     # -- Case onCiclad
     if onCiclad:
@@ -344,30 +346,38 @@ for component in job_components:
        jobname=component+'_'+comparison+'_C-ESM-EP'
        if component not in metrics_components: job_script = 'job_C-ESM-EP.sh'
        else: job_script = 'job_PMP_C-ESM-EP.sh'
-       #
-       if email: variables = 'mail_type=FAIL,mail_user='+email.strip()+','
-       else    : variables = ''
        # 
-       variables +=  'component='+component
+       variables  =  'component='+component
        variables += ',comparison='+comparison
        variables += ',WD=$(pwd)'
        variables += ',CLIMAF_CACHE='+climaf_cache
+       #
+       mail = ''
+       if email is not None : mail = ' --mail-type=END --mail-user=%s'%email
        
        # at CNRM, we use sqsub on PCs for launching on aneto; env vars are sent using arg '-e'
-       cmd = '( \n\tcd '+submitdir+' ; \n'+\
-             '\tjobID=$(sqsub -e \"'+variables+'\"'+\
-             ' -b "-J '+jobname+' " ../'+job_script+ ' | cut -d \" \" -f 4) ;\n'+\
+       cmd = '( \n\tcd '+submitdir+' ; \n\n'+\
+             '\tsqsub \\\n\t\t-e \"'+variables+'\"'+\
+             ' \\\n\t\t-b "--job-name='+jobname+mail+' " \\\n\t\t../'+job_script+ ' > jobname.tmp  2>&1; \n\n'+\
+             \
+             ' \tjobId=$(cat jobname.tmp | cut -d \" \" -f 4 jobname.tmp); rm jobname.tmp  ; \n'+\
+             \
+             '\techo -n Job submitted : $jobId\n\n'+\
+             \
              ' \tsqsub -b \"-d afternotok:$jobID\" '+\
              '-e \"atlas_pathfilename='+atlas_pathfilename+','+variables+'\"'+\
-             ' ../../share/fp_template/copy_html_error_page.sh \n)\n'
+             ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
 
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs
     # ----------------------------------------------------------------------------------------------------------------------------
     if argument.lower() not in ['url']:
-       print cmd
+       #print cmd
        os.system(cmd)
+       jobfile=comparison+"/"+component+"/job.in"
+       with open(jobfile,"w") as job : job.write(cmd)
+       print "-- See job in ",jobfile ; print
 
 
 
