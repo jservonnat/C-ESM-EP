@@ -187,9 +187,9 @@ if atTGCC:
    else:
       os.system('rm -f '+scratch_alt_dir_name+'/*.png')
 
-# -> Specif TGCC: Copy the empty.png image in the cache
+# -> Specif TGCC and CNRM: Copy the empty.png image in the cache
 # -----------------------------------------------------------------------------------
-if atTGCC:
+if atTGCC or atCNRM :
    if not os.path.isdir(cachedir):
       os.makedirs(cachedir)
    if not os.path.isfile(cachedir+'/Empty.png'):
@@ -1544,6 +1544,8 @@ if do_Monsoons_pr_anncyc:
     #ref_mask = regrid( fds('/data/igcmg/database/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
     if onCiclad:
        ref_mask = regrid( fds('/data/igcmg/database/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
+    if atCNRM:
+       ref_mask = regrid( fds('/cnrm/est/COMMON/C-ESM-EP/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
     if atTGCC:
        ref_mask = regrid( fds('/ccc/work/cont003/igcmg/igcmg/Database/grids/LMDZ4.0_280280_grid.nc', variable='mask', period='fx'), pr_ref, option='remapnn')
     # -- Land mask for reference
