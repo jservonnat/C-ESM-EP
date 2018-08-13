@@ -77,7 +77,13 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 do_atlas_explorer        = True    # -> use atlas_explorer_variables to set your own selection of variables
 atlas_explorer_variables = ['tas', 'tos',
                             dict(variable='ua', season='DJF',
-                                 project_specs = dict(IGCM_OUT=dict(DIR='ATM'), IGCM_CMIP6=dict(table='Amon'))) ]
+                                 project_specs = dict(
+                                     IGCM_OUT=dict(DIR='ATM'),
+                                     IGCM_CMIP6=dict(table='Amon'),
+                                     CMIP5      = dict(table = 'Amon'),
+                                     CMIP6      = dict(table = 'Amon'),
+                                 )
+                            ) ]
 
 #atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',
