@@ -153,10 +153,16 @@ subdirs = next(os.walk(comparison))[1]
 # -> We loop on all the potentially available and check whether they are available in the comparison directory or not
 # -> The goal of this step is essentially to keep the same order of appearance of the links on front page
 available_components = []
-# -> First, we work on the known components listed in allcomponents. If they are in subdirs, we add them to 
+# -> First, we work on the known components listed in allcomponents. If they are in readable subdirs, we add them to 
 for component in allcomponents:
-  if component in subdirs: available_components.append(component)
-# -> Then, we check whether there are some components not list in allcomponents; if yes, they will be added at the end of the list
+  if component in subdirs :
+     if os.access(comparison+"/"+component,os.R_OK):
+        available_components.append(component)
+     else:
+        #pass
+        print "Skipping component",component,"which dir is not readable"
+# -> Then, we check whether there are some components not listed in allcomponents;
+# if yes, they will be added at the end of the list
 for subdir in subdirs:
   if subdir not in allcomponents and subdir not in 'tmp_paramfiles':
      available_components.append(subdir)
@@ -169,8 +175,14 @@ cesmep_modules = []
 for component in available_components:
     atlas_head_title = None
     paramfile = comparison+'/'+component+'/params_'+component+'.py'
-    with open(paramfile, 'r') as content_file:
-        content = content_file.read()
+    # Allow to de-activate a component by setting read attribute to false
+    try :
+       with open(paramfile, 'r') as content_file:
+          content = content_file.read()
+    except :
+       print "Skipping component ",component, " which param file is not readable"
+       available_components.remove(component)
+       continue
     content.splitlines()
     module_title = None
     for tmpline in content.splitlines():
@@ -288,7 +300,7 @@ if argument.lower() not in ['url']:
 
 # -- Submit the jobs
 for component in job_components:
-    print 'component = ',component
+    print '  -- component = ',component,
     # -- Define where the directory where the job is submitted
     submitdir = WD+'/'+comparison+'/'+component
     #
