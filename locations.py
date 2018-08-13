@@ -12,9 +12,9 @@ if os.path.exists('/cnrm'):
 
     # Root on file system for atlas.
     # If using http for rendering, this should be somehow visible by the http server
-    # This location can be shared among users, as username will be added at end of data path
     # This value is used as 'pathwebspace' in run_C-ESM-EP.py
     # It will be complemented with 'C-ESM-EP/'
+    # This location can be shared among users, as username will be added at end of data path
     workspace='/cnrm/est/USERS/'+username+'/NO_SAVE/'
     
     # Describe the rendering method; if it is http, must match the workspace and the adress for http server
