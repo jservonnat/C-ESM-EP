@@ -152,14 +152,18 @@ if atCNRM:
 if atCNRM :
    models = [
 
-      dict(project = 'CMIP5', model='CNRM-CM5', experiment='historical',
-           frequency='monthly', period='1850', version="*",
-           customname='CMIP5 CNRM-CM5'
-           ),
+      dict(project = 'CMIP5', model='CNRM-CM5', experiment='piControl',
+            frequency='monthly', period='1850-1853', version="*",
+            customname='CNRM-CM5-hist'
+            ),
       dict(project = 'CMIP6', model='CNRM-CM6-1', experiment='piControl',
-           frequency='monthly', period='1850',
-           customname='CNRM-CM6'
+           frequency='monthly', period='1950-1953',
+           customname='CNRM-CM6-control'
            ),
+      # dict(project = 'CMIP6', model='CNRM-CM6-1', experiment='abrupt-4xCO2',
+      #      frequency='monthly', period='1850-1853',
+      #      customname='CNRM-CM6-abrupt'
+      #      ),
 
    ]
 
@@ -207,11 +211,17 @@ common_keys = dict(
            varname_area='area',
            )
 
+
 for model in models:
-  if model['project']=='IGCM_OUT':
+  if model['project']=='IGCM_OUT' :
     for key in common_keys:
         if key not in model:
            model.update({key:common_keys[key]})
+
+if atCNRM:
+   if model['model']=='CNRM-CM6-1' or model['model']=='CNRM-ESM2-1' :
+      model['gridfile']=gridpath+'ORCA1_mesh_zgr.nc'
+      model['mesh_hgr']=gridpath+'ORCA1_mesh_hgr.nc'
 
 
 # -- Find the last available common period to all the datasets
