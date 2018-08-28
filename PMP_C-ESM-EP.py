@@ -121,11 +121,12 @@ outfigdir              = None
 ref_parallel_coordinates = 'CMIP5'
 reference_data_path      = None
 metrics_table            = 'Atmosphere'
+add_period_to_simname    = True
 # - Palette that will be used by the R script 
 #colorpalette = ['dodgerblue3','orangered','green','dodgerblue4','firebrick3','yellow1','royalblue','deepskyblue','mediumseagreen','violetred2','mediumturquoise','cadetblue','brown2','chartreuse1','burlywood3','coral1','burlywood4','darkgoldenrod2','darkolivegreen3','darkgoldenrod4','darkorchid']
 # Use --colors to override the colors of a subset of highlights, or directly edit colorpalette in the param file
 #parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
-parallel_coordinates_script = main_cesmep_path+'scientific_packages/parallel_coordinates/parallel_coordinates.R'
+parallel_coordinates_script = main_cesmep_path+'share/scientific_packages/parallel_coordinates/parallel_coordinates.R'
 index_filename_root = 'parallel_coordinates'
 
 
@@ -159,7 +160,7 @@ if opts.reference_data_path:      reference_data_path = opts.reference_data_path
 # --------------------------------------------------------------------------------------------
 # -- Output directory for the figures
 user_login = ( str.split(os.getcwd(),'/')[4] if getuser()=='fabric' else getuser() )
-if not opts.outfigdir:
+if not outfigdir:
     if onCiclad:
        outfigdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/'+comparison+'_'+user_login+'/ParallelCoordinates_Atmosphere/'
        if not os.path.isdir(outfigdir):
@@ -355,18 +356,23 @@ for wmodel in Wmodels:
     print '---'
     print '---'
     print '---> Working on dataset ',wmodel
+    print '---> on variables:',vars
     print '---'
     print '---'
     # -- Loop on variables
     wvars = []
-    for var in vars:
+    for var_dict in vars:
         #
+        if isinstance(var_dict,dict):
+           var = var_dict['variable']
+        else:
+           var = var_dict
         if 'Ok':
             # Searching for the json file in the tree
             found = False
             for group in groups:
                 check_json = build_metric_outpath(wmodel, group, root_outpath=root_outpath, subdir='*')+'/'+str.replace(var,'_','-')+metric_json_filename
-                #print 'check_json = ',check_json
+                print 'check_json = ',check_json
                 check = glob.glob(check_json)
                 print 'check = ',check
                 if len(check)==0:
@@ -390,8 +396,8 @@ for wmodel in Wmodels:
             # -- If we didn't find it, we store the variable in the list of variables to compute
             #    the metrics with the PMP
             if not found:
-                print '----> Need to compute the metrics for variable '+var
-                wvars.append(var)
+                print '----> Need to compute the metrics for variable ',var_dict
+                wvars.append(var_dict)
     # -- And now, we add the list of variables for which we have to compute the metrics with the PMP to wmodel
     wmodel.update( dict(metrics_variables=wvars) )
     if 'variable' in wmodel: wmodel.pop('variable')
@@ -453,7 +459,13 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
         else:
             w_variables = []
             for variable in vars:
-                w_variable = str.replace(variable,'_','-')
+                if isinstance(variable,dict):
+                   #w_variable = variable.copy()
+                   w_variable = variable['variable']
+                   #w_variable_dict['variable'] = w_variable
+                else:
+                   w_variable = variable
+                w_variable = str.replace(w_variable,'_','-')
                 metric_json_file = metrics_output_path+'/'+w_variable+'_'+targetGrid+'_esmf_linear_metrics.json'
                 if not os.path.isfile(metric_json_file):
                     print 'Missing ',metric_json_file
@@ -462,15 +474,38 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                     print 'Already have ',metric_json_file
         
         # -- Si il y a des metriques a calculer...
+        str_vars_list = []
         if w_variables:
             for var in w_variables:
-                wvar = str.split(var,'_')[0]
                 # -- Name of the temporary file (hard link)
                 wmodel_dict = wmodel.copy()
-                wmodel_dict.update(dict(variable=wvar, table='Amon'))
+                if isinstance(var,dict):
+                   #w_variable = variable.copy()
+                   strvar = var['variable']
+                   wvar = str.split(var['variable'],'_')[0]
+                   if 'project_specs' in var:
+                      if wmodel_dict['project'] in var['project_specs']:
+                         wmodel_dict.update(var['project_specs'][wmodel_dict['project']])
+                   
+                   #w_variable_dict['variable'] = w_variable
+                else:
+                   wvar = str.split(var,'_')[0]
+                   strvar = var
+                #
+                #wvar = str.split(var,'_')[0]
+                wmodel_dict.update(dict(variable=wvar))
+                if wmodel_dict['project']=='CMIP5':
+                   if not table in wmodel_dict:
+                      wmodel_dict.update(dict(table='Amon'))
+                if wmodel_dict['project']=='CMIP6':
+                   if not 'table' in wmodel_dict:
+                      wmodel_dict.update(dict(table='Amon'))
+                   if not 'grid' in wmodel_dict:
+                      wmodel_dict.update(dict(grid='gr'))
                 # -- Fix!!! for tas IGCM_OUT we use ATM
-                if wmodel['project']=='IGCM_OUT' and variable=='tas':
-                   wmodel_dict.update(dict(DIR='ATM'))
+                if wmodel['project']=='IGCM_OUT':
+                   if not 'DIR' in wmodel_dict:
+                      wmodel_dict.update(dict(DIR='ATM'))
                 target_filename = build_input_climatology_filename(wmodel_dict)
                 #
                 # -- Do the hardlink (and all necessary alias, computation of derived variable behind...)
@@ -497,11 +532,13 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                         cmd = 'ncrename -v t_ave_02592000,time -d t_ave_02592000,time '+input_climatologies_dir+'/'+target_filename
                         print cmd
                         os.system(cmd)
+                    # -- build the list of vars to be used for the parameter file
+                    str_vars_list.append(strvar)
                 except:
                     w_variables.remove(var)
                 #
                 # --> The files are now ready in the tmp directory (and in the CliMAF cache)
-                metric_files_list.append(metrics_output_path+'/'+str.replace(var,'_','-')+'_'+targetGrid+'_esmf_linear_metrics.json')
+                metric_files_list.append(metrics_output_path+'/'+str.replace(strvar,'_','-')+'_'+targetGrid+'_esmf_linear_metrics.json')
 
             ### 2.1/ Copy the template parameter file
 
@@ -522,9 +559,13 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
             file_pattern = input_climatologies_dir+'/'+target_filename.replace(wvar+'.nc','')
 
             # --> Variables
-            str_vars = ','.join(w_variables)
+            str_vars = ','.join(str_vars_list)
             
             keys_wmodel = get_keys_for_PMP_MG(wmodel)
+            # -- Fix when period='fx'
+            if 'period' in keys_wmodel:
+               if keys_wmodel['period']=='fx':
+                  if 'clim_period' in keys_wmodel: keys_wmodel['period'] = keys_wmodel['clim_period']
 
             pysed(tmp_paramfile, '@file_pattern', file_pattern)
             pysed(tmp_paramfile, '@model', keys_wmodel['model'])
@@ -562,7 +603,8 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
     return metric_files_list
 
 # Pour le depot dans la base
-metric_files_list = run_CliMAF_PMP(Wmodels, group=groups[0], variables=None,
+#metric_files_list = run_CliMAF_PMP(Wmodels, group=groups[0], variables=None,
+metric_files_list = run_CliMAF_PMP(Wmodels, group=groups[0], variables=vars,
                                    root_outpath=root_outpath, force_compute_metrics = False,
                                    subdir=subdir, rm_tmp_paramfile=rm_tmp_paramfile)
 
@@ -614,6 +656,10 @@ for wmodel in Wmodels:
     print 'wmodel in block 5 : ',wmodel
     for key in wmodel:
         if wmodel[key]=='*': wmodel[key]=key+'_not_defined'
+    if 'period' in wmodel:
+       if wmodel['period']=='fx':
+          if 'clim_period' in wmodel: wmodel['period']=wmodel['clim_period']
+    #      
     tmp_path = build_metric_outpath(wmodel, group=groups[0], subdir='tmp_hermes', root_outpath=root_outpath)
     print 'tmp_path = ', tmp_path
     for file_hermes in files_in_tmp_hermes:
@@ -644,67 +690,25 @@ colors=[]
 i = 0
 for model in Wmodels:
     customname = str.replace(build_plot_title(model, None),' ','_')
-    if 'period' in model: wperiod=model['period']
-    #if 'clim_period' in model: wperiod=model['clim_period']
-    if 'clim_period' in model:
-       wperiod=model['clim_period']
-       if 'last' in wperiod or 'first' in wperiod: wperiod=model['period']
-    if wperiod not in customname: customname = customname+'_'+wperiod
+    if add_period_to_simname:
+      if 'period' in model: wperiod=model['period']
+      #if 'clim_period' in model: wperiod=model['clim_period']
+      if 'clim_period' in model:
+         wperiod=model['clim_period']
+         if 'last' in wperiod or 'first' in wperiod: wperiod=model['period']
+      if wperiod not in customname: customname = customname+'_'+wperiod
     if customname not in customnames:
-        customnames.append(customname)
+       customnames.append(customname)
 
 colors = colors_manager(Wmodels,cesmep_python_colors,colors_list=CMIP5_colors,method='start_with_colors_list')
 
 print 'colors after colors_manager = ',colors
 
-# -- We end up providing 'colors' to the R script (as well as 'highlights')
-# -- colors contains the list of colors for the simulations in datasets_setup;
-# -- We now need to add the colors of if CMIP5_colors
-# --> We rely on the principle that if CMIP5_colors is provided, we provide the same number of colors as models
-# --> We can also 
-bla=None
-if bla:
-   # -- Si on a autant de couleurs que de models, on boucle sur les couleurs et on trouve
-   if len(CMIP5_names)==len(CMIP5_colors):
-      ok_CMIP5_colors = []
-      for dum in CMIP5_colors:
-          if isinstance(dum,dict):
-             ok_CMIP5_colors.append( dum['color'] )
-          else:
-             ok_CMIP5_colors.append( dum )
-   else:
-      # -- We make a list of None of the length of CMIP5_names
-      ok_CMIP5_colors = [None]*len(CMIP5_names)
-      # --> and we fill it with the provided specific colors
-      for dum in CMIP5_colors:
-          if not isinstance(dum,dict):
-             print '-- You can provide dictionaries in CMIP5_colors (params_ParallelCoordinates_Atmosphere.py)'
-             print '-- Ex: CMIP5_colors = [ dict(model="IPSL-CM5A-MR",color="red"), dict(model="IPSL-CM5A-LR",color="green") ]'
-          else:
-             ok_CMIP5_colors[CMIP5_names.index(dum['model'])] = dum['color']
-      # -- And now, we fill the None with default colors from the colorpalette
-      i_colorpalette=0
-      i_ok_CMIP5_colors=0
-      for dumcolor in ok_CMIP5_colors:
-          if not dumcolor:
-             tmpcolor = colorpalette[i_colorpalette]
-             while tmpcolor in ok_CMIP5_colors+colors:
-                   i_colorpalette = i_colorpalette + 1
-                   tmpcolor = colorpalette[i_colorpalette]
-             # -- add one increment for next model
-             ok_CMIP5_colors[i_ok_CMIP5_colors] = tmpcolor
-             i_colorpalette = i_colorpalette + 1
-          # -- add one increment to go to next color 
-          i_ok_CMIP5_colors = i_ok_CMIP5_colors + 1
-          
-
 # -- Add the colors of the CMIP5 highlights, either before or after the simulations in datasets_setup
 if CMIP5_highlights_first:
    str_highlights = ','.join(CMIP5_names + customnames)
-   #   colors = ok_CMIP5_colors + colors
 else:
    str_highlights = ','.join(customnames + CMIP5_names)
-#   colors = colors + ok_CMIP5_colors
 
 
 colors = ','.join(colors)
@@ -716,6 +720,7 @@ colors = ','.join(colors)
 
 # -- BLOCK 7 -------------------------------------------------------------------
 cmd_parallel_coordinates = 'Rscript '+parallel_coordinates_script+' --test_data_path '+test_data_path+' --reference_data_path '+reference_data_path
+print 'reference_data_path = ',reference_data_path
 print 'cmd_parallel_coordinates avant = ', cmd_parallel_coordinates
 
 if CMIP5_names:
@@ -737,7 +742,7 @@ if sort:
 if legend_ratio:
     cmd_parallel_coordinates = cmd_parallel_coordinates+' --legend_ratio '+str(legend_ratio)
 if colors:
-    cmd_parallel_coordinates = cmd_parallel_coordinates+' --colors '+str(colors)
+    cmd_parallel_coordinates = cmd_parallel_coordinates+' --colors "'+str(colors)+'"'
 if image_size:
     cmd_parallel_coordinates = cmd_parallel_coordinates+' --image_size '+image_size
 print 'cmd_parallel_coordinates apres = ', cmd_parallel_coordinates
@@ -756,7 +761,8 @@ from climaf.html import *
 # --------------------------------------------------------- 
 index_name = outfigdir+index_filename_root+'_'+comparison+'.html'
 alt_dir_name = '/thredds/fileServer/IPSLFS'+str.split(outfigdir,'dods')[1]
-root_url = "https://vesgint-data.ipsl.upmc.fr"
+root_url = "https://vesg.ipsl.upmc.fr"
+
 
 # -- Start the html file
 # ---------------------------------------------------------
@@ -779,7 +785,8 @@ if not metrics_sections:
 
 # -- Loop on the sections of metrics
 # ---------------------------------------------------------
-for metrics_section in metrics_sections:
+if not do_four_seasons_parcor:
+ for metrics_section in metrics_sections:
    index += section(metrics_section['section_name'], level=4)
    # -- Start a section
    for region in metrics_section['region']:
@@ -797,6 +804,31 @@ for metrics_section in metrics_sections:
                print 'region = ', region
                print 'season = ',season
                print ' --> cmd_parallel_coordinates_final for statistic = '+statistic+' region = '+region+' season = '+season
+               print cmd_parallel_coordinates_final
+               p=subprocess.Popen(shlex.split(cmd_parallel_coordinates_final))
+               p.communicate()
+               index+=cell("", figname, thumbnail="600*300", hover=False)#, dirname=outfigdir)
+               # -- Add the plot to the html line using figname
+           index += close_line() + close_table()
+           # -- Close line
+    # -- Close table
+else:
+ for metrics_section in metrics_sections:
+   index += section(metrics_section['section_name'], level=4)
+   # -- Start a section
+   for region in metrics_section['region']:
+           # -- Open a line
+           index+=start_line(region)
+           #
+           # -- Loop on the statistics
+           for statistic in metrics_section['statistic']:
+               #figname = outfigdir+statistic+'_'+season+'_'+region+'_'+comparison+'_parallel_coordinates.png'
+               delay = datetime.utcnow() - datetime(2015,1,1) ; nb = str(delay.microseconds)
+               figname = statistic+'_tas_pr_4_seasons_'+region+'_'+comparison+'_parallel_coordinates_'+nb+'.png'
+               cmd_parallel_coordinates_final = cmd_parallel_coordinates+' --figname '+outfigdir+figname+' --statistic '+statistic+' --region '+region
+               print 'statistic = ',statistic
+               print 'region = ', region
+               print ' --> cmd_parallel_coordinates_final for statistic = '+statistic+' region = '+region
                print cmd_parallel_coordinates_final
                p=subprocess.Popen(shlex.split(cmd_parallel_coordinates_final))
                p.communicate()

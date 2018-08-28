@@ -65,10 +65,14 @@ function my_append {
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
   unset PYTHONPATH
   module switch python/2.7.8
-  module load ncview ncl_ncarg nco cdo
-  #my_append -bp PATH $(ccc_home -u p86jser --cccwork)/anaconda2/bin:$PATH
-  #working_conda=$(ccc_home -u p86jser --cccwork)/anaconda2/envs/uvcdat
-  #my_append -bp PATH $(ccc_home -u p86jser --cccwork)/miniconda/bin:$PATH
+  # CDO fix
+  module unload nco/4.4.8
+  module unload netcdf/4.3.3.1_hdf5_parallel
+  module unload cdo/1.6.7_netcdf-4.3.2_hdf5
+  module load netcdf/4.4.0_hdf5
+  module load cdo/1.9.2
+  module load ncview ncl_ncarg nco
+  # CDO fix
   source /ccc/work/cont003/dsm/p86jser/miniconda/etc/profile.d/conda.sh
   working_conda=/ccc/work/cont003/dsm/p86jser/miniconda/envs/cesmep_env
   conda activate ${working_conda}
@@ -79,7 +83,6 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
   my_append -bp PYTHONPATH ${CLIMAF}
   # # -- CDFTools
   export CLIMAF_CACHE=${SCRATCHDIR}/cache_atlas_explorer
-  #export CLIMAF_CACHE=${HOME}/cache_atlas_explorer
 
   export myroot=${WORKDIR}
 
@@ -94,16 +97,9 @@ if [[ -d "/data" ]] ; then
   module load netcdf4/4.3.3.1-gfortran
   module load cdo
   module load ncl/6.3.0
-  #module load python/2.7-anaconda
-  #my_append -bp PATH /prodigfs/ipslfs/dods/jservon/anaconda2-5.1.0/bin
-  #my_append -bp PATH /home/jservon/anaconda2/bin
-  #working_conda=/home/jservon/anaconda2/envs/PMP_nightly-nox
-  #my_append -bp PATH /prodigfs/ipslfs/dods/jservon/miniconda/bin
   source /prodigfs/ipslfs/dods/jservon/miniconda/etc/profile.d/conda.sh
   working_conda=/prodigfs/ipslfs/dods/jservon/miniconda/envs/cesmep_env
-  #working_conda=/prodigfs/ipslfs/dods/jservon/anaconda2-5.1.0/envs/cesmep_env
   conda activate ${working_conda}
-  #my_append -bp PATH ${working_conda}/lib
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
@@ -114,5 +110,6 @@ if [[ -d "/data" ]] ; then
   # -- CDFTools
   my_append -bp PATH /home/lvignon/bin
   my_append -bp PATH ${CLIMAF}/bin
+  #export PATH=/prodigfs/ipslfs/dods/jservon/miniconda/envs/cesmep_env/bin:/home/igcmg/atlas:/home/igcmg/fast:/opt/scilab-5.4.1/bin:/usr/lib64/qt-3.3/bin:/opt/pgi-2013/linux86-64/2013/bin:/opt/matlab-2013b:/opt/matlab-2013b/bin:/opt/intel/composer_xe_2011_sp1.9.293/bin/intel64:/opt/g95-stable-0.92/bin:/opt/ferret-6.7.2/fast:/opt/ferret-6.7.2/bin:/opt/cdfTools-3.0:/opt/canopy-1.3.0/Canopy_64bit/User/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/idl8/idl/bin:/opt/intel/composer_xe_2011_sp1.9.293/mpirt/bin/intel64:/opt/ncl-6.1.2/bin:/home/lvignon/bin:/home/jservon/bin:/opt/idl8/idl/bin:/opt/intel/composer_xe_2011_sp1.9.293/mpirt/bin/intel64:/opt/ncl-6.1.2/bin:/home/lvignon/bin:/home/jservon/bin
   echo "PATH ${PATH}"
 fi

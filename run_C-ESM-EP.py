@@ -106,7 +106,7 @@ allcomponents=['MainTimeSeries',
 ]
 
 # -- Component that runs the PCMDI Metrics Package (specific job script)
-metrics_components = ['ParallelCoordinates_Atmosphere']
+metrics_components = ['ParallelCoordinates_Atmosphere','Seasonal_one_variable_parallel_coordinates']
 
 # -- Get the arguments passed to the script
 # --> If we do not specify the component(s), run all available components
@@ -313,8 +313,9 @@ for component in job_components:
        queue = 'h12'
        if component not in metrics_components:
           job_script = 'job_C-ESM-EP.sh'
-          if 'NEMO' in component or 'Turbulent' in component or 'Essentials' in component:
+          if 'NEMO' in component or 'Turbulent' in component or 'Essentials' in component or 'AtlasExplorer' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
+          if component in ['ParallelAtlasExplorer'] or 'NEMO_depthlevels' in component: queue+=' -l nodes=1:ppn=32' 
        else:
           job_script = 'job_PMP_C-ESM-EP.sh'
           # -- ... and for the parallel coordinates, we do that.

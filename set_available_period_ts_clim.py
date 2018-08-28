@@ -75,6 +75,7 @@ for dataset_dict in Wmodels_clim:
    # ---
    print 'wdataset_dict = ',wdataset_dict
    wdataset_dict.update(dict(variable=period_manager_test_variable))
+   if dataset_dict['project']=='CMIP6': wdataset_dict.update(dict(grid='gr', table='Amon'))
    if 'clim_period' in wdataset_dict:
         frequency_manager_for_diag(wdataset_dict, diag='clim')
         get_period_manager(wdataset_dict)
@@ -92,6 +93,7 @@ for dataset_dict in Wmodels_clim:
 
 # -- TS ---------------------------------------------
 Wmodels_ts = period_for_diag_manager(models, diag='TS')
+#Wmodels_ts = []
 for dataset_dict in Wmodels_ts:
    #
    wdataset_dict = dataset_dict.copy()
@@ -102,6 +104,7 @@ for dataset_dict in Wmodels_ts:
    # ---
    print 'wdataset_dict = ',wdataset_dict
    wdataset_dict.update(dict(variable=period_manager_test_variable))
+   if dataset_dict['project']=='CMIP6': wdataset_dict.update(dict(grid='gr', table='Amon'))
    if 'ts_period' in wdataset_dict:
         frequency_manager_for_diag(wdataset_dict, diag='TS')
         get_period_manager(wdataset_dict)
@@ -129,7 +132,7 @@ print>>thefile, ''
 
 
 # -- Append the results to datasets_setup_available_period_set.py
-list_of_kw = ['project','root','login','model','experiment','simulation']#,'frequency','period','clim_period','ts_period']       
+list_of_kw = ['project','root','login','model','experiment','simulation','realization']#,'frequency','period','clim_period','ts_period']       
 kw_for_ts   = ['frequency','period','ts_period','diag']
 kw_for_clim = ['frequency','period','clim_period','diag']
 

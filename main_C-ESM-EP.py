@@ -165,7 +165,6 @@ if onCiclad:
 if atTGCC:
    component_season = str.replace( str.replace( str.replace(index_name,'.html',''), 'atlas_', ''), '_'+opts.comparison, '' )
    CWD = os.getcwd()
-   if '/dsm/' in CWD: wspace='dsm'
    if '/drf/' in CWD: wspace='drf'
    if '/gencmip6/' in CWD: wspace='gencmip6'
    scratch_alt_dir_name = '/ccc/scratch/cont003/'+wspace+'/'+user_login+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'
@@ -319,6 +318,11 @@ if do_SST_for_tuning:
           wdataset_dict = dataset_dict.copy()
           wdataset_dict.update(dict(variable='tos'))
           #
+          # -- Use the project specs:
+          if wdataset_dict['project'] in tos_project_specs:
+             wdataset_dict.update(tos_project_specs[wdataset_dict['project']])
+          #
+          #
           if not use_available_period_set:
              frequency_manager_for_diag(wdataset_dict, diag='clim')
              get_period_manager(wdataset_dict)
@@ -365,6 +369,8 @@ if do_SST_for_tuning:
               if 'product' in wdataset_dict:
                  if wdataset_dict['product']=='WOA13-v2': rawvalue = rawvalue[0]
               # -- Add offset to convert in Celsius
+              #print 'wdataset_dict in tuning_metrics : ',wdataset_dict
+              #print 'rawvalue = ',rawvalue
               rawvalue = rawvalue - 273.15
               # -- Compute bias
               results[dataset_name]['results'].update( {region['region_name']: {'rawvalue': str(rawvalue)} } )
@@ -459,6 +465,10 @@ if do_atlas_explorer:
     else:
        thumbN_size = None
        #thumbN_size = thumbnail_size_global
+    #craz()
+    from datetime import datetime
+    start = datetime.utcnow()
+
     index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
                              'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
@@ -471,6 +481,48 @@ if do_atlas_explorer:
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
                              apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+    end = datetime.utcnow()
+    duration = end - start
+
+    print 'Total Atlas Explorer done in :',duration.seconds,'seconds'
+
+
+# ---------------------------------------------------------------------------------------- #
+# -- Plotting the maps of the Atlas Explorer                                            -- #
+if do_parallel_atlas_explorer:
+    print '---------------------------------'
+    print '-- Processing Atlas Explorer   --'
+    print '-- do_parallel_atlas_explorer = True    --'
+    print '-- atlas_explorer_variables =  --'
+    print '-> ',atlas_explorer_variables
+    print '--                             --'
+    # -- Period Manager
+    if not use_available_period_set:
+       Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
+       apply_period_manager = True
+    else:
+       Wmodels = copy.deepcopy(Wmodels_clim)
+       apply_period_manager = False
+    if thumbnail_size:
+       thumbN_size = thumbnail_size
+    else:
+       thumbN_size = None
+       #thumbN_size = thumbnail_size_global
+    #craz()
+    from datetime import datetime
+    start = datetime.utcnow()
+    index += parallel_section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
+                             'Parallel Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
+                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                             add_line_of_climato_plots=add_line_of_climato_plots,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+    end = datetime.utcnow()
+    duration = end - start
+
+    print 'Total Parallel Atlas Explorer done in :',duration.seconds,'seconds'
+
+
 
 
 
@@ -785,7 +837,16 @@ if do_ocean_2D_maps:
        thumbN_size = thumbnail_size
     else:
        thumbN_size = thumbnail_size_global
-    index += section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables, 
+    #
+    if do_parallel:
+       index += parallel_section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables,
+                             'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
+                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                             add_line_of_climato_plots=add_line_of_climato_plots,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+    else:
+       index += section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables, 
                              'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
@@ -1350,8 +1411,8 @@ if do_ENSO_CLIVAR:
     line_title = 'Time Series of Nino3 SST anomalies (departures from annual cycle)'
     index+=start_line(line_title)
     # -- Plot the reference
-    ref_ENSO_tos = dict(project='ref_ts', period='1870-2010', product='HadISST')
-    plot_ref_ENSO_ts_ssta =  ENSO_ts_ssta(ref_ENSO_tos)
+    ref_ENSO_tos = dict(project='ref_ts', period='1870-2010', product='HadISST', frequency='monthly')
+    plot_ref_ENSO_ts_ssta =  ENSO_ts_ssta(ref_ENSO_tos, safe_mode=safe_mode)
     index+=cell("", plot_ref_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
     # And loop over the models
     # -- Period Manager
@@ -1365,7 +1426,7 @@ if do_ENSO_CLIVAR:
     apply_period_manager = False
     #
     for model in Wmodels:
-        plot_model_ENSO_ts_ssta = ENSO_ts_ssta(model, apply_period_manager=apply_period_manager)
+        plot_model_ENSO_ts_ssta = ENSO_ts_ssta(model, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
         index+=cell("", plot_model_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1375,11 +1436,11 @@ if do_ENSO_CLIVAR:
     line_title = 'Standard Deviation of SST anomalies (deviations from annual cycle)'
     index+=start_line(line_title)
     # -- Plot the reference
-    plot_ref_ENSO_std_ssta =  ENSO_std_ssta(ref_ENSO_tos, apply_period_manager=apply_period_manager)
+    plot_ref_ENSO_std_ssta =  ENSO_std_ssta(ref_ENSO_tos, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
     index+=cell("", plot_ref_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
     for model in Wmodels:
-        plot_model_ENSO_std_ssta =  ENSO_std_ssta(model, apply_period_manager=apply_period_manager)
+        plot_model_ENSO_std_ssta =  ENSO_std_ssta(model, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
         index+=cell("", plot_model_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     close_line()
     index+=close_table()
@@ -1417,8 +1478,8 @@ if do_ENSO_CLIVAR:
     line_title = 'Linear Regression = d(Zonal Wind Stress) / d(SSTA Nino3)'
     index+=start_line(line_title)
     # -- Plot the reference
-    ref_ENSO_tauu = dict(project='ref_ts', product='ERAInterim', period='2001-2010', variable='tauu')
-    ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010')
+    ref_ENSO_tauu = dict(project='ref_ts', product='ERAInterim', period='2001-2010', variable='tauu', frequency='monthly')
+    ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010', frequency='monthly')
     plot_ref_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(ref_ENSO_tauu, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     index+=cell("", plot_ref_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
@@ -1434,8 +1495,8 @@ if do_ENSO_CLIVAR:
     line_title = 'Linear Regression = d(ShortWave) / d(SSTA Nino3)'
     index+=start_line(line_title)
     # -- Plot the reference
-    ref_ENSO_rsds = dict(project='ref_ts', product='CERES-EBAF-Ed2-7', period='2001-2010', variable='rsds')
-    ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010')
+    ref_ENSO_rsds = dict(project='ref_ts', product='CERES-EBAF-Ed2-7', period='2001-2010', variable='rsds', frequency='monthly')
+    ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010', frequency='monthly')
     plot_ref_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(ref_ENSO_rsds, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     index+=cell("", plot_ref_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
     # And loop over the models
@@ -1450,7 +1511,7 @@ if do_ENSO_CLIVAR:
     # -- Annual Cycles -----------------------------------------------------------------
     line_title = 'Annual cycles Nino3 (SST, SSTA, Std.dev)'
     index+=start_line(line_title)
-    for model in Wmodels: model.update(dict(table='Amon', grid='gr'))
+    for model in Wmodels: model.update(dict(table='Omon', grid='gn'))
     plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     thumbN_size="600*350"
     index+=cell("", plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
@@ -1466,6 +1527,7 @@ if do_ENSO_CLIVAR:
     # -- Longitudinal profile of Zonal Wind Stress --------------------------------------
     line_title = 'Annual Mean Climatology of Zonal Wind Stress (-5/5N profile)'
     index+=start_line(line_title)
+    for model in Wmodels: model.update(dict(table='Amon', grid='gr'))
     plot_tauu_profile = plot_ZonalWindStress_long_profile(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
     thumbN_size="450*400"
     index+=cell("", plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
@@ -1748,6 +1810,10 @@ if do_Hotelling_Test:
           # -- Copy the dictionary to modify it without modifying the original dictionaries
           model.update(dict(variable=variable))
           #
+          # -- Use the project specs
+          if model['project'] in hotelling_project_specs:
+             model.update(hotelling_project_specs[model['project']])
+          #
           # -- Apply the frequency and time manager
           if not use_available_period_set:
              frequency_manager_for_diag(model, diag='clim')
@@ -1926,14 +1992,15 @@ if do_Hotelling_Test:
       # -- We need to apply the same mask to all the datasets to compute the same spatial average
       # -- For this, we build the mask from the ensemble mean of the annual means of the regridded references on the common grid
       ens_dict = dict()
-      cdogrid='r180x90'
+      commongrid='r180x90'
       for ref in references:
-          ens_dict.update({ref['product']:llbox(regridn(clim_average(ds(**ref),season), cdogrid=cdogrid, option='remapdis'),
+          ens_dict.update({ref['product']:llbox(regridn(clim_average(ds(**ref),season), cdogrid=commongrid, option='remapdis'),
                                                 lonmin=0,lonmax=360,latmin=-20,latmax=20)})
       ens = cens(ens_dict)
       ens_mean = ccdo_ens(ens, operator='ensavg')
       # -- We obtain the mask (Fill_values and 1) by dividing the ensemble mean of the references by itself
-      mask = divide(ens_mean,ens_mean)
+      #mask = divide(ens_mean,ens_mean)
+      mask = ccdo(divide(ens_mean,ens_mean), operator='selname,'+variable)
       #
       # ------------------------------------------------
       # -- Start computing the spatial averages
@@ -1972,17 +2039,23 @@ if do_Hotelling_Test:
           #
           # -- Loop on the regions; build the results dictionary and save it in the json file variable_comparison_spatial_averages_over_regions.json
           for region in regions_for_spatial_averages:
-              dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid=cdogrid, option='remapdis'),
+              dat = llbox(regridn(clim_average(ds(**wdataset_dict), season), cdogrid=commongrid, option='remapdis'),
                           lonmin=region['domain'][2], lonmax=region['domain'][3],
                           latmin=region['domain'][0], latmax=region['domain'][1])
+              # Garde fou
+              dat = ccdo(dat, operator='selname,'+variable)
               if safe_mode:
                  try:
-                    metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+                    #metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+                    metric = cscalar(space_average(multiply(dat,mask)))
                  except:
                     print 'cMA(space_average(multiply(dat,mask)))[0][0][0] has failed for wdataset_dict = ',wdataset_dict
                     metric = 'NA'
               else:
-                 metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+                 #metric = cMA(space_average(multiply(dat,mask)))[0][0][0]
+                 print 'cfile(dat) = ', cfile(dat)
+                 print 'cfile(mask) = ', cfile(mask)
+                 metric = cscalar(space_average(multiply(dat,mask)))
               #
               results[dataset_name]['results'].update( {region['region_name']: str(metric) })
 
@@ -2047,6 +2120,9 @@ if do_GLB_SFlux_maps:
         #
         # -- Here, we add table='Amon' for the CMIP5 outputs
         wmodel.update(dict(variable=variable,table='Amon'))
+        # -- Use the project specs
+        if wmodel['project'] in TurbFluxes_project_specs:
+           wmodel.update(TurbFluxes_project_specs[wmodel['project']])
         #
         # -- Plot using plot_climato_TurbFlux_GB2015
         # --> Global Annual Mean
@@ -2110,6 +2186,9 @@ if do_Tropics_SFlux_maps:
         Wmodels_var = deepcopy(Wmodels)
         for model in Wmodels_var:
             model.update(dict(variable=variable))
+            # -- Use the project specs
+            if model['project'] in TurbFluxes_project_specs:
+               model.update(TurbFluxes_project_specs[model['project']])
             if not use_available_period_set:
                frequency_manager_for_diag(model, diag='clim')
                get_period_manager(model)
@@ -2293,7 +2372,7 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
                                                          'ORCHIDEE Energy Budget, Climato OBS, Bias and model-model differences',
@@ -2334,7 +2413,7 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
                              'ORCHIDEE Energy Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
@@ -2374,7 +2453,7 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_energy_budget_modelmodel,
                              'ORCHIDEE Energy Budget, difference with first simulation', domain=domain, 
@@ -2406,7 +2485,7 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, refsimulation, proj, season, variables_energy_budget,
                              'ORCHIDEE Energy Budget, difference with a reference (climatological month, season)', domain=domain,
@@ -2450,7 +2529,7 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_water_budget_bias,
                                                          'ORCHIDEE Water Budget, Climato OBS, Bias and model-model differences',
@@ -2492,7 +2571,7 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_water_budget_bias,
                              'ORCHIDEE Water Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
@@ -2531,7 +2610,7 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_water_budget_modelmodel,
                              'ORCHIDEE Water Budget, difference with first simulation', domain=domain,
@@ -2560,7 +2639,7 @@ if do_ORCHIDEE_Water_Budget_climatology_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
@@ -2608,7 +2687,7 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
@@ -2653,7 +2732,7 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
@@ -2698,7 +2777,7 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
@@ -2730,7 +2809,7 @@ if do_ORCHIDEE_Carbon_Budget_climatology_maps:
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
-        if 'IGCM' not in model['project']:
+        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
@@ -2819,6 +2898,7 @@ if do_mse_otorres_maps:
     # -- Close the line and the table of the climatos
     index+=close_line() + close_table()
     #
+if do_mse_otorres_diff_maps:
     # -- Second part of the analysis = compute differences
     # -- Declare UEVE script for differences (O.Torres)
     ueve_script_diff = main_cesmep_path+'share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_diff_plug.py'
@@ -2834,6 +2914,10 @@ if do_mse_otorres_maps:
     #
     # -- Preparing the reference simulation
     # -- Apply frequency and period manager
+    if reference=='default':
+       ref_mse_diff = models[0].copy()
+    else:
+       ref_mse_diff = reference.copy()
     wref_var = ref_mse_diff.copy() # - copy the dictionary to avoid modifying the original dictionary
     wref_var.update(dict(variable='ue')) # - add a variable to this dictionary; it will be used by frequency_manager_for_diag
     #                                          and get_period_manager to scan the existing files and find the requested period

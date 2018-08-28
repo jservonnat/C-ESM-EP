@@ -17,6 +17,8 @@ period_manager_test_variable = None
 apply_period_manager_once_for_all_diags = False
 do_SST_for_tuning = False
 do_atlas_explorer = False
+do_parallel_atlas_explorer = False
+do_parallel = False
 atlas_explorer_climato_variables=None
 do_atmos_maps = False
 remapping = True
@@ -39,6 +41,7 @@ do_ENSO_CLIVAR = False
 do_Monsoons_pr_anncyc = False
 monsoon_precip_regions = None
 do_mse_otorres_maps = False
+do_mse_otorres_diff_maps = False
 do_my_own_script_diag = False
 do_my_own_climaf_diag = False
 do_annual_cycle_precip = False
@@ -50,6 +53,7 @@ style_file = None
 add_product_in_title = True
 hover = False
 add_compareCompanion = True
+add_period_to_simname=True
 
 do_ATLAS_TIMESERIES_SPATIAL_INDEXES = False
 do_ATLAS_VERTICAL_PROFILES = False
@@ -71,6 +75,8 @@ do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = False
 do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climatology_maps = False
+
+do_four_seasons_parcor=False
 
 thumbnail_size=None
 thumbnail_size_global="300*175"

@@ -155,9 +155,12 @@ for (test_data_path in test_data_paths){
   }else{ customname=NULL }
 
   # -- Get the variable
+  RES_test = c()
   for (test_file in test_files){
     json_file = paste(test_data_path,test_file,sep='/')
     RES = rbind( RES, getValuesFromJsonFile(json_file, reference=reference,
+                                            region=region, statistic=statistic, season=season, customname=customname) )
+    RES_test = rbind( RES_test, getValuesFromJsonFile(json_file, reference=reference,
                                             region=region, statistic=statistic, season=season, customname=customname) )
   }#end for test_file
   
@@ -169,7 +172,7 @@ for (test_data_path in test_data_paths){
 # --   - rows = simulations
 # ---------------------------------------------------------------------------------------------------------
 reshaped_RES = c()
-variables = unique(RES[,2])
+variables = unique(RES_test[,2])
 simnames = sort(unique(RES[,1]))
 for (variable in variables){
    dumresvar = c()
@@ -321,7 +324,7 @@ for (metric in 1:length(variables)){
 # ---------------------------------------------------------------------------------------------------------
 ind_percentage_variables = c()
 nsim = nrow(ok_scaledat)
-thres_avail_res = 50
+thres_avail_res = 10
 for (i in 1:ncol(ok_scaledat)){
     nsim_ok = length(which(is.na(ok_scaledat[,i])==FALSE))
     if ((nsim_ok/nsim)>(thres_avail_res/100)){
