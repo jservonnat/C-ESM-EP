@@ -79,6 +79,7 @@ for var in ['tos', 'wfo', 'sos']:
         ocean_2D_variables.append(dict(variable=var, season=my_season,
                                        project_specs = dict(
                                                             CMIP5      = dict(table = 'Omon'),
+                                                            CMIP6      = dict(table = 'Omon'),
                                                             IGCM_OUT   = dict(DIR   = 'OCE'),
                                                             IGCM_CMIP6 = dict(table = 'Omon'),
                                                            )
@@ -87,6 +88,7 @@ for my_season in liste_seasons :
     ocean_2D_variables.append (dict(variable='zos', spatial_anomalies=True, season=my_season,
                                     project_specs = dict(
                                                          CMIP5      = dict(table = 'Omon'),
+                                                         CMIP6      = dict(table = 'Omon'),
                                                          IGCM_OUT   = dict(DIR   = 'OCE'),
                                                          IGCM_CMIP6 = dict(table = 'Omon'),
                                                         ),

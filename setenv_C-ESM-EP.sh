@@ -2,7 +2,7 @@
 
 # -------------------------------------------------------- >
 # --
-# -- Script to run a CliMAF atlas on Ciclad:
+# -- Script to run a CliMAF atlas :
 # --   - sets up the environment
 # --
 # --     Author: Jerome Servonnat
@@ -112,4 +112,32 @@ if [[ -d "/data" ]] ; then
   my_append -bp PATH ${CLIMAF}/bin
   #export PATH=/prodigfs/ipslfs/dods/jservon/miniconda/envs/cesmep_env/bin:/home/igcmg/atlas:/home/igcmg/fast:/opt/scilab-5.4.1/bin:/usr/lib64/qt-3.3/bin:/opt/pgi-2013/linux86-64/2013/bin:/opt/matlab-2013b:/opt/matlab-2013b/bin:/opt/intel/composer_xe_2011_sp1.9.293/bin/intel64:/opt/g95-stable-0.92/bin:/opt/ferret-6.7.2/fast:/opt/ferret-6.7.2/bin:/opt/cdfTools-3.0:/opt/canopy-1.3.0/Canopy_64bit/User/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/idl8/idl/bin:/opt/intel/composer_xe_2011_sp1.9.293/mpirt/bin/intel64:/opt/ncl-6.1.2/bin:/home/lvignon/bin:/home/jservon/bin:/opt/idl8/idl/bin:/opt/intel/composer_xe_2011_sp1.9.293/mpirt/bin/intel64:/opt/ncl-6.1.2/bin:/home/lvignon/bin:/home/jservon/bin
   echo "PATH ${PATH}"
+fi
+
+# --> At CNRM
+if [[ -d "/cnrm" ]] ; then
+   
+    unset PYTHONPATH
+
+    # CDAT
+    CONDA=/cnrm/est/COMMON/conda2/
+    source $CONDA/etc/profile.d/conda.sh
+    working_conda=$CONDA/envs/cdat_env
+    conda activate ${working_conda}
+    my_append -bp LD_LIBRARY_PATH ${working_conda}/lib
+    my_append -bp PYTHONPATH ${working_conda}/lib/python2.7/site-packages
+    my_append -bp PATH $CONDA/bin
+    export HDF5_DISABLE_VERSION_CHECK=1
+    export UVCDAT_ANONYMOUS_LOG=False
+
+    # CliMAF
+    export CLIMAF=/cnrm/est/COMMON/climaf/climaf_1.0.3_CESMEP
+    my_append -bp PYTHONPATH ${CLIMAF}
+    my_append -bp PATH ${CLIMAF}/bin
+    here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
+    export CLIMAF_CACHE=$(cd $here ; python -c 'from locations import climaf_cache; print climaf_cache')
+
+    # -- CDFTools
+    my_append -bp PATH /cnrm/est/COMMON/CDFTOOLS_3.0/bin
+    echo "PATH ${PATH}"
 fi

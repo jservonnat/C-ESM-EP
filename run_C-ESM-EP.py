@@ -31,8 +31,8 @@
 
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-email = 'jerome.servonnat@lsce.ipsl.fr'
-#email = None
+#email = "senesi@meteo.fr" 
+email = None
 
 
 # -- Import python modules ----------------------------------------------------------------
@@ -46,6 +46,10 @@ import re
 
 # -- Working directory
 WD=os.getcwd()
+# Special case at CNRM for directory /cnrm, which is a link 
+atCNRM = os.path.exists('/cnrm')
+if atCNRM :
+   WD=re.sub('^/mnt/nfs/d[0-9]*/','/cnrm/',WD)
 
 # -- Get user name
 username=getpass.getuser()
@@ -149,10 +153,16 @@ subdirs = next(os.walk(comparison))[1]
 # -> We loop on all the potentially available and check whether they are available in the comparison directory or not
 # -> The goal of this step is essentially to keep the same order of appearance of the links on front page
 available_components = []
-# -> First, we work on the known components listed in allcomponents. If they are in subdirs, we add them to 
+# -> First, we work on the known components listed in allcomponents. If they are in readable subdirs, we add them to 
 for component in allcomponents:
-  if component in subdirs: available_components.append(component)
-# -> Then, we check whether there are some components not list in allcomponents; if yes, they will be added at the end of the list
+  if component in subdirs :
+     if os.access(comparison+"/"+component,os.R_OK):
+        available_components.append(component)
+     else:
+        #pass
+        print "Skipping component",component,"which dir is not readable"
+# -> Then, we check whether there are some components not listed in allcomponents;
+# if yes, they will be added at the end of the list
 for subdir in subdirs:
   if subdir not in allcomponents and subdir not in 'tmp_paramfiles':
      available_components.append(subdir)
@@ -165,8 +175,14 @@ cesmep_modules = []
 for component in available_components:
     atlas_head_title = None
     paramfile = comparison+'/'+component+'/params_'+component+'.py'
-    with open(paramfile, 'r') as content_file:
-        content = content_file.read()
+    # Allow to de-activate a component by setting read attribute to false
+    try :
+       with open(paramfile, 'r') as content_file:
+          content = content_file.read()
+    except :
+       print "Skipping component ",component, " which param file is not readable"
+       available_components.remove(component)
+       continue
     content.splitlines()
     module_title = None
     for tmpline in content.splitlines():
@@ -197,7 +213,6 @@ for new_html_line in new_html_lines: new_html = new_html+new_html_line+'\n'
 main_html='C-ESM-EP_'+comparison+'.html'
 with open(main_html,"w") as filout : filout.write(new_html)
 
-
 # -- 2/ Set the paths (one per requested component) and url for the html pages
 # -----------------------------------------------------------------------------------------
 
@@ -226,6 +241,10 @@ if 'ciclad' in os.uname()[1].strip().lower():
     onCiclad = True
     base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/'
     pathwebspace='/prodigfs/ipslfs/dods/'
+if os.path.exists('/cnrm'):
+    suffix = 'C-ESM-EP/'+comparison+'_'+username+'/'
+    from locations import workspace as pathwebspace,base_url,climaf_cache
+
 
 root_url = base_url + suffix
 webspace = pathwebspace + suffix
@@ -251,14 +270,14 @@ if argument.lower() not in ['url']:
        url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
        url = root_url+component+'/'+component+'_'+comparison+'.html'
-    if onCiclad:
+    if onCiclad or atCNRM :
        if component in job_components:
           atlas_pathfilename = str.replace(url, base_url, pathwebspace)
           if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
              os.makedirs(os.path.dirname(atlas_pathfilename))
           # -- Copy an html template to say that the atlas is not yet available
           # 1. copy the template to the target html page
-          os.system('cp share/fp_template/Running_template.html '+atlas_pathfilename)
+          os.system('cp -f share/fp_template/Running_template.html '+atlas_pathfilename)
           # 2. Edit target_component and target_comparison
           pysed(atlas_pathfilename, 'target_component', component)
           pysed(atlas_pathfilename, 'target_comparison', comparison)
@@ -281,7 +300,7 @@ if argument.lower() not in ['url']:
 
 # -- Submit the jobs
 for component in job_components:
-    print 'component = ',component
+    print '  -- component = ',component,
     # -- Define where the directory where the job is submitted
     submitdir = WD+'/'+comparison+'/'+component
     #
@@ -302,7 +321,10 @@ for component in job_components:
        else:
           add_email=''
        if component not in metrics_components:
-          cmd = 'cd '+submitdir+' ; export comparison='+comparison+' ; export component='+component+' ; ccc_msub'+add_email+' -r '+component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
+          cmd = 'cd '+submitdir+' ; export comparison='+comparison+\
+                ' ; export component='+component+' ; ccc_msub'+add_email+' -r '+\
+                component+'_'+comparison+'_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
+    #
     # -- Case onCiclad
     if onCiclad:
        # -- For all the components but for the parallel coordinates, we do this...
@@ -321,12 +343,42 @@ for component in job_components:
           # -- ... and for the parallel coordinates, we do that.
        cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
+    if atCNRM:
+       jobname=component+'_'+comparison+'_C-ESM-EP'
+       if component not in metrics_components: job_script = 'job_C-ESM-EP.sh'
+       else: job_script = 'job_PMP_C-ESM-EP.sh'
+       # 
+       variables  =  'component='+component
+       variables += ',comparison='+comparison
+       variables += ',WD=$(pwd)'
+       variables += ',CLIMAF_CACHE='+climaf_cache
+       #
+       mail = ''
+       if email is not None : mail = ' --mail-type=END --mail-user=%s'%email
+       
+       # at CNRM, we use sqsub on PCs for launching on aneto; env vars are sent using arg '-e'
+       cmd = '( \n\tcd '+submitdir+' ; \n\n'+\
+             '\tsqsub \\\n\t\t-e \"'+variables+'\"'+\
+             ' \\\n\t\t-b "--job-name='+jobname+mail+' " \\\n\t\t../'+job_script+ ' > jobname.tmp  2>&1; \n\n'+\
+             \
+             ' \tjobId=$(cat jobname.tmp | cut -d \" \" -f 4 jobname.tmp); rm jobname.tmp  ; \n'+\
+             \
+             '\techo -n Job submitted : $jobId\n\n'+\
+             \
+             ' \tsqsub -b \"-d afternotok:$jobID\" '+\
+             '-e \"atlas_pathfilename='+atlas_pathfilename+','+variables+'\"'+\
+             ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
+
+    #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs
     # ----------------------------------------------------------------------------------------------------------------------------
     if argument.lower() not in ['url']:
-       print cmd
+       #print cmd
        os.system(cmd)
+       jobfile=comparison+"/"+component+"/job.in"
+       with open(jobfile,"w") as job : job.write(cmd)
+       print "-- See job in ",jobfile ; print
 
 
 
@@ -349,7 +401,7 @@ if atTGCC:
    cmd1 = 'cp '+main_html+' '+outworkdir ; print cmd1 ; os.system(cmd1)
    cmd = 'dods_cp '+outworkdir+main_html+' '+webspace+' ; rm '+main_html
 
-if onCiclad: cmd = 'mv '+main_html+' '+webspace
+if onCiclad or atCNRM : cmd = 'mv -f '+main_html+' '+webspace
 os.system(cmd)
 
 # -- Copy the top image
@@ -357,7 +409,7 @@ if not os.path.isfile(webspace+'/CESMEP_bandeau.png'):
    if atTGCC:
       os.system('cp share/fp_template/CESMEP_bandeau.png '+outworkdir)
       cmd='dods_cp '+outworkdir+'CESMEP_bandeau.png '+webspace
-   if onCiclad: cmd='cp share/fp_template/CESMEP_bandeau.png '+webspace
+   if onCiclad or atCNRM : cmd='cp -f share/fp_template/CESMEP_bandeau.png '+webspace
    os.system(cmd)
 
 
@@ -368,7 +420,7 @@ address=root_url+main_html
 
 
 print ''
-print '-- The CliMAF ESM Evaluation Platform will be available here: '
+print '-- The CliMAF ESM Evaluation Platform atlas will be available here: '
 print '--'
 print '--   '+address
 print '--'

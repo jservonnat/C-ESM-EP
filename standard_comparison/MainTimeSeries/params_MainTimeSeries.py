@@ -90,11 +90,14 @@ def annual_seaice_volume(dat, **kwargs):
 
 derive('IGCM_OUT','sicsit','multiply','sic','sit')
 derive('IGCM_OUT','to_12','ccdo','thetao', operator='intlevel,100')
+derive('CMIP6','sicsit','multiply','sic','sit')
+derive('CMIP6','to_12','ccdo','thetao', operator='intlevel,100')
 
 time_series_specs = [
     dict(variable='tos',
          project_specs = dict(
                               CMIP5    = dict(table='Omon'),
+                              CMIP6    = dict(table='Omon',grid="gn"),
                               IGCM_OUT = dict(DIR='OCE'),
                              ),
          domain=dict(lonmin=0,lonmax=360,latmin=-50,latmax=50),
@@ -113,6 +116,7 @@ time_series_specs = [
     dict(variable='tas',
          project_specs = dict(
                               CMIP5    = dict(table='Amon'),
+                              CMIP6    = dict(table='Amon'),
                               IGCM_OUT = dict(DIR='ATM'),
                              ),
          operation=annual_mean_space_average,

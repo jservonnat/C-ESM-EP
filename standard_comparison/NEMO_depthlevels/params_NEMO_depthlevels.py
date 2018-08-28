@@ -78,6 +78,7 @@ for var in ['to200', 'to1000', 'so200', 'so1000']:
     ocean_2D_variables.append (dict(variable=var, season='ANM',
                                     project_specs = dict(
                                                          CMIP5      = dict(table = 'Omon'),
+                                                         CMIP6      = dict(table = 'Omon'),
                                                          IGCM_OUT   = dict(DIR   = 'OCE'),
                                                          IGCM_CMIP6 = dict(table = 'Omon'),
                                                         ),
