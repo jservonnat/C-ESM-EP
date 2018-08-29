@@ -74,16 +74,31 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # --   - domain
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
+from climaf.api import *
+crm(pattern='CMIP')
 do_atlas_explorer        = True    # -> use atlas_explorer_variables to set your own selection of variables
-atlas_explorer_variables = ['tas', 'tos',
+atlas_explorer_variables = [dict(variable='tas',
+                                 project_specs = dict(
+                                     IGCM_OUT=dict(DIR='ATM'),
+                                     IGCM_CMIP6=dict(table='Amon'),
+                                     CMIP5      = dict(table = 'Amon'),
+                                     CMIP6      = dict(table = 'Amon'),
+                                )),
+                            dict(variable='tos',
+                                 project_specs = dict(
+                                     IGCM_OUT=dict(DIR='OCE'),
+                                     IGCM_CMIP6=dict(table='Omon'),
+                                     CMIP5      = dict(table = 'Omon'),
+                                     CMIP6      = dict(table = 'Omon', grid='gn'),
+                                )),
                             dict(variable='ua', season='DJF',
                                  project_specs = dict(
                                      IGCM_OUT=dict(DIR='ATM'),
                                      IGCM_CMIP6=dict(table='Amon'),
                                      CMIP5      = dict(table = 'Amon'),
                                      CMIP6      = dict(table = 'Amon'),
-                                 )
-                            ) ]
+                                 ))
+                          ]
 
 #atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',

@@ -1650,9 +1650,9 @@ if do_Monsoons_pr_anncyc:
 
             anncyc_pr_sim_masked = fmul(space_average(llbox(land_pr_sim_masked, **region['domain'])), 86400)
             if model['project']=='CMIP5':
-               monsoon_name_in_plot = model['model']
+               monsoon_name_in_plot = wmodel['model']
             else:
-               monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
+               monsoon_name_in_plot = str.replace(build_plot_title(wmodel, None), ' ','_')
             #
             if safe_mode:
                try:
@@ -1695,7 +1695,7 @@ if do_Monsoons_pr_anncyc:
             if model['project']=='CMIP5':
                monsoon_name_in_plot = model['model']
             else:
-               monsoon_name_in_plot = (model['customname'] if 'customname' in model else model['simulation'])
+               monsoon_name_in_plot = str.replace(build_plot_title(wmodel, None), ' ','_')
             #
             if safe_mode:
                try:

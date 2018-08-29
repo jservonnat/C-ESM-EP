@@ -83,7 +83,7 @@ metrics_table = 'Atmosphere'
 vars = None
 parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
 
-
+do_four_seasons_parcor=False
 
 # -- Set the sections of metrics you want
 metrics_sections = [
