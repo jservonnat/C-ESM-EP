@@ -96,6 +96,7 @@ for var in atmos_variables_list:
 for var in atmos_variables:
     var.update(dict(project_specs = dict(
                                          CMIP5      = dict(table = 'Amon'),
+                                         CMIP6      = dict(table = 'Amon'),
                                          IGCM_OUT   = dict(DIR   = 'ATM'),
                                          IGCM_CMIP6 = dict(table = 'Amon'),
                                         ),

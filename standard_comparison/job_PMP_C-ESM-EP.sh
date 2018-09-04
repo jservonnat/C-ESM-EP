@@ -85,6 +85,11 @@ if [[ -d "/data" ]]; then
 export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_Atmosphere_zonmean
 fi
 
+if [[ -d "/cnrm" ]]; then
+    [ -z $CLIMAF_CACHE ] &&  echo "CLIMAF_CACHE should be set by launch job" && exit 1
+    export CLIMAF_CACHE
+fi
+
 # -- Run the atlas...
 # ------------------------------------------------------- >
 echo "Running Parallel Coordinates metrics for comparison ${comparison}"

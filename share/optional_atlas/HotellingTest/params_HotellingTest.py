@@ -65,6 +65,10 @@ domain = {}
 # -- Hotelling Test (Servonnat et al. 2017)
 # ---------------------------------------------------------------------------- >
 hotelling_variables = ['hfls','hfss','tauu','tauv']#,'tauu','tauv']
+hotelling_project_specs = dict(
+   CMIP6=dict(table='Amon', grid='gr'),
+   CMIP5=dict(table='Amon'),
+)
 period_manager_test_variable = 'hfls'
 do_Hotelling_Test      = True
 # Parameters

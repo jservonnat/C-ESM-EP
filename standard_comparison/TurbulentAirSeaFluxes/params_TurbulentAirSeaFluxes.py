@@ -66,6 +66,10 @@ domain = {}
 # -- Turbulent Air-Sea Fluxes (Gainusa-Bogdan et al. 2015)
 # ---------------------------------------------------------------------------- >
 TurbFluxes_variables   = ['hfls','hfss','tauu','tauv']
+TurbFluxes_project_specs = dict(
+   CMIP6=dict(table='Amon', grid='gr'),
+   CMIP5=dict(table='Amon'),
+)
 do_GLB_SFlux_maps      = True    # -> Evaluation of annual mean turbulent fluxes following GB2015 over the globe
 do_Tropics_SFlux_maps  = True    # -> Same for the seasonal averages in the tropics
 period_manager_test_variable = 'hfls'
