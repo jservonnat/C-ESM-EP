@@ -30,8 +30,6 @@ variable = results$variable$variable
 varlongname = results$variable$varlongname
 
 
-#obs_reference           = c()
-#obs_reference_names     = c()
 reference_dataset       = c()
 reference_dataset_names = c()
 test_dataset            = c()
@@ -43,22 +41,16 @@ for (tmp in names(results)){
     if (tmp!='json_structure' & tmp!='variable'){
         print(tmp)
         print(results[[tmp]]$dataset_dict$dataset_type)
-        # -- Get the obs_reference tagged results
-        #if (results[[tmp]]$dataset_dict$dataset_type=='obs_reference'){
-        #    #obs_reference = c(obs_reference, as.numeric(results[[tmp]]$results[[variable]][[region]]))
-        #    obs_reference = c(obs_reference, as.numeric(results[[tmp]]$results[[region]]))
-        #    obs_reference_names = c(obs_reference_names, tmp)
-        #}#
         # -- Get the reference_dataset tagged results
         if (results[[tmp]]$dataset_dict$dataset_type=='reference_dataset'){
+           if (results[[tmp]]$results[[region]][[statistic]]!='NA'){
             reference_dataset = c(reference_dataset, as.numeric(results[[tmp]]$results[[region]][[statistic]]))
-            #reference_dataset = c(reference_dataset, as.numeric(results[[tmp]]$results[[region]]$rmsc))
             reference_dataset_names = c(reference_dataset_names, tmp)
-            #test_dataset_colors = c(test_dataset_colors, 'black')
+           }
         }#
         # -- Get the test_dataset tagged results
         if (results[[tmp]]$dataset_dict$dataset_type=='test_dataset'){
-            #test_dataset = c(test_dataset, as.numeric(results[[tmp]]$results[[region]]$rmsc))
+           if (results[[tmp]]$results[[region]][[statistic]]!='NA'){
             test_dataset = c(test_dataset, as.numeric(results[[tmp]]$results[[region]][[statistic]]))
             test_dataset_names = c(test_dataset_names, tmp)
             print('names(results[[tmp]]$dataset_dict) = ')
@@ -66,6 +58,7 @@ for (tmp in names(results)){
             if ('color' %in% names(results[[tmp]]$dataset_dict)){ color = results[[tmp]]$dataset_dict$color }
             if ('R_color' %in% names(results[[tmp]]$dataset_dict)){ color = results[[tmp]]$dataset_dict$R_color }
             test_dataset_colors = c(test_dataset_colors, color)
+           }#end if
         }#
         
     }#end if tmp!='json_structure'
@@ -75,22 +68,34 @@ for (tmp in names(results)){
 
 # -- Do the plot
 ylim = range(c(reference_dataset,test_dataset),na.rm=TRUE)
-#dumylim = max(c(reference_dataset,test_dataset),na.rm=TRUE)
-#ylim=c(0,dumylim)
-#ylim = c(-1.5,1.5)
 print("ylim = ")
 print(ylim)
 
 tmp_datasets4plot=c(reference_dataset,test_dataset)
 tmp_names4plot=c(reference_dataset_names,test_dataset_names)
 tmp_test_dataset_colors = c(rep('black',length(reference_dataset_names)),test_dataset_colors)
+for (i in 1:length(tmp_datasets4plot)){
+print(paste(tmp_names4plot[i],tmp_test_dataset_colors[i],as.character(tmp_datasets4plot[i])))
+}
+
 tmp_pcex = c(rep(1,length(reference_dataset_names)), rep(1.5,length(reference_dataset_names)))
+
+print('length(tmp_datasets4plot)')
+print(length(tmp_datasets4plot))
+print('length(tmp_names4plot)')
+print(length(tmp_names4plot))
 
 dumsort = sort(tmp_datasets4plot, decreasing=TRUE, index.return=TRUE)
 datasets4plot = dumsort$x
 names4plot = tmp_names4plot[dumsort$ix]
 sorted_colors = tmp_test_dataset_colors[dumsort$ix]
 sorted_pcex = tmp_pcex[dumsort$ix]
+print('length(datasets4plot)')
+print(length(datasets4plot))
+print('length(names4plot)')
+print(length(names4plot))
+print('length(sorted_colors)')
+print(length(sorted_colors))
 
 
 figname = opt[['figname']]
@@ -109,15 +114,19 @@ grid()
 abline(v=1:nitems,lty=2,col="darkgrey")
 abline(h=0)
 axis(1,at=1:nitems,labels=FALSE)
+
 for (i in 1:length(datasets4plot)){
-    if (sorted_colors[i]=='black'){
+    #if (sorted_colors[i]=='black'){
+    if (names4plot[i] %in% reference_dataset_names){
        lines(i,datasets4plot[i],type="p", col=sorted_colors[i], pch=16, cex=1.5*sorted_pcex[i])
        mtext(names4plot[i],side=1,at=i,col=sorted_colors[i],las=2,line=1,font=1 )
     }else{
+       print('else than black')
        lines(i,datasets4plot[i],type="p", col=sorted_colors[i], pch=16, cex=1.5*sorted_pcex[i])
        mtext(names4plot[i],side=1,at=i,col=sorted_colors[i],las=2,line=1,font=2 )
        lines(i,datasets4plot[i],type="p", col=sorted_colors[i], pch=0, cex=2.5*sorted_pcex[i])
     }
+    print(paste(names4plot[i],sorted_colors[i],as.character(datasets4plot[i])))
 }#
 
 
