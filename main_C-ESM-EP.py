@@ -321,6 +321,8 @@ if do_SST_for_tuning:
       #
       results = dict()
       variable='tos'
+      #outjson = main_cesmep_path+'/'+opts.comparison+'/TuningMetrics/'+variable+'_'+opts.comparison+'_metrics_over_regions_for_tuning.json'
+      
       for dataset_dict in all_dataset_dicts:
           #
           # -- We already applied time manager, no need to re-do it (loosing time searching for the available periods)
@@ -1831,6 +1833,12 @@ if do_Hotelling_Test:
              get_period_manager(model)
           wmodel = model.copy()
           #
+          # -- FIX TROHL
+          if 'simulation' in wmodel and wmodel['project']=='IGCM_OUT':
+             if wmodel['simulation'] in ['PI6AV-Sr12','TR6AV-Sr03']:
+                calias('IGCM_OUT','hfls','lat_oce', scale=-1, filenameVar='histmth')
+             else:
+                calias('IGCM_OUT','hfls','flat', scale=-1, filenameVar='histmth')
           # -- Get the dataset, compute the annual cycle and regrid to the common grid
           dat = regridn( annual_cycle( ds(**wmodel) ), cdogrid=common_grid, option='remapdis')
           #
