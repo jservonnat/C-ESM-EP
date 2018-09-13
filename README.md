@@ -8,4 +8,4 @@ The result is a front html page with links to the html pages of the atlases of t
 Atlas Explorer is an easy and flexible way to produce an html page showing climatologies and difference maps (with a reference) on a set of datasets (simulations, models, different periods…).
 The main goal of the Atlas Explorer is to provide the user with a set of predefined features to assess a variable (plotting parameters, default observational reference) while keeping a lot of control on the diagnostics from only one parameter file.
 
-The C-ESM-EP works on Ciclad and Curie.
+The C-ESM-EP works on Ciclad and Curie at IPSL, and at CNRM.

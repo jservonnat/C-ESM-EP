@@ -103,8 +103,19 @@ if [[ -d "/data" ]] ; then
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.0.3_CESMEP
+  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_jservonnat
+  #cesmep_modules=${PWD}/share/cesmep_modules
+  if [[ -d "${PWD}/share/cesmep_modules" ]] ; then
+     cesmep_modules=${PWD}/share/cesmep_modules
+  fi
+  if [[ -d "${PWD}/../share/cesmep_modules" ]] ; then
+     cesmep_modules=${PWD}/../share/cesmep_modules
+  fi
+  if [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
+     cesmep_modules=${PWD}/../../share/cesmep_modules
+  fi
   my_append -bp PYTHONPATH ${CLIMAF}
+  my_append -bp PYTHONPATH ${cesmep_modules}
   my_append -bp PATH ${CLIMAF}
   export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/atlas_explorer
   # -- CDFTools

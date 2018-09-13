@@ -656,6 +656,10 @@ if do_main_time_series:
         #
         highlight_period = []
         #
+        # -- Initialize WWmodels_clim and WWmodels_ts
+        WWmodels_clim = copy.deepcopy(WCLIMmodels)
+        WWmodels_ts = copy.deepcopy(WTSmodels)
+
         # -- Project specs: pass project-specific arguments
         if 'project_specs' in time_series:
            for dataset_dict in WWmodels_clim:
@@ -669,10 +673,6 @@ if do_main_time_series:
         if 'highlight_period' in time_series:
             if time_series['highlight_period']=='clim_period':
                 for dataset_dict in WWmodels_clim:
-                    # -- project_specs
-                    #if 'project_specs' in time_series:
-                    #   if dataset_dict['project'] in time_series['project_specs']:
-                    #      dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
                     print 'dataset_dict in time_series = ', dataset_dict
                     # -- Apply period manager if needed
                     if not use_available_period_set:
@@ -685,10 +685,6 @@ if do_main_time_series:
             #
             wdataset_dict = dataset_dict.copy()
             wdataset_dict.update(dict(variable=time_series['variable']))
-            # -- project_specs
-            #if 'project_specs' in time_series:
-            #    if dataset_dict['project'] in time_series['project_specs']:
-            #       dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
 
             # -- Apply period manager if needed
             if not use_available_period_set:
@@ -2922,7 +2918,7 @@ if do_mse_otorres_diff_maps:
     # -- Declare UEVE script for differences (O.Torres)
     ueve_script_diff = main_cesmep_path+'share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_diff_plug.py'
     cscript('ueve_otorres_diff',
-            'python '+ueve_script_diff+' --ue_ref=${in} ${in_2} ${in_3} ${in_4} ${in_5} ${in_6} "${title}" "${arrow_width}" '+
+            'python '+ueve_script_diff+' ${in} ${in_2} ${in_3} ${in_4} ${in_5} ${in_6} "${title}" "${arrow_width}" '+
                  '"${colorbar}" "${narrow_x}" "${narrow_y}" "${arrow_scale}" "${min}" "${max}" "${land_mask_value}" ${out}',
             format='graph')
     #
@@ -2980,7 +2976,7 @@ if do_mse_otorres_diff_maps:
         MSE_diff_plot = ueve_otorres_diff(ue_ref, ve_ref, ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve_diff)
         #
         # -- Add the plot to the line
-        index += cell("",safe_mode_cfile_plot(MSE_plot_diff, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        index += cell("",safe_mode_cfile_plot(MSE_diff_plot, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
         #
     # -- Close the line and the table of the climatos
     index+=close_line() + close_table()

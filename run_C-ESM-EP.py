@@ -33,7 +33,7 @@
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
 #email = "senesi@meteo.fr" 
 email = "jerome.servonnat@lsce.ipsl.fr"
-email=None
+#email=None
 
 # -- Import python modules ----------------------------------------------------------------
 import os, sys

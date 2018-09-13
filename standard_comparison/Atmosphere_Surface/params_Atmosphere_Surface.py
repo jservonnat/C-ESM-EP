@@ -76,6 +76,8 @@ atmos_variables_list = ['tas','pr','hfls','hfss','uas','vas','tauu','tauv','psl'
                    'albt','albs','rsutcs','rsut','rlut','rlutcs',
                    'crest','crelt','crett','cress']
 
+from CM_atlas import *
+#crm(pattern='CMIP6')
 atmos_variables = []
 for var in atmos_variables_list:
     for seas in my_seasons:

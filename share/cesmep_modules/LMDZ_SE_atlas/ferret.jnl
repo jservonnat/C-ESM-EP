@@ -1,0 +1,9 @@
+ ! NOAA/PMEL TMAP
+ ! FERRET v6.9  
+ ! Linux 2.6.32-431.23.3.el6.x86_64 64-bit - 08/22/14
+ ! 13-Jun-16 17:37     
+
+use /data/musat/LMDZ6/SE/CMOR/OBS/psl.nc
+use "/data/musat/LMDZ6/SE/CMOR/OBS/psl.nc"
+sho d
+shade psl[l=@ave]

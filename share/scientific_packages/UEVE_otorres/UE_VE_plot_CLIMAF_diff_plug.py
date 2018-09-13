@@ -49,7 +49,7 @@ from windspharm.tools import prep_data, recover_data, order_latdim
 
 
 
-#-------------   Récupération des arguments et des variables -----------------------
+#-------------   Recuperation des arguments et des variables -----------------------
 
 ref       = sys.argv[1]        # uE REF
 ref2      = sys.argv[2]        # vE REF
@@ -69,8 +69,8 @@ masku     = sys.argv[15]       # mask to pourc_ter
 name      = sys.argv[16]       # title of fig
 
 widt     = float(widthu)
-dxxx     = float(dxx)
-dyyy     = float(dyy)
+dxxx     = int(dxx)
+dyyy     = int(dyy)
 scales   = float(scal)
 valma    = float(vma)
 valmi    = float(vmi)
@@ -94,10 +94,10 @@ lon_var=file_ini.variables['lon'][:]
 
 lat_var=file_ini.variables['lat'][:]
 
-UE_pin_o = file_ini.variables['ue'][:,:]
-UE_pin_W = UE_pin_o[:,:,:which(lon_var,0)]
-UE_pin_E = UE_pin_o[:,:,which(lon_var,0):]
-UE_mean_pin = np.concatenate((UE_pin_E,UE_pin_W),axis=2)
+UE_pin_o = file_ini.variables['ue'][0,:,:]
+UE_pin_W = UE_pin_o[:,:which(lon_var,0)]
+UE_pin_E = UE_pin_o[:,which(lon_var,0):]
+UE_mean_pin = np.concatenate((UE_pin_E,UE_pin_W),axis=1)
 file_ini.close()
 
 
@@ -114,10 +114,15 @@ lats = lat_var[:]
 
 
 file_ini=nc.Dataset(ref2)
-VE_pin_o = file_ini.variables['ve'][:,:]
-VE_pin_W = VE_pin_o[:,:,:which(lon_var,0)]
-VE_pin_E = VE_pin_o[:,:,which(lon_var,0):]
-VE_mean_pin = np.concatenate((VE_pin_E,VE_pin_W),axis=2)
+#VE_pin_o = file_ini.variables['ve'][:,:]
+#VE_pin_W = VE_pin_o[:,:,:which(lon_var,0)]
+#VE_pin_E = VE_pin_o[:,:,which(lon_var,0):]
+VE_pin_o = file_ini.variables['ve'][0,:,:]
+VE_pin_W = VE_pin_o[:,:which(lon_var,0)]
+VE_pin_E = VE_pin_o[:,which(lon_var,0):]
+
+#VE_mean_pin = np.concatenate((VE_pin_E,VE_pin_W),axis=2)
+VE_mean_pin = np.concatenate((VE_pin_E,VE_pin_W),axis=1)
 file_ini.close()
 
 #---------------                Extraction de la variable AIRE              -----------------------
@@ -127,7 +132,8 @@ file_ini.close()
 
 #---------------            Extraction de la variable pourc_ter             -----------------------
 file_ini=nc.Dataset(ref6)
-pourcter_o = file_ini.variables['pourc_ter'][:,:]
+#pourcter_o = file_ini.variables['pourc_ter'][:,:]
+pourcter_o = file_ini.variables['pourc_ter'][0,:,:]
 pourcter_W = pourcter_o[:,:which(lon_var,0)]
 pourcter_E = pourcter_o[:,which(lon_var,0):]
 pourcter = np.concatenate((pourcter_E,pourcter_W),axis=1)
@@ -191,11 +197,11 @@ dx = areA[:,:] / dy
 aire_mer = np.sum(areA[5:-5,:]*dy[5:-5,:],axis=0)
 aire_zon  = np.sum(areA[:,:]*dx[:,:],axis=1)
 
-grad_vp_x_me = np.sum(grad_vp_x[5:-5,:]*dy[5:-5,:],axis=0)
-grad_vp_y_zo = np.sum(grad_vp_y[:,:]*dx[:,:],axis=1)
+#grad_vp_x_me = np.sum(grad_vp_x[5:-5,:]*dy[5:-5,:],axis=0)
+#grad_vp_y_zo = np.sum(grad_vp_y[:,:]*dx[:,:],axis=1)
 
-grad_vp_x_mer = grad_vp_x_me/aire_mer
-grad_vp_y_zon = grad_vp_y_zo/aire_zon
+#grad_vp_x_mer = grad_vp_x_me/aire_mer
+#grad_vp_y_zon = grad_vp_y_zo/aire_zon
 
 
 
@@ -208,18 +214,26 @@ grad_vp_y_zon = grad_vp_y_zo/aire_zon
 #---------------                 Extraction de la variable VE               -----------------------
 file_ini=nc.Dataset(ref3)
 
-UE_pin_o = file_ini.variables['ue'][:,:]
-UE_pin_W = UE_pin_o[:,:,:which(lon_var,0)]
-UE_pin_E = UE_pin_o[:,:,which(lon_var,0):]
-UE_mean_noce = np.concatenate((UE_pin_E,UE_pin_W),axis=2)
+#UE_pin_o = file_ini.variables['ue'][:,:]
+#UE_pin_W = UE_pin_o[:,:,:which(lon_var,0)]
+#UE_pin_E = UE_pin_o[:,:,which(lon_var,0):]
+#UE_mean_noce = np.concatenate((UE_pin_E,UE_pin_W),axis=2)
+UE_pin_o = file_ini.variables['ue'][0,:,:]
+UE_pin_W = UE_pin_o[:,:which(lon_var,0)]
+UE_pin_E = UE_pin_o[:,which(lon_var,0):]
+UE_mean_noce = np.concatenate((UE_pin_E,UE_pin_W),axis=1)
 file_ini.close()
 
 
 file_ini=nc.Dataset(ref4)
-VE_pin_o = file_ini.variables['ve'][:,:]
-VE_pin_W = VE_pin_o[:,:,:which(lon_var,0)]
-VE_pin_E = VE_pin_o[:,:,which(lon_var,0):]
-VE_mean_noce = np.concatenate((VE_pin_E,VE_pin_W),axis=2)
+#VE_pin_o = file_ini.variables['ve'][:,:]
+#VE_pin_W = VE_pin_o[:,:,:which(lon_var,0)]
+#VE_pin_E = VE_pin_o[:,:,which(lon_var,0):]
+VE_pin_o = file_ini.variables['ve'][0,:,:]
+VE_pin_W = VE_pin_o[:,:which(lon_var,0)]
+VE_pin_E = VE_pin_o[:,which(lon_var,0):]
+#VE_mean_noce = np.concatenate((VE_pin_E,VE_pin_W),axis=2)
+VE_mean_noce = np.concatenate((VE_pin_E,VE_pin_W),axis=1)
 file_ini.close()
 
 """""""""""""""""""""""""""""""""""""""""""""""""""
@@ -276,8 +290,8 @@ dy_o_noce = (lats_r_noce[1]-lats_r_noce[2])*(3.14159/180.)*6371000
 dy_noce = np.zeros(shape(areA[:,:]))+dy_o_noce 
 dx_noce = areA[:,:] / dy_noce
 
-grad_vp_x_mer_noce = np.sum(grad_vp_x_noce[5:-5,:]*dy_noce[5:-5,:],axis=0)
-grad_vp_y_zon_noce = np.sum(grad_vp_y_noce[:,:]*dx_noce[:,:],axis=1)
+#grad_vp_x_mer_noce = np.sum(grad_vp_x_noce[5:-5,:]*dy_noce[5:-5,:],axis=0)
+#grad_vp_y_zon_noce = np.sum(grad_vp_y_noce[:,:]*dx_noce[:,:],axis=1)
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""
@@ -310,13 +324,16 @@ cm_div_1 = plt.get_cmap('Spectral_r')
 cm_div_2 = plt.get_cmap(colormap)
 vmax_div = valma
 vmin_div = valmi
-levels_div=MaxNLocator(nbins=17).bin_boundaries(vmin_div,vmax_div)
+#levels_div=MaxNLocator(nbins=17).bin_boundaries(vmin_div,vmax_div)
+levels_div=MaxNLocator(nbins=17).tick_values(vmin_div,vmax_div)
 
 
 X = lons
 Y = lats_r[2:-2]
-U = grad_vp_x_ma_noce[2:-2,:]-grad_vp_x_ma[2:-2,:]
-V = grad_vp_y_ma_noce[2:-2,:]-grad_vp_y_ma[2:-2,:]
+#U = grad_vp_x_ma_noce[2:-2,:]-grad_vp_x_ma[2:-2,:]
+#V = grad_vp_y_ma_noce[2:-2,:]-grad_vp_y_ma[2:-2,:]
+U = grad_vp_x_noce[2:-2,:]-grad_vp_x[2:-2,:]
+V = grad_vp_y_noce[2:-2,:]-grad_vp_y[2:-2,:]
 Z = vp_noce[2:-2,:]-vp[2:-2,:]
 
 
