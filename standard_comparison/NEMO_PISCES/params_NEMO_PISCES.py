@@ -83,6 +83,9 @@ ocebio_2D_variables        = ["NO3_surf", "PO4_surf", "Si_surf", "O2_surf",
 #                                    ))
 period_manager_test_variable = 'NO3_surf'
 
+# -- Activate the parallel execution of the plots
+do_parallel=True
+
 # ---------------------------------------------------------------------------- >
 
 

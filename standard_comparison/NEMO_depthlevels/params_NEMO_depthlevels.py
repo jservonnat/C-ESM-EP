@@ -30,7 +30,7 @@ from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = True
+safe_mode = False
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
@@ -78,7 +78,7 @@ for var in ['to200', 'to1000', 'so200', 'so1000']:
     ocean_2D_variables.append (dict(variable=var, season='ANM',
                                     project_specs = dict(
                                                          CMIP5      = dict(table = 'Omon'),
-                                                         CMIP6      = dict(table = 'Omon'),
+                                                         CMIP6      = dict(table = 'Omon', grid='gn'),
                                                          IGCM_OUT   = dict(DIR   = 'OCE'),
                                                          IGCM_CMIP6 = dict(table = 'Omon'),
                                                         ),
@@ -92,6 +92,8 @@ remapping = True
 #do_curl_maps = True
 period_manager_test_variable = 'to'
 
+# -- Activate the parallel execution of the plots
+do_parallel=True
 # ---------------------------------------------------------------------------- >
 
 
