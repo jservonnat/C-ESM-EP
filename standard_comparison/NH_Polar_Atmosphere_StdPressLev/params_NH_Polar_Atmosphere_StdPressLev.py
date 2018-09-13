@@ -90,6 +90,11 @@ for var in atmos_variables_list:
                                                          IGCM_CMIP6 = dict(table = 'Amon'),
                                                         ),
                                     ))
+
+# -- Activate the parallel execution of the plots
+do_parallel=True
+
+
 period_manager_test_variable = 'ua'
 
 thumbnail_size="250*250"

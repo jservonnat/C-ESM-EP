@@ -748,13 +748,13 @@ def zonal_mean_slice2(model, variable, basin, season, ref=None, add_product_in_t
           # -- Regrid the model on the obs
           if safe_mode:
              try:
-                rgrd_clim_model = vertical_interpolation( regrid(clim_model, clim_ref, option='remapdis'), clim_ref, horizontal_regridding=False )
+                rgrd_clim_model = lonlatvert_interpolation( regrid(clim_model, clim_ref, option='remapdis'), clim_ref, horizontal_regridding=False )
              except:
-                print '--> Error in vertical_interpolation( regrid(clim_model, clim_ref, option="remapdis"), clim_ref, horizontal_regridding=False )'
+                print '--> Error in lonlatvert_interpolation( regrid(clim_model, clim_ref, option="remapdis"), clim_ref, horizontal_regridding=False )'
                 print '--> Set safe_mode=False to see the error'
                 rgrd_clim_model = clim_model
           else:
-             rgrd_clim_model = vertical_interpolation( regrid(clim_model, clim_ref, option='remapdis'), clim_ref, horizontal_regridding=False )
+             rgrd_clim_model = lonlatvert_interpolation( regrid(clim_model, clim_ref, option='remapdis'), clim_ref, horizontal_regridding=False )
              print '----'
              print '----'
              print '----'
@@ -929,7 +929,7 @@ def zonal_mean_slice2(model, variable, basin, season, ref=None, add_product_in_t
              # -> du model pour calculer les moyennes zonales
              #ref_clim_interp = regrid(ref_clim_ok, model_clim_ok, option='remapdis')
              ref_clim_interp = ccdo(ref_clim_ok, operator='remapdis,'+cfile(model_clim_ok))
-          test = vertical_interpolation(ref_clim_interp, model_clim_ok, horizontal_regridding=False)
+          test = lonlatvert_interpolation(ref_clim_interp, model_clim_ok, horizontal_regridding=False)
           ref_clim_zonmean_basin = ccdfzonalmean_bas(test, point_type='T', basin=str(basin).lower())
           # calculer la moyenne zonale pour le bassin choisi
           ZM_OBS = zonmean_interpolation(ref_clim_zonmean_basin, model_clim_zonmean_basin, horizontal_regridding=False)
@@ -974,11 +974,6 @@ def zonal_mean_slice2(model, variable, basin, season, ref=None, add_product_in_t
     else:
         ZM = ZM_MODEL
     #
-    #print "cfile(ZM) = ",cfile(ZM)
-    #if plot_on_latitude:
-    #    plot_zonmean = plot(regridn(ZM,cdogrid='r1x180',option='remapdis'), title=title, **p)
-    #else:
-    #    plot_zonmean = plot(ZM, title=title, **p)
     plot_zonmean = plot(ZM, title=title, **p)
     # -- If the user doesn't want to do the cfile within plot_climato, set do_cfile=False
     # -- Otherwise we check if the plot has been done successfully.

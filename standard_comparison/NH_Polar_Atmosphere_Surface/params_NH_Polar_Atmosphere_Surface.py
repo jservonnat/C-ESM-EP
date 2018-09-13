@@ -88,6 +88,10 @@ for var in atmos_variables_list:
                                                          IGCM_CMIP6 = dict(table = 'Amon'),
                                                         ),
                                     ))
+
+# -- Activate the parallel execution of the plots
+do_parallel=True
+
 # ---------------------------------------------------------------------------- >
 
 

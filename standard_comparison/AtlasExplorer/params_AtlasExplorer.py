@@ -75,7 +75,6 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
 from climaf.api import *
-crm(pattern='CMIP')
 do_atlas_explorer        = True    # -> use atlas_explorer_variables to set your own selection of variables
 atlas_explorer_variables = [dict(variable='tas',
                                  project_specs = dict(
@@ -108,6 +107,10 @@ atlas_explorer_variables = [dict(variable='tas',
 #                            dict(variable='sic', proj='NH50', season='March'),
 #                            dict(variable='lai', season='MAM'),
 #                           ]
+
+# -- Activate the parallel execution of the plots
+do_parallel=False
+
 period_manager_test_variable = 'tas'
 # ---------------------------------------------------------------------------- >
 

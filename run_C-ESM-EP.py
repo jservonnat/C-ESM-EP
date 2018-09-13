@@ -337,7 +337,7 @@ for component in job_components:
           job_script = 'job_C-ESM-EP.sh'
           if 'NEMO' in component or 'Turbulent' in component or 'Essentials' in component or 'AtlasExplorer' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
-          if component in ['ParallelAtlasExplorer'] or 'NEMO_depthlevels' in component: queue+=' -l nodes=1:ppn=32' 
+          if component in ['ParallelAtlasExplorer'] or 'NEMO_depthlevels' in component or 'NEMO_PISCES' in component: queue+=' -l nodes=1:ppn=32' 
        else:
           job_script = 'job_PMP_C-ESM-EP.sh'
           # -- ... and for the parallel coordinates, we do that.

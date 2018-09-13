@@ -474,17 +474,31 @@ if do_atlas_explorer:
        thumbN_size = thumbnail_size
     else:
        thumbN_size = None
-       #thumbN_size = thumbnail_size_global
-    #craz()
-    from datetime import datetime
-    start = datetime.utcnow()
 
-    index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
+    #index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
+    #                         'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
+    #                         add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+    #                         add_line_of_climato_plots=add_line_of_climato_plots,
+    #                         alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+    #                         apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+    if do_parallel:
+       index += parallel_section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
                              'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
                              apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+    else:
+       index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
+                             'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
+                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                             add_line_of_climato_plots=add_line_of_climato_plots,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             thumbnail_size=thumbN_size,
+                             #ocean_variables=ocean_variables,
+                             apply_period_manager=apply_period_manager)
+
+
     if atlas_explorer_climato_variables:
        index += section_climato_2D_maps(Wmodels, reference, proj, season, atlas_explorer_climato_variables,
                              'Atlas Explorer Climatologies', domain=domain, custom_plot_params=custom_plot_params,
@@ -493,8 +507,6 @@ if do_atlas_explorer:
                              apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
     end = datetime.utcnow()
     duration = end - start
-
-    print 'Total Atlas Explorer done in :',duration.seconds,'seconds'
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -517,8 +529,6 @@ if do_parallel_atlas_explorer:
        thumbN_size = thumbnail_size
     else:
        thumbN_size = None
-       #thumbN_size = thumbnail_size_global
-    #craz()
     from datetime import datetime
     start = datetime.utcnow()
     index += parallel_section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
@@ -738,7 +748,6 @@ if do_main_time_series:
         print 'ens_ts = ', ens_ts
         print 'p = ', p
         myplot = ts_plot(ens_ts, **p)
-        #cdrop(myplot)
         #
         # ==> -- Add the plot to the line
         # -----------------------------------------------------------------------------------------
@@ -787,11 +796,27 @@ if do_atmos_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     for model in Wmodels: model.update(dict(table='Amon'))
-    index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
+    #index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
+    #                         'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
+    #                         add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+    #                         add_line_of_climato_plots=add_line_of_climato_plots,
+    # 			      alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+    #                         apply_period_manager=apply_period_manager)
+    if do_parallel:
+       index += parallel_section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
                              'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
                              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                              add_line_of_climato_plots=add_line_of_climato_plots,
-			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             apply_period_manager=apply_period_manager)#, thumbnail_size=thumbN_size)
+    else:
+       index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
+                             'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
+                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                             add_line_of_climato_plots=add_line_of_climato_plots,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                             #thumbnail_size=thumbN_size,
+                             #ocean_variables=ocean_variables,
                              apply_period_manager=apply_period_manager)
 
 
@@ -1200,7 +1225,6 @@ if do_ATLAS_ZONALMEAN_SLICES:
                     index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
                 index+=close_line()+close_table()
 
-    index+=section("Zonal Means Sections with CDFtools per basin",level=4)
 
 
 
