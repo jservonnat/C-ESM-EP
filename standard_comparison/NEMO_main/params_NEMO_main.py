@@ -93,6 +93,11 @@ for my_season in liste_seasons :
                                                          IGCM_CMIP6 = dict(table = 'Omon'),
                                                         ),
                                     ))
+
+# -- Activate the parallel execution of the plots
+do_parallel=False
+
+
 #for var in ['to200', 'to1000', 'so200', 'so1000']:
 #    ocean_2D_variables.append (dict (variable=var, season='ANM'))
 remapping = True

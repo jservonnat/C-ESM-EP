@@ -54,9 +54,9 @@ if atCNRM :
 # -- Get user name
 username=getpass.getuser()
 if username=='fabric':
-   username2 = str.split(os.getcwd(),'/')[4]
+   user_login = str.split(os.getcwd(),'/')[4]
 else:
-   username2 = username
+   user_login = username
 
 # -- Def pysed
 def pysed(file, old_pattern, new_pattern):
@@ -98,14 +98,6 @@ allcomponents=['MainTimeSeries',
                'AtlasExplorer',
                'Essentials_CM6011_CM6012',
                'Monsoons',
-               'Atmosphere_Surface_DR_CMIP6',
-               'Atmosphere_StdPressLev_DR_CMIP6',
-               'Atmosphere_zonmean_DR_CMIP6',
-               'NEMO_main_DR_CMIP6',
-               'NEMO_depthlevels_DR_CMIP6',
-               'NEMO_zonmean_DR_CMIP6',
-               'NEMO_PISCES_DR_CMIP6',
-               'ENSO_DR_CMIP6',
                'ORCHIDEE_DR_CMIP6',
 ]
 
@@ -210,8 +202,8 @@ new_html = ''
 for new_html_line in new_html_lines: new_html = new_html+new_html_line+'\n'
 
 # -> Save as the html file that will be copied on the web server
-main_html='C-ESM-EP_'+comparison+'.html'
-with open(main_html,"w") as filout : filout.write(new_html)
+frontpage_html='C-ESM-EP_'+comparison+'.html'
+with open(frontpage_html,"w") as filout : filout.write(new_html)
 
 # -- 2/ Set the paths (one per requested component) and url for the html pages
 # -----------------------------------------------------------------------------------------
@@ -220,37 +212,49 @@ with open(main_html,"w") as filout : filout.write(new_html)
 atTGCC   = False
 onCiclad = False
 
-suffix = username+'/C-ESM-EP/'+comparison+'_'+username2+'/'
+from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs
+
+if not path_to_cesmep_output_rootdir_on_web_server:
+   path_to_cesmep_output_rootdir_on_web_server = path_to_cesmep_output_rootdir
+
+
+
+# -- C-ESM-EP tree from the C-ESM-EP output rootdir
+suffix_to_comparison = '/C-ESM-EP/'+comparison+'_'+user_login+'/'
+
+# -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
+#  -> path_to_comparison_outdir = path to the comparison directory (containing the frontpage and all atlas subdirectories)
+path_to_comparison_outdir = path_to_cesmep_output_rootdir + '/' + suffix_to_comparison
+
+# -- Path to the directories actually accessible from the web 
+path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + suffix_to_comparison
+
+# -- Path 
+
+
+
+# -- URL  to the comparison 
+comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
+
+
+
 if os.path.exists ('/ccc') and not os.path.exists ('/data')  :
     atTGCC   = True
-    wspace = None
-    base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
-    pathwebspace='/ccc/work/cont003/thredds/'
-    if '/drf/' in os.getcwd():
-       wspace='drf'
-       #base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'
-       #pathwebspace='/ccc/work/cont003/thredds/'
-    if '/gencmip6/' in os.getcwd():
-       wspace='gencmip6'
-       base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'
-       pathwebspace='/ccc/work/cont003/thredds/'
-    if not wspace: wspace = str.split(WD,'/')[str.split(WD,'/').index(username)-1]
-    outworkdir = '/ccc/work/cont003/'+wspace+'/'+suffix
-    if not os.path.isdir(outworkdir): os.makedirs(outworkdir)
+    # -- outworkdir = path to the work equivalent of the scratch
+    path_to_comparison_outdir_workdir_tgcc = str.replace(path_to_comparison_outdir,'scratch','work')
+    if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc): os.makedirs(path_to_comparison_outdir_workdir_tgcc)
+
 if 'ciclad' in os.uname()[1].strip().lower():
     onCiclad = True
-    base_url = 'https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/'
-    pathwebspace='/prodigfs/ipslfs/dods/'
+
 if os.path.exists('/cnrm'):
-    suffix = 'C-ESM-EP/'+comparison+'_'+username+'/'
-    from locations import workspace as pathwebspace,base_url,climaf_cache
+    atCNRM = True
+    from locations import climaf_cache
 
 
-root_url = base_url + suffix
-webspace = pathwebspace + suffix
-
-if not os.path.isdir(webspace):
-   os.makedirs(webspace)
+# -- Create the output directory for the comparison if they do not exist
+if not os.path.isdir(path_to_comparison_on_web_server):
+   os.makedirs(path_to_comparison_on_web_server)
 
 
 # -- 3/ Submit the jobs (one per requested component) 
@@ -263,16 +267,17 @@ for component in components:
        job_components.append(component)
 
 
+
 # -- Loop on the components and edit the html file with pysed
 if argument.lower() not in ['url']:
   for component in available_components:
     if component not in metrics_components:
-       url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       url = root_url+component+'/'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html'
     if onCiclad or atCNRM :
        if component in job_components:
-          atlas_pathfilename = str.replace(url, base_url, pathwebspace)
+          atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
           if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
              os.makedirs(os.path.dirname(atlas_pathfilename))
           # -- Copy an html template to say that the atlas is not yet available
@@ -283,7 +288,7 @@ if argument.lower() not in ['url']:
           pysed(atlas_pathfilename, 'target_comparison', comparison)
     if atTGCC:
        if component in job_components:
-          atlas_pathfilename = str.replace(url, base_url, outworkdir)
+          atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir_workdir_tgcc)
           if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
              os.makedirs(os.path.dirname(atlas_pathfilename))
           # -- Copy an html template to say that the atlas is not yet available
@@ -293,7 +298,7 @@ if argument.lower() not in ['url']:
           pysed(atlas_pathfilename, 'target_component', component)
           pysed(atlas_pathfilename, 'target_comparison', comparison)
           # 3. dods_cp
-          os.system('dods_cp '+atlas_pathfilename+' '+webspace+component)
+          os.system('dods_cp '+atlas_pathfilename+' '+path_to_comparison_on_web_server+component)
           pysed(atlas_pathfilename, 'target_comparison', comparison)
           pysed(atlas_pathfilename, 'target_comparison', comparison)
 
@@ -304,13 +309,18 @@ for component in job_components:
     # -- Define where the directory where the job is submitted
     submitdir = WD+'/'+comparison+'/'+component
     #
+    # -- Do we execute the code in parallel?
+    # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
+    do_parallel=False
+    execfile(submitdir+'/params_'+component+'.py')
+    #
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
-       url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       url = root_url+component+'/'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html' 
     if component in job_components:
-       atlas_pathfilename = str.replace(url, base_url, pathwebspace)
+       atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
     #
     # -- Build the command line that will submit the job
     # ---------------------------------------------------
@@ -337,10 +347,19 @@ for component in job_components:
           job_script = 'job_C-ESM-EP.sh'
           if 'NEMO' in component or 'Turbulent' in component or 'Essentials' in component or 'AtlasExplorer' in component:
              queue = 'days3 -l mem=30gb -l vmem=32gb'
-          if component in ['ParallelAtlasExplorer'] or 'NEMO_depthlevels' in component or 'NEMO_PISCES' in component: queue+=' -l nodes=1:ppn=32' 
+          #
+          # -- If the user specified do_parallel=True in parameter file, we ask for one node and 32 cores
+          if do_parallel:
+             if 'wmem=' in queue:
+                queue+=' -l nodes=1:ppn=32'
+             else:
+                queue+=' -l mem=20gb -l vmem=22gb -l nodes=1:ppn=32'
+          #
+          #if component in ['ParallelAtlasExplorer'] or 'NEMO_depthlevels' in component or 'NEMO_PISCES' in component: queue+=' -l nodes=1:ppn=32' 
        else:
-          job_script = 'job_PMP_C-ESM-EP.sh'
           # -- ... and for the parallel coordinates, we do that.
+          job_script = 'job_PMP_C-ESM-EP.sh'
+       #   
        cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
     if atCNRM:
@@ -374,7 +393,6 @@ for component in job_components:
     # -- Otherwise it submits the jobs
     # ----------------------------------------------------------------------------------------------------------------------------
     if argument.lower() not in ['url']:
-       #print cmd
        os.system(cmd)
        jobfile=comparison+"/"+component+"/job.in"
        with open(jobfile,"w") as job : job.write(cmd)
@@ -388,43 +406,43 @@ for component in job_components:
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
     if component not in metrics_components:
-       url = root_url+component+'/atlas_'+component+'_'+comparison+'.html'
+       url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       url = root_url+component+'/'+component+'_'+comparison+'.html'
-    pysed(main_html, 'target_'+component, url)
+       url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html'
+    pysed(frontpage_html, 'target_'+component, url)
 
 # -- Edit the comparison name
-pysed(main_html, 'target_comparison', comparison)
+pysed(frontpage_html, 'target_comparison', comparison)
 
 # -- Copy the edited html front page
 if atTGCC:
-   cmd1 = 'cp '+main_html+' '+outworkdir ; print cmd1 ; os.system(cmd1)
-   cmd = 'dods_cp '+outworkdir+main_html+' '+webspace+' ; rm '+main_html
+   cmd1 = 'cp '+frontpage_html+' '+path_to_comparison_outdir_workdir_tgcc ; print cmd1 ; os.system(cmd1)
+   cmd = 'dods_cp '+path_to_comparison_outdir_workdir_tgcc+frontpage_html+' '+path_to_comparison_on_web_server+' ; rm '+main_html
 
-if onCiclad or atCNRM : cmd = 'mv -f '+main_html+' '+webspace
+if onCiclad or atCNRM : cmd = 'mv -f '+frontpage_html+' '+path_to_comparison_on_web_server
 os.system(cmd)
 
 # -- Copy the top image
-if not os.path.isfile(webspace+'/CESMEP_bandeau.png'):
+if not os.path.isfile(path_to_comparison_on_web_server+'/CESMEP_bandeau.png'):
    if atTGCC:
-      os.system('cp share/fp_template/CESMEP_bandeau.png '+outworkdir)
-      cmd='dods_cp '+outworkdir+'CESMEP_bandeau.png '+webspace
-   if onCiclad or atCNRM : cmd='cp -f share/fp_template/CESMEP_bandeau.png '+webspace
+      os.system('cp share/fp_template/CESMEP_bandeau.png '+path_to_comparison_outdir_workdir_tgcc)
+      cmd='dods_cp '+path_to_comparison_outdir_workdir_tgcc+'CESMEP_bandeau.png '+path_to_comparison_on_web_server
+   if onCiclad or atCNRM : cmd='cp -f share/fp_template/CESMEP_bandeau.png '+path_to_comparison_on_web_server
    os.system(cmd)
 
 
 
 # -- Final: Print the final message with the address of the C-ESM-EP front page
 # -----------------------------------------------------------------------------------------
-address=root_url+main_html
+frontpage_address=comparison_url+frontpage_html
 
 
 print ''
-print '-- The CliMAF ESM Evaluation Platform atlas will be available here: '
+print '-- The CliMAF ESM Evaluation Platform atlas is available here: '
 print '--'
-print '--   '+address
+print '--   '+frontpage_address
 print '--'
 print '--'
 print '-- html file can be seen here: '
-print '-- '+webspace+main_html
+print '-- '+path_to_comparison_on_web_server+frontpage_html
 

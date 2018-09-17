@@ -104,7 +104,7 @@ for var in atmos_variables:
 
 
 # -- Activate the parallel execution of the plots
-do_parallel=True
+do_parallel=False
 
 
 period_manager_test_variable = 'ua'

@@ -31,7 +31,7 @@ from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = False
+safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 # -- Patterns to clean the cache at the end of the execution of the atlas

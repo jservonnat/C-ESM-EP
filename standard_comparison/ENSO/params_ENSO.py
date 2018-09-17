@@ -66,6 +66,14 @@ domain = {}
 # -- ENSO - CLIVAR
 # ---------------------------------------------------------------------------- >
 do_ENSO_CLIVAR  = True    # -> Same for the seasonal averages in the tropics
+do_ENSO_CLIVAR_sstanino3_timeseries = True
+do_ENSO_CLIVAR_SSTA_std_maps = True
+do_ENSO_CLIVAR_pr_climatology_maps = True
+do_ENSO_CLIVAR_tauu_climatology_maps = True
+do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps = True
+do_ENSO_CLIVAR_linearRegression_drsds_dsstanino3_maps = True
+do_ENSO_CLIVAR_SSTA_annualcycles = True
+do_ENSO_CLIVAR_longitudinal_profile_tauu = True
 
 period_manager_test_variable = 'tos'
 

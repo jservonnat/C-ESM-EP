@@ -93,7 +93,7 @@ for var in atmos_variables_list:
                                     ))
 
 # -- Activate the parallel execution of the plots
-do_parallel=True
+do_parallel=False
 
 
 # ---------------------------------------------------------------------------- >

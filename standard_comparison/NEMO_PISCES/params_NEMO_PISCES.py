@@ -71,16 +71,21 @@ domain = {}
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
 do_biogeochemistry_2D_maps = True
-ocebio_2D_variables        = ["NO3_surf", "PO4_surf", "Si_surf", "O2_surf",
+ocebio_2D_variables_list   = ["NO3_surf", "PO4_surf", "Si_surf", "O2_surf",
                               "NO3_300m", "PO4_300m", "Si_300m", "O2_300m",
                               "NO3_1000m", "PO4_1000m", "Si_1000m", "O2_1000m",
                               "NO3_2500m", "PO4_2500m", "Si_2500m", "O2_2500m"]
-#                                    project_specs = dict(
-#                                                         CMIP5      = dict(table = 'Amon'),
-#                                                         IGCM_OUT   = dict(DIR   = 'ATM'),
-#                                                         IGCM_CMIP6 = dict(table = 'Amon'),
-#                                                        ),
-#                                    ))
+ocebio_2D_variables = []
+for var in ocebio_2D_variables_list:
+    ocebio_2D_variables.append(dict(variable=var,
+                                       project_specs = dict(
+                                                            CMIP5      = dict(table = 'Omon'),
+                                                            CMIP6      = dict(table = 'Omon', grid='gn'),
+                                                            IGCM_OUT   = dict(DIR   = 'OCE'),
+                                                            IGCM_CMIP6 = dict(table = 'Omon'),
+                                                           )
+                                    ))
+
 period_manager_test_variable = 'NO3_surf'
 
 # -- Activate the parallel execution of the plots

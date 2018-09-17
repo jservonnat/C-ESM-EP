@@ -30,7 +30,7 @@ from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = False
+safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
@@ -94,6 +94,7 @@ period_manager_test_variable = 'to'
 
 # -- Activate the parallel execution of the plots
 do_parallel=True
+
 # ---------------------------------------------------------------------------- >
 
 
