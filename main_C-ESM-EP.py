@@ -1386,7 +1386,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_SSTA_std_maps:
+    if do_ENSO_CLIVAR_SSTA_std_maps:
        # -- Standard deviation of SST anomalies (departures from annual cycle ---------------
        # -- Upper band at the top of the section
        line_title = 'Standard Deviation of SST anomalies (deviations from annual cycle)'
@@ -1401,7 +1401,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_pr_climatology_maps:
+    if do_ENSO_CLIVAR_pr_climatology_maps:
        # -- Precipitation climatology over 'ENSO' domain ------------------------------------
        line_title = 'Annual Mean Climatology of Precipitation'
        index+=start_line(line_title)
@@ -1417,7 +1417,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_tauu_climatology_maps:
+    if do_ENSO_CLIVAR_tauu_climatology_maps:
        # -- Zonal Wind stress climatology over 'ENSO' domain -------------------------------
        line_title = 'Annual Mean Climatology of Zonal Wind Stress'
        index+=start_line(line_title)
@@ -1432,7 +1432,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps:
+    if do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps:
        # -- Map of linear regression coefficients = d(Zonal Wind Stress) / d(SSTA Nino3) ----
        line_title = 'Linear Regression = d(Zonal Wind Stress) / d(SSTA Nino3)'
        index+=start_line(line_title)
@@ -1450,7 +1450,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_linearRegression_drsds_dsstanino3_maps:
+    if do_ENSO_CLIVAR_linearRegression_drsds_dsstanino3_maps:
        # -- Map of linear regression coefficients = d(ShortWave) / d(SSTA Nino3) ----------
        line_title = 'Linear Regression = d(ShortWave) / d(SSTA Nino3)'
        index+=start_line(line_title)
@@ -1468,7 +1468,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_SSTA_annualcycles:
+    if do_ENSO_CLIVAR_SSTA_annualcycles:
        # -- Annual Cycles -----------------------------------------------------------------
        line_title = 'Annual cycles Nino3 (SST, SSTA, Std.dev)'
        index+=start_line(line_title)
@@ -1484,7 +1484,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_longitudinal_profile_tauu:
+    if do_ENSO_CLIVAR_longitudinal_profile_tauu:
        # -- Longitudinal profile of Zonal Wind Stress --------------------------------------
        line_title = 'Annual Mean Climatology of Zonal Wind Stress (-5/5N profile)'
        index+=start_line(line_title)
