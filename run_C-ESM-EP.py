@@ -313,7 +313,7 @@ for component in job_components:
     # -- Do we execute the code in parallel?
     # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
     do_parallel=False
-    execfile(submitdir+'/params_'+component+'.py')
+    #execfile(submitdir+'/params_'+component+'.py')
     #
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
