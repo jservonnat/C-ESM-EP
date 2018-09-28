@@ -1,7 +1,7 @@
 from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
-from LMDZ_SE_atlas.lmdz_SE import *
+#from LMDZ_SE_atlas.lmdz_SE import *
 from time_manager import *
 from climaf.site_settings import atTGCC, onCiclad
 from climaf import __path__ as cpath
@@ -33,6 +33,12 @@ def start_line(title):
     tmpindex += open_table()
     tmpindex += open_line()
     return tmpindex
+
+def is3d(variable) :
+    if variable in ['ta','ua','va','hus','hur','wap','cl','clw','cli','mc','tro3','vitu', 'vitv', 'vitw','geop','temp'] :
+        return True
+    return False
+
 
 
 
