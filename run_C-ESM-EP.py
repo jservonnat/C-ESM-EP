@@ -129,6 +129,7 @@ else:
       components=allcomponents
 
 
+
 # -- 1.1/ Prepare the html template
 # --      => add the modules available in the comparison directory
 # -----------------------------------------------------------------------------------------
@@ -353,7 +354,7 @@ for component in job_components:
              if 'wmem=' in queue:
                 queue+=' -l nodes=1:ppn=32'
              else:
-                queue+=' -l mem=20gb -l vmem=22gb -l nodes=1:ppn=32'
+                queue+=' -l mem=30gb -l vmem=32gb -l nodes=1:ppn=32'
           #
           #if component in ['ParallelAtlasExplorer'] or 'NEMO_depthlevels' in component or 'NEMO_PISCES' in component: queue+=' -l nodes=1:ppn=32' 
        else:

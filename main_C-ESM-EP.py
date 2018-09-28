@@ -451,33 +451,28 @@ if do_atlas_explorer:
     else:
        thumbN_size = None
 
+    # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
+                  section_title='Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
     if do_parallel:
-       index += parallel_section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
-                             'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+       index += parallel_section(section_2D_maps, **kwargs)
     else:
-       index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
-                             'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbN_size,
-                             #ocean_variables=ocean_variables,
-                             apply_period_manager=apply_period_manager)
+       index += section_2D_maps(**kwargs)
 
-
+   
     if atlas_explorer_climato_variables:
-       index += section_climato_2D_maps(Wmodels, reference, proj, season, atlas_explorer_climato_variables,
-                             'Atlas Explorer Climatologies', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
-    end = datetime.utcnow()
-    duration = end - start
-
+       # -- Update kwargs accordingly
+       kwargs.pop('add_line_of_climato_plots')
+       kwargs.update(dict(variables=atlas_explorer_climato_variables, section_title='Atlas Explorer Climatologies'))
+       #
+       if do_parallel:
+          index += parallel_section(section_climato_2D_maps, **kwargs)
+       else:
+          index += section_climato_2D_maps(**kwargs)
 
 
 
@@ -575,15 +570,8 @@ if do_main_time_series:
        WWmodels_clim = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     #
-    # -- Remove CMIP5 models
     WTSmodels = copy.deepcopy(WWmodels_ts)
-    #for model in WTSmodels:
-    #    if model['project'] in 'CMIP5':
-    #       WWmodels_ts.remove(model)
     WCLIMmodels = copy.deepcopy(WWmodels_clim)
-    #for model in WCLIMmodels:
-    #    if model['project'] in 'CMIP5':
-    #       WWmodels_clim.remove(model)
 
     #
     # -- Loop on the time series specified in the params file
@@ -731,22 +719,17 @@ if do_atmos_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     for model in Wmodels: model.update(dict(table='Amon'))
+    # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atmos_variables,
+                  section_title='Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  apply_period_manager=apply_period_manager)
     if do_parallel:
-       index += parallel_section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
-                             'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager)#, thumbnail_size=thumbN_size)
+       index += parallel_section(section_2D_maps, **kwargs)
     else:
-       index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
-                             'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             #thumbnail_size=thumbN_size,
-                             #ocean_variables=ocean_variables,
-                             apply_period_manager=apply_period_manager)
+       index += section_2D_maps(**kwargs)
 
 
 
@@ -795,23 +778,18 @@ if do_ocean_2D_maps:
        thumbN_size = thumbnail_size
     else:
        thumbN_size = thumbnail_size_global
-    #
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=ocean_2D_variables,
+                  section_title='Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  thumbnail_size=thumbN_size,
+                  ocean_variables=ocean_variables,
+                  apply_period_manager=apply_period_manager)
     if do_parallel:
-       index += parallel_section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables,
-                             'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+       index += parallel_section(section_2D_maps, **kwargs)
     else:
-       index += section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables, 
-                             'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-      	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbN_size,
-                             ocean_variables=ocean_variables,
-                             apply_period_manager=apply_period_manager)
+       index += section_2D_maps(**kwargs)
 
 
 
@@ -1114,7 +1092,6 @@ if do_ATLAS_VERTICAL_PROFILES:
 # -- Plotting the Zonal Mean Slices                                                     -- #
 if do_ATLAS_ZONALMEAN_SLICES:
 
-    index+=section("Zonal Means Sections per ocean basin --> Model regridded on reference (before computing the zonal mean)",level=4)
     # Loop over variables
     # -- Period Manager
     if not use_available_period_set:
@@ -1125,30 +1102,16 @@ if do_ATLAS_ZONALMEAN_SLICES:
        apply_period_manager = False
     # -- Add table
     for model in Wmodels: model.update(dict(table='Omon', grid='gn'))
-    for variable in zonmean_slices_variables:
-        # Loop over seasons
-        for season in zonmean_slices_seas:
-            index+=open_table()+open_line(variable+"-"+season)+close_line()+close_table()
-            for basin in zonmean_slices_basins:
-                ## -- Model Grid
-                index+=start_line(title_region(basin)+' '+varlongname(variable)+' ('+variable+')')
-                if reference=='default':
-                   ref = variable2reference(variable, my_obs=custom_obs_dict)
-                else:
-                   ref = reference.copy()
-                basin_zonmean_modelgrid = zonal_mean_slice2(ref, variable, basin=basin, season=season,
-                                                ref=None, safe_mode=safe_mode, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
-                                                apply_period_manager=apply_period_manager)
-                index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
-                for model in Wmodels:
-                    basin_zonmean_modelgrid = zonal_mean_slice2(model, variable, basin=basin, season=season,
-                                                ref=ref, safe_mode=safe_mode, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
-                                                apply_period_manager=apply_period_manager)
-                    index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
-                index+=close_line()+close_table()
-
+    kwargs = dict(models=Wmodels,reference=reference,zonmean_slices_variables=zonmean_slices_variables,
+                  zonmean_slices_basins=zonmean_slices_basins,zonmean_slices_seas=zonmean_slices_seas,
+                  custom_plot_params=custom_plot_params, apply_period_manager=apply_period_manager, custom_obs_dict=custom_obs_dict,
+                  safe_mode=safe_mode, y=y, thumbsize_zonalmean=thumbsize_zonalmean, do_parallel=do_parallel,
+                  hover=hover, alternative_dir=alternative_dir)
+    if do_parallel:
+       index += parallel_section(section_zonalmean_slices, **kwargs)
+    else:
+       index += section_zonalmean_slices(**kwargs)
+    
 
 
 
@@ -1386,7 +1349,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_SSTA_std_maps:
+    if do_ENSO_CLIVAR_SSTA_std_maps:
        # -- Standard deviation of SST anomalies (departures from annual cycle ---------------
        # -- Upper band at the top of the section
        line_title = 'Standard Deviation of SST anomalies (deviations from annual cycle)'
@@ -1401,7 +1364,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_pr_climatology_maps:
+    if do_ENSO_CLIVAR_pr_climatology_maps:
        # -- Precipitation climatology over 'ENSO' domain ------------------------------------
        line_title = 'Annual Mean Climatology of Precipitation'
        index+=start_line(line_title)
@@ -1417,7 +1380,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_tauu_climatology_maps:
+    if do_ENSO_CLIVAR_tauu_climatology_maps:
        # -- Zonal Wind stress climatology over 'ENSO' domain -------------------------------
        line_title = 'Annual Mean Climatology of Zonal Wind Stress'
        index+=start_line(line_title)
@@ -1432,7 +1395,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps:
+    if do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps:
        # -- Map of linear regression coefficients = d(Zonal Wind Stress) / d(SSTA Nino3) ----
        line_title = 'Linear Regression = d(Zonal Wind Stress) / d(SSTA Nino3)'
        index+=start_line(line_title)
@@ -1450,7 +1413,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_linearRegression_drsds_dsstanino3_maps:
+    if do_ENSO_CLIVAR_linearRegression_drsds_dsstanino3_maps:
        # -- Map of linear regression coefficients = d(ShortWave) / d(SSTA Nino3) ----------
        line_title = 'Linear Regression = d(ShortWave) / d(SSTA Nino3)'
        index+=start_line(line_title)
@@ -1468,7 +1431,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_SSTA_annualcycles:
+    if do_ENSO_CLIVAR_SSTA_annualcycles:
        # -- Annual Cycles -----------------------------------------------------------------
        line_title = 'Annual cycles Nino3 (SST, SSTA, Std.dev)'
        index+=start_line(line_title)
@@ -1484,7 +1447,7 @@ if do_ENSO_CLIVAR:
        close_line()
        index+=close_table()
        #
-   if do_ENSO_CLIVAR_longitudinal_profile_tauu:
+    if do_ENSO_CLIVAR_longitudinal_profile_tauu:
        # -- Longitudinal profile of Zonal Wind Stress --------------------------------------
        line_title = 'Annual Mean Climatology of Zonal Wind Stress (-5/5N profile)'
        index+=start_line(line_title)
@@ -2277,22 +2240,34 @@ if do_biogeochemistry_2D_maps:
        apply_period_manager = False
     # -- Add table
     for model in Wmodels: model.update(dict(table='Omon'))
+    #if do_parallel:
+    #   index += parallel_section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
+    #                         'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
+    #                         add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+    #                         add_line_of_climato_plots=add_line_of_climato_plots,
+    #                         alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+    #                         apply_period_manager=apply_period_manager)#, thumbnail_size=thumbN_size)
+    #else:
+    #   index += section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
+    #                         'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
+    #                         add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+    #                         add_line_of_climato_plots=add_line_of_climato_plots,
+    #                         alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+    #                         #thumbnail_size=thumbN_size,
+    #                         ocean_variables=ocean_variables,
+    #                         apply_period_manager=apply_period_manager)
+    #
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=ocebio_2D_variables,
+                  section_title='Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  ocean_variables=ocean_variables,
+                  apply_period_manager=apply_period_manager)
     if do_parallel:
-       index += parallel_section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
-                             'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager)#, thumbnail_size=thumbN_size)
+       index += parallel_section(section_2D_maps, **kwargs)
     else:
-       index += section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
-                             'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             #thumbnail_size=thumbN_size,
-                             ocean_variables=ocean_variables,
-                             apply_period_manager=apply_period_manager)
+       index += section_2D_maps(**kwargs)
 
 
 
