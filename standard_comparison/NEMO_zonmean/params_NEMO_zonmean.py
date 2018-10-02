@@ -37,6 +37,11 @@ safe_mode = True
 clean_cache = 'False'
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar', age='+10')]
+# -- Parallel and memory instructions
+do_parallel = True
+nprocs = 32
+memory = 30 # in gb; 30 for ocean atlasas
+queue = 'days3' # onCiclad: h12, days3
 
 
 
