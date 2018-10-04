@@ -1,13 +1,4 @@
-from climaf.api import *
-#from climaf.html import *
-#from reference import variable2reference
-from CM_atlas.plot_CM_atlas import *
-#from time_manager import *
-#from climaf.site_settings import atTGCC, onCiclad, atCNRM
-#from climaf import __path__ as cpath
-#import os
-#from climaf import cachedir
-
+from climaf.cache import csync
 from joblib import Parallel, delayed
 import multiprocessing
 
@@ -33,7 +24,6 @@ def parallel_section(section, **kwargs):
     r = Parallel(n_jobs=num_cores)(delayed(safe_mode_cfile_plot)(climaf_crs) for climaf_crs in plots_crs)
     #
     # -- Synchronize the cache after parallel computation
-    from climaf.cache import csync
     csync(True)
     #
     wkwargs.update(dict(do_cfile=True))
