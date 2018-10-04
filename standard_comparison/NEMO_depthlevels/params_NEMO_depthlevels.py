@@ -36,6 +36,11 @@ clean_cache = 'False'
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
 #    to crm() at the end of the atlas (for a routine cache management)
 routine_cache_cleaning = [dict(access='+20'), dict(access='+10', pattern='oneVar')]
+# -- Parallel and memory instructions
+do_parallel = True
+nprocs = 32
+memory = 30 # in gb; 30 for ocean atlasas
+queue = 'days3' # onCiclad: h12, days3
 
 
 

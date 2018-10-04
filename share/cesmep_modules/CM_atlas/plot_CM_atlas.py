@@ -1,7 +1,6 @@
 from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
-from LMDZ_SE_atlas.lmdz_SE import *
 from time_manager import *
 from climaf import __path__ as cpath
 import os
@@ -26,6 +25,12 @@ def start_line(title):
     tmpindex += open_table()
     tmpindex += open_line()
     return tmpindex
+
+def is3d(variable) :
+    if variable in ['ta','ua','va','hus','hur','wap','cl','clw','cli','mc','tro3','vitu', 'vitv', 'vitw','geop','temp'] :
+        return True
+    return False
+
 
 
 
@@ -248,8 +253,12 @@ def plot_climato(var, dat, season, proj='GLOB', domain={}, custom_plot_params={}
        if 'mon' in table: wfreq = 'monthly'
        if 'yr' in table: wfreq = 'yearly'
        if 'day' in table: wfreq = 'daily'
-       if '3hr' in table: wfreq = '3hourly' 
-       wdat.update(dict(frequency=wfreq))
+       if '3hr' in table: wfreq = '3hourly'
+       if 'frequency' in wdat:
+          if wdat['frequency'] not in ['seasonal','annual_cycle']:
+             wdat.update(dict(frequency=wfreq))
+       else:
+             wdat.update(dict(frequency=wfreq))
     if realm: wdat.update(dict(realm=realm))
 
     # -- project_specs
@@ -553,7 +562,11 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
        if 'yr' in table: wfreq = 'yearly'
        if 'day' in table: wfreq = 'daily'
        if '3hr' in table: wfreq = '3hourly'
-       wmodel.update(dict(frequency=wfreq))
+       if 'frequency' in wmodel:
+          if wmodel['frequency'] not in ['seasonal','annual_cycle']:
+             wmodel.update(dict(frequency=wfreq))
+       else:
+             wmodel.update(dict(frequency=wfreq))
     if realm: wmodel.update(dict(realm=realm))
     #
     # -- Reference
@@ -870,13 +883,20 @@ thumbnail_size_3d="250*250"
 
 # -- Function to produce a section of 2D maps (both atmosphere and ocean variables)
 # -----------------------------------------------------------------------------------
-def section_2D_maps(models, reference, proj, season, variables, section_title, domain,
+
+def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variables=[],
+                    section_title='Climatology (ref) and bias maps', domain=dict(),
                     safe_mode=True, add_product_in_title=True, shade_missing=False, zonmean_variable=False, ocean_variables=ocean_variables,
                     custom_plot_params={}, custom_obs_dict={}, alternative_dir={}, add_line_of_climato_plots=False, thumbnail_size=None,
-                    apply_period_manager=True):
+                    apply_period_manager=True, do_cfile=True):
     #
     # -- Upper band at the top of the section
-    index = section(section_title, level=4)
+    if do_cfile:
+      index = section(section_title, level=4)
+    else:
+      plots_crs = []
+    #
+    #
     #
     # -- Loop on the atmospheric variables (can also include ocean variables)
     for var in variables:
@@ -930,8 +950,11 @@ def section_2D_maps(models, reference, proj, season, variables, section_title, d
               frequency_manager_for_diag(ref, diag='SE')
               get_period_manager(ref)
            #
+           print 'custom_obs_dict = ',custom_obs_dict
+           print 'ref in plot_climato = ', ref
            # -- Open the html table of this section
-           index += open_table()
+           if do_cfile:
+              index += open_table()
            #
            # -- Start the line with the title
            if not line_title:
@@ -939,11 +962,14 @@ def section_2D_maps(models, reference, proj, season, variables, section_title, d
            else:
               wline_title = line_title
            # -- Add the reference to the title of the line:
-           wline_title+=' ; REF = '+build_plot_title(ref, None)
-           index += open_line(wline_title) + close_line()+ close_table()
+           # --> if we do_cfile, it means that we actually build the html page
+           #     If not, we are gathering the crs of all the plots to execute them in parallel
+           if do_cfile:
+             wline_title+=' ; REF = '+build_plot_title(ref, None)
+             index += open_line(wline_title) + close_line()+ close_table()
+             index += open_table()
+             index += open_line('')
            #
-           index += open_table()
-           index += open_line('')
            #
            # -- Set the size of the thumbnail
            # -> If we look at a polar stereographic projection, we set thumbN_size to thumbnail_polar_size (from params.py)
@@ -961,54 +987,75 @@ def section_2D_maps(models, reference, proj, season, variables, section_title, d
            print 'Computing climatology map for '+variable+' '+proj+' '+season+' of ', ref
            ref_climato   = plot_climato(var, ref, season, proj=proj, domain=domain, custom_plot_params=custom_plot_params,
                                         ocean_variables=ocean_variables,
-                                        safe_mode=safe_mode, shade_missing=shade_missing, apply_period_manager=apply_period_manager)
+                                        shade_missing=shade_missing, apply_period_manager=apply_period_manager,
+                                        safe_mode=safe_mode, do_cfile=do_cfile)
            print 'ref_climato = ',ref_climato
-           index+=cell("", ref_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+           if do_cfile:
+              print 'alternative_dir = ',alternative_dir
+              index+=cell("", ref_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+           else:
+              plots_crs.append(ref_climato)
            #
            # -- Loop on the models and compute the difference against the reference
            for model in models:
                wmodel = model.copy()
-               #if 'CMIP' in wmodel['project']:
-               #   if gr: wmodel.update(dict(gr=gr))
-               #   if table: wmodel.update(dict(table=table))
                print 'Computing bias map for '+variable+' '+proj+' '+season+' of ', model
                model_diff = plot_diff(var, wmodel, ref, season, proj=proj, domain=domain, custom_plot_params=custom_plot_params,
                                       ocean_variables=ocean_variables,
                                       safe_mode=safe_mode, add_product_in_title=add_product_in_title, shade_missing=shade_missing,
-                                      apply_period_manager=apply_period_manager)#, remapping=remapping)
-               index+=cell("", model_diff, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+                                      apply_period_manager=apply_period_manager, do_cfile=do_cfile)#, remapping=remapping)
+               if do_cfile:
+                  index+=cell("", model_diff, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+               else:
+                  plots_crs.append(model_diff)
            #
            # -- Close the line
-           close_line()
-           index += close_table()
+           if do_cfile:
+              close_line()
+              index += close_table()
         #
         # -- Add a line with the climatology plots
         if add_line_of_climato_plots:
-           index+= open_table() + open_line('')
-           # -- Add a blank space to match the columns
-           index+=cell("", blank_cell, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+           if do_cfile:
+             index+= open_table() + open_line('')
+             # -- Add a blank space to match the columns
+             index+=cell("", blank_cell, thumbnail=thumbN_size, hover=hover, **alternative_dir)
            for model in models:
                climato_plot = plot_climato(var, model, season, proj=proj, domain=domain, custom_plot_params=custom_plot_params,
                                            ocean_variables=ocean_variables,
-                                           safe_mode=safe_mode, shade_missing=shade_missing, apply_period_manager=apply_period_manager)
-               index+=cell("", climato_plot, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-           close_line()
-           index += close_table()
+                                           safe_mode=safe_mode, shade_missing=shade_missing,
+                                           apply_period_manager=apply_period_manager, do_cfile=do_cfile)
+               if do_cfile:
+                  index+=cell("", climato_plot, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+               else:
+                  plots_crs.append(climato_plot)
+           #
+           #
+           if do_cfile:
+              close_line()
+              index += close_table()
     #
     # -- Close the table of the section
-    return index
+    if do_cfile:
+       return index
+    else:
+       return plots_crs
 
 
 
 # -- Function to produce a section of 2D maps climatologies (both atmosphere and ocean variables)
 # -----------------------------------------------------------------------------------
-def section_climato_2D_maps(models, reference, proj, season, variables, section_title, domain,
-                    safe_mode=True, add_product_in_title=True, shade_missing=False, zonmean_variable=False,
-                    custom_plot_params={}, custom_obs_dict={}, alternative_dir={}, add_line_of_climato_plots=False,
+def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variables=[],
+                    section_title='Climatologies', domain=dict(),
+                    safe_mode=True, do_cfile=True, add_product_in_title=True, shade_missing=False, zonmean_variable=False,
+                    custom_plot_params={}, custom_obs_dict={}, alternative_dir={},
                     apply_period_manager=True, thumbnail_size=None):
     #
     # -- Upper band at the top of the section
-    index = section(section_title, level=4)
+    if do_cfile:
+      index = section(section_title, level=4)
+    else:
+      plots_crs = []
     #
     # -- Loop on the atmospheric variables (can also include ocean variables)
     for var in variables:
@@ -1050,7 +1097,7 @@ def section_climato_2D_maps(models, reference, proj, season, variables, section_
                         else:
                            ref.pop('variable')
                            var_references.append(ref)
-                         
+
         #
         for wref in var_references:
            #
@@ -1097,9 +1144,14 @@ def section_climato_2D_maps(models, reference, proj, season, variables, section_
            print 'Computing climatology map for '+variable+' '+proj+' '+season+' of ', ref
            ref_climato   = plot_climato(var, ref, season, proj=proj, domain=domain, custom_plot_params=custom_plot_params,
                                         ocean_variables=ocean_variables,
-                                        safe_mode=safe_mode, shade_missing=shade_missing)
+                                        safe_mode=safe_mode, do_cfile=do_cfile, shade_missing=shade_missing)
+           #
+           # -- if do_cfile, we return the index; if do_cfile=False, add the CRS of the plot to plots_crs
            print 'ref_climato = ',ref_climato
-           index+=cell("", ref_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+           if do_cfile:
+              index+=cell("", ref_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+           else:
+              plots_crs.append(ref_climato)
            #
            # -- Loop on the models and compute the difference against the reference
            for model in models:
@@ -1107,14 +1159,23 @@ def section_climato_2D_maps(models, reference, proj, season, variables, section_
                model_climato = plot_climato(var, model, season, proj=proj, domain=domain, custom_plot_params=custom_plot_params,
                                             ocean_variables=ocean_variables,
                                             safe_mode=safe_mode, shade_missing=shade_missing, apply_period_manager=apply_period_manager)
-               index+=cell("", model_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+               # -- if do_cfile, we return the index; if do_cfile=False, add the CRS of the plot to plots_crs
+               if do_cfile:
+                  index+=cell("", model_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+               else:
+                  plots_crs.append(model_climato)
            #
            # -- Close the line
            close_line()
            index += close_table()
     #
-    # -- Close the table of the section
-    return index
+    # -- if do_cfile, we return the complete index; if do_cfile=False, we return plots_crs for a parallel execution
+    if do_cfile:
+       # -- Close the table of the section
+       return index
+    else:
+       return plots_crs
+
 
 
 

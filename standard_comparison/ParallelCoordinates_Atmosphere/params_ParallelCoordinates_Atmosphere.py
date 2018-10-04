@@ -41,7 +41,6 @@ from getpass import getuser
 # -- Get the parameters that the atlas takes as arguments
 # -----------------------------------------------------------------------------------
 datasets_setup         = "datasets_setup.py"
-comparison             = None
 image_size             = None
 legend_ratio           = None
 sort                   = 'TRUE'

@@ -38,6 +38,11 @@ safe_mode = True
 clean_cache = 'False'
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
+# -- Parallel and memory instructions
+do_parallel = False
+nprocs = 32
+#memory = 20 # in gb
+#queue = 'days3'
 
 
 # -- Set the reference against which we plot the diagnostics 

@@ -129,6 +129,7 @@ else:
       components=allcomponents
 
 
+
 # -- 1.1/ Prepare the html template
 # --      => add the modules available in the comparison directory
 # -----------------------------------------------------------------------------------------
@@ -305,14 +306,27 @@ if argument.lower() not in ['url']:
 
 # -- Submit the jobs
 for component in job_components:
-    print '  -- component = ',component,
+    print '  -- component = ',component
     # -- Define where the directory where the job is submitted
     submitdir = WD+'/'+comparison+'/'+component
     #
     # -- Do we execute the code in parallel?
     # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
     do_parallel=False
-    execfile(submitdir+'/params_'+component+'.py')
+    nprocs = '32'
+    memory = None
+    queue = None
+    param_filename = open(submitdir+'/params_'+component+'.py')
+    param_lines = param_filename.readlines()
+    for param_line in param_lines:
+        if 'do_parallel' in param_line and param_line[0]!='#':
+           if 'True' in param_line: do_parallel = True
+        if 'nprocs' in param_line and param_line[0]!='#':
+           nprocs = str.split(str.split(str.replace(param_line,' ',''),'=')[1], '#')[0]
+        if 'memory' in param_line and param_line[0]!='#':
+           memory = str.split(str.split(str.replace(param_line,' ',''),'=')[1], '#')[0]
+        if 'queue' in param_line and param_line[0]!='#':
+           queue  = str.split(str.split(str.replace(param_line,' ',''),'=')[1], '#')[0]
     #
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
@@ -337,30 +351,52 @@ for component in job_components:
     #
     # -- Case onCiclad
     if onCiclad:
+       # -- Start the job_options variables: a string that will contain all the job options
+       #    to be passed to qsub
+       job_options = ''
+       #
        # -- For all the components but for the parallel coordinates, we do this...
        if email:
           add_email = ' -m e -M '+email
-       else:
-          add_email = ''
-       queue = 'h12'
+          # -- add it to job_options
+          job_options += add_email
+       # 
+       # -- Set the queue
+       if not queue: queue = 'h12'
+       # -- add it to job_options
+       job_options += ' -q '+queue
+       print '    -> queue = '+queue
+       #
+       # -- Specify the job script (only for Parallel coordinates) 
        if component not in metrics_components:
           job_script = 'job_C-ESM-EP.sh'
-          if 'NEMO' in component or 'Turbulent' in component or 'Essentials' in component or 'AtlasExplorer' in component:
-             queue = 'days3 -l mem=30gb -l vmem=32gb'
-          #
-          # -- If the user specified do_parallel=True in parameter file, we ask for one node and 32 cores
-          if do_parallel:
-             if 'wmem=' in queue:
-                queue+=' -l nodes=1:ppn=32'
-             else:
-                queue+=' -l mem=20gb -l vmem=22gb -l nodes=1:ppn=32'
-          #
-          #if component in ['ParallelAtlasExplorer'] or 'NEMO_depthlevels' in component or 'NEMO_PISCES' in component: queue+=' -l nodes=1:ppn=32' 
        else:
-          # -- ... and for the parallel coordinates, we do that.
           job_script = 'job_PMP_C-ESM-EP.sh'
-       #   
-       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+add_email+' -q '+queue+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+       #
+       # -- Set the memory (if provided by the user)
+       # -- If memory is not set, we set one by default for NEMO atlases 
+       if not memory:
+          if 'NEMO' in component or 'Turbulent' in component:
+             memory = '30'
+             vmemory = '32'
+       if memory:
+          # -- Set virtual memory = memory + 2
+          vmemory = str(int(memory)+2)
+          # -- Set total memory instructions
+          memory_instructions = ' -l mem='+memory+'gb -l vmem='+vmemory+'gb'
+          # -- add it to job_options
+          job_options += memory_instructions
+          print '    -> Memory (mem) = '+memory+' ; Virtual Memory (vmem) = '+vmemory
+       #
+       # -- If the user specified do_parallel=True in parameter file, we ask for one node and 32 cores
+       if do_parallel:
+          parallel_instructions = ' -l nodes=1:ppn='+nprocs
+          # -- add it to job_options
+          job_options += parallel_instructions
+          print '    -> Parallel execution: nprocs = '+nprocs
+       # 
+       # -- Build the job command line
+       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
     if atCNRM:
        jobname=component+'_'+comparison+'_C-ESM-EP'

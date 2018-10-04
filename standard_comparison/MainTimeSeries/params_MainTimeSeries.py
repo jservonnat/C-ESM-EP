@@ -39,6 +39,11 @@ clean_cache = 'False'
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
 #    to crm() at the end of the atlas (for a routine cache management)
 routine_cache_cleaning = [dict(access='+20')]
+# -- Parallel and memory instructions
+do_parallel = False
+nprocs = 32
+#memory = 20 # in gb
+#queue = 'days3'
 
 
 

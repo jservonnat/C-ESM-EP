@@ -479,8 +479,6 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
        print ''
        moc_model_basin = regridn(tmp_ok, cdogrid='r1x360', option='remapdis')
     else:
-       #mod=model.copy()
-       #mod.update({'variable': variable})
        # -- Apply the frequency and time manager (IGCM_OUT)
        wmodel=model.copy() ; wmodel.update(dict(variable='zomsfatl'))
        if apply_period_manager:
@@ -497,12 +495,6 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
     moc_model_yr=ccdo(moc_model_basin_lat,operator='yearmean')
     #calculer le max de la MOC a cette latitude
     maxmoc_model_yr=ccdo(moc_model_yr,operator='vertmax')
-    #maxmoc_obs=ccdo(moc_obs,operator='fldmax')
-    #maxmoc_model=ccdo(moc_model_basin_lat,operator='vertmax')
-    #maxmoc_obs=ccdo(moc_obs,operator='fldmax') 
-    ##calculer la moyenne annuelle
-    #maxmoc_model_yr=ccdo(maxmoc_model,operator='yearmean')
-    # plot
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)
     # -- and make a string with it
@@ -519,10 +511,7 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
                      "gsnCenterString=MAX_MOC_at_Lat"+str(latitude)+" "+tmp_period+"|"+\
                      "gsnRightString= |gsnLeftString=Sv "
              )
-    #at Lat. '+str(latitude)+'"'
     plot_maxmoc = curves(maxmoc_model_yr, title=title, **p)
-    #cdrop(plot_maxmoc)
-    #print plot_maxmoc
     #
     return safe_mode_cfile_plot(plot_maxmoc, do_cfile, safe_mode)
 
@@ -708,7 +697,7 @@ def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True
 
 
 
-def zonal_mean_slice2(model, variable, basin, season, ref=None, add_product_in_title=True, method='regrid_model_on_ref',
+def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_title=True, method='regrid_model_on_ref',
                      custom_plot_params={}, safe_mode=True, do_cfile=True, y='lin', ymin=None, plot_on_latitude=False, horizontal_regridding=True,
                       apply_period_manager=True):
     # -----------------------------------------------------------------------------------------------------------------------------
@@ -791,14 +780,14 @@ def zonal_mean_slice2(model, variable, basin, season, ref=None, add_product_in_t
           ZM_MODEL = zonmean(masked_model)
           ZM_REF   = zonmean(masked_ref)
           #
-          print '==='
-          print '==='
-          print '==='
-          print '=== ZM_MODEL = ',cfile(ZM_MODEL)
-          print '=== ZM_REF = ',cfile(ZM_REF)
-          print '==='
-          print '==='
-          print '==='
+          #print '==='
+          #print '==='
+          #print '==='
+          #print '=== ZM_MODEL = ',cfile(ZM_MODEL)
+          #print '=== ZM_REF = ',cfile(ZM_REF)
+          #print '==='
+          #print '==='
+          #print '==='
 
           # -- Interpolate vertically and compute the difference
           if safe_mode:
@@ -981,197 +970,5 @@ def zonal_mean_slice2(model, variable, basin, season, ref=None, add_product_in_t
     return safe_mode_cfile_plot(plot_zonmean, do_cfile, safe_mode)
 
 
-
-
-#  Plot une moyenne zonale,par bassin et par saison (mpm_note: new function).
-def zonal_mean_slice(model, variable, region, season, obs=None, add_product_in_title=True, compute_zonmean_on='model_grid',
-                     custom_plot_params={}, safe_mode=True, do_cfile=True, y='lin', ymin=None, plot_on_latitude=False, horizontal_regridding=True,
-                     apply_period_manager=True):
-    """ 
-    Model is a dict defining the model dataset (except variable)
-    """
-    #
-    #if obs:
-    #    print "=> Calling ***"+basename()+"*** for "+variable+" from "+model.get("model")+"/"+model.get("experiment") \
-    #                          +"/"+model.get("simulation")+" and obs "+obs.get("product")+" in region "+region+" for season "+season+"."
-    #else:
-    #    print "=> Calling ***"+basename()+"*** for "+variable+" from "+model.get("model")+"/"+model.get("experiment") \
-    #                          +"/"+model.get("simulation")+" in region "+region+" for season "+season+"."
-    #
-    # -----------------------------------------------------------------------------------------------------------------------------
-    # -- 1/ Moyenne zonale du modele:
-    #        -> soit on a la variable en moyenne zonale deja calculee (zoblabla)
-    #        -> soit on la calcule a partir des masks de bassin definis dans model:
-    #              * path_mesh_mask donne le path vers les fichiers
-    #              * mesh_masks est un dictionnaire qui pointe le fichier de mask pour chaque bassin (GLO, ATL, PAC, IND et ALLBAS) 
-    # -- Test pour voir si on a deja les moyennes zonales par bassin dans les variables dispos
-    context = 'full_field'
-    if variable=='thetao': tmpzonmvar = 'zotem'+region.lower()
-    if variable=='so':     tmpzonmvar = 'zosal'+region.lower()
-    # -- Apply the frequency and time manager (IGCM_OUT)
-    wmodel=model.copy() ; wmodel.update(dict(variable=tmpzonmvar))
-    if apply_period_manager:
-       frequency_manager_for_diag(wmodel, diag='TS')
-       get_period_manager(wmodel)
-    tmp = ds(**wmodel)  # -> on regarde si ds() trouve un fichier qui correspondn a la variable
-    if tmp.baseFiles():
-       # --> Fix to add nav_lat to the file
-       if not fileHasDim(cfile(tmp),'nav_lat'):
-           zonmean_model = add_nav_lat(tmp, nav_lat_file=nav_lat_zovarbasin_file(grid=whichORCAGrid(cfile(tmp))),
-                                   coordinates=build_coordinates_zovarbasin(cfile(tmp)))
-       else:
-           zonmean_model = tmp
-       modvar_climato_zonmean_basin = mask(clim_average(zonmean_model, season), miss=0.0)
-    else:
-       # definir les datasets
-       # -- Apply the frequency and time manager (IGCM_OUT)
-       wmodel=model.copy() ; wmodel.update(dict(variable=variable))
-       if apply_period_manager:
-          frequency_manager_for_diag(wmodel, diag='TS')
-          get_period_manager(wmodel)
-       modvar = ds(**wmodel)
-       set_fixed_fields('ccdfzonalmean_bas', region, model)
-       # calculer la climatologie pour la saison choisie
-       modvar_climato = ccdo(clim_average(modvar,season), operator='setctomiss,0')
-       if fileHasVar(cfile(modvar_climato), 'lev'):
-          modvar_climato_ok = rename_depth(modvar_climato)
-       else:
-          modvar_climato_ok = modvar_climato
-       # calculer la moyenne zonale pour le bassin choisi
-       modvar_climato_zonmean_basin = ccdfzonalmean_bas(modvar_climato_ok, point_type='T', basin=str(region).lower())
-       # -- Ajouter les latitudes ici??
-       #else:
-       #   maskfile = model['path_mesh_mask'] + model['mesh_masks'][region]
-       #   wmask = ccdo(fds(maskfile, variable='tmask', period='fx'), operator='setctomiss,0')
-       #   modvar_climato_masked = multiply(modvar_climato_ok, wmask)
-       #   modvar_rgrd = regridn(modvar_climato_masked, cdogrid='r360x180')
-       #   modvar_climato_zonmean_basin = zonmean(modvar_rgrd)
-    ZM_MODEL = modvar_climato_zonmean_basin
-    #
-    # -----------------------------------------------------------------------------------------------------------------------------
-    # -- 2/ Moyenne zonale de la ref:
-    # --    -> les refs sont fournies avec les masks de bassins; si la ref est un modele,
-    #          on peut recuperer path_mesh_mask et mesh_masks (et donc les fichiers de masks de bassins)
-    if obs:
-        # calculer la climatologie pour la saison choisie
-        if 'variable' not in obs: obs.update(dict(variable=variable))
-        obsvar = ds(**obs)
-        # -- Check whether the ref is a model or an obs to set the appropriate context
-        context = ('bias' if 'product' in obsvar.kvp else 'model_model')
-        # 1. Si le context est 'model_model', on verifie si la variable ne serait pas disponible en moyenne zonale
-        #       - si oui, on travaille directement avec celle-ci
-        #       - si non, on recupere les masks de bassins
-        # 2. Si le context est 'bias', on recupere les masks de bassins qui doivent etre dans le repertoire des obs
-        #    A partir des masks, on calcule les moyennes zonales par bassin
-        zonmobs = obs.copy() ; zonmobs.update(dict(variable=tmpzonmvar))
-        tmpobs = ds(**zonmobs)  # -> on regarde si ds() trouve un fichier qui correspondn a la variable
-        # -- Si on a les variables pre-calculees en moyennes zonales pour le model et les obs, on utilise ces moyennes zonales
-        # --> Ok si on utilise WOA13-v2 comme reference
-        if tmpobs.baseFiles() and tmp.baseFiles():
-           obsvar_climato_zonmean_basin_interp = regridn(mask(clim_average(tmpobs, season), miss=0.0), cdogrid='r1x180', option='remapdis')
-           modvar_climato_zonmean_basin_interp = regridn(modvar_climato_zonmean_basin, cdogrid='r1x180', option='remapdis')
-           ZM_OBS = zonmean_interpolation(obsvar_climato_zonmean_basin_interp, modvar_climato_zonmean_basin_interp)
-           ZM_MODEL = modvar_climato_zonmean_basin_interp
-        else:
-           #
-           obsvar_climato = mask(clim_average(obsvar, season), miss=0.0)
-           if fileHasVar(cfile(obsvar_climato), 'lev'):
-              obsvar_climato_ok = rename_depth(obsvar_climato)
-           else:
-              obsvar_climato_ok = obsvar_climato
-           print "cfile(obsvar_climato_ok) = ",cfile(obsvar_climato_ok)
-           #
-           # -- Si 'obs' est un autre simulation et a des mesh_masks, on les utilisent
-           if context=='model_model' and 'mesh_masks' in obs:
-              set_fixed_fields('ccdfzonalmean_bas', region, obs)
-              obsvar_climato_interp = obsvar_climato_ok
-           else:
-              # -> Sinon, on regrille 'obs' sur le modele, et on utilise les masks de bassins
-              # -> du model pour calculer les moyennes zonales
-              obsvar_climato_interp = regrid(obsvar_climato_ok,modvar_climato_ok, option='remapdis')
-           # calculer la moyenne zonale pour le bassin choisi
-           obsvar_climato_zonmean_basin = ccdfzonalmean_bas(obsvar_climato_interp, point_type='T', basin=str(region).lower())
-           ZM_OBS = zonmean_interpolation(obsvar_climato_zonmean_basin, modvar_climato_zonmean_basin,horizontal_regridding=False)
-        #
-        # -- Now compute the difference (bias)
-        #print '---'
-        #print '---'
-        #print '---'
-        #print 'ZM(OBS) = ',cfile(ZM_OBS)
-        #print '---'
-        #print '---'
-        #print '---'
-        #                                              horizontal_regridding=horizontal_regridding)
-        # Difference
-        #ZM_bias = minus(ZM_MODEL, ZM_OBS)
-        #print '---'
-        #print '---'
-        #print '---'
-        #print 'ZM(BIAS) = ',cfile(ZM_bias)
-        #print '---'
-        #print '---'
-        #print '---'
-        #print '---'
-        #print '---'
-        #print '---'
-        #print 'ZM(MODEL) = ',cfile(ZM_MODEL)
-        #print '---'
-        #print '---'
-        #print '---'
-
-    # Plot
-    #
-    # -- Get the period for display in the plot: we build a tmp_period string
-    # -- Check whether the period is described by clim_period, years or period (default)
-    # -- and make a string with it
-    tmp_period = build_period_str(wmodel)
-    #
-    # -- Title of the plot -> If 'customname' is in the dictionary of dat, it will be used
-    # -- as the title. If not, it checks whether dat is a reference or a model simulation
-    # -- and builds the title
-    title = build_plot_title(wmodel, None)# add_product_in_title='') #add_product_in_title)
-    #
-    # -- Get the default plot parameters with the function 'plot_params'
-    # -- We also update with a custom dictionary of params (custom_plot_params) if the user sets one
-    p = plot_params(variable+'_zonmean', context, custom_plot_params=custom_plot_params)
-    p.update(dict(y=y,
-             contours=1,
-             tiMainFontHeightF=0.023,tiMainFont="helvetica-bold",
-             gsnStringFontHeightF=0.019,
-             options="cnMissingValFillColor=gray|trYReverse=True|"+\
-                     "vpHeightF=0.4|vpWidthF=0.8|"+\
-                     "pmLabelBarWidthF=0.075|pmLabelBarOrthogonalPosF=0.01|lbLabelFontHeightF=0.012|"
-             ))
-    if ymin: p['options']=p['options']+'|trYMinF='+str(ymin)
-    #
-    # -- Set the left, center and right strings of the plot
-    p.update(dict(gsnRightString = tmp_period,
-                  gsnCenterString = variable+' on '+compute_zonmean_on,
-                  gsnLeftString  = region))
-    #
-    if obs:
-        ZM = ZM_bias
-        #diffvar_climato_zonmean_basin
-    else:
-        ZM = ZM_MODEL
-        #modvar_climato_zonmean_basin
-    #
-    print "cfile(ZM) = ",cfile(ZM)
-    if plot_on_latitude:
-        plot_zonmean = plot(regridn(ZM,cdogrid='r1x180',option='remapdis'), title=title, **p)
-    else:
-        plot_zonmean = plot(ZM, title=title, **p)
-    # -- If the user doesn't want to do the cfile within plot_climato, set do_cfile=False
-    # -- Otherwise we check if the plot has been done successfully.
-    # -- If not, the user can set safe_mode=False and clog('debug') to debug.
-    return safe_mode_cfile_plot(plot_zonmean, do_cfile, safe_mode)
-
-def spare_code():
-    # Example for defining a data organization in a project
-    cproject("dmc","root")
-    cdef("root","/data/mcheval")
-    dataloc(project="dmc",organization="generic",url="${root}/${simulation}/${simulation}_1m_YYYYMMDD_YYYYMMDD_grid_${variable}.nc")
-    calias("dmc",'tos',filenameVar='T')
-    tos=ds(project='dmc',simulation='O1IAF01',variable='tos',period='1980')
 
 

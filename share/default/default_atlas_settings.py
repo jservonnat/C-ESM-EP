@@ -62,6 +62,7 @@ add_product_in_title = True
 hover = False
 add_compareCompanion = True
 add_period_to_simname=True
+do_four_seasons_parcor=False
 
 do_ATLAS_TIMESERIES_SPATIAL_INDEXES = False
 do_ATLAS_VERTICAL_PROFILES = False
@@ -83,8 +84,6 @@ do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = False
 do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climatology_maps = False
-
-do_four_seasons_parcor=False
 
 thumbnail_size=None
 thumbnail_size_global="300*175"
