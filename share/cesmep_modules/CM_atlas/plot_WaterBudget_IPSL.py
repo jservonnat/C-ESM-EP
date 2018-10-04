@@ -4,7 +4,6 @@ from climaf.html import *
 from reference import variable2reference
 from LMDZ_SE_atlas.lmdz_SE import *
 from time_manager import *
-from climaf.site_settings import atTGCC
 from climaf import __path__ as cpath
 import os
 from climaf import cachedir
@@ -18,13 +17,7 @@ hover=False
 
 # -- Set a blank space
 # -----------------------------------------------------------------------------------
-if atTGCC:
-   blank_cell=cachedir+'/Empty.png'
-elif onCiclad:
-   #blank_cell='https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'
-   blank_cell='/prodigfs/ipslfs/dods/jservon/C-ESM-EP/Empty.png'
-else:
-   blank_cell='https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'
+blank_cell=os.path.dirname(__file__)+'/Empty.png'
 
 
     # -- Add the variable and get the dataset

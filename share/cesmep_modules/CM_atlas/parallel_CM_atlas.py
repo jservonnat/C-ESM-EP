@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 from climaf.api import *
+=======
+from climaf.cache import csync
+>>>>>>> 564984da3828853c8776800339815632dbb0a9ea
 from joblib import Parallel, delayed
 import multiprocessing
 
@@ -24,7 +28,6 @@ def parallel_section(section, **kwargs):
     r = Parallel(n_jobs=num_cores)(delayed(safe_mode_cfile_plot)(climaf_crs) for climaf_crs in plots_crs)
     #
     # -- Synchronize the cache after parallel computation
-    from climaf.cache import csync
     csync(True)
     #
     wkwargs.update(dict(do_cfile=True))

@@ -2,7 +2,6 @@ from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
 from time_manager import *
-from climaf.site_settings import atTGCC, onCiclad
 from climaf import __path__ as cpath
 import os
 from climaf import cachedir
@@ -14,13 +13,7 @@ hover=False
 
 # -- Set a blank space
 # -----------------------------------------------------------------------------------
-if atTGCC:
-   blank_cell=cachedir+'/Empty.png'
-elif onCiclad:
-   #blank_cell='https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'
-   blank_cell='/prodigfs/ipslfs/dods/jservon/C-ESM-EP/Empty.png'
-else:
-   blank_cell='https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'
+blank_cell=os.path.dirname(__file__)+'/Empty.png'
 
 from climaf.plot.ocean_plot_params import dict_plot_params as ocean_plot_params
 ocean_variables=[]
