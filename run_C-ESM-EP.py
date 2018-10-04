@@ -365,7 +365,7 @@ for component in job_components:
        if not queue: queue = 'h12'
        # -- add it to job_options
        job_options += ' -q '+queue
-       print 'queue = '+queue
+       print '    -> queue = '+queue
        #
        # -- Specify the job script (only for Parallel coordinates) 
        if component not in metrics_components:
@@ -386,14 +386,14 @@ for component in job_components:
           memory_instructions = ' -l mem='+memory+'gb -l vmem='+vmemory+'gb'
           # -- add it to job_options
           job_options += memory_instructions
-          print 'Memory (mem) = '+memory+' ; Virtual Memory (vmem) = '+vmemory
+          print '    -> Memory (mem) = '+memory+' ; Virtual Memory (vmem) = '+vmemory
        #
        # -- If the user specified do_parallel=True in parameter file, we ask for one node and 32 cores
        if do_parallel:
           parallel_instructions = ' -l nodes=1:ppn='+nprocs
           # -- add it to job_options
           job_options += parallel_instructions
-          print 'Parallel execution --> nprocs = '+nprocs
+          print '    -> Parallel execution: nprocs = '+nprocs
        # 
        # -- Build the job command line
        cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'

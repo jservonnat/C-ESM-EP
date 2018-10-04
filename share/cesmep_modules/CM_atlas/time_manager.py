@@ -87,10 +87,8 @@ def frequency_manager_for_diag(model, diag='TS'):
     print "model in frequency_manager = ",model
     return ''
 
-supported_projects=['IGCM_OUT', 'IGCM_OUT_old', 'CMIP5','MGV', 'TROHL','SPAOCE','IGCM_OUT_fast','IGCM_CMIP6','CMIP6']
 
 def get_period_manager(dat_dict):
-        #if dat_dict['project'] in supported_projects:
         # -- dealing with the Time Series : period = 'full', 'first_??Y', 'last_??Y'
         if 'frequency' not in dat_dict:
            ds_dat_dict = ds(**dat_dict)
@@ -150,8 +148,6 @@ def get_period_manager(dat_dict):
                             # Find the period
                             # !!! SOLUTION A LA MAIN, IGCM_OUT
                             filename_elts = str.split(filename, '_')
-                            #if dat_dict['project'] in supported_projects:
-                            #if dat_dict['project'] in ['CMIP5','IGCM_CMIP6']:
                             if 'MIP' in dat_dict['project']:
                                tmpperiod = str.replace(filename_elts[len(filename_elts)-1],'.nc','')
                                start_period = str.split(tmpperiod,'-')[0]

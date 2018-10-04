@@ -130,6 +130,14 @@ parallel_coordinates_script = main_cesmep_path+'share/scientific_packages/parall
 index_filename_root = 'parallel_coordinates'
 
 
+# -- Get the default parameters from default_atlas_settings.py -> Priority = default
+# -----------------------------------------------------------------------------------
+default_file = '/share/default/default_atlas_settings.py'
+while not os.path.isfile(os.getcwd()+default_file):
+    default_file = '/..'+default_file
+execfile(os.getcwd()+default_file)
+
+
 # -- Parameters Level 1/ Parameters from the parameter file (if there is one)
 # --------------------------------------------------------------------------------------------
 if opts.params:

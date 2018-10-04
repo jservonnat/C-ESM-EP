@@ -393,21 +393,21 @@ if do_SST_for_tuning:
       # -- Eventually, do the plots
       for region in regions_for_spatial_averages:
           # -- plot the raw values
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rawvalues_over_regions_for_tuning.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rawvalues_over_regions_for_tuning.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rawvalue.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
           print(cmd)
           os.system(cmd)
           index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
           #
           # -- plot the rmsc
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rmsc_over_regions_for_tuning.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rmsc_over_regions_for_tuning.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
           print(cmd)
           os.system(cmd)
           index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
           #
           # -- plot the rms
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rms_over_regions_for_tuning.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rms_over_regions_for_tuning.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname+' --statistic rms'
           print(cmd)
           os.system(cmd)
@@ -1669,10 +1669,12 @@ if do_Hotelling_Test:
   # -- the results from the Hotelling test (json files, plots...) so that we will
   # -- be able to easily check the available results.
   if onCiclad:
-     hotelling_outputdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/Hotelling_test_results/'
+     #hotelling_outputdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/Hotelling_test_results/'
+     hotelling_outputdir = path_to_cesmep_output_rootdir+'/Hotelling_test_results/'
      if not os.path.isdir(hotelling_outputdir+'json_files/'): os.makedirs(hotelling_outputdir+'json_files/')
      if not os.path.isdir(hotelling_outputdir+'CEOFs_plots/'): os.makedirs(hotelling_outputdir+'CEOFs_plots/')
-     atlas_outdir = subdir+'/Hotelling_Test/'
+     #atlas_outdir = subdir+'/Hotelling_Test/'
+     atlas_outdir = atlas_dir
      if not os.path.isdir(atlas_outdir):
         os.makedirs(atlas_outdir)
      else:
@@ -1894,7 +1896,8 @@ if do_Hotelling_Test:
       # ----------------------------------------------------------------------------------------------
       # --> Make the plot now with the list of datasets in input
       for stat in ['T2']:
-          figname = subdir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
+          #figname = subdir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
+          figname = atlas_dir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/Plot-Hotelling-test-results-one-variable.R --test_json_files '+TestFileName+' --figname '+figname+' --main_dir '+main_cesmep_path+'share/scientific_packages/Hotelling_Test --statistic '+stat
           print cmd
           p=subprocess.Popen(shlex.split(cmd))
@@ -1999,7 +2002,8 @@ if do_Hotelling_Test:
       for region in regions_for_spatial_averages:
           with open(outjson, 'w') as outfile:
                json.dump(results, outfile, sort_keys = True, indent = 4)
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
+          #figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/plot_space_averages_over_regions.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
           print(cmd)
           os.system(cmd)
@@ -2017,7 +2021,8 @@ if do_Hotelling_Test:
       for dataset_name in names_to_keep_order_in_atlas:
           # -- Add the CEOF1 plot figure (hard coded) to the html line in a cell (climaf.html function)
           pdffigname_ceof1 = TestFiles[dataset_name]['output_ceof1_figname']
-          pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', subdir)
+          #pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', subdir)
+          pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', atlas_dir)
           os.system('convert -density 150 '+pdffigname_ceof1+' -quality 90 '+pngfigname_ceof1)
           if variable=='hfls':
              ceof_thumbnail = "650*450"

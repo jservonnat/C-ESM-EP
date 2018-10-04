@@ -261,8 +261,12 @@ def plot_climato(var, dat, season, proj='GLOB', domain={}, custom_plot_params={}
        if 'mon' in table: wfreq = 'monthly'
        if 'yr' in table: wfreq = 'yearly'
        if 'day' in table: wfreq = 'daily'
-       if '3hr' in table: wfreq = '3hourly' 
-       wdat.update(dict(frequency=wfreq))
+       if '3hr' in table: wfreq = '3hourly'
+       if 'frequency' in wdat:
+          if wdat['frequency'] not in ['seasonal','annual_cycle']:
+             wdat.update(dict(frequency=wfreq))
+       else:
+             wdat.update(dict(frequency=wfreq))
     if realm: wdat.update(dict(realm=realm))
 
     # -- project_specs
@@ -566,7 +570,11 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
        if 'yr' in table: wfreq = 'yearly'
        if 'day' in table: wfreq = 'daily'
        if '3hr' in table: wfreq = '3hourly'
-       wmodel.update(dict(frequency=wfreq))
+       if 'frequency' in wmodel:
+          if wmodel['frequency'] not in ['seasonal','annual_cycle']:
+             wmodel.update(dict(frequency=wfreq))
+       else:
+             wmodel.update(dict(frequency=wfreq))
     if realm: wmodel.update(dict(realm=realm))
     #
     # -- Reference

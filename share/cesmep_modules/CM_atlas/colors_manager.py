@@ -13,6 +13,53 @@ cesmep_python_colors = ['royalblue', 'red', 'green', 'mediumturquoise', 'orange'
                         'tomato', 'mediumvioletred', 'mediumspringgreen', 'firebrick',
                         ]
 
+# -- add more default colors
+from matplotlib import colors as mcolors
+mpcolors = sorted(mcolors.CSS4_COLORS.keys())
+# -- Remove white-ish colors
+mpcolors.remove('white')
+#mpcolors.remove('w')
+mpcolors.remove('snow')
+mpcolors.remove('seashell')
+mpcolors.remove('floralwhite')
+mpcolors.remove('cornsilk')
+mpcolors.remove('ivory')
+mpcolors.remove('beige')
+mpcolors.remove('lightyellow')
+mpcolors.remove('lightgoldenrodyellow')
+mpcolors.remove('honeydew')
+mpcolors.remove('mintcream')
+mpcolors.remove('azure')
+mpcolors.remove('aliceblue')
+mpcolors.remove('ghostwhite')
+mpcolors.remove('lavender')
+mpcolors.remove('lavenderblush')
+mpcolors.remove('linen')
+mpcolors.remove('whitesmoke')
+mpcolors.remove('oldlace')
+mpcolors.remove('lemonchiffon')
+mpcolors.remove('lightcyan')
+mpcolors.remove('papayawhip')
+mpcolors.remove('blanchedalmond')
+mpcolors.remove('bisque')
+mpcolors.remove('antiquewhite')
+mpcolors.remove('palegoldenrod')
+mpcolors.remove('wheat')
+mpcolors.remove('thistle')
+
+# and duplicates
+mpcolors.remove('dimgrey')
+mpcolors.remove('grey')
+mpcolors.remove('lightgrey')
+mpcolors.remove('darkgrey')
+mpcolors.remove('lightslategrey')
+mpcolors.remove('slategrey')
+mpcolors.remove('darkslategrey')
+
+for tmpcolor in mpcolors:
+   if tmpcolor in cesmep_python_colors: mpcolors.remove(tmpcolor)
+
+cesmep_python_colors = cesmep_python_colors + mpcolors
 
 import matplotlib
 
