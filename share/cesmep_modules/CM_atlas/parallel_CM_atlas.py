@@ -1,13 +1,4 @@
 from climaf.api import *
-#from climaf.html import *
-#from reference import variable2reference
-from CM_atlas.plot_CM_atlas import *
-#from time_manager import *
-#from climaf.site_settings import atTGCC, onCiclad, atCNRM
-#from climaf import __path__ as cpath
-#import os
-#from climaf import cachedir
-
 from joblib import Parallel, delayed
 import multiprocessing
 
