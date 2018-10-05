@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 from climaf.api import *
-=======
 from climaf.cache import csync
->>>>>>> 564984da3828853c8776800339815632dbb0a9ea
 from joblib import Parallel, delayed
 import multiprocessing
 
