@@ -172,8 +172,9 @@ def get_period_manager(dat_dict):
                         if 'LAST_' in period.upper():
                             prd_lgth = int( str.replace( str.replace(period.upper(), 'LAST_', ''), 'Y', '') )
                             #first_start_period = last_end_period - prd_lgth + 1
-                            first_start_period = max([last_end_period - prd_lgth + 1, last_start_period])
-                            dat_dict['period'] = str(first_start_period)+'_'+str(last_end_period)
+                            #first_start_period = max([last_end_period - prd_lgth + 1, last_start_period])
+                            wfirst_start_period = max([last_end_period - prd_lgth + 1, first_start_period])
+                            dat_dict['period'] = str(wfirst_start_period)+'_'+str(last_end_period)
                         # If period='first_??Y':
                         if 'FIRST_' in period.upper():
                             prd_lgth = int( str.replace( str.replace(period.upper(), 'FIRST_', ''), 'Y', '') )

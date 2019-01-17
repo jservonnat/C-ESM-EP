@@ -6,6 +6,7 @@ from climaf import __path__ as cpath
 import os
 from climaf import cachedir
 import shutil
+import getpass
 
 StringFontHeight=0.019
 
@@ -14,6 +15,18 @@ hover=False
 # -- Set a blank space
 # -----------------------------------------------------------------------------------
 blank_cell=os.path.dirname(__file__)+'/Empty.png'
+
+
+if atTGCC:
+   shutil.copy(blank_cell,cachedir)
+   blank_cell=cachedir+'/Empty.png'
+elif onCiclad:
+   dst='/prodigfs/ipslfs/dods/'+getpass.getuser()
+   shutil.copy(blank_cell,dst)
+   blank_cell=dst+'/Empty.png'
+else:
+   blank_cell='https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'
+
 
 from climaf.plot.ocean_plot_params import dict_plot_params as ocean_plot_params
 ocean_variables=[]
@@ -1011,7 +1024,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
            #
            # -- Close the line
            if do_cfile:
-              close_line()
+              index += close_line()
               index += close_table()
         #
         # -- Add a line with the climatology plots
@@ -1032,7 +1045,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
            #
            #
            if do_cfile:
-              close_line()
+              index += close_line()
               index += close_table()
     #
     # -- Close the table of the section
@@ -1166,7 +1179,7 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
                   plots_crs.append(model_climato)
            #
            # -- Close the line
-           close_line()
+           index += close_line()
            index += close_table()
     #
     # -- if do_cfile, we return the complete index; if do_cfile=False, we return plots_crs for a parallel execution
@@ -1280,7 +1293,7 @@ def section_2D_maps_climobs_bias_modelmodeldiff(models, reference, proj, season,
                      index+=cell("", model_diff, thumbnail=thumbN_size, hover=hover, **alternative_dir)
               #
               # -- Close the line
-              close_line()
+              index += close_line()
               index += close_table()
               #
            else:

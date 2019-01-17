@@ -357,7 +357,8 @@ if do_SST_for_tuning:
               # -- Add offset to convert in Celsius
               #print 'wdataset_dict in tuning_metrics : ',wdataset_dict
               #print 'rawvalue = ',rawvalue
-              rawvalue = rawvalue - 273.15
+              if not rawvalue=='NA':
+                 rawvalue = rawvalue - 273.15
               # -- Compute bias
               results[dataset_name]['results'].update( {region['region_name']: {'rawvalue': str(rawvalue)} } )
               #
@@ -3351,6 +3352,7 @@ if do_annual_cycle_precip:
 
 # -- Adding the compareCompanion JavaScript functionality to make a selection of images
 if add_compareCompanion:
+   print 'Add compareCompanion'
    index += compareCompanion()
 
 # -- End the index
