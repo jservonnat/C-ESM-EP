@@ -111,7 +111,8 @@ if [[ -d "/data" ]] ; then
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.2
+  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.8
+  #export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.2
   #cesmep_modules=${PWD}/share/cesmep_modules
   my_append -bp PYTHONPATH ${CLIMAF}
   my_append -bp PYTHONPATH ${cesmep_modules}

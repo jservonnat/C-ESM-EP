@@ -152,13 +152,13 @@ component = str.replace( str.replace( str.replace( index_name, '_'+opts.comparis
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs
 
 # -- Location of the directory where we will store the results of the atlas
-atlas_dir = path_to_cesmep_output_rootdir +'/C-ESM-EP/'+ opts.comparison+'_'+username+'/'+component
+atlas_dir = path_to_cesmep_output_rootdir +'/C-ESM-EP/'+ opts.comparison+'_'+user_login+'/'+component
 
 # -- Url of the atlas (without the html file)
 atlas_url = str.replace( atlas_dir, path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs)
 
 # -- at CNRM and TGCC we create the atlas directory if it doesn't exist, or remove the figures
-if atCNRM or atTGCC:
+if atCNRM or atTGCC or onCiclad:
    if not os.path.isdir(atlas_dir):
       os.makedirs(atlas_dir)
    else:

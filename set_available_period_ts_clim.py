@@ -75,7 +75,8 @@ for dataset_dict in Wmodels_clim:
    # ---
    print 'wdataset_dict = ',wdataset_dict
    wdataset_dict.update(dict(variable=period_manager_test_variable))
-   if dataset_dict['project']=='CMIP6': wdataset_dict.update(dict(grid='gr', table='Amon'))
+   if dataset_dict['project']=='CMIP6' and period_manager_test_variable=='tas': wdataset_dict.update(dict(grid='gr', table='Amon'))
+   if dataset_dict['project']=='IGCM_OUT' and period_manager_test_variable=='tas': wdataset_dict.update(dict(DIR='ATM'))
    if 'clim_period' in wdataset_dict:
         frequency_manager_for_diag(wdataset_dict, diag='clim')
         get_period_manager(wdataset_dict)
@@ -104,7 +105,8 @@ for dataset_dict in Wmodels_ts:
    # ---
    print 'wdataset_dict = ',wdataset_dict
    wdataset_dict.update(dict(variable=period_manager_test_variable))
-   if dataset_dict['project']=='CMIP6': wdataset_dict.update(dict(grid='gr', table='Amon'))
+   if dataset_dict['project']=='CMIP6' and period_manager_test_variable=='tas': wdataset_dict.update(dict(grid='gr', table='Amon'))
+   if dataset_dict['project']=='IGCM_OUT' and period_manager_test_variable=='tas': wdataset_dict.update(dict(DIR='ATM'))
    if 'ts_period' in wdataset_dict:
         frequency_manager_for_diag(wdataset_dict, diag='TS')
         get_period_manager(wdataset_dict)
