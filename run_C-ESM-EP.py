@@ -50,6 +50,8 @@ WD=os.getcwd()
 atCNRM = os.path.exists('/cnrm')
 if atCNRM :
    WD=re.sub('^/mnt/nfs/d[0-9]*/','/cnrm/',WD)
+# Case atCerfacs
+atCerfacs = os.path.exists('/scratch/globc')
 
 # -- Get user name
 username=getpass.getuser()
@@ -252,6 +254,11 @@ if os.path.exists('/cnrm'):
     atCNRM = True
     from locations import climaf_cache
 
+# Case atCerfacs
+if os.path.exists('/scratch/globc'):
+    atCerfacs = True
+    from locations import climaf_cache
+
 
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
@@ -427,6 +434,19 @@ for component in job_components:
              '-e \"atlas_pathfilename='+atlas_pathfilename+','+variables+'\"'+\
              ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
 
+    if atCerfacs:
+       jobname=component+'_'+comparison+'_C-ESM-EP'
+       if component not in metrics_components: job_script = 'job_C-ESM-EP_Cerfacs.sh'
+       else: job_script = 'job_PMP_C-ESM-EP_Cerfacs.sh'
+       #
+       print component
+       print comparison
+       cmd = 'cd '+submitdir+' ; export comparison='+comparison+\
+                ' ; export component='+component+' ; '+\
+                'sbatch ../'+job_script
+       print(cmd)
+
+
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs
@@ -458,7 +478,7 @@ if atTGCC:
    cmd1 = 'cp '+frontpage_html+' '+path_to_comparison_outdir_workdir_tgcc ; print cmd1 ; os.system(cmd1)
    cmd = 'dods_cp '+path_to_comparison_outdir_workdir_tgcc+frontpage_html+' '+path_to_comparison_on_web_server+' ; rm '+main_html
 
-if onCiclad or atCNRM : cmd = 'mv -f '+frontpage_html+' '+path_to_comparison_on_web_server
+if onCiclad or atCNRM or atCerfacs: cmd = 'mv -f '+frontpage_html+' '+path_to_comparison_on_web_server
 os.system(cmd)
 
 # -- Copy the top image
@@ -466,7 +486,7 @@ if not os.path.isfile(path_to_comparison_on_web_server+'/CESMEP_bandeau.png'):
    if atTGCC:
       os.system('cp share/fp_template/CESMEP_bandeau.png '+path_to_comparison_outdir_workdir_tgcc)
       cmd='dods_cp '+path_to_comparison_outdir_workdir_tgcc+'CESMEP_bandeau.png '+path_to_comparison_on_web_server
-   if onCiclad or atCNRM : cmd='cp -f share/fp_template/CESMEP_bandeau.png '+path_to_comparison_on_web_server
+   if onCiclad or atCNRM or atCerfacs : cmd='cp -f share/fp_template/CESMEP_bandeau.png '+path_to_comparison_on_web_server
    os.system(cmd)
 
 

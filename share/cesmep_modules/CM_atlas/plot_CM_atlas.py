@@ -485,6 +485,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
     print 'var = ',var
+    print 'ref in plot_diff =', ref
     grid = None
     table = None
     realm = None
@@ -564,9 +565,11 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     #if table: wmodel.update(dict(table=table))
     # -- project_specs
     # -- This functionality allows to pass given specifications for one given project => more generic
+    print 'wmodel before project_specs = ', wmodel
     if project_specs:
        if wmodel['project'] in project_specs:
           wmodel.update(project_specs[wmodel['project']])
+    print 'wmodel after project_specs = ', wmodel
     if 'table' in wmodel: table = wmodel['table']
     #
     if table:
@@ -596,7 +599,9 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     # -- Apply the frequency and time manager (IGCM_OUT)
     if apply_period_manager:
        frequency_manager_for_diag(wmodel, diag='SE')
+       print 'wmodel before get_period = ', wmodel
        get_period_manager(wmodel)
+       print 'wref before get_period = ', wmodel
        frequency_manager_for_diag(wref, diag='SE')
        get_period_manager(wref)
     ds_model = ds(**wmodel)
@@ -915,6 +920,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
     for var in variables:
         line_title=None
         print 'var in section_2D_maps = ', var
+        project_specs = None
         if isinstance(var, dict):
            variable = var['variable']
            if 'zonmean_variable' in var:
@@ -924,6 +930,8 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
            if 'line_title' in var:
               line_title = var['line_title']
               var.pop('line_title')
+           if 'project_specs' in var:
+              project_specs = var['project_specs']
         else:
            variable = var
         #
@@ -958,7 +966,11 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
               if not ref: ref = dict(project='ref_climatos', frequency='seasonal')
               if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']: ref.update(dict(product='CERES'))
            else:
-              ref = wref
+              ref = wref.copy()
+              # !!!!
+              if project_specs:
+                 if ref['project'] in project_specs:
+                    ref.update(project_specs[ref['project']])
               ref.update(dict(variable=variable))
               frequency_manager_for_diag(ref, diag='SE')
               get_period_manager(ref)
@@ -1074,6 +1086,7 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
     for var in variables:
         line_title=None
         print 'var in section_climato_2D_maps = ', var
+        project_specs = None
         if isinstance(var, dict):
            variable = var['variable']
            if 'zonmean_variable' in var:
@@ -1083,6 +1096,9 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
            if 'line_title' in var:
               line_title = var['line_title']
               var.pop('line_title')
+           if 'project_specs' in var:
+              project_specs = var['project_specs']
+              var.pop('project_specs')
         else:
            variable = var
         #
@@ -1123,6 +1139,9 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
            else:
               ref = wref
               ref.update(dict(variable=variable))
+              if project_specs:
+                 if ref['project'] in project_specs:
+                    ref.update(project_specs[ref['project']])
               frequency_manager_for_diag(ref, diag='SE')
               get_period_manager(ref)
            #

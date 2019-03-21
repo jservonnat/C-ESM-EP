@@ -7,7 +7,7 @@ from climaf.api import *
 from climaf.html import * 
 from climaf import cachedir
 from CM_atlas import *
-from climaf.site_settings import onCiclad, atTGCC, atCNRM
+from climaf.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
 from getpass import getuser
 from climaf import __path__ as cpath
 import json
@@ -1232,6 +1232,7 @@ if do_seaice_maps:
            ref = variable2reference(variable, my_obs=custom_obs_dict)
         else:
            ref = reference
+           ref.update(dict(table='SImon', grid='gn'))
         #
         # -> Sea Ice climatos
 	    # -- Line Title
@@ -1241,8 +1242,8 @@ if do_seaice_maps:
         #
         # -- Loop on the models (in order to add the results to the html line)
         if not use_available_period_set:
-           Wmodels = period_for_diag_manager(models, diag='sea_ice_maps')
-        for model in Wmodels:
+           WWmodels = period_for_diag_manager(Wmodels, diag='sea_ice_maps')
+        for model in WWmodels:
             #
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
@@ -1264,7 +1265,7 @@ if do_seaice_maps:
 	    # -- Open the line for the plots
         index+=start_line(line_title)
         # -- Loop on the models (add the results to the html line)
-        for model in Wmodels:
+        for model in WWmodels:
             #
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
@@ -1287,7 +1288,7 @@ if do_seaice_maps:
             # -- Open the line for the plots
         index+=start_line(line_title)
         # -- Loop on the models (add the results to the html line)
-        for model in Wmodels:
+        for model in WWmodels:
             #
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs

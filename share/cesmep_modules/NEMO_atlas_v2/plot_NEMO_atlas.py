@@ -137,6 +137,7 @@ def plot_sic_climato_with_ref(variable,model,ref,season,proj, add_product_in_tit
        get_period_manager(wmodel)
     # -- Get the datasets
     ds_model = ds(**wmodel)
+    get_period_manager(wref)
     ds_ref   = ds(**wref)
     #
     # -- Compute the seasonal climatology
@@ -156,7 +157,7 @@ def plot_sic_climato_with_ref(variable,model,ref,season,proj, add_product_in_tit
     # -- Title of the plot -> If 'customname' is in the dictionary of dat, it will be used
     # -- as the title. If not, it checks whether dat is a reference or a model simulation
     # -- and builds the title
-    title = build_plot_title(wmodel,ref,add_product_in_title)
+    title = build_plot_title(wmodel,wref,add_product_in_title)
     #
     # -- Get the default plot parameters with the function 'plot_params'
     # -- We also update with a custom dictionary of params (custom_plot_params) if the user sets one
