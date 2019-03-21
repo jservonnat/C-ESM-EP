@@ -139,7 +139,7 @@
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 
-# -- Localize the path to the grids
+# -- Set the path to the grids
 from climaf.site_settings import onCiclad, atTGCC, atCNRM
 if onCiclad:
    gridpath='/data/igcmg/database/grids/'
@@ -148,7 +148,8 @@ if atTGCC:
 if atCNRM:
    gridpath='/cnrm/est/COMMON/C-ESM-EP/grids/'
 
-
+# -- Setup the models list
+# --> case atCNRM:
 if atCNRM :
    models = [
 
@@ -160,14 +161,15 @@ if atCNRM :
            frequency='monthly', period='1950-1953',
            customname='CNRM-CM6-control'
            ),
-      # dict(project = 'CMIP6', model='CNRM-CM6-1', experiment='abrupt-4xCO2',
-      #      frequency='monthly', period='1850-1853',
-      #      customname='CNRM-CM6-abrupt'
-      #      ),
 
    ]
+   for model in models:
+      if model['model']=='CNRM-CM6-1' or model['model']=='CNRM-ESM2-1' :
+         model['gridfile']=gridpath+'ORCA1_mesh_zgr.nc'
+         model['mesh_hgr']=gridpath+'ORCA1_mesh_hgr.nc'
 
-else :
+# --> case onCiclad or atTGCC:
+if onCiclad or atTGCC :
    models = [
 
       dict(project='IGCM_OUT',
@@ -192,15 +194,22 @@ else :
           ),
 
       dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
-           frequency='monthly', period='1980-2005',
+           frequency='monthly', period='1980-2005', version='latest'
            customname='CMIP5 IPSL-CM5A-MR'
            ),
 
-   ]
+      dict(project = 'CMIP6', root='/ccc/work/cont003/cmip6/cmip6',
+           model='IPSL-CM6A-LR', experiment='historical',
+           frequency='monthly', period='1980-2005', realization='r2i1p1f1', version='latest'
+           ),
 
-# -- Provide a set of common keys to the elements of models
-# ---------------------------------------------------------------------------- >
-common_keys = dict(
+   ]
+   # -- We don't have access to the CMIP5 archive at TGCC; we remove them from the list models 
+   if atTGCC: models.pop(2)
+   #
+   # -- Provide a set of common keys to the elements of models
+   # ---------------------------------------------------------------------------- >
+   common_keys = dict(
            root='/ccc/store/cont003/thredds', login='*',
            frequency='monthly',
            clim_period='last_30Y',
@@ -210,18 +219,12 @@ common_keys = dict(
            gridfile=gridpath+'eORCA1.1_grid.nc',
            varname_area='area',
            )
-
-
-for model in models:
-  if model['project']=='IGCM_OUT' :
-    for key in common_keys:
-        if key not in model:
-           model.update({key:common_keys[key]})
-
-if atCNRM:
-   if model['model']=='CNRM-CM6-1' or model['model']=='CNRM-ESM2-1' :
-      model['gridfile']=gridpath+'ORCA1_mesh_zgr.nc'
-      model['mesh_hgr']=gridpath+'ORCA1_mesh_hgr.nc'
+   #
+   for model in models:
+     if model['project']=='IGCM_OUT' :
+       for key in common_keys:
+           if key not in model:
+              model.update({key:common_keys[key]})
 
 
 # -- Find the last available common period to all the datasets

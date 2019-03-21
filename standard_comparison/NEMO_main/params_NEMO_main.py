@@ -35,6 +35,11 @@ safe_mode = True
 clean_cache = 'False'
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar')]
+# -- Parallel and memory instructions
+do_parallel = False
+nprocs = 32
+#memory = 30 # in gb; 30 for ocean atlasas
+#queue = 'days3' # onCiclad: h12, days3
 
 
 
@@ -93,6 +98,11 @@ for my_season in liste_seasons :
                                                          IGCM_CMIP6 = dict(table = 'Omon'),
                                                         ),
                                     ))
+
+# -- Activate the parallel execution of the plots
+do_parallel=False
+
+
 #for var in ['to200', 'to1000', 'so200', 'so1000']:
 #    ocean_2D_variables.append (dict (variable=var, season='ANM'))
 remapping = True

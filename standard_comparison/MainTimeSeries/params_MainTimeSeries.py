@@ -28,15 +28,22 @@
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
+from climaf.operators import derive
+
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = False
+safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
 #    to crm() at the end of the atlas (for a routine cache management)
 routine_cache_cleaning = [dict(access='+20')]
+# -- Parallel and memory instructions
+do_parallel = False
+nprocs = 32
+#memory = 20 # in gb
+#queue = 'days3'
 
 
 

@@ -37,6 +37,12 @@ dict_plot_params = {
             'bias'        : {'colors': '-50 -40 -30 -20 -10 -5 -2 2 5 10 20 30 40 50' , 'color':'BlueWhiteOrangeRed' },
             'model_model' : {'colors': '-50 -40 -30 -20 -10 -5 -2 2 5 10 20 30 40 50'},
         },
+       'hfls' : {
+            'default' : {},
+            'full_field'   : {'colors':'0 20 40 60 80 100 120 140 160 180 200' , 'color':'WhiteBlueGreenYellowRed' },
+            'bias'        : {'colors': '-50 -40 -30 -20 -10 -5 -2 2 5 15 25 35 45 55' , 'color':'BlueWhiteOrangeRed' },
+            'model_model' : {'colors': '-50 -40 -30 -20 -10 -5 -2 2 5 15 25 35 45 55'},
+        },
 
     'gpp' : {
         'default' : { 'color' : 'precip3_16lev' }

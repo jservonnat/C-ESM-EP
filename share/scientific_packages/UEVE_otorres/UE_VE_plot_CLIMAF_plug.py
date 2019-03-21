@@ -73,8 +73,8 @@ masku     = sys.argv[13]
 name      = sys.argv[14]
 
 widt     = float(widthu)
-dxxx     = float(dxx)
-dyyy     = float(dyy)
+dxxx     = int(dxx)
+dyyy     = int(dyy)
 scales   = float(scal)
 valma    = float(vma)
 valmi    = float(vmi)
@@ -129,7 +129,7 @@ file_ini.close()
 
 #---------------            Extraction de la variable pourc_ter             -----------------------
 file_ini=nc.Dataset(ref4)
-pourcter_o = file_ini.variables['pourc_ter'][:,:]
+pourcter_o = file_ini.variables['pourc_ter'][0,:,:]
 pourcter_W = pourcter_o[:,:which(lon_var,0)]
 pourcter_E = pourcter_o[:,which(lon_var,0):]
 pourcter = np.concatenate((pourcter_E,pourcter_W),axis=1)
@@ -197,11 +197,11 @@ dx = areA[::-1,:] / dy
 aire_mer = np.sum(areA[5:-5,:]*dy[5:-5,:],axis=0)
 aire_zon  = np.sum(areA[:,:]*dx[:,:],axis=1)
 
-grad_vp_x_me = np.sum(grad_vp_x[5:-5,:]*dy[5:-5,:],axis=0)
-grad_vp_y_zo = np.sum(grad_vp_y[:,:]*dx[:,:],axis=1)
+#grad_vp_x_me = np.sum(grad_vp_x[5:-5,:]*dy[5:-5,:],axis=0)
+#grad_vp_y_zo = np.sum(grad_vp_y[:,:]*dx[:,:],axis=1)
 
-grad_vp_x_mer = grad_vp_x_me/aire_mer
-grad_vp_y_zon = grad_vp_y_zo/aire_zon
+#grad_vp_x_mer = grad_vp_x_me/aire_mer
+#grad_vp_y_zon = grad_vp_y_zo/aire_zon
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""
@@ -234,13 +234,16 @@ cm_div_1 = plt.get_cmap('Spectral_r')
 cm_div_2 = plt.get_cmap(colormap)
 vmax_div = valma
 vmin_div = valmi
-levels_div=MaxNLocator(nbins=17).bin_boundaries(vmin_div,vmax_div)
+levels_div=MaxNLocator(nbins=17).tick_values(vmin_div,vmax_div)
+#levels_div=MaxNLocator(nbins=17).bin_boundaries(vmin_div,vmax_div)
 #levels_div = 
 
 X = lons
 Y = lats_r[2:-2]
-U = grad_vp_x_ma[2:-2,:]
-V = grad_vp_y_ma[2:-2,:]
+#U = grad_vp_x_ma[2:-2,:]
+#V = grad_vp_y_ma[2:-2,:]
+U = grad_vp_x[2:-2,:]
+V = grad_vp_y[2:-2,:]
 Z = vp[2:-2,:]
 
 
@@ -254,11 +257,11 @@ m.drawcoastlines()
 m.drawparallels(parallels,labels=[1,0,0,0],fontsize=20,linewidth=0.2)
 m.drawmeridians(meridians,labels=[0,0,0,1],fontsize=20,linewidth=0.2)
 
-U = grad_vp_x_ma[2:-2,:]
-V = grad_vp_y_ma[2:-2,:]
+#U = grad_vp_x_ma[2:-2,:]
+#V = grad_vp_y_ma[2:-2,:]
 #U = grad_vp_x[2:-2,:]
 #V = grad_vp_y[2:-2,:]
-Z = vp[2:-2,:]
+#Z = vp[2:-2,:]
 
 
 #plot_div = plt.contourf(X,Y,Z,cmap=cm_div_2,extend="both")#,levels=levels_div)

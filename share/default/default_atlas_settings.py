@@ -38,6 +38,14 @@ do_GLB_SFlux_maps = False
 do_Hotelling_Test = False
 do_Tropics_SFlux_maps = False
 do_ENSO_CLIVAR = False
+do_ENSO_CLIVAR_sstanino3_timeseries = False
+do_ENSO_CLIVAR_SSTA_std_maps = False
+do_ENSO_CLIVAR_pr_climatology_maps = False
+do_ENSO_CLIVAR_tauu_climatology_maps = False
+do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps = False
+do_ENSO_CLIVAR_linearRegression_drsds_dsstanino3_maps = False
+do_ENSO_CLIVAR_SSTA_annualcycles = False
+do_ENSO_CLIVAR_longitudinal_profile_tauu = False
 do_Monsoons_pr_anncyc = False
 monsoon_precip_regions = None
 do_mse_otorres_maps = False
@@ -54,6 +62,7 @@ add_product_in_title = True
 hover = False
 add_compareCompanion = True
 add_period_to_simname=True
+do_four_seasons_parcor=False
 
 do_ATLAS_TIMESERIES_SPATIAL_INDEXES = False
 do_ATLAS_VERTICAL_PROFILES = False
@@ -75,8 +84,6 @@ do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = False
 do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climatology_maps = False
-
-do_four_seasons_parcor=False
 
 thumbnail_size=None
 thumbnail_size_global="300*175"

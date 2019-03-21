@@ -31,11 +31,16 @@ from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = False
+safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
 clean_cache = 'False'
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
+# -- Parallel and memory instructions
+do_parallel = False
+#nprocs = 32
+#memory = 20 # in gb
+#queue = 'days3'
 
 
 
@@ -75,7 +80,6 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
 from climaf.api import *
-crm(pattern='CMIP')
 do_atlas_explorer        = True    # -> use atlas_explorer_variables to set your own selection of variables
 atlas_explorer_variables = [dict(variable='tas',
                                  project_specs = dict(
@@ -108,6 +112,10 @@ atlas_explorer_variables = [dict(variable='tas',
 #                            dict(variable='sic', proj='NH50', season='March'),
 #                            dict(variable='lai', season='MAM'),
 #                           ]
+
+# -- Activate the parallel execution of the plots
+do_parallel=False
+
 period_manager_test_variable = 'tas'
 # ---------------------------------------------------------------------------- >
 

@@ -36,6 +36,11 @@ safe_mode = True
 clean_cache = 'False'
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
+# -- Parallel and memory instructions
+do_parallel = False
+#nprocs = 32
+#memory = 30 # in gb; 30 for ocean atlasas
+#queue = 'days3' # onCiclad: h12, days3
 
 
 
@@ -90,6 +95,11 @@ for var in atmos_variables_list:
                                                          IGCM_CMIP6 = dict(table = 'Amon'),
                                                         ),
                                     ))
+
+# -- Activate the parallel execution of the plots
+do_parallel=False
+
+
 period_manager_test_variable = 'ua'
 
 thumbnail_size="250*250"

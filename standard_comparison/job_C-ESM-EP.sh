@@ -87,6 +87,7 @@ fi
 
 if [[ -d "/data" ]]; then
 export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
+export TMPDIR=${CLIMAF_CACHE}
 fi
 
 if [[ -d "/cnrm" ]]; then

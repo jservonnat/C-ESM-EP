@@ -14,7 +14,6 @@ import json
 import os, copy, subprocess, shlex
 
 
-
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
 # --              - the default values
@@ -25,7 +24,7 @@ import os, copy, subprocess, shlex
 
 # -- Description of the atlas
 # -----------------------------------------------------------------------------------
-desc="\n\nAtlas Comparaisons de simulations (par rapport a une simulation de ref)"
+desc="\n\nCliMAF Earth System Model Evaluation Platform: comparing multiple simulations against references (https://github.com/jservonnat/C-ESM-EP/wiki)"
 
 
 # -- Get the parameters that the atlas takes as arguments
@@ -118,14 +117,13 @@ if not index_name:
    index_name = str.replace(tmp_param_filename[len(tmp_param_filename)-1],'params_','')
    if opts.comparison:
       index_name = str.replace(index_name,'.py', '_'+opts.comparison+'.html')
-   # Add the season
-   #index_name = str.replace(index_name,'.py','_'+season+'.html')
    index_name = str.replace(index_name,'.py','.html')
 
 
 # -- Add the user to the html file name
 # -----------------------------------------------------------------------------------
-user_login = ( str.split(getcwd(),'/')[4] if getuser()=='fabric' else getuser() )
+username=getuser()
+user_login = ( str.split(getcwd(),'/')[4] if username=='fabric' else username )
 index_name = 'atlas_'+index_name
 
 
@@ -142,49 +140,31 @@ if clean_cache=='True':
 # -> Specific Ciclad (fabric): set the url of the web server and the paths where the
 # -> images are stored
 # -----------------------------------------------------------------------------------
-if onCiclad:
-   # Create a directory: /prodigfs/ipslfs/dods/user/CESMEP/comparison
-   # The atlas will be available in a self-consistent directory, containing the html and the figures.
-   # This way it is possible to clean the cache without removing the figures.
-   # It is also possible to copy the directory somewhere else (makes it transportable)
-   # subdir = '/prodigfs/ipslfs/dods/user/CESMEP/comparison'
-   component = str.replace( str.replace( str.replace( index_name, '_'+opts.comparison, '' ), '.html',''), 'atlas_', '')
-   subdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component
-   if not os.path.isdir(subdir):
-      os.makedirs(subdir)
-   else:
-      os.system('rm -f '+subdir+'/*.png')
-   alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(subdir,'dods')[1]
-   root_url = "https://vesg.ipsl.upmc.fr"
-
-if atCNRM:
-   # Import locations and create a sub-directory for the comparison 
-   # The atlas will be available in this self-consistent directory, containing the html and the figures.
-   # This way it is possible to clean the cache without removing the figures.
-   # It is also possible to copy the directory somewhere else (makes it transportable)
-   # We enforce the username in subdir name, thus allowing to share a root dir 
-   component = str.replace( str.replace( str.replace( index_name, '_'+opts.comparison, '' ), '.html',''), 'atlas_', '')
-   from locations import workspace,pathwebspace as alt_dir_name,username, root_url
-   subdir = workspace +'/C-ESM-EP/' +"/"+ opts.comparison+'_'+username+'/'+component
-   if not os.path.isdir(subdir): os.makedirs(subdir)
-   else                        : os.system('rm -f '+subdir+'/*.png')
+# -- Get component name
+component = str.replace( str.replace( str.replace( index_name, '_'+opts.comparison, '' ), '.html',''), 'atlas_', '')
 
 
-# -> Specif TGCC: Creation du repertoire de l'atlas, ou nettoyage de celui-ci si il existe deja
+# -- Get the site specifications:
 # -----------------------------------------------------------------------------------
-if atTGCC:
-   component_season = str.replace( str.replace( str.replace(index_name,'.html',''), 'atlas_', ''), '_'+opts.comparison, '' )
-   CWD = os.getcwd()
-   if '/drf/' in CWD: wspace='drf'
-   if '/gencmip6/' in CWD: wspace='gencmip6'
-   scratch_alt_dir_name = '/ccc/scratch/cont003/'+wspace+'/'+user_login+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'
-   work_alt_dir_name = scratch_alt_dir_name.replace('scratch', 'work')
-   root_url = "https://vesg.ipsl.upmc.fr"
-   alt_dir_name = scratch_alt_dir_name
-   if not os.path.isdir(scratch_alt_dir_name):
-      os.makedirs(scratch_alt_dir_name)
+#  -> path_to_cesmep_output_rootdir = where (directory) we physically store the results of the C-ESM-EP (root directory of the whole atlas tree)
+#  -> path_to_cesmep_output_rootdir_on_web_server = path to the results on the web server
+#  -> root_url_to_cesmep_outputs = URL of the root directory of the C-ESM-EP atlas (need to add 'C-ESM-EP', comparison and component to reach the atlas)
+from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs
+
+# -- Location of the directory where we will store the results of the atlas
+atlas_dir = path_to_cesmep_output_rootdir +'/C-ESM-EP/'+ opts.comparison+'_'+user_login+'/'+component
+
+# -- Url of the atlas (without the html file)
+atlas_url = str.replace( atlas_dir, path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs)
+
+# -- at CNRM and TGCC we create the atlas directory if it doesn't exist, or remove the figures
+if atCNRM or atTGCC or onCiclad:
+   if not os.path.isdir(atlas_dir):
+      os.makedirs(atlas_dir)
    else:
-      os.system('rm -f '+scratch_alt_dir_name+'/*.png')
+      os.system('rm -f '+atlas_dir+'/*.png')
+   
+
 
 # -> Specif TGCC and CNRM: Copy the empty.png image in the cache
 # -----------------------------------------------------------------------------------
@@ -197,14 +177,9 @@ if atTGCC or atCNRM :
       os.system(cmd)
 
 
-# -> Differentiate between Ciclad and TGCC -> the first one allows working
-# -> directly on the dods server ; the second one needs to go through a dods_cp 
-# -> That's why we set a 'dirname' on TGCC (copied with dods_cp afterwards)
-# -> and an 'altdir' on Ciclad
+# -- Specify the directory where we will output the atlas html file and the figures
 # -----------------------------------------------------------------------------------
-if atTGCC:   alternative_dir = {'dirname': scratch_alt_dir_name}
-if onCiclad or atCNRM : alternative_dir = {'dirname' : subdir}
-
+alternative_dir = {'dirname' : atlas_dir}
 
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug',
@@ -382,7 +357,8 @@ if do_SST_for_tuning:
               # -- Add offset to convert in Celsius
               #print 'wdataset_dict in tuning_metrics : ',wdataset_dict
               #print 'rawvalue = ',rawvalue
-              rawvalue = rawvalue - 273.15
+              if not rawvalue=='NA':
+                 rawvalue = rawvalue - 273.15
               # -- Compute bias
               results[dataset_name]['results'].update( {region['region_name']: {'rawvalue': str(rawvalue)} } )
               #
@@ -418,21 +394,21 @@ if do_SST_for_tuning:
       # -- Eventually, do the plots
       for region in regions_for_spatial_averages:
           # -- plot the raw values
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rawvalues_over_regions_for_tuning.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rawvalues_over_regions_for_tuning.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rawvalue.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
           print(cmd)
           os.system(cmd)
           index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
           #
           # -- plot the rmsc
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rmsc_over_regions_for_tuning.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rmsc_over_regions_for_tuning.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
           print(cmd)
           os.system(cmd)
           index+=cell("", os.path.basename(figname), thumbnail="700*600", hover=False)
           #
           # -- plot the rms
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rms_over_regions_for_tuning.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_rms_over_regions_for_tuning.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/TuningMetrics/plot_rmsc.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname+' --statistic rms'
           print(cmd)
           os.system(cmd)
@@ -475,65 +451,29 @@ if do_atlas_explorer:
        thumbN_size = thumbnail_size
     else:
        thumbN_size = None
-       #thumbN_size = thumbnail_size_global
-    #craz()
-    from datetime import datetime
-    start = datetime.utcnow()
 
-    index += section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
-                             'Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+    # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
+                  section_title='Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+    if do_parallel:
+       index += parallel_section(section_2D_maps, **kwargs)
+    else:
+       index += section_2D_maps(**kwargs)
+
+   
     if atlas_explorer_climato_variables:
-       index += section_climato_2D_maps(Wmodels, reference, proj, season, atlas_explorer_climato_variables,
-                             'Atlas Explorer Climatologies', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
-    end = datetime.utcnow()
-    duration = end - start
-
-    print 'Total Atlas Explorer done in :',duration.seconds,'seconds'
-
-
-# ---------------------------------------------------------------------------------------- #
-# -- Plotting the maps of the Atlas Explorer                                            -- #
-if do_parallel_atlas_explorer:
-    print '---------------------------------'
-    print '-- Processing Atlas Explorer   --'
-    print '-- do_parallel_atlas_explorer = True    --'
-    print '-- atlas_explorer_variables =  --'
-    print '-> ',atlas_explorer_variables
-    print '--                             --'
-    # -- Period Manager
-    if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='atlas_explorer')
-       apply_period_manager = True
-    else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
-       apply_period_manager = False
-    if thumbnail_size:
-       thumbN_size = thumbnail_size
-    else:
-       thumbN_size = None
-       #thumbN_size = thumbnail_size_global
-    #craz()
-    from datetime import datetime
-    start = datetime.utcnow()
-    index += parallel_section_2D_maps(Wmodels, reference, proj, season, atlas_explorer_variables,
-                             'Parallel Atlas Explorer', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
-    end = datetime.utcnow()
-    duration = end - start
-
-    print 'Total Parallel Atlas Explorer done in :',duration.seconds,'seconds'
-
-
+       # -- Update kwargs accordingly
+       kwargs.pop('add_line_of_climato_plots')
+       kwargs.update(dict(variables=atlas_explorer_climato_variables, section_title='Atlas Explorer Climatologies'))
+       #
+       if do_parallel:
+          index += parallel_section(section_climato_2D_maps, **kwargs)
+       else:
+          index += section_climato_2D_maps(**kwargs)
 
 
 
@@ -631,15 +571,8 @@ if do_main_time_series:
        WWmodels_clim = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     #
-    # -- Remove CMIP5 models
     WTSmodels = copy.deepcopy(WWmodels_ts)
-    #for model in WTSmodels:
-    #    if model['project'] in 'CMIP5':
-    #       WWmodels_ts.remove(model)
     WCLIMmodels = copy.deepcopy(WWmodels_clim)
-    #for model in WCLIMmodels:
-    #    if model['project'] in 'CMIP5':
-    #       WWmodels_clim.remove(model)
 
     #
     # -- Loop on the time series specified in the params file
@@ -656,6 +589,10 @@ if do_main_time_series:
         #
         highlight_period = []
         #
+        # -- Initialize WWmodels_clim and WWmodels_ts
+        WWmodels_clim = copy.deepcopy(WCLIMmodels)
+        WWmodels_ts = copy.deepcopy(WTSmodels)
+
         # -- Project specs: pass project-specific arguments
         if 'project_specs' in time_series:
            for dataset_dict in WWmodels_clim:
@@ -669,10 +606,6 @@ if do_main_time_series:
         if 'highlight_period' in time_series:
             if time_series['highlight_period']=='clim_period':
                 for dataset_dict in WWmodels_clim:
-                    # -- project_specs
-                    #if 'project_specs' in time_series:
-                    #   if dataset_dict['project'] in time_series['project_specs']:
-                    #      dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
                     print 'dataset_dict in time_series = ', dataset_dict
                     # -- Apply period manager if needed
                     if not use_available_period_set:
@@ -685,10 +618,6 @@ if do_main_time_series:
             #
             wdataset_dict = dataset_dict.copy()
             wdataset_dict.update(dict(variable=time_series['variable']))
-            # -- project_specs
-            #if 'project_specs' in time_series:
-            #    if dataset_dict['project'] in time_series['project_specs']:
-            #       dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
 
             # -- Apply period manager if needed
             if not use_available_period_set:
@@ -743,7 +672,6 @@ if do_main_time_series:
         print 'ens_ts = ', ens_ts
         print 'p = ', p
         myplot = ts_plot(ens_ts, **p)
-        #cdrop(myplot)
         #
         # ==> -- Add the plot to the line
         # -----------------------------------------------------------------------------------------
@@ -792,14 +720,17 @@ if do_atmos_maps:
        Wmodels = copy.deepcopy(Wmodels_clim)
        apply_period_manager = False
     for model in Wmodels: model.update(dict(table='Amon'))
-    index += section_2D_maps(Wmodels, reference, proj, season, atmos_variables,
-                             'Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager)
-
-
+    # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atmos_variables,
+                  section_title='Atmosphere', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  apply_period_manager=apply_period_manager)
+    if do_parallel:
+       index += parallel_section(section_2D_maps, **kwargs)
+    else:
+       index += section_2D_maps(**kwargs)
 
 
 
@@ -822,9 +753,9 @@ if reference=='default':
    woa13_ac=dict(project="ref_climatos",product='WOA13-v2')
    rapid_ac=dict(project="ref_climatos",variable='moc', product='RAPID')
    # (2) Time Series (N months, 2D fields)
-   hadisst_ts=dict(project="ref_ts",product='HadISST', period='1870-2010')#,period=opts.period)
-   aviso_ts=dict(project="ref_ts",product='AVISO-L4', period='1993-2010')#,period=opts.period)
-   oras4_ts=dict(project="ref_ts",product='ORAS4', period='1958-2014')#,period=opts.period)
+   hadisst_ts=dict(project="ref_ts",product='HadISST', period='1870-2010')
+   aviso_ts=dict(project="ref_ts",product='AVISO-L4', period='1993-2010')
+   oras4_ts=dict(project="ref_ts",product='ORAS4', period='1958-2014')
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -848,23 +779,18 @@ if do_ocean_2D_maps:
        thumbN_size = thumbnail_size
     else:
        thumbN_size = thumbnail_size_global
-    #
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=ocean_2D_variables,
+                  section_title='Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  thumbnail_size=thumbN_size,
+                  ocean_variables=ocean_variables,
+                  apply_period_manager=apply_period_manager)
     if do_parallel:
-       index += parallel_section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables,
-                             'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager, thumbnail_size=thumbN_size)
+       index += parallel_section(section_2D_maps, **kwargs)
     else:
-       index += section_2D_maps(Wmodels, reference, proj, season, ocean_2D_variables, 
-                             'Ocean 2D maps', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-      	                     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbN_size,
-                             ocean_variables=ocean_variables,
-                             apply_period_manager=apply_period_manager)
+       index += section_2D_maps(**kwargs)
 
 
 
@@ -1004,7 +930,6 @@ if do_curl_maps:
             wmodel = model.copy()
             #
             # -- Compute the curl with tauu and tauv
-            #if 'frequency_for_annual_cycle' in wmodel: wmodel.update( dict(frequency = wmodel['frequency_for_annual_cycle']) )
             curl_climato = plot_curl(tauu_variable, tauv_variable, curl_variable, wmodel, season, proj, domain=domain, custom_plot_params=custom_plot_params,
                                        safe_mode=safe_mode, regrid_option='remapdis', apply_period_manager=apply_period_manager)
             index += cell("",curl_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
@@ -1014,8 +939,6 @@ if do_curl_maps:
         #
         # -- Close the table
         index += close_table()
-
-
 
 
 
@@ -1170,7 +1093,6 @@ if do_ATLAS_VERTICAL_PROFILES:
 # -- Plotting the Zonal Mean Slices                                                     -- #
 if do_ATLAS_ZONALMEAN_SLICES:
 
-    index+=section("Zonal Means Sections per ocean basin --> Model regridded on reference (before computing the zonal mean)",level=4)
     # Loop over variables
     # -- Period Manager
     if not use_available_period_set:
@@ -1181,31 +1103,16 @@ if do_ATLAS_ZONALMEAN_SLICES:
        apply_period_manager = False
     # -- Add table
     for model in Wmodels: model.update(dict(table='Omon', grid='gn'))
-    for variable in zonmean_slices_variables:
-        # Loop over seasons
-        for season in zonmean_slices_seas:
-            index+=open_table()+open_line(variable+"-"+season)+close_line()+close_table()
-            for basin in zonmean_slices_basins:
-                ## -- Model Grid
-                index+=start_line(title_region(basin)+' '+varlongname(variable)+' ('+variable+')')
-                if reference=='default':
-                   ref = variable2reference(variable, my_obs=custom_obs_dict)
-                else:
-                   ref = reference.copy()
-                basin_zonmean_modelgrid = zonal_mean_slice2(ref, variable, basin=basin, season=season,
-                                                ref=None, safe_mode=safe_mode, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
-                                                apply_period_manager=apply_period_manager)
-                index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
-                for model in Wmodels:
-                    basin_zonmean_modelgrid = zonal_mean_slice2(model, variable, basin=basin, season=season,
-                                                ref=ref, safe_mode=safe_mode, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
-                                                apply_period_manager=apply_period_manager)
-                    index+=cell("", basin_zonmean_modelgrid, thumbnail=thumbsize_zonalmean, hover=hover, **alternative_dir)
-                index+=close_line()+close_table()
-
-    index+=section("Zonal Means Sections with CDFtools per basin",level=4)
+    kwargs = dict(models=Wmodels,reference=reference,zonmean_slices_variables=zonmean_slices_variables,
+                  zonmean_slices_basins=zonmean_slices_basins,zonmean_slices_seas=zonmean_slices_seas,
+                  custom_plot_params=custom_plot_params, apply_period_manager=apply_period_manager, custom_obs_dict=custom_obs_dict,
+                  safe_mode=safe_mode, y=y, thumbsize_zonalmean=thumbsize_zonalmean, do_parallel=do_parallel,
+                  hover=hover, alternative_dir=alternative_dir)
+    if do_parallel:
+       index += parallel_section(section_zonalmean_slices, **kwargs)
+    else:
+       index += section_zonalmean_slices(**kwargs)
+    
 
 
 
@@ -1418,137 +1325,144 @@ if do_ENSO_CLIVAR:
     # -- Open the section ---------------------------------------------------------------
     index += section("ENSO - CLIVAR diagnostics", level=4)
     #
-    # -- Time series of SST anomalies (departures from annual cycle ---------------
-    line_title = 'Time Series of Nino3 SST anomalies (departures from annual cycle)'
-    index+=start_line(line_title)
-    # -- Plot the reference
-    ref_ENSO_tos = dict(project='ref_ts', period='1870-2010', product='HadISST', frequency='monthly')
-    plot_ref_ENSO_ts_ssta =  ENSO_ts_ssta(ref_ENSO_tos, safe_mode=safe_mode)
-    index+=cell("", plot_ref_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
-    # And loop over the models
-    # -- Period Manager
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
-    for dataset_dict in Wmodels:
-        # -- Add table
-        dataset_dict.update(dict(variable='tos', table='Omon', grid='gn'))
-        frequency_manager_for_diag(dataset_dict, diag='TS')
-        get_period_manager(dataset_dict)
-        dataset_dict.pop('variable')
-    apply_period_manager = False
-    #
-    for model in Wmodels:
-        plot_model_ENSO_ts_ssta = ENSO_ts_ssta(model, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
-        index+=cell("", plot_model_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
-    #
-    # -- Standard deviation of SST anomalies (departures from annual cycle ---------------
-    # -- Upper band at the top of the section
-    line_title = 'Standard Deviation of SST anomalies (deviations from annual cycle)'
-    index+=start_line(line_title)
-    # -- Plot the reference
-    plot_ref_ENSO_std_ssta =  ENSO_std_ssta(ref_ENSO_tos, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
-    index+=cell("", plot_ref_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    # And loop over the models
-    for model in Wmodels:
-        plot_model_ENSO_std_ssta =  ENSO_std_ssta(model, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
-        index+=cell("", plot_model_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
-    #
-    # -- Precipitation climatology over 'ENSO' domain ------------------------------------
-    line_title = 'Annual Mean Climatology of Precipitation'
-    index+=start_line(line_title)
-    # -- Plot the reference
-    ref_ENSO_pr = variable2reference('pr')# ; ref_ENSO_pr.update(dict(frequency='seasonal'))
-    plot_ref_ENSO_pr_clim = ENSO_pr_clim(ref_ENSO_pr, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-    index+=cell("", plot_ref_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    # And loop over the models
-    for model in Wmodels:
-        model.update(dict(table='Amon', grid='gr'))
-        plot_model_ENSO_pr_clim = ENSO_pr_clim(model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-        index+=cell("", plot_model_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
-    #
-    # -- Zonal Wind stress climatology over 'ENSO' domain -------------------------------
-    line_title = 'Annual Mean Climatology of Zonal Wind Stress'
-    index+=start_line(line_title)
-    # -- Plot the reference
-    ref_ENSO_tauu = variable2reference('tauu')# ; ref_ENSO_tauu.update(dict(frequency='seasonal'))
-    plot_ref_ENSO_tauu_clim = ENSO_tauu_clim(ref_ENSO_tauu, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-    index+=cell("", plot_ref_ENSO_tauu_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    # And loop over the models
-    for model in Wmodels:
-        plot_model_ENSO_tauu_clim =  ENSO_tauu_clim(model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-        index+=cell("", plot_model_ENSO_tauu_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
-    #
-    # -- Map of linear regression coefficients = d(Zonal Wind Stress) / d(SSTA Nino3) ----
-    line_title = 'Linear Regression = d(Zonal Wind Stress) / d(SSTA Nino3)'
-    index+=start_line(line_title)
-    # -- Plot the reference
-    ref_ENSO_tauu = dict(project='ref_ts', product='ERAInterim', period='2001-2010', variable='tauu', frequency='monthly')
-    ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010', frequency='monthly')
-    plot_ref_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(ref_ENSO_tauu, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-    index+=cell("", plot_ref_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    # And loop over the models
-    for model in Wmodels:
-        tos_model = model.copy() ; tos_model.update(variable='tos', table='Omon', grid='gn')
-        tauu_model = model.copy() ; tauu_model.update(variable='tauu', table='Amon', grid='gr')
-        plot_model_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(tauu_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-        index+=cell("", plot_model_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
-    #
-    # -- Map of linear regression coefficients = d(ShortWave) / d(SSTA Nino3) ----------
-    line_title = 'Linear Regression = d(ShortWave) / d(SSTA Nino3)'
-    index+=start_line(line_title)
-    # -- Plot the reference
-    ref_ENSO_rsds = dict(project='ref_ts', product='CERES-EBAF-Ed2-7', period='2001-2010', variable='rsds', frequency='monthly')
-    ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010', frequency='monthly')
-    plot_ref_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(ref_ENSO_rsds, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-    index+=cell("", plot_ref_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    # And loop over the models
-    for model in Wmodels:
-        tos_model = model.copy() ; tos_model.update(variable='tos', table='Omon', grid='gn')
-        rsds_model = model.copy() ; rsds_model.update(variable='rsds', table='Amon', grid='gr')
-        plot_model_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(rsds_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-        index+=cell("", plot_model_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
-    #
-    # -- Annual Cycles -----------------------------------------------------------------
-    line_title = 'Annual cycles Nino3 (SST, SSTA, Std.dev)'
-    index+=start_line(line_title)
-    for model in Wmodels: model.update(dict(table='Omon', grid='gn'))
-    plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-    thumbN_size="600*350"
-    index+=cell("", plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=start_line('')
-    for model in Wmodels:
-        one_model_plot_annual_cycles = plot_ENSO_annual_cycles([model], safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-        index+=cell("", one_model_plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
-
-
-    # -- Longitudinal profile of Zonal Wind Stress --------------------------------------
-    line_title = 'Annual Mean Climatology of Zonal Wind Stress (-5/5N profile)'
-    index+=start_line(line_title)
-    for model in Wmodels: model.update(dict(table='Amon', grid='gr'))
-    plot_tauu_profile = plot_ZonalWindStress_long_profile(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-    thumbN_size="450*400"
-    index+=cell("", plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=start_line('')
-    for model in Wmodels:
-        one_model_plot_tauu_profile = plot_ZonalWindStress_long_profile([model], safe_mode=safe_mode, apply_period_manager=apply_period_manager)
-        index+=cell("", one_model_plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-    close_line()
-    index+=close_table()
+    if do_ENSO_CLIVAR_sstanino3_timeseries:
+       # -- Time series of SST anomalies (departures from annual cycle ---------------
+       line_title = 'Time Series of Nino3 SST anomalies (departures from annual cycle)'
+       index+=start_line(line_title)
+       # -- Plot the reference
+       ref_ENSO_tos = dict(project='ref_ts', period='1870-2010', product='HadISST', frequency='monthly')
+       plot_ref_ENSO_ts_ssta =  ENSO_ts_ssta(ref_ENSO_tos, safe_mode=safe_mode)
+       index+=cell("", plot_ref_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
+       # And loop over the models
+       # -- Period Manager
+       Wmodels = period_for_diag_manager(models, diag='ENSO')
+       for dataset_dict in Wmodels:
+           # -- Add table
+           dataset_dict.update(dict(variable='tos', table='Omon', grid='gn'))
+           frequency_manager_for_diag(dataset_dict, diag='TS')
+           get_period_manager(dataset_dict)
+           dataset_dict.pop('variable')
+       apply_period_manager = False
+       #
+       for model in Wmodels:
+           plot_model_ENSO_ts_ssta = ENSO_ts_ssta(model, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
+           index+=cell("", plot_model_ENSO_ts_ssta, thumbnail=thumbnail_ENSO_ts_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
+       #
+    if do_ENSO_CLIVAR_SSTA_std_maps:
+       # -- Standard deviation of SST anomalies (departures from annual cycle ---------------
+       # -- Upper band at the top of the section
+       line_title = 'Standard Deviation of SST anomalies (deviations from annual cycle)'
+       index+=start_line(line_title)
+       # -- Plot the reference
+       plot_ref_ENSO_std_ssta =  ENSO_std_ssta(ref_ENSO_tos, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
+       index+=cell("", plot_ref_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       # And loop over the models
+       for model in Wmodels:
+           plot_model_ENSO_std_ssta =  ENSO_std_ssta(model, apply_period_manager=apply_period_manager, safe_mode=safe_mode)
+           index+=cell("", plot_model_ENSO_std_ssta, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
+       #
+    if do_ENSO_CLIVAR_pr_climatology_maps:
+       # -- Precipitation climatology over 'ENSO' domain ------------------------------------
+       line_title = 'Annual Mean Climatology of Precipitation'
+       index+=start_line(line_title)
+       # -- Plot the reference
+       ref_ENSO_pr = variable2reference('pr')# ; ref_ENSO_pr.update(dict(frequency='seasonal'))
+       plot_ref_ENSO_pr_clim = ENSO_pr_clim(ref_ENSO_pr, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+       index+=cell("", plot_ref_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       # And loop over the models
+       for model in Wmodels:
+           model.update(dict(table='Amon', grid='gr'))
+           plot_model_ENSO_pr_clim = ENSO_pr_clim(model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+           index+=cell("", plot_model_ENSO_pr_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
+       #
+    if do_ENSO_CLIVAR_tauu_climatology_maps:
+       # -- Zonal Wind stress climatology over 'ENSO' domain -------------------------------
+       line_title = 'Annual Mean Climatology of Zonal Wind Stress'
+       index+=start_line(line_title)
+       # -- Plot the reference
+       ref_ENSO_tauu = variable2reference('tauu')# ; ref_ENSO_tauu.update(dict(frequency='seasonal'))
+       plot_ref_ENSO_tauu_clim = ENSO_tauu_clim(ref_ENSO_tauu, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+       index+=cell("", plot_ref_ENSO_tauu_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       # And loop over the models
+       for model in Wmodels:
+           plot_model_ENSO_tauu_clim =  ENSO_tauu_clim(model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+           index+=cell("", plot_model_ENSO_tauu_clim, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
+       #
+    if do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps:
+       # -- Map of linear regression coefficients = d(Zonal Wind Stress) / d(SSTA Nino3) ----
+       line_title = 'Linear Regression = d(Zonal Wind Stress) / d(SSTA Nino3)'
+       index+=start_line(line_title)
+       # -- Plot the reference
+       ref_ENSO_tauu = dict(project='ref_ts', product='ERAInterim', period='2001-2010', variable='tauu', frequency='monthly')
+       ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010', frequency='monthly')
+       plot_ref_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(ref_ENSO_tauu, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+       index+=cell("", plot_ref_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       # And loop over the models
+       for model in Wmodels:
+           tos_model = model.copy() ; tos_model.update(variable='tos', table='Omon', grid='gn')
+           tauu_model = model.copy() ; tauu_model.update(variable='tauu', table='Amon', grid='gr')
+           plot_model_ENSO_tauuA_on_SSTANino3 =  ENSO_linreg_tauuA_on_SSTANino3(tauu_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+           index+=cell("", plot_model_ENSO_tauuA_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
+       #
+    if do_ENSO_CLIVAR_linearRegression_drsds_dsstanino3_maps:
+       # -- Map of linear regression coefficients = d(ShortWave) / d(SSTA Nino3) ----------
+       line_title = 'Linear Regression = d(ShortWave) / d(SSTA Nino3)'
+       index+=start_line(line_title)
+       # -- Plot the reference
+       ref_ENSO_rsds = dict(project='ref_ts', product='CERES-EBAF-Ed2-7', period='2001-2010', variable='rsds', frequency='monthly')
+       ref_ENSO_tos  = dict(project='ref_ts', variable='tos', product='HadISST', period='2001-2010', frequency='monthly')
+       plot_ref_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(ref_ENSO_rsds, ref_ENSO_tos, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+       index+=cell("", plot_ref_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       # And loop over the models
+       for model in Wmodels:
+           tos_model = model.copy() ; tos_model.update(variable='tos', table='Omon', grid='gn')
+           rsds_model = model.copy() ; rsds_model.update(variable='rsds', table='Amon', grid='gr')
+           plot_model_ENSO_rsds_on_SSTANino3 =  ENSO_linreg_rsds_on_SSTANino3(rsds_model,tos_model, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+           index+=cell("", plot_model_ENSO_rsds_on_SSTANino3, thumbnail=thumbnail_ENSO_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
+       #
+    if do_ENSO_CLIVAR_SSTA_annualcycles:
+       # -- Annual Cycles -----------------------------------------------------------------
+       line_title = 'Annual cycles Nino3 (SST, SSTA, Std.dev)'
+       index+=start_line(line_title)
+       for model in Wmodels: model.update(dict(table='Omon', grid='gn'))
+       plot_annual_cycles = plot_ENSO_annual_cycles(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+       thumbN_size="600*350"
+       index+=cell("", plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=start_line('')
+       for model in Wmodels:
+           one_model_plot_annual_cycles = plot_ENSO_annual_cycles([model], safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+           index+=cell("", one_model_plot_annual_cycles, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
+       #
+    if do_ENSO_CLIVAR_longitudinal_profile_tauu:
+       # -- Longitudinal profile of Zonal Wind Stress --------------------------------------
+       line_title = 'Annual Mean Climatology of Zonal Wind Stress (-5/5N profile)'
+       index+=start_line(line_title)
+       for model in Wmodels: model.update(dict(table='Amon', grid='gr'))
+       plot_tauu_profile = plot_ZonalWindStress_long_profile(Wmodels, safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+       thumbN_size="450*400"
+       index+=cell("", plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=start_line('')
+       for model in Wmodels:
+           one_model_plot_tauu_profile = plot_ZonalWindStress_long_profile([model], safe_mode=safe_mode, apply_period_manager=apply_period_manager)
+           index+=cell("", one_model_plot_tauu_profile, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+       close_line()
+       index+=close_table()
 
 
 
@@ -1756,10 +1670,12 @@ if do_Hotelling_Test:
   # -- the results from the Hotelling test (json files, plots...) so that we will
   # -- be able to easily check the available results.
   if onCiclad:
-     hotelling_outputdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/Hotelling_test_results/'
+     #hotelling_outputdir = '/prodigfs/ipslfs/dods/'+getuser()+'/C-ESM-EP/Hotelling_test_results/'
+     hotelling_outputdir = path_to_cesmep_output_rootdir+'/Hotelling_test_results/'
      if not os.path.isdir(hotelling_outputdir+'json_files/'): os.makedirs(hotelling_outputdir+'json_files/')
      if not os.path.isdir(hotelling_outputdir+'CEOFs_plots/'): os.makedirs(hotelling_outputdir+'CEOFs_plots/')
-     atlas_outdir = subdir+'/Hotelling_Test/'
+     #atlas_outdir = subdir+'/Hotelling_Test/'
+     atlas_outdir = atlas_dir
      if not os.path.isdir(atlas_outdir):
         os.makedirs(atlas_outdir)
      else:
@@ -1981,7 +1897,8 @@ if do_Hotelling_Test:
       # ----------------------------------------------------------------------------------------------
       # --> Make the plot now with the list of datasets in input
       for stat in ['T2']:
-          figname = subdir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
+          #figname = subdir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
+          figname = atlas_dir +'/'+ opts.comparison+'_'+variable+'_'+stat+'_hotelling_statistic.pdf'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/Plot-Hotelling-test-results-one-variable.R --test_json_files '+TestFileName+' --figname '+figname+' --main_dir '+main_cesmep_path+'share/scientific_packages/Hotelling_Test --statistic '+stat
           print cmd
           p=subprocess.Popen(shlex.split(cmd))
@@ -2086,7 +2003,8 @@ if do_Hotelling_Test:
       for region in regions_for_spatial_averages:
           with open(outjson, 'w') as outfile:
                json.dump(results, outfile, sort_keys = True, indent = 4)
-          figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
+          #figname = subdir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
+          figname = atlas_dir+ '/'+ opts.comparison+'_'+variable+'_'+region['region_name']+'_space_averages_over_.png'
           cmd = 'Rscript --vanilla '+main_cesmep_path+'share/scientific_packages/Hotelling_Test/plot_space_averages_over_regions.R --metrics_json_file '+outjson+' --region '+region['region_name']+' --figname '+figname
           print(cmd)
           os.system(cmd)
@@ -2104,7 +2022,8 @@ if do_Hotelling_Test:
       for dataset_name in names_to_keep_order_in_atlas:
           # -- Add the CEOF1 plot figure (hard coded) to the html line in a cell (climaf.html function)
           pdffigname_ceof1 = TestFiles[dataset_name]['output_ceof1_figname']
-          pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', subdir)
+          #pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', subdir)
+          pngfigname_ceof1 = str.replace(str.replace(pdffigname_ceof1,'pdf','png'), hotelling_outputdir+'CEOFs_plots', atlas_dir)
           os.system('convert -density 150 '+pdffigname_ceof1+' -quality 90 '+pngfigname_ceof1)
           if variable=='hfls':
              ceof_thumbnail = "650*450"
@@ -2299,10 +2218,6 @@ if do_Tropics_SFlux_maps:
 
 
 
-
-
-
-
 # ----------------------------------------------
 # --                                             \
 # --  Green Ocean                                 \
@@ -2331,15 +2246,34 @@ if do_biogeochemistry_2D_maps:
        apply_period_manager = False
     # -- Add table
     for model in Wmodels: model.update(dict(table='Omon'))
-    index += section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
-                             'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
-                             ocean_variables=ocean_variables,
-   			     alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             apply_period_manager=apply_period_manager)
-
-
+    #if do_parallel:
+    #   index += parallel_section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
+    #                         'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
+    #                         add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+    #                         add_line_of_climato_plots=add_line_of_climato_plots,
+    #                         alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+    #                         apply_period_manager=apply_period_manager)#, thumbnail_size=thumbN_size)
+    #else:
+    #   index += section_2D_maps(Wmodels, reference, proj, season, ocebio_2D_variables,
+    #                         'Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
+    #                         add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+    #                         add_line_of_climato_plots=add_line_of_climato_plots,
+    #                         alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+    #                         #thumbnail_size=thumbN_size,
+    #                         ocean_variables=ocean_variables,
+    #                         apply_period_manager=apply_period_manager)
+    #
+    kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=ocebio_2D_variables,
+                  section_title='Ocean Biogeochemistry 2D', domain=domain, custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  ocean_variables=ocean_variables,
+                  apply_period_manager=apply_period_manager)
+    if do_parallel:
+       index += parallel_section(section_2D_maps, **kwargs)
+    else:
+       index += section_2D_maps(**kwargs)
 
 
 
@@ -2922,7 +2856,7 @@ if do_mse_otorres_diff_maps:
     # -- Declare UEVE script for differences (O.Torres)
     ueve_script_diff = main_cesmep_path+'share/scientific_packages/UEVE_otorres/UE_VE_plot_CLIMAF_diff_plug.py'
     cscript('ueve_otorres_diff',
-            'python '+ueve_script_diff+' --ue_ref=${in} ${in_2} ${in_3} ${in_4} ${in_5} ${in_6} "${title}" "${arrow_width}" '+
+            'python '+ueve_script_diff+' ${in} ${in_2} ${in_3} ${in_4} ${in_5} ${in_6} "${title}" "${arrow_width}" '+
                  '"${colorbar}" "${narrow_x}" "${narrow_y}" "${arrow_scale}" "${min}" "${max}" "${land_mask_value}" ${out}',
             format='graph')
     #
@@ -2980,7 +2914,7 @@ if do_mse_otorres_diff_maps:
         MSE_diff_plot = ueve_otorres_diff(ue_ref, ve_ref, ue_dat, ve_dat, aire_dat, pourc_ter_dat, title=title, **default_ueve_diff)
         #
         # -- Add the plot to the line
-        index += cell("",safe_mode_cfile_plot(MSE_plot_diff, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        index += cell("",safe_mode_cfile_plot(MSE_diff_plot, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)
         #
     # -- Close the line and the table of the climatos
     index+=close_line() + close_table()
@@ -3418,58 +3352,45 @@ if do_annual_cycle_precip:
 
 # -- Adding the compareCompanion JavaScript functionality to make a selection of images
 if add_compareCompanion:
+   print 'Add compareCompanion'
    index += compareCompanion()
 
+# -- End the index
 index += trailer()
-import os 
-if alt_dir_name :
-    #
-    if onCiclad or atCNRM :
-       outfile=subdir+"/"+index_name
-       print 'outfile = ',outfile
-       with open(outfile,"w") as filout : filout.write(index)
-       print(' -- ')
-       print(' -- ')
-       print(' -- ')
-       print("index written as : "+outfile)
-       print("Available at this address "+root_url+outfile.replace(subdir,alt_dir_name))
-    #
-    if atTGCC:
-       # -- Ecriture du fichier html dans le repertoire sur scratch
-       outfile=scratch_alt_dir_name+index_name
-       with open(outfile,"w") as filout : filout.write(index)
-       print("index actually written as : "+outfile)
-       if not os.path.isdir(work_alt_dir_name):
-          os.makedirs(work_alt_dir_name)
-       else:
-          print 'rm -rf '+work_alt_dir_name+'/*'
-          os.system('rm -rf '+work_alt_dir_name+'/*')
-       cmd1 = 'cp -r '+scratch_alt_dir_name+'* '+work_alt_dir_name
-       print cmd1
-       os.system(cmd1)
-       #
-       # Rajouter thredds si sur gencmip6
-       # -- dods_cp du repertoire copie sur le work
-       public_space = '/ccc/work/cont003/thredds/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login
-       cmd12 = 'rm -rf '+public_space+'/'+component_season
-       print cmd12
-       os.system(cmd12)
-       cmd2 = 'dods_cp '+work_alt_dir_name+' '+public_space+'/'
-       print cmd2
-       os.system(cmd2)
-       print(' -- ')
-       print(' -- ')
-       print(' -- ')
-       if 'gencmip6' in getcwd():
-          print('Index available at : https://vesg.ipsl.upmc.fr/thredds/fileServer/work_thredds/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'+index_name)
-       else:
-          print('Index available at : https://vesg.ipsl.upmc.fr/thredds/fileServer/work/'+getuser()+'/C-ESM-EP/'+opts.comparison+'_'+user_login+'/'+component_season+'/'+index_name)
 
-    #
-else :
-    with open(index_name,"w") as filout : filout.write(index)
-    print("The atlas is ready as %s"%index_name)
+# -- Write the atlas html file
+outfile=atlas_dir+"/"+index_name
+print 'outfile = ',outfile
+with open(outfile,"w") as filout : filout.write(index)
+#
+if atTGCC:
+   # -- Ecriture du fichier html dans le repertoire sur scratch
+   path_to_comparison_outdir_workdir_tgcc = atlas_dir.replace('scratch', 'work')
+   if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
+      os.makedirs(path_to_comparison_outdir_workdir_tgcc)
+   else:
+      print 'rm -rf '+path_to_comparison_outdir_workdir_tgcc+'/*'
+      os.system('rm -rf '+path_to_comparison_outdir_workdir_tgcc+'/*')
+   cmd1 = 'cp -r '+atlas_dir+'* '+path_to_comparison_outdir_workdir_tgcc
+   print cmd1
+   os.system(cmd1)
+   #
+   # -- dods_cp du repertoire copie sur le work
+   cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
+   print cmd12
+   os.system(cmd12)
+   cmd2 = 'dods_cp '+path_to_comparison_outdir_workdir_tgcc+' '+path_to_comparison_on_web_server+'/'
+   print cmd2
+   os.system(cmd2)
 
+print(' -- ')
+print(' -- ')
+print(' -- ')
+print('Index available at : '+outfile.replace(path_to_cesmep_output_rootdir,root_url_to_cesmep_outputs))
+if atTGCC:
+   print("The atlas is ready as ", str.replace(index_name, atlas_dir, path_to_comparison_outdir_workdir_tgcc))
+else:
+   print("The atlas is ready as ", index_name)
 
 # -----------------------------------------------------------------------------------
 # --   End PART 3

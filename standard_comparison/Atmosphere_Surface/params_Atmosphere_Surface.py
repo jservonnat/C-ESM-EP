@@ -38,6 +38,11 @@ safe_mode = True
 clean_cache = 'False'
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
+# -- Parallel and memory instructions
+do_parallel = False
+nprocs = 32
+#memory = 20 # in gb
+#queue = 'days3'
 
 
 # -- Set the reference against which we plot the diagnostics 
@@ -76,6 +81,8 @@ atmos_variables_list = ['tas','pr','hfls','hfss','uas','vas','tauu','tauv','psl'
                    'albt','albs','rsutcs','rsut','rlut','rlutcs',
                    'crest','crelt','crett','cress']
 
+from CM_atlas import *
+#crm(pattern='CMIP6')
 atmos_variables = []
 for var in atmos_variables_list:
     for seas in my_seasons:
@@ -87,6 +94,9 @@ for var in atmos_variables_list:
                                         IGCM_CMIP6 = dict(table = 'Amon'),
                                     ),
         ))
+
+# -- Activate the parallel execution of the plots
+do_parallel=False
 
 period_manager_test_variable = 'tas'
 # ---------------------------------------------------------------------------- >

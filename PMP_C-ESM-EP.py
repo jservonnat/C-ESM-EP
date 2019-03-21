@@ -22,6 +22,7 @@ from PMP_MG.PMP_MG_time_manager import build_metric_outpath, get_keys_for_PMP_MG
 
 clog('debug')
 
+
 # -- Define the path to the main C-ESM-EP directory:
 # -----------------------------------------------------------------------------------
 rootmainpath = str.split(os.getcwd(),'C-ESM-EP')[0] + 'C-ESM-EP/'
@@ -128,6 +129,14 @@ add_period_to_simname    = True
 #parallel_coordinates_script = '/home/jservon/Evaluation/PCMDI-MP/R_script/parallel_coordinates.R'
 parallel_coordinates_script = main_cesmep_path+'share/scientific_packages/parallel_coordinates/parallel_coordinates.R'
 index_filename_root = 'parallel_coordinates'
+
+
+# -- Get the default parameters from default_atlas_settings.py -> Priority = default
+# -----------------------------------------------------------------------------------
+default_file = '/share/default/default_atlas_settings.py'
+while not os.path.isfile(os.getcwd()+default_file):
+    default_file = '/..'+default_file
+execfile(os.getcwd()+default_file)
 
 
 # -- Parameters Level 1/ Parameters from the parameter file (if there is one)
@@ -280,7 +289,7 @@ else:
    #Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
    Wmodels = period_for_diag_manager(models, diag='clim')
    for dataset_dict in Wmodels:
-       dataset_dict.update(dict(variable='tas'))
+       dataset_dict.update(dict(variable='tas', DIR='ATM'))
        frequency_manager_for_diag(dataset_dict, diag='clim')
        get_period_manager(dataset_dict)
        dataset_dict.pop('variable')
@@ -495,7 +504,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                 #wvar = str.split(var,'_')[0]
                 wmodel_dict.update(dict(variable=wvar))
                 if wmodel_dict['project']=='CMIP5':
-                   if not table in wmodel_dict:
+                   if not 'table' in wmodel_dict:
                       wmodel_dict.update(dict(table='Amon'))
                 if wmodel_dict['project']=='CMIP6':
                    if not 'table' in wmodel_dict:

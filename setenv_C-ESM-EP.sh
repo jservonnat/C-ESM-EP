@@ -61,6 +61,14 @@ function my_append {
 # -- Setup the environment...
 # -------------------------------------------------------- >
 
+if [[ -d "${PWD}/share/cesmep_modules" ]] ; then
+    cesmep_modules=${PWD}/share/cesmep_modules
+elif [[ -d "${PWD}/../share/cesmep_modules" ]] ; then
+    cesmep_modules=${PWD}/../share/cesmep_modules
+elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
+    cesmep_modules=${PWD}/../../share/cesmep_modules
+fi
+
 # --> On Curie
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
   unset PYTHONPATH
@@ -73,13 +81,13 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
   module load cdo/1.9.2
   module load ncview ncl_ncarg nco
   # CDO fix
-  source /ccc/work/cont003/dsm/p86jser/miniconda/etc/profile.d/conda.sh
-  working_conda=/ccc/work/cont003/dsm/p86jser/miniconda/envs/cesmep_env
+  source /ccc/work/cont003/drf/p86jser/miniconda/etc/profile.d/conda.sh
+  working_conda=/ccc/work/cont003/drf/p86jser/miniconda/envs/cesmep_env
   conda activate ${working_conda}
   LD_LIBRARY_PATH=${working_conda}/lib:${LD_LIBRARY_PATH}
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=$(ccc_home -u igcmg --cccwork)/CliMAF/climaf_1.0.3_CESMEP
+  export CLIMAF=$(ccc_home -u igcmg --cccwork)/CliMAF/climaf_1.2
   my_append -bp PYTHONPATH ${CLIMAF}
   # # -- CDFTools
   export CLIMAF_CACHE=${SCRATCHDIR}/cache_atlas_explorer
@@ -103,8 +111,11 @@ if [[ -d "/data" ]] ; then
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.0.3_CESMEP
+  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.8
+  #export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.2
+  #cesmep_modules=${PWD}/share/cesmep_modules
   my_append -bp PYTHONPATH ${CLIMAF}
+  my_append -bp PYTHONPATH ${cesmep_modules}
   my_append -bp PATH ${CLIMAF}
   export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/atlas_explorer
   # -- CDFTools
@@ -131,8 +142,10 @@ if [[ -d "/cnrm" ]] ; then
     export UVCDAT_ANONYMOUS_LOG=False
 
     # CliMAF
-    export CLIMAF=/cnrm/est/COMMON/climaf/climaf_1.0.3_CESMEP
+    export CLIMAF=/cnrm/est/COMMON/climaf/climaf_1.2
+    #export CLIMAF=/cnrm/est/USERS/senesi/dev/climaf
     my_append -bp PYTHONPATH ${CLIMAF}
+    my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
     here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
     export CLIMAF_CACHE=$(cd $here ; python -c 'from locations import climaf_cache; print climaf_cache')
@@ -140,4 +153,5 @@ if [[ -d "/cnrm" ]] ; then
     # -- CDFTools
     my_append -bp PATH /cnrm/est/COMMON/CDFTOOLS_3.0/bin
     echo "PATH ${PATH}"
+    echo "PYTHONPATH ${PYTHONPATH}"
 fi
