@@ -140,7 +140,7 @@
 routine_cache_cleaning = [dict(age='+20')]
 
 # -- Set the path to the grids
-from climaf.site_settings import onCiclad, atTGCC, atCNRM
+from climaf.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
 if onCiclad:
    gridpath='/data/igcmg/database/grids/'
 if atTGCC:
@@ -168,6 +168,22 @@ if atCNRM :
          model['gridfile']=gridpath+'ORCA1_mesh_zgr.nc'
          model['mesh_hgr']=gridpath+'ORCA1_mesh_hgr.nc'
 
+if atCerfacs :
+   models = [
+
+      # Sorte de dataset mais que avec les attributs communs a toutes les variables et simus
+      dict(project = 'PRIMAVERA', model='CNRM-CM6-1', simulation='spinup-1950',
+           realization='r1i1p1f1', period='1950-1979', frequency='monthly',
+           customname='CNRM-CM6-1_spinup-1950_r1i1p1f1'
+           ),
+      # dict(project = 'CMIP6', model='CNRM-CM6-1', experiment='abrupt-4xCO2',
+      #      frequency='monthly', period='1850-1853',
+      #      customname='CNRM-CM6-abrupt'
+      #      ),
+
+   ]
+
+
 # --> case onCiclad or atTGCC:
 if onCiclad or atTGCC :
    models = [
@@ -194,7 +210,7 @@ if onCiclad or atTGCC :
           ),
 
       dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
-           frequency='monthly', period='1980-2005', version='latest'
+           frequency='monthly', period='1980-2005', version='latest',
            customname='CMIP5 IPSL-CM5A-MR'
            ),
 
