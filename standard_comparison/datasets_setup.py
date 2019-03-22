@@ -210,7 +210,7 @@ if onCiclad or atTGCC :
           ),
 
       dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
-           frequency='monthly', period='1980-2005', version='latest'
+           frequency='monthly', period='1980-2005', version='latest',
            customname='CMIP5 IPSL-CM5A-MR'
            ),
 
