@@ -137,6 +137,7 @@ def plot_sic_climato_with_ref(variable,model,ref,season,proj, add_product_in_tit
        get_period_manager(wmodel)
     # -- Get the datasets
     ds_model = ds(**wmodel)
+    frequency_manager_for_diag(wref, diag='SE')
     get_period_manager(wref)
     ds_ref   = ds(**wref)
     #

@@ -8,6 +8,7 @@ from climaf.html import *
 from climaf import cachedir
 from CM_atlas import *
 from climaf.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
+from climaf.classes import Climaf_Error
 from getpass import getuser
 from climaf import __path__ as cpath
 import json
@@ -655,6 +656,10 @@ if do_main_time_series:
             #
         #
         # -- Finalize the CliMAF ensemble
+        # -> Test if we have duplicates in names_ens => will produce problems in the ensemble
+        #    where all the member need to have unique names 
+        if len(set(names_ens)) < len(names_ens):
+           raise Climaf_Error("All the members/simulations from datasets_setup.py need to have unique names, which is not the case here = %s ; use customname to provide names to your simulations (use another key, like customname=${experiment}, customname=${model}_${realization}, or provide a name, like customname='My simulation' ; see https://github.com/jservonnat/C-ESM-EP/wiki/Building-my-comparison-part-1:-datasets_setup.py-and-atlas-subdirectories#4-the-customname-control-the-name-in-the-plot)"%(`names_ens`))
         ens_ts = cens(ens_ts_dict, order=names_ens)
         #
         # -- Do the plot

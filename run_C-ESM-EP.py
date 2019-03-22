@@ -114,7 +114,7 @@ else:
    comparison=str.replace(args[1],'/','')
    argument='None'
    if len(args)==3:
-      argument=args[2]
+      argument=str.replace(args[2],'/','')
       if argument.lower() in ['url']:
          components=allcomponents
       elif argument=='OA':
@@ -280,9 +280,9 @@ for component in components:
 if argument.lower() not in ['url']:
   for component in available_components:
     if component not in metrics_components:
-       atlas_url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       atlas_url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+component+'/'+component+'_'+comparison+'.html'
     if onCiclad or atCNRM :
        if component in job_components:
           atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
@@ -337,9 +337,9 @@ for component in job_components:
     #
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
-       atlas_url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       atlas_url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html' 
+       atlas_url = comparison_url+component+'/'+component+'_'+comparison+'.html' 
     if component in job_components:
        atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
     #
@@ -405,7 +405,7 @@ for component in job_components:
           print '    -> Parallel execution: nprocs = '+nprocs
        #
        # -- Build the job command line
-       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -j eo -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     print cmd
     #
     if atCNRM:
@@ -465,9 +465,9 @@ for component in job_components:
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
     if component not in metrics_components:
-       url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
+       url = comparison_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html'
+       url = comparison_url+component+'/'+component+'_'+comparison+'.html'
     pysed(frontpage_html, 'target_'+component, url)
 
 # -- Edit the comparison name
