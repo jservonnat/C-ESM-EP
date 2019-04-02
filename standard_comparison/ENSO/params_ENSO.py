@@ -32,8 +32,8 @@ from os import getcwd
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
@@ -93,41 +93,9 @@ period_manager_test_variable = 'tos'
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "ENSO CLIVAR Diagnostics"
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
-# -- Thumbnail sizes
-# ---------------------------------------------------------------------------- >
-#thumbnail_ENSO_size="400*175"
-#thumbnail_ENSO_ts_size="400*175"
-
-
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
 
 
 # -- Name of the html file

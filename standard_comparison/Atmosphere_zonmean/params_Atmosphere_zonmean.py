@@ -32,8 +32,8 @@ from os import getcwd
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
@@ -74,8 +74,7 @@ domain = {}
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-do_atmos_maps   = True    # -> [LMDZ_SE Atlas] builds a section with a list of standard atmospheric variables (2D maps and zonal means)
-atmos_variables_list = [
+atlas_explorer_variables_list = [
                    'ua','va','ta','hus','hur',
                    dict(variable='ua',season='DJF'),dict(variable='va',season='DJF'),dict(variable='ta',season='DJF'),
                    dict(variable='hus',season='DJF'),dict(variable='hur',season='DJF'),
@@ -88,17 +87,17 @@ atmos_variables_list = [
                    dict(variable='ua',y='log',season='JJA'),dict(variable='va',y='log',season='JJA'),dict(variable='ta',y='log',season='JJA'),
                    dict(variable='hus',y='log',season='JJA'),dict(variable='hur',y='log',season='JJA'),
 ]
-atmos_variables = []
-for var in atmos_variables_list:
+atlas_explorer_variables = []
+for var in atlas_explorer_variables_list:
     if isinstance(var,dict):
        tmpvar = var.copy()
        tmpvar.update(dict(add_climato_contours=True))
-       atmos_variables.append(tmpvar)
+       atlas_explorer_variables.append(tmpvar)
     else:
-       atmos_variables.append(dict(variable=var, add_climato_contours=True))
+       atlas_explorer_variables.append(dict(variable=var, add_climato_contours=True))
 
 # -- Project Specs
-for var in atmos_variables:
+for var in atlas_explorer_variables:
     var.update(dict(project_specs = dict(
                                          CMIP5      = dict(table = 'Amon'),
                                          CMIP6      = dict(table = 'Amon'),
@@ -107,6 +106,9 @@ for var in atmos_variables:
                                         ),
               ))
 
+# -- Display full climatology maps =
+# -- Use this variable as atlas_explorer_variables to activate the climatology maps
+atlas_explorer_climato_variables = None
 
 # -- Activate the parallel execution of the plots
 do_parallel=False
@@ -125,36 +127,10 @@ period_manager_test_variable = 'ua'
 
 thumbnail_size="250*250"
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Zonal mean - seasonal"
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
 
 
 # -- Name of the html file

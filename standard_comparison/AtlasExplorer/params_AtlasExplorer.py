@@ -32,8 +32,8 @@ from os import getcwd
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
@@ -80,7 +80,6 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
 from climaf.api import *
-do_atlas_explorer        = True    # -> use atlas_explorer_variables to set your own selection of variables
 atlas_explorer_variables = [dict(variable='tas',
                                  project_specs = dict(
                                      IGCM_OUT=dict(DIR='ATM'),
@@ -117,6 +116,11 @@ atlas_explorer_variables = [dict(variable='tas',
 do_parallel=False
 
 period_manager_test_variable = 'tas'
+
+# -- Display full climatology maps =
+# -- Use this variable as atlas_explorer_variables to activate the climatology maps
+atlas_explorer_climato_variables = None
+
 # ---------------------------------------------------------------------------- >
 
 
@@ -125,42 +129,13 @@ period_manager_test_variable = 'tas'
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "Atlas Explorer"
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
-
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
 
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
-
 
 # -- Name of the html file
-# -- if index_name is set to None, it will be build as user_comparisonname_season
-# -- with comparisonname being the name of the parameter file without 'params_'
-# -- (and '.py' of course)
+# -- if index_name is set to None, it will be build as atlas_component_comparison.html
 # ---------------------------------------------------------------------------- >
 index_name = None
 

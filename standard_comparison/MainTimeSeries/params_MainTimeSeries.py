@@ -34,8 +34,8 @@ from climaf.operators import derive
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
 #    to crm() at the end of the atlas (for a routine cache management)
 routine_cache_cleaning = [dict(access='+20')]
@@ -176,38 +176,6 @@ for elt in time_series_specs:
 
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
-
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "IGCM meetings main time series"
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
-
-# -- Add the name of the product in the title of the figures
-# ---------------------------------------------------------------------------- >
-add_product_in_title = True
-
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
-
 
 # -- Name of the html file
 # -- if index_name is set to None, it will be build as user_comparisonname_season

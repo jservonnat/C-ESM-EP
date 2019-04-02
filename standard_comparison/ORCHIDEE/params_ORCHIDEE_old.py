@@ -4,7 +4,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: Monsoons                                                           - |
+# --             - component: ORCHIDEE                                                           - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -38,10 +38,9 @@ clean_cache = 'False'
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
-nprocs = 32
-#memory = 20 # in gb
-#queue = 'days3'
-
+#nprocs = 32
+#memory = 30 # in gb; 30 for ocean atlasas
+#queue = 'days3' # onCiclad: h12, days3
 
 
 # -- Set the reference against which we plot the diagnostics 
@@ -66,20 +65,101 @@ proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, 
 domain = {}
 
 
+# ---------------------------------------------------------------------------- >
+# -- ORCHIDEE Energy Budget
+# -- This section is based on the same mechanisms as Atlas Explorer; it is
+# -- thus possible to use the functionalities (python dictionaries to add options
+# -- with a variable)
+# ---------------------------------------------------------------------------- >
+variables_energy_budget = ['fluxlat','fluxsens','albvis','albnir','tair','swdown','lwdown']
+# -> climato + bias map + difference with the first simulation
+do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+# -> climato + bias maps
+do_ORCHIDEE_Energy_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
+# -> climato ref simu (first) + differences with the first simulation
+do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+# ---------------------------------------------------------------------------- >
+
+period_manager_test_variable = 'fluxlat'
+
+
 
 # ---------------------------------------------------------------------------- >
-# -- Monsoons - precipitation annual cycles 
+# -- ORCHIDEE Water Budget
+# -- This section is based on the same mechanisms as Atlas Explorer; it is
+# -- thus possible to use the functionalities (python dictionaries to add options
+# -- with a variable)
 # ---------------------------------------------------------------------------- >
-do_Monsoons_pr_anncyc  = True    # -> Same for the seasonal averages in the tropics
-
-#monsoon_precip_regions = [
-#        dict(name='All-India Rainfall', domain=dict(lonmin=65,lonmax=95,latmin=5,latmax=30)),
-#        dict(name='West African Monsoon', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
-#      ]
-period_manager_test_variable = 'pr'
-
+variables_water_budget  = ['transpir_PFT_2','inter_PFT_2_3_10','evapnu','subli','evap','runoff','drainage','snow']
+# -> climato + bias map + difference with the first simulation
+do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+# -> climato + bias maps
+do_ORCHIDEE_Water_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
+# -> climato ref simu (first) + differences with the first simulation
+do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
 # ---------------------------------------------------------------------------- >
 
+
+# ---------------------------------------------------------------------------- >
+# -- ORCHIDEE Carbon Budget
+# -- This section is based on the same mechanisms as Atlas Explorer; it is
+# -- thus possible to use the functionalities (python dictionaries to add options
+# -- with a variable)
+# ---------------------------------------------------------------------------- >
+variables_carbon_budget = ['gpptot', 'lai', 'GPP_treeFracPrimDec', 'GPP_treeFracPrimEver', 'GPP_c3PftFrac', 'GPP_c4PftFrac', 'total_soil_carb_PFT_tot',
+                           'maint_resp_PFT_2','growth_resp_PFT_2','hetero_resp_PFT_2','auto_resp_PFT_2']
+# -> climato + bias map + difference with the first simulation
+do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+# -> climato + bias maps
+do_ORCHIDEE_Carbon_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
+# -> climato ref simu (first) + differences with the first simulation
+do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+# ---------------------------------------------------------------------------- >
+
+
+# ---------------------------------------------------------------------------- >
+# -- Some variable settings
+# -- In this section we show how to add variables definitions 'on the fly'
+# -- to a project (with calias() )
+# -- It is also possible to create derived variables with derive().
+# ---------------------------------------------------------------------------- >
+# --> !!! This will not stay in the param file
+cscript('select_veget_types','ncks ${selection} -v ${var} ${in} ${out}')
+
+# -- GPP total ready for comparison with obs
+calias("IGCM_OUT", 'cfracgpp', 'gpp' ,filenameVar='stomate_ipcc_history')
+derive("IGCM_OUT", 'gpptot', 'divide', 'cfracgpp','Contfrac')
+# -> alias for the obs
+calias("ref_climatos", 'gpptot', 'gpp')
+
+# -- GPP on all PFTs
+calias("IGCM_OUT", 'GPP'   ,'gpp' , scale=0.001 ,filenameVar='sechiba_history')
+
+calias("IGCM_OUT", 'Contfrac' ,filenameVar='sechiba_history')
+calias("IGCM_OUT", 'maxvegetfrac' ,filenameVar='sechiba_history')
+
+# GPP * maxvegetfrac * Contfrac
+derive("IGCM_OUT", 'GPPmaxvegetfrac', 'multiply', 'GPP', 'maxvegetfrac')
+derive("IGCM_OUT", 'GPPmaxvegetfracContfrac', 'multiply', 'GPPmaxvegetfrac', 'Contfrac')
+
+# GPP treeFracPrimDec
+derive('IGCM_OUT', 'GPP3689','select_veget_types','GPPmaxvegetfracContfrac',selection='-d veget,2 -d veget,5 -d veget,7 -d veget,8')
+derive("IGCM_OUT", 'GPP_treeFracPrimDec', 'ccdo', 'GPP3689', operator='vertsum -selname,GPP3689')
+
+# GPP treeFracPrimEver
+derive('IGCM_OUT', 'GPP2457','select_veget_types','GPPmaxvegetfracContfrac',selection='-d veget,1 -d veget,3 -d veget,4 -d veget,6')
+derive("IGCM_OUT", 'GPP_treeFracPrimEver', 'ccdo', 'GPP2457', operator='vertsum -selname,GPP2457')
+
+# GPP c3PftFrac
+derive('IGCM_OUT', 'GPP1012','select_veget_types','GPPmaxvegetfracContfrac',selection='-d veget,9 -d veget,11')
+derive("IGCM_OUT", 'GPP_c3PftFrac', 'ccdo', 'GPP1012', operator='vertsum -selname,GPP1012')
+
+# GPP c4PftFrac" (PFTs 11, 13)
+derive('IGCM_OUT', 'GPP1113','select_veget_types','GPPmaxvegetfracContfrac',selection='-d veget,10 -d veget,12')
+derive("IGCM_OUT", 'GPP_c4PftFrac', 'ccdo', 'GPP1113', operator='vertsum -selname,GPP1113')
+
+thumbnail_size='300*175'
+# ---------------------------------------------------------------------------- >
 
 
 
@@ -89,7 +169,7 @@ period_manager_test_variable = 'pr'
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Monsoons Diagnostics"
+atlas_head_title = "ORCHIDEE"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
@@ -103,18 +183,6 @@ while not os.path.isfile(os.getcwd()+style_file):
     i=i+1
 style_file = os.getcwd()+style_file
 
-# -- Thumbnail sizes
-# ---------------------------------------------------------------------------- >
-thumbnail_size           = '300*175'
-thumbnail_polar_size     = '250*250'
-thumbnail_size_3d        = '250*250'
-thumbsize_zonalmean      = '450*250'
-thumbsize_TS             = '450*250'
-thumbsize_MOC_slice      = '475*250'
-thumbsize_MAXMOC_profile = '325*250'
-thumbsize_MOC_TS         = '325*250'
-thumbsize_VertProf       = '250*250'
-thumbnail_monsoon_pr_anncyc_size = '375*600'
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
@@ -147,6 +215,7 @@ index_name = None
 from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
+
 
 
 # ---------------------------------------------------------------------------------------- #

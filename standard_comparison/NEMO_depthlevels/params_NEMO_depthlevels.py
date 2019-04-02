@@ -31,8 +31,8 @@ from os import getcwd
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
 #    to crm() at the end of the atlas (for a routine cache management)
 routine_cache_cleaning = [dict(access='+20'), dict(access='+10', pattern='oneVar')]
@@ -78,9 +78,9 @@ domain = {}
 # ---------------------------------------------------------------------------- >
 # -- 2D Maps
 do_ocean_2D_maps       = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
-ocean_2D_variables = []
+atlas_explorer_variables = []
 for var in ['to200', 'to1000', 'so200', 'so1000']:
-    ocean_2D_variables.append (dict(variable=var, season='ANM',
+    atlas_explorer_variables.append (dict(variable=var, season='ANM',
                                     project_specs = dict(
                                                          CMIP5      = dict(table = 'Omon'),
                                                          CMIP6      = dict(table = 'Omon', grid='gn'),
@@ -90,11 +90,12 @@ for var in ['to200', 'to1000', 'so200', 'so1000']:
                                     ))
 remapping = True
 
-# -- Mixed Layer Depth
-#do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
 
-# -- Wind stress curl
-#do_curl_maps = True
+# -- Display full climatology maps =
+# -- Use this variable as atlas_explorer_variables to activate the climatology maps
+atlas_explorer_climato_variables = None
+
+
 period_manager_test_variable = 'to'
 
 # -- Activate the parallel execution of the plots
@@ -105,61 +106,16 @@ do_parallel=True
 
 
 
-# ---------------------------------------------------------------------------- >
-# -- White Ocean : Sea Ice diagnostics
-# ---------------------------------------------------------------------------- >
-#do_seaice_maps         = True    # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
-#do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
-# ---------------------------------------------------------------------------- >
-
-
 
 
 
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "NEMO - T & S @depth"
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
-# -- Thumbnail sizes
-# ---------------------------------------------------------------------------- >
-thumbnail_size           = '300*175'
-thumbnail_polar_size     = '250*250'
-thumbnail_size_3d        = '250*250'
-thumbsize_zonalmean      = '450*250'
-thumbsize_TS             = '450*250'
-thumbsize_MOC_slice      = '475*250'
-thumbsize_MAXMOC_profile = '325*250'
-thumbsize_MOC_TS         = '325*250'
-thumbsize_VertProf       = '250*250'
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
 
 
 # -- Name of the html file

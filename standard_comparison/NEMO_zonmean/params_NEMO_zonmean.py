@@ -33,10 +33,10 @@ from os import getcwd
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True 
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
-routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar', age='+10')]
+routine_cache_cleaning = [dict(age='+20') ]
 # -- Parallel and memory instructions
 do_parallel = True
 nprocs = 32
@@ -95,47 +95,10 @@ period_manager_test_variable = 'thetao'
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "NEMO zonal means"
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
-# -- Thumbnail sizes
-# ---------------------------------------------------------------------------- >
-thumbnail_size           = '300*175'
-thumbnail_polar_size     = '250*250'
-thumbnail_size_3d        = '250*250'
-thumbsize_zonalmean      = '450*250'
-thumbsize_TS             = '450*250'
-thumbsize_MOC_slice      = '475*250'
-thumbsize_MAXMOC_profile = '325*250'
-thumbsize_MOC_TS         = '325*250'
-thumbsize_VertProf       = '250*250'
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
 
 
 # -- Name of the html file

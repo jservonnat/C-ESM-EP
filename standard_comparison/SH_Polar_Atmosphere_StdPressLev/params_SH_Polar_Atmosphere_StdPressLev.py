@@ -1,10 +1,11 @@
+
 # ------------------------------------------------------------------------------------------ \
 # --                                                                                        - \
 # --                                                                                         - \
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: Atmosphere_StdPressLev                                             - |
+# --             - component: Atmosphere_Surface                                                 - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -25,6 +26,7 @@
 
 
 
+
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
@@ -32,8 +34,8 @@ from os import getcwd
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
@@ -41,7 +43,6 @@ do_parallel = False
 #nprocs = 32
 #memory = 30 # in gb; 30 for ocean atlasas
 #queue = 'days3' # onCiclad: h12, days3
-
 
 
 # -- Set the reference against which we plot the diagnostics 
@@ -74,21 +75,22 @@ domain = {}
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-do_atmos_maps   = True    # -> [LMDZ_SE Atlas] builds a section with a list of standard atmospheric variables (2D maps and zonal means)
 my_seasons = ['ANM','DJF','JJA']
-atmos_variables_list = [
+atlas_explorer_variables_list = [ 
                    'ua850','ua500','ua200',
                    'va850','va500','va200',
                    'ta850','ta500','ta200',
                    'hur850','hur500','hur200',
                    'hus850','hus500','hus200',
                    'zg500']
-period_manager_test_variable = 'ua'
 
-atmos_variables = []
-for var in atmos_variables_list:
+
+period_manager_test_variable = 'tas'
+
+atlas_explorer_variables = []
+for var in atlas_explorer_variables_list:
     for seas in my_seasons:
-        atmos_variables.append(dict(variable=var, season=seas,
+        atlas_explorer_variables.append(dict(variable=var, season=seas,
                                     project_specs = dict(
                                                          CMIP5      = dict(table = 'Amon'),
                                                          CMIP6      = dict(table = 'Amon'),
@@ -100,6 +102,9 @@ for var in atmos_variables_list:
 # -- Activate the parallel execution of the plots
 do_parallel=False
 
+# -- Display full climatology maps =
+# -- Use this variable as atlas_explorer_variables to activate the climatology maps
+atlas_explorer_climato_variables = None
 
 # ---------------------------------------------------------------------------- >
 
@@ -110,36 +115,10 @@ do_parallel=False
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "SH Polar St. - Atmosphere Standard press. lev."
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
 
 
 # -- Name of the html file
@@ -148,6 +127,9 @@ add_compareCompanion = True
 # -- (and '.py' of course)
 # ---------------------------------------------------------------------------- >
 index_name = None
+
+thumbnail_size="250*250"
+
 
 # -- Custom plot params
 # -- Changing the plot parameters of the plots
@@ -159,7 +141,6 @@ from custom_plot_params import dict_plot_params as custom_plot_params
 #    for an example/
 
 
-thumbnail_size='250*250'
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #

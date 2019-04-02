@@ -32,8 +32,8 @@ from os import getcwd
 verbose='debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to 'True' (string) to clean the CliMAF cache
-clean_cache = 'False'
+# -- Set to True to clean the CliMAF cache
+clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
@@ -71,16 +71,38 @@ domain = {}
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-variables_energy_budget = ['fluxlat','fluxsens','albvis','albnir','tair','swdown','lwdown']
+#variables_energy_budget = ['fluxlat','fluxsens','albvis','albnir','tair','swdown','lwdown']
+tmp_variables_energy_budget = ['hfls','hfss','tas','rsds','rlds']
+variables_energy_budget = []
+for variable in tmp_variables_energy_budget:
+    variables_energy_budget.append(dict(variable=variable, focus='land', mpCenterLonF=0, 
+                                        project_specs=dict(CMIP6=dict(table='Amon'),
+                                                           IGCM_OUT=dict(DIR='SRF')
+                                                          )
+                                       )
+                                  )
 # -> climato + bias map + difference with the first simulation
-do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
 # -> climato + bias maps
 do_ORCHIDEE_Energy_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
 # -> climato ref simu (first) + differences with the first simulation
-do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+
+calias("IGCM_OUT", 'tas', 'tair' ,filenameVar='sechiba_history')
+calias("IGCM_OUT", 'rsds', 'swdown' ,filenameVar='sechiba_history')
+calias("IGCM_OUT", 'rlds', 'lwdown' ,filenameVar='sechiba_history')
+
+calias('ref_climatos', 'hfls', 'fluxlat')
+calias('ref_climatos', 'hfss', 'fluxsens')
+
+custom_obs_dict = dict(
+   hfls=dict(project='ref_climatos', product='EnsembleLEcor', frequency='annual_cycle'),
+   hfss=dict(project='ref_climatos', product='EnsembleHcor', frequency='annual_cycle'),
+)
+
 # ---------------------------------------------------------------------------- >
 
-period_manager_test_variable = 'fluxlat'
+period_manager_test_variable = 'hfls'
 
 
 
@@ -90,13 +112,26 @@ period_manager_test_variable = 'fluxlat'
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-variables_water_budget  = ['transpir_PFT_2','inter_PFT_2_3_10','evapnu','subli','evap','runoff','drainage','snow']
+#variables_water_budget  = ['transpir_PFT_2','inter_PFT_2_3_10','evapnu','subli','evap','runoff','drainage','snow']
+variables_water_budget  = ['es','et','mrros','mrrob','snw']
+tmp_vars = []
+for var in variables_water_budget:
+    if var in ['snw']:
+       tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='LImon'))
+    elif var in ['mrrob','es']:
+       tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='*mon'))
+    elif var in ['et']:
+       tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Nonemon'))
+    else:
+       tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Lmon'))
+variables_water_budget = tmp_vars
 # -> climato + bias map + difference with the first simulation
-do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
 # -> climato + bias maps
-do_ORCHIDEE_Water_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Water_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
 # -> climato ref simu (first) + differences with the first simulation
-do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+do_ORCHIDEE_Water_Budget_climatology_maps   = True     # -> [ORCHIDEE Atlas
 # ---------------------------------------------------------------------------- >
 
 
@@ -106,18 +141,34 @@ do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORC
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-variables_carbon_budget = ['gpptot', 'lai', 'GPP_treeFracPrimDec', 'GPP_treeFracPrimEver', 'GPP_c3PftFrac', 'GPP_c4PftFrac', 'total_soil_carb_PFT_tot',
-                           'maint_resp_PFT_2','growth_resp_PFT_2','hetero_resp_PFT_2','auto_resp_PFT_2']
+#variables_carbon_budget = ['gpptot', 'lai', 'GPP_treeFracPrimDec', 'GPP_treeFracPrimEver', 'GPP_c3PftFrac', 'GPP_c4PftFrac', 'total_soil_carb_PFT_tot',
+#                           'maint_resp_PFT_2','growth_resp_PFT_2','hetero_resp_PFT_2','auto_resp_PFT_2']
+variables_carbon_budget = ['cLitter', 'cSoil', 'cVeg', 'lai', 'gpp', 'nbp']
+#variables_carbon_budget = [ 'cSoil', 'cVeg', 'nbp']
+tmp_vars = []
+for var in variables_carbon_budget:
+    if var in ['cSoil']:
+       tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Emon'))
+    else:
+       tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Lmon'))
+variables_carbon_budget = tmp_vars
+
+#calias('CMIP6', 'gpptot')
+#cLitter, cSoil, cVeg, lai, gpptot, nbp 
+# --> c = stocks ; *1000 PgC/m2
+# --> autres = flux ; *1000*86400*365 gC/an/m2
 # -> climato + bias map + difference with the first simulation
-do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
 # -> climato + bias maps
-do_ORCHIDEE_Carbon_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Carbon_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
 # -> climato ref simu (first) + differences with the first simulation
-do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+#do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
+# -> climatotologies simulations 
+do_ORCHIDEE_Carbon_Budget_climatology_maps   = True     # -> [ORCHIDEE Atlas
 # ---------------------------------------------------------------------------- >
 
 
-# ---------------------------------------------------------------------------- >
+# ----------#------------------------------------------------------------------ >
 # -- Some variable settings
 # -- In this section we show how to add variables definitions 'on the fly'
 # -- to a project (with calias() )
@@ -127,6 +178,7 @@ do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [OR
 cscript('select_veget_types','ncks ${selection} -v ${var} ${in} ${out}')
 
 # -- GPP total ready for comparison with obs
+calias("IGCM_CMIP6", 'gpptot', 'gpp')
 calias("IGCM_OUT", 'cfracgpp', 'gpp' ,filenameVar='stomate_ipcc_history')
 derive("IGCM_OUT", 'gpptot', 'divide', 'cfracgpp','Contfrac')
 # -> alias for the obs
@@ -167,36 +219,10 @@ thumbnail_size='300*175'
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "ORCHIDEE"
-
-# -- Setup a custom css style file
-# ---------------------------------------------------------------------------- >
-style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
-    print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
-
-# -- Add the compareCompanion (P. Brockmann)
-# --> Works as a 'basket' on the html page to select some figures and
-# --> display only this selection on a new page
-# ---------------------------------------------------------------------------- >
-add_compareCompanion = True
 
 
 # -- Name of the html file

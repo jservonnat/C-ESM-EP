@@ -1,15 +1,4 @@
 #!/bin/bash
-if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
-#SBATCH --partition visu
-# Nom du job
-#SBATCH --job-name CESMEP
-# Temps limite du job
-#SBATCH --time=03:00:00
-#SBATCH --output=cesmep.o
-#SBATCH --error=cesmep.e
-# Nombre de noeuds et de processus
-#SBATCH --nodes=1 --ntasks-per-node=36
-else
 ######################
 ## CURIE   TGCC/CEA ##
 ######################
@@ -17,10 +6,11 @@ else
 #MSUB -eo
 #MSUB -n 1              # Reservation du processus
 #MSUB -T 36000          # Limite de temps elapsed du job
-#MSUB -q standard
-##MSUB -Q normal
-#MSUB -A devcmip6
-fi
+##MSUB -q standard
+#MSUB -q skylake
+#MSUB -Q normal
+#MSUB -A gencmip6
+#MSUB -m store,work,scratch
 set +x
 # -------------------------------------------------------- >
 # --
@@ -46,7 +36,7 @@ date
 
 # -- Specify the atlas script
 # -------------------------------------------------------- >
-atlas_file='main_C-ESM-EP.py'
+atlas_file='new_main_C-ESM-EP.py'
 env_script='setenv_C-ESM-EP.sh'
 
 # -- Cas interactif depuis le repertoire de la comparaison
@@ -57,9 +47,9 @@ if [[ $1 != '' ]]; then
   #comparison=$(basename $(dirname $0) | sed 's=/==g')
   env=../${env_script}
   main=../${atlas_file}
-  datasets_setup_file=datasets_setup.py
+  #datasets_setup_file=datasets_setup.py
   # -- Name of the parameter file
-  param_file=${component}/params_${component}.py
+  #param_file=${component}/params_${component}.py
 
 else
 
@@ -72,13 +62,13 @@ else
   echo $WD
   env=../../${env_script}
   main=../../${atlas_file}
-  datasets_setup_file=../datasets_setup.py
+  #datasets_setup_file=../datasets_setup.py
   if [[ -n ${WD} ]]; then
      cd $WD
   fi
   component=${component%/}
   # -- Name of the parameter file
-  param_file=params_${component}.py
+  #param_file=params_${component}.py
 
 fi
 
@@ -89,36 +79,32 @@ source ${env}
 
 # -- Provide a season
 # -------------------------------------------------------- >
-season='ANM'
+#season='ANM'
 
 # -- Set CliMAF cache (automatically)
 # -------------------------------------------------------- >
-# TGCC
 if [[ -d "/ccc" && ! -d "/data" ]]; then
 export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
-fi
-
-# Ciclad
-if [[ -d "/data" && ! -d "/scratch/globc"]]; then
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 
-# CNRM
+if [[ -d "/data" ]]; then
+export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_v2
+export TMPDIR=${CLIMAF_CACHE}
+fi
+
 if [[ -d "/cnrm" ]]; then
     [ -z $CLIMAF_CACHE ] &&  echo "CLIMAF_CACHE should be set by launch job" && exit 1
     export CLIMAF_CACHE
+    export TMPDIR=${CLIMAF_CACHE}
 fi
-
-# Cerfacs -> CLIMAF_CACHE is set from setenv_C-ESM-EP.sh (same cache used for all atlases)
-#if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
 
 # -- Run the atlas...
 # -------------------------------------------------------- >
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 echo "Using CliMAF cache = ${CLIMAF_CACHE}"
-echo python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
-
-python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
+#echo python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
+#python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
+python ${main} --comparison ${comparison} --component ${component}
 
 
