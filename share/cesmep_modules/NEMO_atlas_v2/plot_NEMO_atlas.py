@@ -6,7 +6,7 @@ StringFontHeight=0.019
 
 def plot_curl(tauu_variable, tauv_variable, curl_variable, dat, season, proj='GLOB', domain={}, custom_plot_params={}, do_cfile=True, mpCenterLonF=None,
                  cdogrid='r360x180', regrid_option='remapbil', safe_mode=True,
-                 shade_missing=False, plot_context_suffix=None, apply_period_manager=True):
+                 shade_missing=False, plot_context_suffix=None):
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
@@ -26,9 +26,7 @@ def plot_curl(tauu_variable, tauv_variable, curl_variable, dat, season, proj='GL
     wdat = dat.copy()
     wdat.update(dict(variable=tauu_variable))
     # -- Apply the frequency and time manager (IGCM_OUT)
-    if apply_period_manager:
-       frequency_manager_for_diag(wdat, diag='SE')
-       get_period_manager(wdat)
+    wdat = get_period_manager(wdat, diag='clim')
     wdat.pop('variable')
     print wdat
     # -- Get the dataset
@@ -122,19 +120,16 @@ def plot_curl(tauu_variable, tauv_variable, curl_variable, dat, season, proj='GL
 
 # -- Sea Ice Plots
 def plot_sic_climato_with_ref(variable,model,ref,season,proj, add_product_in_title=True,
-                              safe_mode=True, custom_plot_params={},do_cfile=True, apply_period_manager=True):
+                              safe_mode=True, custom_plot_params={},do_cfile=True):
     # -- Get the datasets of the model and the ref
-    wmodel = model.copy() ; wmodel.update(dict(variable=variable))
-    wref = ref.copy()     ; wref.update(dict(variable=variable))
-    if wmodel['project']=='CMIP5': wmodel.update(dict(table='OImon'))
-    if wref['project']=='CMIP5': wref.update(dict(table='OImon'))
+    wmodel = model.copy() ; wmodel.update(dict(variable=variable, table='OImon'))
+    wref = ref.copy()     ; wref.update(dict(variable=variable, table='OImon'))
     #
     # -- Get the datasets of the model and the ref
     if wmodel['frequency'] in ['yearly','1Y']: wmodel.update(dict(frequency='monthly'))
     # -- Apply the frequency and time manager (IGCM_OUT)
-    if apply_period_manager:
-       frequency_manager_for_diag(wmodel, diag='SE')
-       get_period_manager(wmodel)
+    wmodel = get_period_manager(wmodel, diag='clim')
+    wref   = get_period_manager(wref, diag='clim')
     # -- Get the datasets
     ds_model = ds(**wmodel)
     ds_ref   = ds(**wref)
@@ -187,8 +182,7 @@ def plot_sic_climato_with_ref(variable,model,ref,season,proj, add_product_in_tit
 
 
 
-def plot_SIV(models, pole, safe_mode=True, do_cfile=True, maxvalNH=4*1e4, maxvalSH=2.6*1e4, minvalNH=0, minvalSH=0,
-             apply_period_manager=True):
+def plot_SIV(models, pole, safe_mode=True, do_cfile=True, maxvalNH=4*1e4, maxvalSH=2.6*1e4, minvalNH=0, minvalSH=0):
    #
    siv_ens_dict = {}
    # -- We loop on the simulations to build an 'ensemble climaf object'
@@ -207,9 +201,7 @@ def plot_SIV(models, pole, safe_mode=True, do_cfile=True, maxvalNH=4*1e4, maxval
            area = ds(variable=areavar, **model4area)
        # -- Apply the frequency and time manager (IGCM_OUT)
        wmodel.update(dict(variable='sic'))
-       if apply_period_manager:
-          frequency_manager_for_diag(wmodel, diag='SE')
-          get_period_manager(wmodel)
+       wmodel = get_period_manager(wmodel, diag='clim')
        wmodel.pop('variable')
        # -- Get the sea ice concentration (sic) and sea ice thickness (sit)
        sic  = ds(variable='sic', **wmodel)

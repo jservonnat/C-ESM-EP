@@ -173,28 +173,28 @@ if onCiclad or atTGCC :
    models = [
 
       dict(project='IGCM_OUT',
-           login='p86caub',
+           login='lurtont',
            model='IPSLCM6',
            experiment='pdControl',
-           simulation='CM607-LR-pdCtrl-01',
-           clim_period='2000_2009',
-           customname='CM607 2000_2009',
+           simulation='CM6015S-pd-03',
+           clim_period='2500_2509',
+           customname='CM6015S-pd-03 2500_2509',
            color='red'
            ),
 
       dict(project='IGCM_OUT',
-           login='p86caub',
+           login='lurtont',
            model='IPSLCM6',
            experiment='pdControl',
-           simulation='CM607-LR-pdCtrl-01',
+           simulation='CM6015S-pd-03',
            frequency='monthly',
            clim_period='last_10Y',
-	   customname='CM607 last_10Y',
+           customname='CM6015S-pd-03 last_10Y',
            color='blue',
           ),
 
       dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
-           frequency='monthly', period='1980-2005', version='latest'
+           frequency='monthly', period='1980-2005', version='latest',
            customname='CMIP5 IPSL-CM5A-MR'
            ),
 
@@ -205,12 +205,16 @@ if onCiclad or atTGCC :
 
    ]
    # -- We don't have access to the CMIP5 archive at TGCC; we remove them from the list models 
-   if atTGCC: models.pop(2)
+   if atTGCC:
+      models.pop(2)
+      root = '/ccc/store/cont003/gencmip6'
+   if onCiclad:
+      root='/ccc/store/cont003/thredds'
    #
    # -- Provide a set of common keys to the elements of models
    # ---------------------------------------------------------------------------- >
    common_keys = dict(
-           root='/ccc/store/cont003/thredds', login='*',
+           root=root, login='*',
            frequency='monthly',
            clim_period='last_30Y',
            ts_period='full',

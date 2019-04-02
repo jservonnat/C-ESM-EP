@@ -50,6 +50,8 @@ WD=os.getcwd()
 atCNRM = os.path.exists('/cnrm')
 if atCNRM :
    WD=re.sub('^/mnt/nfs/d[0-9]*/','/cnrm/',WD)
+# Case atCerfacs
+atCerfacs = os.path.exists('/scratch/globc')
 
 # -- Get user name
 username=getpass.getuser()
@@ -112,7 +114,7 @@ else:
    comparison=str.replace(args[1],'/','')
    argument='None'
    if len(args)==3:
-      argument=args[2]
+      argument=str.replace(args[2],'/','')
       if argument.lower() in ['url']:
          components=allcomponents
       elif argument=='OA':
@@ -167,7 +169,8 @@ if components==allcomponents: components = available_components
 cesmep_modules = []
 for component in available_components:
     atlas_head_title = None
-    paramfile = comparison+'/'+component+'/params_'+component+'.py'
+    #paramfile = comparison+'/'+component+'/params_'+component+'.py'
+    paramfile = comparison+'/'+component+'/diagnostics_'+component+'.py'
     # Allow to de-activate a component by setting read attribute to false
     try :
        with open(paramfile, 'r') as content_file:
@@ -179,7 +182,7 @@ for component in available_components:
     content.splitlines()
     module_title = None
     for tmpline in content.splitlines():
-        if 'atlas_head_title' in tmpline:
+        if 'atlas_head_title' in str.split(tmpline,'=')[0]:
             if '"' in tmpline: sep = '"'
             if "'" in tmpline: sep="'"
             module_title = str.split(tmpline,sep)[1]
@@ -252,6 +255,11 @@ if os.path.exists('/cnrm'):
     atCNRM = True
     from locations import climaf_cache
 
+# Case atCerfacs
+if os.path.exists('/scratch/globc'):
+    atCerfacs = True
+    from locations import climaf_cache
+
 
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
@@ -273,9 +281,9 @@ for component in components:
 if argument.lower() not in ['url']:
   for component in available_components:
     if component not in metrics_components:
-       atlas_url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       atlas_url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+component+'/'+component+'_'+comparison+'.html'
     if onCiclad or atCNRM :
        if component in job_components:
           atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
@@ -316,8 +324,14 @@ for component in job_components:
     nprocs = '32'
     memory = None
     queue = None
-    param_filename = open(submitdir+'/params_'+component+'.py')
-    param_lines = param_filename.readlines()
+    param_lines = []
+    if os.path.isfile(submitdir+'/params_'+component+'.py'):
+        param_filename = open(submitdir+'/params_'+component+'.py')
+        param_lines = param_filename.readlines()
+    #
+    diag_filename = open(submitdir+'/diagnostics_'+component+'.py')
+    diag_lines = diag_filename.readlines()
+    param_lines = param_lines + diag_lines
     for param_line in param_lines:
         if 'do_parallel' in param_line and param_line[0]!='#':
            if 'True' in param_line: do_parallel = True
@@ -330,9 +344,9 @@ for component in job_components:
     #
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
-       atlas_url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
+       atlas_url = comparison_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       atlas_url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html' 
+       atlas_url = comparison_url+component+'/'+component+'_'+comparison+'.html' 
     if component in job_components:
        atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
     #
@@ -398,7 +412,7 @@ for component in job_components:
           print '    -> Parallel execution: nprocs = '+nprocs
        #
        # -- Build the job command line
-       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+       cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -j eo -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     print cmd
     #
     if atCNRM:
@@ -427,6 +441,19 @@ for component in job_components:
              '-e \"atlas_pathfilename='+atlas_pathfilename+','+variables+'\"'+\
              ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
 
+    if atCerfacs:
+       jobname=component+'_'+comparison+'_C-ESM-EP'
+       if component not in metrics_components: job_script = 'job_C-ESM-EP_Cerfacs.sh'
+       else: job_script = 'job_PMP_C-ESM-EP_Cerfacs.sh'
+       #
+       print component
+       print comparison
+       cmd = 'cd '+submitdir+' ; export comparison='+comparison+\
+                ' ; export component='+component+' ; '+\
+                'sbatch ../'+job_script
+       print(cmd)
+
+
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the frontpage
     # -- Otherwise it submits the jobs
@@ -445,9 +472,9 @@ for component in job_components:
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
     if component not in metrics_components:
-       url = comparison_url+'/'+component+'/atlas_'+component+'_'+comparison+'.html'
+       url = comparison_url+component+'/atlas_'+component+'_'+comparison+'.html'
     else:
-       url = comparison_url+'/'+component+'/'+component+'_'+comparison+'.html'
+       url = comparison_url+component+'/'+component+'_'+comparison+'.html'
     pysed(frontpage_html, 'target_'+component, url)
 
 # -- Edit the comparison name
@@ -458,7 +485,7 @@ if atTGCC:
    cmd1 = 'cp '+frontpage_html+' '+path_to_comparison_outdir_workdir_tgcc ; print cmd1 ; os.system(cmd1)
    cmd = 'dods_cp '+path_to_comparison_outdir_workdir_tgcc+frontpage_html+' '+path_to_comparison_on_web_server+' ; rm '+main_html
 
-if onCiclad or atCNRM : cmd = 'mv -f '+frontpage_html+' '+path_to_comparison_on_web_server
+if onCiclad or atCNRM or atCerfacs: cmd = 'mv -f '+frontpage_html+' '+path_to_comparison_on_web_server
 os.system(cmd)
 
 # -- Copy the top image
@@ -466,7 +493,7 @@ if not os.path.isfile(path_to_comparison_on_web_server+'/CESMEP_bandeau.png'):
    if atTGCC:
       os.system('cp share/fp_template/CESMEP_bandeau.png '+path_to_comparison_outdir_workdir_tgcc)
       cmd='dods_cp '+path_to_comparison_outdir_workdir_tgcc+'CESMEP_bandeau.png '+path_to_comparison_on_web_server
-   if onCiclad or atCNRM : cmd='cp -f share/fp_template/CESMEP_bandeau.png '+path_to_comparison_on_web_server
+   if onCiclad or atCNRM or atCerfacs : cmd='cp -f share/fp_template/CESMEP_bandeau.png '+path_to_comparison_on_web_server
    os.system(cmd)
 
 

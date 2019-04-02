@@ -23,8 +23,9 @@ def ref_ensemble_GB2015(var):
     """
     # -- We get the list of files available in the ref_climatos project for variable var
     # -- From this list, we extract the names (ens_products) of the products to construct an ensemble with eds()
-    listfiles = ds(project='ref_climatos', variable=var)
-    files = set(str.split(listfiles.baseFiles(),' '))
+    #listfiles = ds(project='ref_climatos', variable=var)
+    #files = set(str.split(listfiles.baseFiles(),' '))
+    available_products = ds(project='ref_climatos', variable=var).explore('choices')['product']
     ens_products = []
     if region == 'Tropics':
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','FSU3','NOCS-v2','J-OFURO2','GSSTFM3','IFREMER',
@@ -32,9 +33,12 @@ def ref_ensemble_GB2015(var):
     else:
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','NOCS-v2','GSSTFM3','J-OFURO2','IFREMER',
                              'DFS4.3','DASILVA','HOAPS3','ERAInterim']
-    for f in files:
-        if get_product(f) in list_of_ref_files:
-            ens_products.append(get_product(f))
+    #for f in files:
+    #    if get_product(f) in list_of_ref_files:
+    #        ens_products.append(get_product(f))
+    for product in available_products:
+        if product in list_of_ref_files:
+            ens_products.append(product)
     print 'list_of_ref_files => ',list_of_ref_files
     print 'ens_products => ',ens_products
     #
@@ -57,8 +61,10 @@ def stat_ref_ensemble_GB2015(var,climatology='annual_cycle',statistic='mean', re
     """
     # -- We get the list of files available in the ref_climatos project for variable var
     # -- From this list, we extract the names (ens_products) of the products to construct an ensemble with eds()
-    listfiles = ds(project='ref_climatos', variable=var)
-    files = set(str.split(listfiles.baseFiles(),' '))
+    #listfiles = ds(project='ref_climatos', variable=var)
+    #files = set(str.split(listfiles.baseFiles(),' '))
+    available_products = ds(project='ref_climatos', variable=var).explore('choices')['product']
+
     ens_products = []
     if region == 'Tropics':
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','FSU3','NOCS-v2','J-OFURO2','GSSTFM3','IFREMER',
@@ -66,9 +72,12 @@ def stat_ref_ensemble_GB2015(var,climatology='annual_cycle',statistic='mean', re
     else:
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','NOCS-v2','GSSTFM3','J-OFURO2','IFREMER',
                              'DFS4.3','DASILVA','HOAPS3','ERAInterim']
-    for f in files:
-        if get_product(f) in list_of_ref_files: 
-            ens_products.append(get_product(f))
+    #for f in files:
+    #    if get_product(f) in list_of_ref_files: 
+    #        ens_products.append(get_product(f))
+    for product in available_products:
+        if product in list_of_ref_files:
+            ens_products.append(product)
     print 'list_of_ref_files => ',list_of_ref_files
     print 'ens_products => ',ens_products
     #
@@ -94,7 +103,7 @@ def stat_ref_ensemble_GB2015(var,climatology='annual_cycle',statistic='mean', re
 
 
 def plot_bias_TurbFlux_vs_GB2015(variable, dat, climatology='ANM', region = 'Tropics', add_product_in_title=True,
-                                 custom_plot_params={}, do_cfile=True, safe_mode=True, apply_period_manager=True, **kwargs):
+                                 custom_plot_params={}, do_cfile=True, safe_mode=True, **kwargs):
     #
     # -- Add the variable and get the dataset
     print 'function -- dat = ',dat
@@ -102,9 +111,7 @@ def plot_bias_TurbFlux_vs_GB2015(variable, dat, climatology='ANM', region = 'Tro
     wdat.update(dict(variable=variable))
     print wdat
     # -- Apply the frequency and time manager (IGCM_OUT)
-    if apply_period_manager:
-       frequency_manager_for_diag(wdat, diag='SE')
-       get_period_manager(wdat)
+    wdat = get_period_manager(wdat, diag='clim')
     ds_dat = ds(**wdat)
     print 'ds_dat',ds_dat
     #
@@ -185,7 +192,7 @@ def plot_bias_TurbFlux_vs_GB2015(variable, dat, climatology='ANM', region = 'Tro
 
 
 def plot_climato_TurbFlux_GB2015(variable, dat, climatology='ANM', region='Tropics', 
-                                 do_cfile=True, safe_mode=True, custom_plot_params={}, apply_period_manager=True, **kwargs):
+                                 do_cfile=True, safe_mode=True, custom_plot_params={}, **kwargs):
     #
     # -- Compute the climatology
     if dat=='GB2015':
@@ -198,9 +205,7 @@ def plot_climato_TurbFlux_GB2015(variable, dat, climatology='ANM', region='Tropi
         wdat.update(dict(variable=variable))
         print wdat
         # -- Apply the frequency and time manager (IGCM_OUT)
-        if apply_period_manager:
-           frequency_manager_for_diag(wdat, diag='SE')
-           get_period_manager(wdat)
+        wdat = get_period_manager(wdat, diag='clim')
         print '====> wdat = ',wdat
         ds_dat = ds(**wdat)
         print 'ds_dat',ds_dat

@@ -178,7 +178,7 @@ def set_fixed_fields(cdftool,region,model):
     			('new_maskglo.nc',model["path_mesh_mask"]+model["mesh_masks"]['ALLBAS']))
     return()
 
-def vertical_profile(model,variable,region,obs=None,box=None, apply_period_manager=True): #mpm_note: new in this function: add box option)
+def vertical_profile(model,variable,region,obs=None,box=None): #mpm_note: new in this function: add box option)
     """
     Given two dataset specifications,and an oceanic variable name,
     create a figure for profile for the variable in both sources
@@ -210,9 +210,7 @@ def vertical_profile(model,variable,region,obs=None,box=None, apply_period_manag
     #
     # -- Apply the frequency and time manager (IGCM_OUT)
     wmodel=model.copy() ; wmodel.update(dict(variable=variable))
-    if apply_period_manager:
-       frequency_manager_for_diag(wmodel, diag='SE')
-       get_period_manager(wmodel)
+    wmodel = get_period_manager(wmodel, diag='clim')
     #modvar=ds(variable=variable,**model)
     # definir les datasets
     modvar=ds(**wmodel)
@@ -257,7 +255,7 @@ def vertical_profile(model,variable,region,obs=None,box=None, apply_period_manag
     return cfile(plot_profile,deep=True)
 
 # Plot un slice de MOC par bassin
-def moc_slice(model, region, variable="msftmyz", y='lin', do_cfile=True, safe_mode=True, apply_period_manager=True):
+def moc_slice(model, region, variable="msftmyz", y='lin', do_cfile=True, safe_mode=True):
     """ 
     Model is a dict defining the model dataset (except variable)
     """
@@ -268,9 +266,7 @@ def moc_slice(model, region, variable="msftmyz", y='lin', do_cfile=True, safe_mo
     mocvar = 'zomsf'+region.lower()
     # -- Apply the frequency and time manager (IGCM_OUT)
     wmodel=model.copy() ; wmodel.update(dict(variable=mocvar))
-    if apply_period_manager:
-       frequency_manager_for_diag(wmodel, diag='TS')
-       get_period_manager(wmodel)
+    wmodel = get_period_manager(wmodel, diag='ts')
     tmp = ds(**wmodel)
     if tmp.baseFiles():
        wmoc = regridn( time_average(tmp), cdogrid='r1x90', option='remapdis' )
@@ -279,9 +275,7 @@ def moc_slice(model, region, variable="msftmyz", y='lin', do_cfile=True, safe_mo
        # definir le dataset
        # -- Apply the frequency and time manager (IGCM_OUT)
        wmodel=model.copy() ; wmodel.update(dict(variable=variable))
-       if apply_period_manager:
-          frequency_manager_for_diag(wmodel, diag='TS')
-          get_period_manager(wmodel)
+       wmodel = get_period_manager(wmodel, diag='ts')
        moc_model = ds(**wmodel)
        #
        # calculer la moyenne temporelle
@@ -343,7 +337,7 @@ def moc_slice(model, region, variable="msftmyz", y='lin', do_cfile=True, safe_mo
 
 # Profil de MOC dans un bassin,a une latitude donnee (ex. 26N). Comparaison avec les obs (ex. RAPID)
 def moc_profile_vs_obs(model, obs, region, latitude, variable="msftmyz", y='lin', model_color='blue', obs_color='black',
-                       xmin=-5, xmax=20, do_cfile=True, safe_mode=True, apply_period_manager=True): 
+                       xmin=-5, xmax=20, do_cfile=True, safe_mode=True): 
     """ 
     Model is a dict defining the model dataset (except variable)
     """
@@ -359,9 +353,7 @@ def moc_profile_vs_obs(model, obs, region, latitude, variable="msftmyz", y='lin'
     # definir les datasets
     # -- Apply the frequency and time manager (IGCM_OUT)
     wmodel=model.copy() ; wmodel.update(dict(variable='zomsfatl'))
-    if apply_period_manager:
-       frequency_manager_for_diag(wmodel, diag='TS')
-       get_period_manager(wmodel)
+    wmodel = get_period_manager(wmodel, diag='ts')
     tmp = ds(**wmodel)
     #
     work_on_zomsfatl = ( True if tmp.baseFiles() else False )
@@ -380,9 +372,7 @@ def moc_profile_vs_obs(model, obs, region, latitude, variable="msftmyz", y='lin'
     else:
        # -- Apply the frequency and time manager (IGCM_OUT)
        wmodel=model.copy() ; wmodel.update(dict(variable=variable))
-       if apply_period_manager:
-          frequency_manager_for_diag(wmodel, diag='TS')
-          get_period_manager(wmodel)
+       wmodel = get_period_manager(wmodel, diag='ts')
        moc_model=ds(**wmodel)
        # calculer les moyennes temporelles
        moc_model_mean=time_average(moc_model)
@@ -435,7 +425,7 @@ def moc_profile_vs_obs(model, obs, region, latitude, variable="msftmyz", y='lin'
     return safe_mode_cfile_plot(plot_moc_profile, do_cfile, safe_mode)
 
 # Time-Serie du max de la MOC demandee dans un bassin,a un latitude donnee (mpm_note: new function)
-def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True, safe_mode=True, apply_period_manager=True): 
+def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True, safe_mode=True): 
     """ 
     Model is a dict defining the model dataset (except variable)
     """
@@ -452,9 +442,7 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
     mocvar = 'zomsf'+region.lower()
     # -- Apply the frequency and time manager (IGCM_OUT)
     wmodel=model.copy() ; wmodel.update(dict(variable=mocvar))
-    if apply_period_manager:
-       frequency_manager_for_diag(wmodel, diag='TS')
-       get_period_manager(wmodel)
+    wmodel = get_period_manager(wmodel, diag='ts')
     tmp = ds(**wmodel)
     if tmp.baseFiles():
        print '-- Working on variable '+mocvar
@@ -481,9 +469,7 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
     else:
        # -- Apply the frequency and time manager (IGCM_OUT)
        wmodel=model.copy() ; wmodel.update(dict(variable='zomsfatl'))
-       if apply_period_manager:
-          frequency_manager_for_diag(wmodel, diag='TS')
-          get_period_manager(wmodel)
+       wmodel = get_period_manager(wmodel, diag='ts')
        moc_model=ds(**wmodel)
        # faire la correpondance region<->numero de basin
        basin=region2basin(wmodel['model'],region)
@@ -516,7 +502,7 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
     return safe_mode_cfile_plot(plot_maxmoc, do_cfile, safe_mode)
 
 # Hovmoller des profils de derive d'une varialbe 3D (mpm_note: new function)
-def hovmoller_drift_profile(model, variable, region, y='lin', do_cfile=True, safe_mode=True, custom_plot_params={}, apply_period_manager=True): 
+def hovmoller_drift_profile(model, variable, region, y='lin', do_cfile=True, safe_mode=True, custom_plot_params={}): 
     """ 
     Model is a dict defining the model dataset (except variable)
     """
@@ -528,9 +514,7 @@ def hovmoller_drift_profile(model, variable, region, y='lin', do_cfile=True, saf
     mod=model.copy()
     mod.update({'variable': variable})
     # -- Apply the frequency and time manager (IGCM_OUT)
-    if apply_period_manager:
-       frequency_manager_for_diag(mod, diag='TS')
-       get_period_manager(mod)
+    mod = get_period_manager(mod, diag='ts')
     var_model=ds(**mod)
     # extraire la valeur a t=0
     var_model_t0=slice(var_model,dim='time',min=1,max=1)
@@ -584,7 +568,7 @@ def hovmoller_drift_profile(model, variable, region, y='lin', do_cfile=True, saf
 
 
 #--- Serie temporelle d'un indice (moyenne 2D ou 3D) (mpm_note: new function)
-def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True, safe_mode=True, X_axis='real', apply_period_manager=True):
+def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True, safe_mode=True, X_axis='real'):
     """ 
     Model is a dict defining the model dataset (except variable)
     """
@@ -600,9 +584,7 @@ def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True
     mod=model.copy()
     mod.update({'variable': variable})
     # -- Apply the frequency and time manager (IGCM_OUT)
-    if apply_period_manager:
-       frequency_manager_for_diag(mod, diag='TS')
-       get_period_manager(mod)
+    mod = get_period_manager(mod, diag='ts')
     var_model=ds(**mod)
     if obs:
         obse=obs.copy()
@@ -698,8 +680,7 @@ def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True
 
 
 def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_title=True, method='regrid_model_on_ref',
-                     custom_plot_params={}, safe_mode=True, do_cfile=True, y='lin', ymin=None, plot_on_latitude=False, horizontal_regridding=True,
-                      apply_period_manager=True):
+                     custom_plot_params={}, safe_mode=True, do_cfile=True, y='lin', ymin=None, plot_on_latitude=False, horizontal_regridding=True):
     # -----------------------------------------------------------------------------------------------------------------------------
     # -- 1/ Moyenne zonale du modele:
     #        -> soit on a la variable en moyenne zonale deja calculee (zoblabla)
@@ -714,9 +695,7 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
     if method=='regrid_model_on_ref':
        # -- Apply the frequency and time manager (IGCM_OUT)
        wmodel=model.copy() ; wmodel.update(dict(variable=variable))
-       if apply_period_manager:
-          frequency_manager_for_diag(wmodel, diag='clim')
-          get_period_manager(wmodel)
+       wmodel = get_period_manager(wmodel, diag='clim')
        # -- Get the model data
        model_dat = ds(**wmodel)
        # -- Compute the climatology on the model grid and mask the zeros
@@ -842,9 +821,7 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
        #
        # -- Apply the frequency and time manager (IGCM_OUT)
        wmodel=model.copy() ; wmodel.update(dict(variable=variable))
-       if apply_period_manager:
-          frequency_manager_for_diag(wmodel, diag='SE')
-          get_period_manager(wmodel)
+       wmodel = get_period_manager(wmodel, diag='clim')
        model_dat = ds(**wmodel)
        model_clim = ccdo(clim_average(model_dat,season), operator='setctomiss,0')
        if fileHasVar(cfile(model_clim), 'lev'):

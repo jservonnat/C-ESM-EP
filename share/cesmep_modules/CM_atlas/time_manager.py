@@ -62,6 +62,12 @@ def base_variable_of_derived_variable(tested_variable, project='*'):
 
 
 def frequency_manager_for_diag(model, diag='TS'):
+    ''' Modify a model dictionary according to the diag required:
+          - if diag='TS', then period is updated with the value passed to ts_period
+          - if diag='SE' or 'CLIM', the period is updated with the value passed to clim_period
+        If you have no ts_period or clim_period, then frequency_manager_for_diag doesn't do anything.
+    '''
+    
     if 'frequency' in model:
        # -- Diagnostics on TS
        if diag.upper()=='TS':
@@ -88,167 +94,103 @@ def frequency_manager_for_diag(model, diag='TS'):
     return ''
 
 
-def get_period_manager(dat_dict):
-        # -- dealing with the Time Series : period = 'full', 'first_??Y', 'last_??Y'
-        if 'frequency' not in dat_dict:
-           ds_dat_dict = ds(**dat_dict)
-           dat_dict.update(dict(frequency=ds_dat_dict.kvp['frequency']))
-        if dat_dict['frequency'] in ['daily', 'monthly', 'yearly']:
-                #if 'period' in dat_dict:
-                #  period = dat_dict['period']
-                #else:
-                if 'diag' in dat_dict:
-                    if dat_dict['diag'].upper() in ['SE','CLIM'] and 'clim_period' in dat_dict:
-                        period = dat_dict['clim_period']
-                    else:
-                        if 'ts_period' in dat_dict:
-                            period=dat_dict['ts_period']
-                        else:
-                            period=dat_dict['period']
-                else:
-                    if 'ts_period' in dat_dict:
-                        period=dat_dict['ts_period']
-                    else:
-                        period=dat_dict['period']
-                if period.upper()=='FULL' or 'LAST_' in period.upper() or 'FIRST_' in period.upper():
-                    # -- request for all the files
-                    req_dict = dat_dict.copy()
-                    # -> Check if the variable is a derived variable; if yes, returns one variable it is based on
-                    # -> Will be used only for the request
-                    tested_variable = req_dict['variable']
-                    req_dict.update(dict(variable=base_variable_of_derived_variable(tested_variable, req_dict['project'])))
-                    req_dict.update(dict(period='0001-9998'))
-                    req = ds(**req_dict)
-
-                    # -- Files found
-                    if not req.baseFiles():
-                        print 'No File found for ',req_dict
-                    else:
-                        # -- Get the syntax
-                        #syntax = req['kwp']['filename_syntax']
-                        #file_separator = req['kwp']['filename_separator']
-                        #period_separator = req['kwp']['period_separator']
-                        #test = str.split(syntax, file_separator)
-                        #for test_elt in test:
-                        #  if '${start_year}' in test_elt:
-                        #     index_start_year = test.index(test_elt)
-                        #  if '${end_year}' in test_elt:
-                        #     index_end_year = test.index(test_elt)
-                        # -- Si c'est le meme, il faut utiliser period_separator
-                        # -- Si il n'y a pas de period_separator, on coupe la string en deux, et on prend les 4 premiers characteres de chaque moitie
-                        # -- puis on se sert des index pour extraire les periodes.
-                        # -- Sinon, on recupere la periode en lisant dans le fichier?
-                        files = list(set(str.split(req.baseFiles(), ' ')))
-                        # -- Find the last period covered by an annual cycle
-                        start_periods = []
-                        end_periods = []
-                        for file in files:
-                            # Get the file name
-                            filename = os.path.basename(file)
-                            # Find the period
-                            # !!! SOLUTION A LA MAIN, IGCM_OUT
-                            filename_elts = str.split(filename, '_')
-                            if 'MIP' in dat_dict['project']:
-                               tmpperiod = str.replace(filename_elts[len(filename_elts)-1],'.nc','')
-                               start_period = str.split(tmpperiod,'-')[0]
-                               end_period = str.split(tmpperiod,'-')[1]
-                            else:
-                               start_period = filename_elts[1]
-                               end_period = filename_elts[2]
-                            start_periods.append(int(start_period[0:4]))
-                            end_periods.append(int(end_period[0:4]))
-                        #
-                        # -- Sort the results to find the last start date
-                        sorted_end_periods = sorted(end_periods, reverse=True)
-                        last_end_period = sorted_end_periods[0]
-                        sorted_start_periods = sorted(start_periods)
-                        first_start_period = sorted_start_periods[0]
-                        sorted_start_periods_2 = sorted(start_periods, reverse=True)
-                        last_start_period = sorted_start_periods_2[0]
-                        # If period='full':
-                        if period.upper()=='FULL':
-                           dat_dict['period'] = str(first_start_period)+'_'+str(last_end_period)
-                        # If period='last_??Y':
-                        if 'LAST_' in period.upper():
-                            prd_lgth = int( str.replace( str.replace(period.upper(), 'LAST_', ''), 'Y', '') )
-                            #first_start_period = last_end_period - prd_lgth + 1
-                            #first_start_period = max([last_end_period - prd_lgth + 1, last_start_period])
-                            wfirst_start_period = max([last_end_period - prd_lgth + 1, first_start_period])
-                            dat_dict['period'] = str(wfirst_start_period)+'_'+str(last_end_period)
-                        # If period='first_??Y':
-                        if 'FIRST_' in period.upper():
-                            prd_lgth = int( str.replace( str.replace(period.upper(), 'FIRST_', ''), 'Y', '') )
-                            last_end_period = first_start_period + prd_lgth - 1
-                            dat_dict['period'] = str(first_start_period)+'_'+str(last_end_period)
-        print 'dat_dict in get_period_manager = ',dat_dict
-        #
-        if dat_dict['frequency'] in ['seasonal', 'annual_cycle']:
-          if 'clim_period' not in dat_dict:
-            dat_dict.update(dict(clim_period='*'))
+def get_period_manager(dat_dict, diag=None):
+  #
+  # Garde fou: if frequency is missing in dat_dict, we use the default value (monthly most of the time)
+  if 'frequency' not in dat_dict:
+     ds_dat_dict = ds(**dat_dict)
+     dat_dict.update(dict(frequency=ds_dat_dict.kvp['frequency']))
+  #
+  # Treat the three cases, so that we get the right 'period' to use with ds().explore
+  #   - 1. diag = None   -> use period
+  #   - 2. diag = 'clim' -> use clim_period, or period if clim_period not provided
+  #   - 3. diag = 'ts'   -> use ts_period, or period if ts_period not provided
+  #
+  period = None
+  clim_period = None
+  #
+  # - 1. diag = None
+  if not diag:
+    # Garde fou
+    if 'period' in dat_dict:
+       period = dat_dict['period']
+    else:
+       period = 'No period provided and diag=None'
+       print period, 'in', dat_dict
+  #
+  # - 2. diag = 'clim'
+  if diag=='clim':
+    # - if we use SE data
+    if dat_dict['frequency'] in ['annual_cycle','seasonal']:
+       if 'period' in dat_dict: dat_dict.pop('period')
+       if 'clim_period' in dat_dict:
+          clim_period=dat_dict['clim_period']
+       else:
+          clim_period='No clim period provided!'
+    else:
+       if 'clim_period' in dat_dict: 
+          period=dat_dict['clim_period']
+       else:
+          period=dat_dict['period']
+  #
+  # - 3. diag = 'ts'
+  if diag=='ts':
+    if dat_dict['frequency'] in ['daily','monthly','yearly']:
+       if 'ts_period' in dat_dict:
+          if dat_dict['ts_period']=='full':
+             period='*'
           else:
-            clim_period = dat_dict['clim_period']
-            if 'LAST' in clim_period.upper() or 'FIRST' in clim_period.upper():
-                # -- request for all the files
-                req_dict = dat_dict.copy()
-                # -> Check if the variable is a derived variable; if yes, returns one variable it is based on
-                # -> Will be used only for the request
-                tested_variable = req_dict['variable']
-                req_dict.update(dict(variable=base_variable_of_derived_variable(tested_variable, req_dict['project'])))
-                req_dict.update(dict(clim_period='????_????'))
-                req = ds(**req_dict)
-                # -- Files found
-                if not req.baseFiles():
-                   print 'No File found for ',req_dict
-                else:
-                   files = list(set(str.split(req.baseFiles(),' ')))
-                   # -- Find the last period covered by an annual cycle
-                   start_periods = []
-                   for file in files:
-                       # Get the file name
-                       filename = os.path.basename(file)
-                       # Find the period
-                       # !!! SOLUTION A LA MAIN, uniquement pour IGCM_OUT
-                       filename_elts = str.split(filename, '_')
-                       start_period = filename_elts[2]
-                       start_periods.append(int(start_period))
-                   #
-                   # -- Sort the results to find the last start date
-                   sorted_start_periods = sorted(start_periods, reverse=True)
-                   first_period = sorted_start_periods[len(sorted_start_periods)-1]
-                   last_period = sorted_start_periods[0]
-                   # -- Treat either first or last file
-                   if clim_period.upper() in ['LAST','LAST_SE']:
-                       last_file=[]
-                       for file in files:
-                           if '_'+str(last_period)+'_' in file:
-                               last_file.append(file)
-                       # -- If we found more than one file, we print an error (but don't stop)
-                       if len(last_file)>1:
-                           print '--- Warning: found ',len(last_file),' for last file'
-                           print 'last_file = ',last_file
-                       filename = os.path.basename(last_file[0])
-                       filename_elts = str.split(filename, '_')
-                       last_clim_period = filename_elts[2]+'_'+filename_elts[3]
-                       dat_dict['clim_period'] = last_clim_period
-                   if clim_period.upper() in ['FIRST','FIRST_SE']:
-                       first_file=[]
-                       for file in files:
-                           if '_'+str(first_period)+'_' in file:
-                               first_file.append(file)
-                       # -- If we found more than one file, we print an error (but don't stop)
-                       if len(first_file)>1:
-                           print '--- Warning: found ',len(first_file),' files for first file'
-                           print 'first_file = ',first_file
-                       filename = os.path.basename(first_file[0])
-                       filename_elts = str.split(filename, '_')
-                       first_clim_period = filename_elts[2]+'_'+filename_elts[3]
-                       dat_dict['clim_period'] = first_clim_period  
+             period = dat_dict['ts_period']
+       else:
+          # Garde fou
+          if 'period' in dat_dict:
+             period = dat_dict['period']
+          else:
+             period = 'No period nor ts_period provided'
+             print period, 'in ', dat_dict
+  #
+  print 'dat_dict before .resolve ', dat_dict
+  # -- request for all the files
+  req_dict = dat_dict.copy()
+  #
+  # -> Check if the variable is a derived variable; if yes, returns one variable it is based on
+  # -> Will be used only for the request
+  tested_variable = req_dict['variable']
+  req_dict.update(dict(variable=base_variable_of_derived_variable(tested_variable, req_dict['project'])))
+  #
+  # -- if period, we can use the .explore('resolve') method to get the available period
+  if period:
+     req_dict.update(dict(period=period))
+     # - Get the period corresponding to the user request (among *, last_10Y,...)
+     if period.upper() in ['FULL','*'] or 'LAST_' in period.upper() or 'FIRST_' in period.upper():
+        # -- Use ds.explore method to find the available period
+        try:
+           req = ds(**req_dict).explore('resolve')
+           print 'req.kvp = ', req.kvp
+           dat_dict['period'] = str(req.kvp['period'])
+        except:
+           print 'Error in get_period_manager => No File found for ',req_dict
+           if tested_variable!=req_dict['variable']:
+              print 'Initially you asked for variable ',tested_variable
+     else:
+        dat_dict.update(dict(period=period))
+  if clim_period and dat_dict['frequency'] in ['annual_cycle','seasonal']:
+     req_dict.update(dict(clim_period=clim_period, period='fx'))
+     if 'LAST' in clim_period.upper() or 'FIRST' in clim_period.upper():
+        # -- request for all the files
+        req = ds(**req_dict)
         #
-        # Garde fou
-        if 'period' in dat_dict:
-           if 'LAST' in dat_dict['period'].upper() or 'FIRST' in dat_dict['period'].upper() or 'FULL' in dat_dict['period'].upper():
-               dat_dict['period']='fx'
-        return ''
+        # -- Get all the available clim periods
+        clim_periods = req.explore('choices')['clim_period']
+        first_SE = clim_periods[0]
+        last_SE = clim_periods[-1]
+        # -- Treat either first or last file
+        if clim_period.upper() in ['LAST','LAST_SE']:
+           dat_dict['clim_period'] = last_SE
+        if clim_period.upper() in ['FIRST','FIRST_SE']:
+           dat_dict['clim_period'] = first_SE
+  #
+  return dat_dict
 
 
 def find_common_period(models, common_period_variable, common_clim_period):

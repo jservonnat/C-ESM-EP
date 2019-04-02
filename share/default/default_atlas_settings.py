@@ -1,10 +1,10 @@
 # -- Set default values for the variables
 # -----------------------------------------------------------------------------------
-verbose = 'critical'
-clean_cache='False'
-safe_mode = True
+verbose     = 'critical'
+clean_cache = False
+safe_mode   = True
+index_name  = None
 routine_cache_cleaning = False
-
 
 season = 'ANM'
 region = 'GLOB'

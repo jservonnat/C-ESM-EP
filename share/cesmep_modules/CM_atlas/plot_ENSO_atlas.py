@@ -2,7 +2,6 @@ from CM_atlas import *
 from time_manager import *
 
 ENSO_domain = [-30,30,120,290]
-#nino3 = [-5,5,210,270]
 nino3 = "-5,5,210,270"
 plot_domain=dict(lonmin=120,lonmax=290,latmin=-30,latmax=30)
 
@@ -19,16 +18,14 @@ curves_options = 'vpXF=0|'+\
                  'xyLineThicknessF=6|'+\
                  'gsnStringFontHeightF=0.017'
 
-def ENSO_ts_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}, apply_period_manager=True):
+def ENSO_ts_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}):
     #
     # -- Add the variable and the domain
     # -- Apply the frequency and time manager (IGCM_OUT)
     wdat_dict=dat_dict.copy() ; wdat_dict.update(dict(variable='tos'))
-    if apply_period_manager:
-       frequency_manager_for_diag(wdat_dict, diag='TS')
-       get_period_manager(wdat_dict)
+    wdat_dict = get_period_manager(wdat_dict, diag='ts')
     #
-    dat = ds(**wdat_dict)
+    dat = ds(**wdat_dict).explore('resolve')
     # -- Compute the annual cycle
     scyc = annual_cycle(dat)
     #
@@ -76,16 +73,14 @@ def ENSO_ts_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {
     #
 
 
-def ENSO_std_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}, apply_period_manager=True):
+def ENSO_std_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}):
     #
     # -- Add the variable and the domain
     # -- Apply the frequency and time manager (IGCM_OUT)
     wdat_dict=dat_dict.copy() ; wdat_dict.update(dict(variable='tos'))
-    if apply_period_manager:
-       frequency_manager_for_diag(wdat_dict, diag='TS')
-       get_period_manager(wdat_dict)
+    wdat_dict = get_period_manager(wdat_dict, diag='ts')
     #
-    dat = ds(**wdat_dict)
+    dat = ds(**wdat_dict).explore('resolve')
     # -- Compute the annual cycle
     scyc = annual_cycle(dat)
     #
@@ -119,7 +114,7 @@ def ENSO_std_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = 
     return safe_mode_cfile_plot(plot_std_ssta, do_cfile, safe_mode)
 
 
-def ENSO_pr_clim(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}, apply_period_manager=True):
+def ENSO_pr_clim(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}):
     #
     # -- Add the variable and the domain
     wdat_dict = dat_dict.copy()
@@ -127,11 +122,9 @@ def ENSO_pr_clim(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {
         wdat_dict.update(dict(variable='pr'))
     # -- Apply the frequency and time manager (IGCM_OUT)
     wdat_dict=dat_dict.copy() ; wdat_dict.update(dict(variable='pr'))
-    if apply_period_manager:
-       frequency_manager_for_diag(wdat_dict, diag='SE')
-       get_period_manager(wdat_dict)
+    wdat_dict = get_period_manager(wdat_dict, diag='clim')
     #
-    dat = ds(domain=[-30,30,120,290], **wdat_dict)
+    dat = ds(domain=[-30,30,120,290], **wdat_dict).explore('resolve')
     # -- Compute the climatology
     pr_dat = clim_average(dat, 'ANM')
     #
@@ -159,18 +152,16 @@ def ENSO_pr_clim(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {
     return safe_mode_cfile_plot(plot_pr_clim, do_cfile, safe_mode)
 
 
-def ENSO_tauu_clim(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}, apply_period_manager=True):
+def ENSO_tauu_clim(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}):
     #
     # -- Add the variable and the domain
     wdat_dict = dat_dict.copy()
     if 'variable' not in wdat_dict:
         wdat_dict.update(dict(variable='tauu'))
     # -- Apply the frequency and time manager (IGCM_OUT)
-    wdat_dict=dat_dict.copy() ; wdat_dict.update(dict(variable='tauu'))
-    if apply_period_manager:
-       frequency_manager_for_diag(wdat_dict, diag='SE')
-       get_period_manager(wdat_dict)
-    dat = ds(domain=[-30,30,120,290], **wdat_dict)
+    wdat_dict=dat_dict.copy() ; wdat_dict.update(dict(variable='tauu', table='Amon', dir='ATM'))
+    wdat_dict = get_period_manager(wdat_dict, diag='clim')
+    dat = ds(domain=[-30,30,120,290], **wdat_dict).explore('resolve')
     # -- Compute the climatology
     tauu_dat = clim_average(dat, 'ANM')
     #
@@ -199,27 +190,27 @@ def ENSO_tauu_clim(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params =
 
 
 
-def ENSO_linreg_tauuA_on_SSTANino3(tauu_dat_dict, tos_dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}, apply_period_manager=True):
+def ENSO_linreg_tauuA_on_SSTANino3(tauu_dat_dict, tos_dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}):
 
     # -- Tau U anomalies model
     # -- Apply the frequency and time manager (IGCM_OUT)
     wtauu_dat_dict=tauu_dat_dict.copy()
-    if apply_period_manager:
-       frequency_manager_for_diag(wtauu_dat_dict, diag='TS')
-       get_period_manager(wtauu_dat_dict)
+    print 'wtauu_dat_dict before get_period_manager = ', wtauu_dat_dict
+    wtauu_dat_dict = get_period_manager(wtauu_dat_dict, diag='ts')
+    print 'wtauu_dat_dict after get_period_manager = ', wtauu_dat_dict
     #
     # -- SSTA Nino3
     # -- Apply the frequency and time manager (IGCM_OUT)
     wtos_dat_dict=tos_dat_dict.copy()
-    if apply_period_manager:
-       frequency_manager_for_diag(wtos_dat_dict, diag='TS')
-       get_period_manager(wtos_dat_dict)
+    wtos_dat_dict = get_period_manager(wtos_dat_dict, diag='ts')
     #
     # -- Find a common period to tos and rsds
     tauu_period = wtauu_dat_dict['period']
     tos_period  = wtos_dat_dict['period']
     print 'tauu_period ',tauu_period
     print 'tos_period ',tos_period
+    print 'type(tauu_period)',type(tauu_period)
+    print 'type(tos_period)',type(tos_period)
     tauu_tos_common_period = find_common_period(tauu_period, tos_period)
     wtauu_dat_dict.update(dict(period=tauu_tos_common_period))
     wtos_dat_dict.update(dict(period=tauu_tos_common_period))
@@ -228,12 +219,12 @@ def ENSO_linreg_tauuA_on_SSTANino3(tauu_dat_dict, tos_dat_dict, do_cfile=True, s
     print 'nino3 = ',nino3
     print 'wtauu_dat_dict = ',wtauu_dat_dict
     print 'wtos_dat_dict = ',wtos_dat_dict
-    SST_nino3 = space_average( ds(domain=nino3, **wtos_dat_dict) )
+    SST_nino3 = space_average( ds(domain=nino3, **wtos_dat_dict).explore('resolve') )
     scyc_SST_nino3 = annual_cycle(SST_nino3)
     SSTA_nino3 = minus(SST_nino3, scyc_SST_nino3)
 
     # -- Get Tau U anomalies model
-    tauu_dat = ds(**wtauu_dat_dict)
+    tauu_dat = ds(**wtauu_dat_dict).explore('resolve')
     scyc_tauu = annual_cycle(tauu_dat)
     tauua = llbox(regridn(ccdo(minus(tauu_dat,scyc_tauu),operator='detrend'),
                           cdogrid='r180x90'), **plot_domain)
@@ -287,21 +278,17 @@ def find_common_period(period1,period2):
     #
     return common_period
 
-def ENSO_linreg_rsds_on_SSTANino3(rsds_dat_dict, tos_dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}, apply_period_manager=True):
+def ENSO_linreg_rsds_on_SSTANino3(rsds_dat_dict, tos_dat_dict, do_cfile=True, safe_mode=True, custom_plot_params = {}):
     #
     # -- Short Wave
     # -- Apply the frequency and time manager (IGCM_OUT)
     wrsds_dat_dict=rsds_dat_dict.copy()
-    if apply_period_manager:
-       frequency_manager_for_diag(wrsds_dat_dict, diag='TS')
-       get_period_manager(wrsds_dat_dict)
+    wrsds_dat_dict = get_period_manager(wrsds_dat_dict, diag='ts')
     #
     # -- SSTA Nino3
     # -- Apply the frequency and time manager (IGCM_OUT)
     wtos_dat_dict=tos_dat_dict.copy()
-    if apply_period_manager:
-       frequency_manager_for_diag(wtos_dat_dict, diag='TS')
-       get_period_manager(wtos_dat_dict)
+    wtos_dat_dict = get_period_manager(wtos_dat_dict, diag='ts')
     #
     # -- Find a common period to tos and rsds
     rsds_period = wrsds_dat_dict['period']
@@ -313,9 +300,9 @@ def ENSO_linreg_rsds_on_SSTANino3(rsds_dat_dict, tos_dat_dict, do_cfile=True, sa
     wtos_dat_dict.update(dict(period=rsds_tos_common_period))
     #
     # -- Get SW data
-    rsds_dat = llbox(regridn(ds(**wrsds_dat_dict),cdogrid='r180x90'), **plot_domain)
+    rsds_dat = llbox(regridn(ds(**wrsds_dat_dict).explore('resolve'),cdogrid='r180x90'), **plot_domain)
     # -- Get SST Nino3 data
-    SST_nino3 = space_average( ds(domain=nino3, **wtos_dat_dict) )
+    SST_nino3 = space_average( ds(domain=nino3, **wtos_dat_dict).explore('resolve') )
     scyc_SST_nino3 = annual_cycle(SST_nino3)
     SSTA_nino3 = minus(SST_nino3, scyc_SST_nino3)
 
@@ -345,7 +332,7 @@ def ENSO_linreg_rsds_on_SSTANino3(rsds_dat_dict, tos_dat_dict, do_cfile=True, sa
     return safe_mode_cfile_plot(plot_rsds_on_SSTA_nino3, do_cfile, safe_mode)
 
 
-def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True, apply_period_manager=True):
+def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True):
         # -- Nino3 Box
         nino3 = [-5,5,210,270]
         names_in_plot = []
@@ -363,7 +350,7 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
            ref_dict.update(dict(domain=nino3))
         #
         # -- Reference
-        SST_nino3_ref = fsub( space_average( ds(**ref_dict) ), 273.15)
+        SST_nino3_ref = fsub( space_average( ds(**ref_dict).explore('resolve') ), 273.15)
         # -> Annual cycle SST
         scyc_SST_nino3_ref = annual_cycle(SST_nino3_ref)
         # -> Annual cycle SSTA
@@ -391,9 +378,7 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
         # -- Loop on the models
         for model in models:
             wmodel = model.copy() ; wmodel.update(dict(variable='tos'))
-            if apply_period_manager:
-               frequency_manager_for_diag(wmodel,'TS')
-               get_period_manager(wmodel)
+            wmodel = get_period_manager(wmodel, diag='ts')
             # -- Get the name that will be used in the plot
             if 'customname' in wmodel:
                 name_in_plot = wmodel['customname']
@@ -403,7 +388,7 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
                 #   name_in_plot = wmodel['model']
                 #else:
                 #   name_in_plot = wmodel['simulation']
-            SST_nino3 = space_average( ccdo(ds(domain=nino3, **wmodel),operator='subc,273.15') )
+            SST_nino3 = space_average( ccdo(ds(domain=nino3, **wmodel).explore('resolve'),operator='subc,273.15') )
             scyc_SST_nino3 = annual_cycle(SST_nino3)
             SSTA_nino3 = minus(SST_nino3, scyc_SST_nino3)
             if safe_mode:
@@ -472,9 +457,6 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
                    X_axis='aligned', options=plot_options, min=0, max=2, lgcols=2)
         #
         # -- Build the multiplot
-        #cdrop(plot_scyc_SST)
-        #cdrop(plot_scyc_SSTA)
-        #cdrop(plot_STDscyc_SSTA)
         multiplot_annual_cycles = cpage(fig_lines=[[plot_scyc_SST,plot_scyc_SSTA,plot_STDscyc_SSTA]],
                                         page_trim=True, fig_trim=True)
         #
@@ -482,7 +464,7 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
         return safe_mode_cfile_plot(multiplot_annual_cycles, do_cfile, safe_mode)
 
 
-def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_cfile=True, apply_period_manager=True):
+def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_cfile=True):
         # -- Create a dictionary that will receive the meridional averages
         ens_dict = dict()
         # -- Process the reference
@@ -492,7 +474,7 @@ def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_
         else:
            ref_dict = ref.copy()
         # -- Compute the climatology
-        taux_ref = clim_average(ds(domain=[-5,5,120,290], **ref_dict), 'ANM')
+        taux_ref = clim_average(ds(domain=[-5,5,120,290], **ref_dict).explore('resolve'), 'ANM')
         # -- Compute the meridional mean
         mermean_taux_ref = ccdo(taux_ref, operator='mermean')
         # -- Update the dictionary ens_dict
@@ -504,11 +486,10 @@ def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_
             # -- Compute the climatology
             # -- Apply the frequency and time manager (IGCM_OUT)
             wmodel.update(dict(variable='tauu'))
-            if apply_period_manager:
-               frequency_manager_for_diag(wmodel, diag='SE')
-               get_period_manager(wmodel)
+            wmodel = get_period_manager(wmodel, diag='clim')
             print 'ENSO wmodel = ',wmodel
-            taux_model = regrid(clim_average(ds(domain=[-5,5,120,290], **wmodel), 'ANM'), taux_ref)
+            taux_model = regrid(clim_average(ds(domain=[-5,5,120,290], **wmodel).explore('resolve'), 'ANM'), taux_ref)
+            print " ds(domain=[-5,5,120,290], **wmodel).explore('resolve').kvp = ",ds(domain=[-5,5,120,290], **wmodel).explore('resolve').kvp
             # -- Compute the meridional mean
             mermean_taux_model = ccdo(taux_model, operator='mermean')
             # -- Update the dictionary ens_dict
@@ -519,10 +500,6 @@ def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_
                     name_in_plot = wmodel['customname']
                 else:
                    name_in_plot = build_plot_title(wmodel, None)
-                   #if wmodel['project']=='CMIP5':
-                   #   name_in_plot = wmodel['model']
-                   #else:
-                   #   name_in_plot = wmodel['simulation']
                 names_in_plot.append(name_in_plot)
                 ens_dict.update({name_in_plot:mermean_taux_model})
               except:
@@ -533,10 +510,6 @@ def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_
                   name_in_plot = wmodel['customname']
               else:
                   name_in_plot = build_plot_title(wmodel, None)
-                  #if wmodel['project']=='CMIP5':
-                  #   name_in_plot = wmodel['model']
-                  #else:
-                  #   name_in_plot = wmodel['simulation']
               names_in_plot.append(name_in_plot)
               ens_dict.update({name_in_plot:mermean_taux_model})
 

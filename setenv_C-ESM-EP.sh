@@ -99,21 +99,17 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
 fi
 
 # --> On Ciclad
-if [[ -d "/data" ]] ; then
+if [[ -d "/data" && ! -d "/scratch/globc" ]] ; then
   unset PYTHONPATH
-  module unload netcdf4
-  module load netcdf4/4.3.3.1-gfortran
-  module load cdo
-  module load ncl/6.3.0
+  module load climaf
+  module switch climaf/1.2.11
   source /prodigfs/ipslfs/dods/jservon/miniconda/etc/profile.d/conda.sh
   working_conda=/prodigfs/ipslfs/dods/jservon/miniconda/envs/cesmep_env
   conda activate ${working_conda}
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.8
-  #export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.2
-  #cesmep_modules=${PWD}/share/cesmep_modules
+  #export CLIMAF=/home/jservon/Evaluation/CliMAF/climaf_installs/climaf_1.2.8
   my_append -bp PYTHONPATH ${CLIMAF}
   my_append -bp PYTHONPATH ${cesmep_modules}
   my_append -bp PATH ${CLIMAF}
@@ -155,3 +151,43 @@ if [[ -d "/cnrm" ]] ; then
     echo "PATH ${PATH}"
     echo "PYTHONPATH ${PYTHONPATH}"
 fi
+
+
+# --> At Cerfacs on kraken
+if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
+        echo "We work at Cerfacs on Kraken"
+
+    unset PYTHONPATH
+
+    # CDO
+    module load tools/cdo/1.9.5
+
+    # NCO
+    module load tools/nco/4.7.6
+
+    # CDAT
+    module load python/anaconda2.7
+    source activate CESMEP
+    CONDA=/softs/anaconda2
+    my_append -bp LD_LIBRARY_PATH ${CONDA}/lib
+    my_append -bp PYTHONPATH ${CONDA}/lib/python2.7/site-packages
+    my_append -bp PATH $CONDA/bin
+    export HDF5_DISABLE_VERSION_CHECK=1
+    export UVCDAT_ANONYMOUS_LOG=False
+
+    # CliMAF
+    export CLIMAF=/scratch/globc/coquart/climaf
+    export cesmep_modules=/scratch/globc/coquart/C-ESM-EP/share/cesmep_modules
+    my_append -bp PYTHONPATH ${CLIMAF}
+    my_append -bp PYTHONPATH ${cesmep_modules}
+    my_append -bp PATH ${CLIMAF}/bin
+    here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
+    export CLIMAF_CACHE=$(cd $here ; python -c 'from locations import climaf_cache; print climaf_cache')
+    echo ">>> CC= "$CLIMAF_CACHE
+    echo ">>> PP= "$PYTHONPATH
+
+    # -- CDFTools
+    #my_append -bp PATH /data/home/globc/moine/CDFTOOLS_3.0_forCliMAF/bin
+    #echo "PATH ${PATH}"
+fi
+

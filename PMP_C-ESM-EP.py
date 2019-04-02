@@ -286,12 +286,14 @@ else:
    #    -> On peut donc definir une liste de variable => la premiere variable de la liste
    #       est prise pour trouver la periode avec time_manager => On met a jour la liste Wmodels
    #Wmodels = period_manager_PMP_MG(models, diag='PMP_MG', diag_type='clim', testvar=vars[0])
-   Wmodels = period_for_diag_manager(models, diag='clim')
-   for dataset_dict in Wmodels:
+   tmp_models = period_for_diag_manager(models, diag='clim')
+   Wmodels = []
+   for dataset_dict in tmp_models:
        dataset_dict.update(dict(variable='tas', DIR='ATM'))
-       frequency_manager_for_diag(dataset_dict, diag='clim')
-       get_period_manager(dataset_dict)
+       #frequency_manager_for_diag(dataset_dict, diag='clim')
+       dataset_dict = get_period_manager(dataset_dict, diag='clim')
        dataset_dict.pop('variable')
+       Wmodels.append(dataset_dict)
 
 print '===========> Wmodels ', Wmodels
 

@@ -32,8 +32,7 @@ def section_zonalmean_slices(models=[],reference='default',zonmean_slices_variab
                    ref = reference.copy()
                 basin_zonmean_modelgrid = zonal_mean_slice(ref, variable, basin=basin, season=season,
                                                 ref=None, safe_mode=safe_mode, do_cfile=do_cfile, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
-                                                apply_period_manager=apply_period_manager)
+                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref')
                 if not do_cfile:
                    plots_crs.append(basin_zonmean_modelgrid)
                 else:
@@ -41,8 +40,7 @@ def section_zonalmean_slices(models=[],reference='default',zonmean_slices_variab
                 for model in models:
                     basin_zonmean_modelgrid = zonal_mean_slice(model, variable, basin=basin, season=season,
                                                 ref=ref, safe_mode=safe_mode, do_cfile=do_cfile, y=y, add_product_in_title=None,
-                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref',
-                                                apply_period_manager=apply_period_manager)
+                                                custom_plot_params=custom_plot_params, method='regrid_model_on_ref')
                     if not do_cfile:
                        plots_crs.append(basin_zonmean_modelgrid)
                     else:

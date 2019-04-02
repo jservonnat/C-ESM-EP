@@ -2,7 +2,7 @@ from climaf.api import *
 from climaf.cache import csync
 from joblib import Parallel, delayed
 import multiprocessing
-from CM_atlas.plot_CM_atlas import safe_mode_cfile_plot
+#from CM_atlas.plot_CM_atlas import safe_mode_cfile_plot
 
 def parallel_section(section, **kwargs):
 

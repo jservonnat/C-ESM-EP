@@ -1,5 +1,4 @@
-#!/bin/bash
-if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
+#!/bin/bash -l
 #SBATCH --partition visu
 # Nom du job
 #SBATCH --job-name CESMEP
@@ -7,21 +6,9 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
 #SBATCH --time=03:00:00
 #SBATCH --output=cesmep.o
 #SBATCH --error=cesmep.e
-# Nombre de noeuds et de processus
+# Nombre de noeuds et de processus  
 #SBATCH --nodes=1 --ntasks-per-node=36
-else
-######################
-## CURIE   TGCC/CEA ##
-######################
-#MSUB -r C-ESM-EP_job
-#MSUB -eo
-#MSUB -n 1              # Reservation du processus
-#MSUB -T 36000          # Limite de temps elapsed du job
-#MSUB -q standard
-##MSUB -Q normal
-#MSUB -A devcmip6
-fi
-set +x
+set -x
 # -------------------------------------------------------- >
 # --
 # -- Script to run a CliMAF atlas on Ciclad:
@@ -93,25 +80,18 @@ season='ANM'
 
 # -- Set CliMAF cache (automatically)
 # -------------------------------------------------------- >
-# TGCC
 if [[ -d "/ccc" && ! -d "/data" ]]; then
 export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
 fi
 
-# Ciclad
-if [[ -d "/data" && ! -d "/scratch/globc"]]; then
+if [[ -d "/data" ]]; then
 export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
-export TMPDIR=${CLIMAF_CACHE}
 fi
 
-# CNRM
 if [[ -d "/cnrm" ]]; then
     [ -z $CLIMAF_CACHE ] &&  echo "CLIMAF_CACHE should be set by launch job" && exit 1
     export CLIMAF_CACHE
 fi
-
-# Cerfacs -> CLIMAF_CACHE is set from setenv_C-ESM-EP.sh (same cache used for all atlases)
-#if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
 
 # -- Run the atlas...
 # -------------------------------------------------------- >

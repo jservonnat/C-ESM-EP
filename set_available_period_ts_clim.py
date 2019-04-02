@@ -56,11 +56,6 @@ else:
 # -- Execute the datasets_setup file to get the content
 execfile(datasets_setup_file)
 
-# -- If we already have a datasets_setup_available_period_set_file, we execute it and get Wmodels
-#if os.path.isfile(datasets_setup_available_period_set_file):
-#   execfile(datasets_setup_available_period_set_file)
-
-
 
 
 # -- Clim ---------------------------------------------
@@ -78,8 +73,7 @@ for dataset_dict in Wmodels_clim:
    if dataset_dict['project']=='CMIP6' and period_manager_test_variable=='tas': wdataset_dict.update(dict(grid='gr', table='Amon'))
    if dataset_dict['project']=='IGCM_OUT' and period_manager_test_variable=='tas': wdataset_dict.update(dict(DIR='ATM'))
    if 'clim_period' in wdataset_dict:
-        frequency_manager_for_diag(wdataset_dict, diag='clim')
-        get_period_manager(wdataset_dict)
+        wdataset_dict = get_period_manager(wdataset_dict, diag='clim')
    if check:
         print '-----> Proceed checking clim = '
         cdrop(ds(**wdataset_dict))
@@ -88,13 +82,10 @@ for dataset_dict in Wmodels_clim:
    if 'period' in wdataset_dict:    dataset_dict.update(dict(period=wdataset_dict['period']))
    if 'frequency' in wdataset_dict: dataset_dict.update(dict(frequency=wdataset_dict['frequency']))
 
-   #dataset_dict.pop('variable')
-   
 
 
 # -- TS ---------------------------------------------
 Wmodels_ts = period_for_diag_manager(models, diag='TS')
-#Wmodels_ts = []
 for dataset_dict in Wmodels_ts:
    #
    wdataset_dict = dataset_dict.copy()
@@ -108,8 +99,7 @@ for dataset_dict in Wmodels_ts:
    if dataset_dict['project']=='CMIP6' and period_manager_test_variable=='tas': wdataset_dict.update(dict(grid='gr', table='Amon'))
    if dataset_dict['project']=='IGCM_OUT' and period_manager_test_variable=='tas': wdataset_dict.update(dict(DIR='ATM'))
    if 'ts_period' in wdataset_dict:
-        frequency_manager_for_diag(wdataset_dict, diag='TS')
-        get_period_manager(wdataset_dict)
+        wdataset_dict = get_period_manager(wdataset_dict, diag='ts')
    if check:
         print '-----> Proceed checking TS = '
         cdrop(ds(**wdataset_dict))
@@ -118,8 +108,6 @@ for dataset_dict in Wmodels_ts:
    if 'period' in wdataset_dict:    dataset_dict.update(dict(period=wdataset_dict['period']))
    if 'frequency' in wdataset_dict: dataset_dict.update(dict(frequency=wdataset_dict['frequency']))
    # --
-   #dataset_dict.pop('variable')
-
 
 
 
