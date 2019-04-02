@@ -36,7 +36,7 @@ date
 
 # -- Specify the atlas script
 # -------------------------------------------------------- >
-atlas_file='new_main_C-ESM-EP.py'
+atlas_file='main_C-ESM-EP.py'
 env_script='setenv_C-ESM-EP.sh'
 
 # -- Cas interactif depuis le repertoire de la comparaison

@@ -198,6 +198,10 @@ for cesmep_module in cesmep_modules:
     newline = '<li><a href="target_'+cesmep_module[0]+'" target="_blank">'+cesmep_module[1]+'</a></li>'
     new_html_lines.append(newline)
 
+# -- Add the path to the working directory:
+newline = '<h2>Comparison directory: '+WD+'/'+comparison+'</h2>'
+new_html_lines.append(newline)
+
 # -> Add the end of the html file
 new_html_lines = new_html_lines + ['','</body>','','</html>']
 
