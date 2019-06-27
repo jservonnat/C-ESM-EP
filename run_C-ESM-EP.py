@@ -31,7 +31,7 @@
 
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-#email = "senesi@meteo.fr" 
+#email = "gaelle.rigoudy@meteo.fr"
 email = "jerome.servonnat@lsce.ipsl.fr"
 #email=None
 
@@ -406,7 +406,6 @@ for component in job_components:
        #
        # -- Build the job command line
        cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -j eo -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
-    print cmd
     #
     if atCNRM:
        jobname=component+'_'+comparison+'_C-ESM-EP'
@@ -430,7 +429,7 @@ for component in job_components:
              \
              '\techo -n Job submitted : $jobId\n\n'+\
              \
-             ' \tsqsub -b \"-d afternotok:$jobID\" '+\
+             ' \tsqsub -b \"--partition=P8HOST -d afternotok:$jobID\" '+\
              '-e \"atlas_pathfilename='+atlas_pathfilename+','+variables+'\"'+\
              ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
 
@@ -444,7 +443,7 @@ for component in job_components:
        cmd = 'cd '+submitdir+' ; export comparison='+comparison+\
                 ' ; export component='+component+' ; '+\
                 'sbatch ../'+job_script
-       print(cmd)
+    print(cmd)
 
 
     #

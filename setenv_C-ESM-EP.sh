@@ -142,8 +142,7 @@ if [[ -d "/cnrm" ]] ; then
     export UVCDAT_ANONYMOUS_LOG=False
 
     # CliMAF
-    export CLIMAF=/cnrm/est/COMMON/climaf/climaf_1.2
-    #export CLIMAF=/cnrm/est/USERS/senesi/dev/climaf
+    export CLIMAF=/cnrm/est/COMMON/climaf/current
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin

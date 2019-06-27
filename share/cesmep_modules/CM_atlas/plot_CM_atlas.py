@@ -17,7 +17,7 @@ hover=False
 blank_cell=os.path.dirname(__file__)+'/Empty.png'
 
 
-if atTGCC:
+if atTGCC or atCNRM:
    shutil.copy(blank_cell,cachedir)
    blank_cell=cachedir+'/Empty.png'
 elif onCiclad:

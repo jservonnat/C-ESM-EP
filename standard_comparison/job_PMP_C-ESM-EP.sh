@@ -1,4 +1,14 @@
 #!/bin/bash
+if [[ -d "/cnrm" ]] ; then
+echo "at CNRM"
+#SBATCH --partition P8HOST
+# Nom du job
+#SBATCH --job-name CESMEP
+# Temps limite du job
+#SBATCH --time=03:00:00
+#SBATCH --nodes=1
+else
+echo "Everywhere else"
 ######################
 ## CURIE   TGCC/CEA ##
 ######################
@@ -9,6 +19,7 @@
 #MSUB -q standard
 ##MSUB -Q normal
 #MSUB -A devcmip6
+fi
 set +x
 # -------------------------------------------------------- >
 # --

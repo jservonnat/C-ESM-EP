@@ -1,5 +1,14 @@
 #!/bin/bash
-if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
+if [[ -d "/cnrm" ]] ; then
+echo "at CNRM"
+#SBATCH --partition P8HOST
+# Nom du job
+#SBATCH --job-name CESMEP
+# Temps limite du job
+#SBATCH --time=03:00:00
+#SBATCH --nodes=1
+elif [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
+echo "at Cerfacs"
 #SBATCH --partition visu
 # Nom du job
 #SBATCH --job-name CESMEP
@@ -10,6 +19,7 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
 # Nombre de noeuds et de processus
 #SBATCH --nodes=1 --ntasks-per-node=36
 else
+echo "at TGCC"
 ######################
 ## CURIE   TGCC/CEA ##
 ######################
@@ -99,7 +109,7 @@ export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
 fi
 
 # Ciclad
-if [[ -d "/data" && ! -d "/scratch/globc"]]; then
+if [[ -d "/data" && ! -d "/scratch/globc" ]]; then
 export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
