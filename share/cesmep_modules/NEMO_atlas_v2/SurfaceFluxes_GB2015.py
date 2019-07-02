@@ -23,18 +23,16 @@ def ref_ensemble_GB2015(var):
     """
     # -- We get the list of files available in the ref_climatos project for variable var
     # -- From this list, we extract the names (ens_products) of the products to construct an ensemble with eds()
-    listfiles = ds(project='ref_climatos', variable=var)
-    files = set(str.split(listfiles.baseFiles(),' '))
-    ens_products = []
     if region == 'Tropics':
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','FSU3','NOCS-v2','J-OFURO2','GSSTFM3','IFREMER',
                              'DFS4.3','TropFlux','DASILVA','HOAPS3','ERAInterim']
     else:
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','NOCS-v2','GSSTFM3','J-OFURO2','IFREMER',
                              'DFS4.3','DASILVA','HOAPS3','ERAInterim']
-    for f in files:
-        if get_product(f) in list_of_ref_files:
-            ens_products.append(get_product(f))
+    available_products = ds(project='ref_climatos', variable=var).explore("choices")["product"]
+
+    ens_products = sorted(list(set(list_of_ref_files)&set(available_products)))
+
     print 'list_of_ref_files => ',list_of_ref_files
     print 'ens_products => ',ens_products
     #
@@ -57,18 +55,16 @@ def stat_ref_ensemble_GB2015(var,climatology='annual_cycle',statistic='mean', re
     """
     # -- We get the list of files available in the ref_climatos project for variable var
     # -- From this list, we extract the names (ens_products) of the products to construct an ensemble with eds()
-    listfiles = ds(project='ref_climatos', variable=var)
-    files = set(str.split(listfiles.baseFiles(),' '))
-    ens_products = []
     if region == 'Tropics':
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','FSU3','NOCS-v2','J-OFURO2','GSSTFM3','IFREMER',
                              'DFS4.3','TropFlux','DASILVA','HOAPS3','ERAInterim']
     else:
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','NOCS-v2','GSSTFM3','J-OFURO2','IFREMER',
                              'DFS4.3','DASILVA','HOAPS3','ERAInterim']
-    for f in files:
-        if get_product(f) in list_of_ref_files: 
-            ens_products.append(get_product(f))
+    available_products = ds(project='ref_climatos', variable=var).explore("choices")["product"]
+
+    ens_products = sorted(list(set(list_of_ref_files)&set(available_products)))
+
     print 'list_of_ref_files => ',list_of_ref_files
     print 'ens_products => ',ens_products
     #

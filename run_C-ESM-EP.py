@@ -423,7 +423,7 @@ for component in job_components:
        # at CNRM, we use sqsub on PCs for launching on aneto; env vars are sent using arg '-e'
        cmd = '( \n\tcd '+submitdir+' ; \n\n'+\
              '\tsqsub \\\n\t\t-e \"'+variables+'\"'+\
-             ' \\\n\t\t-b "--job-name='+jobname+mail+' " \\\n\t\t../'+job_script+ ' > jobname.tmp  2>&1; \n\n'+\
+             ' \\\n\t\t-b "--partition=P8HOST --job-name='+jobname+mail+' " \\\n\t\t../'+job_script+ ' > jobname.tmp  2>&1; \n\n'+\
              \
              ' \tjobId=$(cat jobname.tmp | cut -d \" \" -f 4 jobname.tmp); rm jobname.tmp  ; \n'+\
              \
