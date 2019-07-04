@@ -33,12 +33,8 @@ def ref_ensemble_GB2015(var):
     else:
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','NOCS-v2','GSSTFM3','J-OFURO2','IFREMER',
                              'DFS4.3','DASILVA','HOAPS3','ERAInterim']
-    #for f in files:
-    #    if get_product(f) in list_of_ref_files:
-    #        ens_products.append(get_product(f))
-    for product in available_products:
-        if product in list_of_ref_files:
-            ens_products.append(product)
+    #
+    ens_products = sorted(list(set(list_of_ref_files)&set(available_products)))
     print 'list_of_ref_files => ',list_of_ref_files
     print 'ens_products => ',ens_products
     #
@@ -65,7 +61,6 @@ def stat_ref_ensemble_GB2015(var,climatology='annual_cycle',statistic='mean', re
     #files = set(str.split(listfiles.baseFiles(),' '))
     available_products = ds(project='ref_climatos', variable=var).explore('choices')['product']
 
-    ens_products = []
     if region == 'Tropics':
         list_of_ref_files = ['OAFlux','NCEP','NCEP2','CORE2','FSU3','NOCS-v2','J-OFURO2','GSSTFM3','IFREMER',
                              'DFS4.3','TropFlux','DASILVA','HOAPS3','ERAInterim']
@@ -75,9 +70,7 @@ def stat_ref_ensemble_GB2015(var,climatology='annual_cycle',statistic='mean', re
     #for f in files:
     #    if get_product(f) in list_of_ref_files: 
     #        ens_products.append(get_product(f))
-    for product in available_products:
-        if product in list_of_ref_files:
-            ens_products.append(product)
+    ens_products = sorted(list(set(list_of_ref_files)&set(available_products)))
     print 'list_of_ref_files => ',list_of_ref_files
     print 'ens_products => ',ens_products
     #
