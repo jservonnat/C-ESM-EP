@@ -88,8 +88,8 @@ export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 
-if [[ -d "/data" && ! -d "/scratch/globc" ]]; then
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_v2
+if [[ -d "/data" ]]; then
+export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_testv2
 export TMPDIR=${CLIMAF_CACHE}
 fi
 

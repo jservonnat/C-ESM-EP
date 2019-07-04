@@ -2,16 +2,6 @@
 ######################
 ## CURIE   TGCC/CEA ##
 ######################
-if [[ -d "/cnrm" ]] ; then
-echo "at CNRM"
-#SBATCH --partition P8HOST
-# Nom du job
-#SBATCH --job-name CESMEP
-# Temps limite du job
-#SBATCH --time=03:00:00
-#SBATCH --nodes=1
-else
-echo "Everywhere else"
 #MSUB -r C-ESM-EP_job
 #MSUB -eo
 #MSUB -n 1              # Reservation du processus
@@ -19,7 +9,6 @@ echo "Everywhere else"
 #MSUB -q standard
 ##MSUB -Q normal
 #MSUB -A devcmip6
-fi
 set +x
 # -------------------------------------------------------- >
 # --

@@ -214,7 +214,7 @@ if onCiclad or atTGCC :
            customname='CMIP5 IPSL-CM5A-MR'
            ),
 
-      dict(project = 'CMIP6', root='/ccc/work/cont003/cmip6/cmip6',
+      dict(project = 'CMIP6',
            model='IPSL-CM6A-LR', experiment='historical',
            frequency='monthly', period='1980-2005', realization='r2i1p1f1', version='latest'
            ),
