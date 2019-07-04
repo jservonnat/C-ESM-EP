@@ -1,4 +1,38 @@
 #!/bin/bash
+if [[ -d "/cnrm" ]] ; then
+##########
+## CNRM ##
+##########
+echo "at CNRM"
+#SBATCH --partition P8HOST
+# Nom du job
+#SBATCH --job-name CESMEP
+# Temps limite du job
+#SBATCH --time=03:00:00
+#SBATCH --nodes=1
+elif [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
+echo "at Cerfacs"
+#############
+## CERFACS ##
+#############
+#SBATCH --partition visu
+# Nom du job
+#SBATCH --job-name CESMEP
+# Nombre de noeuds et de processus
+#SBATCH --nodes=1 --ntasks-per-node=36
+# Temps limite du job
+#SBATCH --partition bigmem
+#SBATCH --output=cesmep.o
+#SBATCH --error=cesmep.e
+# Nombre de noeuds et de processus
+elif [[ -d "/data" && -d "/prodigfs" ]]; then
+echo "on Ciclad - Climserv - CLIMERI"
+######################
+## Ciclad - CLIMERI ##
+######################
+# Using qsub for the job submission ; arguments are passed via run_C-ESM-EP.py 
+elif [[ -d "/ccc" && ! -d "/data" ]]; then
+echo "at TGCC"
 ######################
 ## CURIE   TGCC/CEA ##
 ######################
@@ -11,6 +45,7 @@
 #MSUB -Q normal
 #MSUB -A gencmip6
 #MSUB -m store,work,scratch
+fi
 set +x
 # -------------------------------------------------------- >
 # --
@@ -88,7 +123,7 @@ export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 
-if [[ -d "/data" ]]; then
+if [[ -d "/data" && -d "/prodigfs" ]]; then
 export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_testv2
 export TMPDIR=${CLIMAF_CACHE}
 fi
@@ -98,6 +133,11 @@ if [[ -d "/cnrm" ]]; then
     export CLIMAF_CACHE
     export TMPDIR=${CLIMAF_CACHE}
 fi
+
+if [[ -d "/data/scratch/globc" ]] ; then
+export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
+fi
+
 
 # -- Run the atlas...
 # -------------------------------------------------------- >
