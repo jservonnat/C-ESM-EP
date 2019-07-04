@@ -124,7 +124,7 @@ export TMPDIR=${CLIMAF_CACHE}
 fi
 
 if [[ -d "/data" && -d "/prodigfs" ]]; then
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_testv2
+export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 
