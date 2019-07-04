@@ -31,7 +31,7 @@
 
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-#email = "senesi@meteo.fr" 
+#email = "gaelle.rigoudy@meteo.fr" 
 email = "jerome.servonnat@lsce.ipsl.fr"
 #email=None
 
@@ -45,13 +45,13 @@ import re
 # -----------------------------------------------------------------------------------------
 
 # -- Working directory
-WD=os.getcwd()
+main_cesmep_path=os.getcwd()
 # Special case at CNRM for directory /cnrm, which is a link 
 atCNRM = os.path.exists('/cnrm')
 if atCNRM :
-   WD=re.sub('^/mnt/nfs/d[0-9]*/','/cnrm/',WD)
+   main_cesmep_path=re.sub('^/mnt/nfs/d[0-9]*/','/cnrm/',main_cesmep_path)
 # Case atCerfacs
-atCerfacs = os.path.exists('/scratch/globc')
+atCerfacs = os.path.exists('/data/scratch/globc')
 
 # -- Get user name
 username=getpass.getuser()
@@ -170,13 +170,17 @@ cesmep_modules = []
 for component in available_components:
     atlas_head_title = None
     #paramfile = comparison+'/'+component+'/params_'+component+'.py'
-    paramfile = comparison+'/'+component+'/diagnostics_'+component+'.py'
+    submitdir = main_cesmep_path+'/'+comparison+'/'+component
+    diag_filename = submitdir+'/diagnostics_'+component+'.py'
+    if not os.path.isfile(diag_filename):
+       diag_filename = main_cesmep_path + '/share/cesmep_diagnostics/diagnostics_'+component+'.py'
+    #paramfile = comparison+'/'+component+'/diagnostics_'+component+'.py'
     # Allow to de-activate a component by setting read attribute to false
     try :
-       with open(paramfile, 'r') as content_file:
+       with open(diag_filename, 'r') as content_file:
           content = content_file.read()
     except :
-       print "Skipping component ",component, " which param file is not readable"
+       print "Skipping component ",component, " which diagnostic file is not readable"
        available_components.remove(component)
        continue
     content.splitlines()
@@ -199,7 +203,7 @@ for cesmep_module in cesmep_modules:
     new_html_lines.append(newline)
 
 # -- Add the path to the working directory:
-newline = '<h2>Comparison directory: '+WD+'/'+comparison+'</h2>'
+newline = '<h2>Comparison directory: '+main_cesmep_path+'/'+comparison+'</h2>'
 new_html_lines.append(newline)
 
 # -> Add the end of the html file
@@ -320,7 +324,7 @@ if argument.lower() not in ['url']:
 for component in job_components:
     print '  -- component = ',component
     # -- Define where the directory where the job is submitted
-    submitdir = WD+'/'+comparison+'/'+component
+    submitdir = main_cesmep_path+'/'+comparison+'/'+component
     #
     # -- Do we execute the code in parallel?
     # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
@@ -333,8 +337,11 @@ for component in job_components:
         param_filename = open(submitdir+'/params_'+component+'.py')
         param_lines = param_filename.readlines()
     #
-    diag_filename = open(submitdir+'/diagnostics_'+component+'.py')
-    diag_lines = diag_filename.readlines()
+    diag_filename = submitdir+'/diagnostics_'+component+'.py'
+    if not os.path.isfile(diag_filename):
+       diag_filename = main_cesmep_path + '/share/cesmep_diagnostics/diagnostics_'+component+'.py' 
+    diag_file = open(diag_filename)
+    diag_lines = diag_file.readlines()
     param_lines = param_lines + diag_lines
     for param_line in param_lines:
         if 'do_parallel' in param_line and param_line[0]!='#':
@@ -417,7 +424,6 @@ for component in job_components:
        #
        # -- Build the job command line
        cmd = 'cd '+submitdir+' ; jobID=$(qsub'+job_options+' -j eo -v component='+component+',comparison='+comparison+',WD=${PWD} -N '+component+'_'+comparison+'_C-ESM-EP ../'+job_script+') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename='+atlas_pathfilename+',WD=${PWD},component='+component+',comparison='+comparison+' ../../share/fp_template/copy_html_error_page.sh ; cd -'
-    print cmd
     #
     if atCNRM:
        jobname=component+'_'+comparison+'_C-ESM-EP'
@@ -455,7 +461,7 @@ for component in job_components:
        cmd = 'cd '+submitdir+' ; export comparison='+comparison+\
                 ' ; export component='+component+' ; '+\
                 'sbatch ../'+job_script
-       print(cmd)
+    print(cmd)
 
 
     #
@@ -513,6 +519,6 @@ print '--'
 print '--   '+frontpage_address
 print '--'
 print '--'
-print '-- html file can be seen here: '
+print '-- The html file is here: '
 print '-- '+path_to_comparison_on_web_server+frontpage_html
 

@@ -86,12 +86,9 @@ atlas_explorer_variables_list = ['tas','pr','hfls','hfss','uas','vas','tauu','ta
 atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
     for seas in my_seasons:
-        atlas_explorer_variables.append(dict(variable=var, season=seas,
+        atlas_explorer_variables.append(dict(variable=var, season=seas, table='Amon',
                                     project_specs = dict(
-                                        CMIP5      = dict(table = 'Amon'),
-                                        CMIP6      = dict(table = 'Amon'),
                                         IGCM_OUT   = dict(DIR   = 'ATM'),
-                                        IGCM_CMIP6 = dict(table = 'Amon'),
                                     ),
         ))
 

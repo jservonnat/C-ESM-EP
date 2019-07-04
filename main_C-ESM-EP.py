@@ -15,7 +15,6 @@ import json
 import os, copy, subprocess, shlex
 
 
-
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
 # --              - the default values
@@ -77,6 +76,9 @@ index_name = opts.index_name
 datasets_setup   = main_cesmep_path + comparison+'/datasets_setup.py' 
 param_file       = main_cesmep_path + comparison+'/'+component+'/params_'+component+'.py'
 diagnostics_file = str.replace(param_file,'params_','diagnostics_')
+if not os.path.isfile(diagnostics_file):
+   diagnostics_file = main_cesmep_path + 'share/cesmep_diagnostics/diagnostics_'+component+'.py'
+print '-- Use diagnostics_file =',diagnostics_file
 
 
 # -- If we specify a datasets_setup from the command line, we use 'models' from this file
@@ -228,7 +230,7 @@ add_compareCompanion = True
 
 # -> Clean the cache if specified by the user
 # -----------------------------------------------------------------------------------
-if clean_cache:
+if clean_cache and not clean_cache=='False':
    print '!!! Fully clean the cache before starting the atlas !!!'
    craz()
    print '!!! Cache cleaned !!!'

@@ -38,7 +38,7 @@ routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar')]
 # -- Parallel and memory instructions
 do_parallel = False
 nprocs = 32
-#memory = 30 # in gb; 30 for ocean atlasas
+memory = 40 # in gb; 30 for ocean atlasas
 #queue = 'days3' # onCiclad: h12, days3
 
 
@@ -81,21 +81,15 @@ liste_seasons = ['ANM', 'DJF', 'JJA']
 ocean_2D_variables = []
 for var in ['tos', 'wfo', 'sos']:
     for my_season in liste_seasons :
-        ocean_2D_variables.append(dict(variable=var, season=my_season,
+        ocean_2D_variables.append(dict(variable=var, season=my_season, table = 'Omon', grid='gn',
                                        project_specs = dict(
-                                                            CMIP5      = dict(table = 'Omon'),
-                                                            CMIP6      = dict(table = 'Omon', grid='gn'),
                                                             IGCM_OUT   = dict(DIR   = 'OCE'),
-                                                            IGCM_CMIP6 = dict(table = 'Omon'),
                                                            )
                                     ))
 for my_season in liste_seasons :
-    ocean_2D_variables.append (dict(variable='zos', spatial_anomalies=True, season=my_season,
+    ocean_2D_variables.append (dict(variable='zos', spatial_anomalies=True, season=my_season, table = 'Omon', grid='gn',
                                     project_specs = dict(
-                                                         CMIP5      = dict(table = 'Omon'),
-                                                         CMIP6      = dict(table = 'Omon', grid='gn'),
                                                          IGCM_OUT   = dict(DIR   = 'OCE'),
-                                                         IGCM_CMIP6 = dict(table = 'Omon'),
                                                         ),
                                     ))
 

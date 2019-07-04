@@ -64,7 +64,6 @@ domain = {}
 # ---------------------------------------------------------------------------- >
 # -- Hotelling Test (Servonnat et al. 2017)
 # ---------------------------------------------------------------------------- >
-do_SST_for_tuning      = True
 # Parameters
 image_size=None
 #reference_results = None
@@ -84,17 +83,14 @@ if reference_results in ['CMIP5','AMIP']:
                       experiment='historical',
                       frequency='monthly',
                       realm='ocean',
+                      version='latest',
                       period='1980-2005')
    if reference_results=='CMIP5': common_keys.update( dict(experiment='historical') )
    if reference_results=='AMIP':  common_keys.update( dict(experiment='amip') )
 
    # -- First, scan the CMIP5 archive to find the available models
    dum = ds(variable='tos', model='*', **common_keys)
-   print 'dum.baseFiles = ', dum.baseFiles()
-   cmip5_models = []
-   for dumfile in str.split(dum.baseFiles(),' '):
-       cmip5_models.append(str.split(dumfile,'/')[6])
-   cmip5_models = list(set(cmip5_models))
+   cmip5_models = dum.explore('choices')['model'] 
    cmip5_models.remove('MRI-ESM1')
    cmip5_models.remove('MRI-CGCM3')
    cmip5_models.remove('MIROC5')
@@ -114,9 +110,6 @@ period_manager_test_variable = 'tos'
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "Metrics for model tuning"
 
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
@@ -135,33 +128,12 @@ style_file = os.getcwd()+style_file
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
 
-# -- Automatically zoom on the plot when the mouse is on it
-# ---------------------------------------------------------------------------- >
-hover = False
 
 # -- Add the compareCompanion (P. Brockmann)
 # --> Works as a 'basket' on the html page to select some figures and
 # --> display only this selection on a new page
 # ---------------------------------------------------------------------------- >
 add_compareCompanion = True
-
-
-# -- Name of the html file
-# -- if index_name is set to None, it will be build as user_comparisonname_season
-# -- with comparisonname being the name of the parameter file without 'params_'
-# -- (and '.py' of course)
-# ---------------------------------------------------------------------------- >
-index_name = None
-
-
-# -- Custom plot params
-# -- Changing the plot parameters of the plots
-# ---------------------------------------------------------------------------- >
-# Load an auxilliary file custom_plot_params (from the working directory)
-# of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
-# -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
-#    for an example/
 
 
 

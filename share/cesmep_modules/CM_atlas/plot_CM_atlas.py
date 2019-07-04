@@ -12,25 +12,6 @@ StringFontHeight=0.019
 
 hover=False
 
-# -- Set a blank space
-# -----------------------------------------------------------------------------------
-#blank_cell=os.path.dirname(__file__)+'/Empty.png'
-
-
-#if atTGCC:
-#   # Need to create cachedir if it does not exist yet
-#   if not os.path.isdir(cachedir):
-#      os.makedirs(cachedir)
-#   shutil.copy(blank_cell,cachedir)
-#   blank_cell=cachedir+'/Empty.png'
-#elif onCiclad:
-#   dst='/prodigfs/ipslfs/dods/'+getpass.getuser()
-#   shutil.copy(blank_cell,dst)
-#   blank_cell=dst+'/Empty.png'
-#else:
-#   blank_cell='https://upload.wikimedia.org/wikipedia/commons/5/59/Empty.png'
-
-
 from climaf.plot.ocean_plot_params import dict_plot_params as ocean_plot_params
 ocean_variables=[]
 for oceanvar in ocean_plot_params: ocean_variables.append(oceanvar)
@@ -158,6 +139,7 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
     realm = None
     scale = 1.
     offset = 0.
+    title = None
     project_specs = None
     if isinstance(var, dict):
        wvar = var.copy()
@@ -228,6 +210,9 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
        if 'project_specs' in wvar:
            project_specs = wvar['project_specs']
            wvar.pop('project_specs')
+       if 'title' in wvar:
+           title = wvar['title']
+           wvar.pop('title')
     else:
        variable = var
        wvar = dict()
@@ -286,10 +271,16 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
     #
     # -- Apply get_period_manager
     wdat_dict = get_period_manager(wdat_dict, diag='clim')
-    #print 'wdat_dict in plot_climato = ',wdat_dict
+    print 'wdat_dict in plot_climato = ',wdat_dict
     #
     # -- Get the dataset
-    ds_dat = ds(**wdat_dict).explore('resolve')
+    if safe_mode:
+       try:
+          ds_dat = ds(**wdat_dict).explore('resolve')
+       except:
+          return safe_mode_cfile_plot(plot(ds(**wdat_dict)), do_cfile, safe_mode)
+    else:
+       ds_dat = ds(**wdat_dict).explore('resolve')
     #
     # -- Compute the seasonal climatology
     climato_dat = clim_average(ds_dat,season)
@@ -354,7 +345,10 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
     # -- Title of the plot -> If 'customname' is in the dictionary of dat, it will be used
     # -- as the title. If not, it checks whether dat is a reference or a model simulation
     # -- and builds the title
-    title = build_plot_title(wdat_dict, None)
+    if not title:
+       title = build_plot_title(wdat_dict, None)
+    else:
+       title = replace_keywords_with_values(wdat_dict, title) 
     #
     # -- Min, max et mean of the field
     if display_field_stats:
@@ -480,7 +474,7 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
 # -  
 
 def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product_in_title=True,
-              ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapbil',
+              ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapdis',
               safe_mode=True, custom_plot_params={}, do_cfile=True, spatial_anomalies=False, shade_missing=False,
               zonmean_variable=False, plot_context_suffix=None, add_vectors=False, add_aux_contours=False):
     #

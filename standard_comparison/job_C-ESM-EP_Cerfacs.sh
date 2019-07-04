@@ -1,13 +1,12 @@
 #!/bin/bash -l
-#SBATCH --partition visu
 # Nom du job
 #SBATCH --job-name CESMEP
 # Temps limite du job
-#SBATCH --time=03:00:00
+#SBATCH --partition bigmem
 #SBATCH --output=cesmep.o
 #SBATCH --error=cesmep.e
-# Nombre de noeuds et de processus  
-#SBATCH --nodes=1 --ntasks-per-node=36
+# Nombre de noeuds et de processus
+#SBATCH --nodes=1 --ntasks-per-node=1
 set -x
 # -------------------------------------------------------- >
 # --
@@ -84,13 +83,17 @@ if [[ -d "/ccc" && ! -d "/data" ]]; then
 export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
 fi
 
-if [[ -d "/data" ]]; then
+if [[ -d "/data" && ! -d "/data/scratch/globc" ]]; then
 export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
 fi
 
 if [[ -d "/cnrm" ]]; then
     [ -z $CLIMAF_CACHE ] &&  echo "CLIMAF_CACHE should be set by launch job" && exit 1
     export CLIMAF_CACHE
+fi
+
+if [[ -d "/data/scratch/globc" ]] ; then
+export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
 fi
 
 # -- Run the atlas...

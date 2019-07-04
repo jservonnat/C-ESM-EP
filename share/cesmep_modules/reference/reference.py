@@ -19,7 +19,7 @@ def variable2reference(variable, project=None, my_obs={}) :
                         'ua_Atl_sect', 'va_Atl_sect', 'ta_Atl_sect', 'hus_Atl_sect',
                         'albvis', 'albnir', 'snow', 'gpp','gpptot', 'lai','LAI', 'fluxlat', 'fluxsens', 'pme']
         tmp_Omon_vars = ['tos', 'sos', 'zos', 'thetao','to','so','so200','so1000','so2000','to200','to1000','to2000','wfo',
-                          'NO3', 'PO4', 'O2', 'Si',
+                          'NO3', 'PO4', 'O2', 'Si','mlotst',
                           'PO4_surf', 'O2_surf', 'Si_surf', 'NO3_surf',
                           'NO3_300m', 'PO4_300m', 'O2_300m', 'Si_300m',
                           'NO3_1000m', 'PO4_1000m', 'O2_1000m', 'Si_1000m',

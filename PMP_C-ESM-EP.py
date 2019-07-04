@@ -13,7 +13,7 @@
 
 # -- Import modules
 from CM_atlas import *
-from climaf.site_settings import atTGCC, onCiclad
+from climaf.site_settings import atTGCC, onCiclad, atCNRM
 import os, copy, subprocess, shlex
 from datetime import datetime
 from shutil import copyfile
@@ -347,6 +347,7 @@ ok_json_files = []
 if not root_outpath:
     if atTGCC: root_outpath = '${SCRATCHDIR}'
     if onCiclad: root_outpath = '/prodigfs/ipslfs/dods/'+getuser()
+    if atCNRM: root_outpath = '/cnrm/est/USERS/'+getuser()+'/NO_SAVE/CESMEP_climaf_cache'
 
 # -- Check if the tmp_hermes directory exists; if not, create it. If yes, clean it.
 tmp_hermes_dir = root_outpath+'/PMP_OUT/metrics_results/tmp_hermes'

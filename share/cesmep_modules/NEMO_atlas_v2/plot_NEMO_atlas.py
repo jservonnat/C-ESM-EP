@@ -122,12 +122,21 @@ def plot_curl(tauu_variable, tauv_variable, curl_variable, dat, season, proj='GL
 def plot_sic_climato_with_ref(variable,model,ref,season,proj, add_product_in_title=True,
                               safe_mode=True, custom_plot_params={},do_cfile=True):
     # -- Get the datasets of the model and the ref
-    wmodel = model.copy() ; wmodel.update(dict(variable=variable, table='OImon'))
-    wref = ref.copy()     ; wref.update(dict(variable=variable, table='OImon'))
+    wmodel = model.copy() ; wmodel['variable']=variable
+    if not 'table' in wmodel:
+       if wmodel['project'] in ['CMIP5']: wmodel.update(dict(variable=variable, table='OImon'))
+       if wmodel['project'] in ['CMIP6']: wmodel.update(dict(variable=variable, table='SImon'))
+    #wmodel.update(dict(variable=variable, table='OImon'))
+    wref = ref.copy()
+    if wref['project']=='CMIP6':
+       wref.update(dict(variable=variable, table='SImon'))
+    else:
+       wref.update(dict(variable=variable, table='OImon'))
     #
     # -- Get the datasets of the model and the ref
     if wmodel['frequency'] in ['yearly','1Y']: wmodel.update(dict(frequency='monthly'))
     # -- Apply the frequency and time manager (IGCM_OUT)
+    print 'wmodel in plot_sic_climato_with_ref = ', wmodel
     wmodel = get_period_manager(wmodel, diag='clim')
     wref   = get_period_manager(wref, diag='clim')
     # -- Get the datasets
@@ -151,7 +160,7 @@ def plot_sic_climato_with_ref(variable,model,ref,season,proj, add_product_in_tit
     # -- Title of the plot -> If 'customname' is in the dictionary of dat, it will be used
     # -- as the title. If not, it checks whether dat is a reference or a model simulation
     # -- and builds the title
-    title = build_plot_title(wmodel,ref,add_product_in_title)
+    title = build_plot_title(wmodel,wref,add_product_in_title)
     #
     # -- Get the default plot parameters with the function 'plot_params'
     # -- We also update with a custom dictionary of params (custom_plot_params) if the user sets one

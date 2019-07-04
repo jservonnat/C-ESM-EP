@@ -80,12 +80,9 @@ domain = {}
 do_ocean_2D_maps       = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
 atlas_explorer_variables = []
 for var in ['to200', 'to1000', 'so200', 'so1000']:
-    atlas_explorer_variables.append (dict(variable=var, season='ANM',
+    atlas_explorer_variables.append (dict(variable=var, season='ANM', table='Omon', grid='gn',
                                     project_specs = dict(
-                                                         CMIP5      = dict(table = 'Omon'),
-                                                         CMIP6      = dict(table = 'Omon', grid='gn'),
                                                          IGCM_OUT   = dict(DIR   = 'OCE'),
-                                                         IGCM_CMIP6 = dict(table = 'Omon'),
                                                         ),
                                     ))
 remapping = True

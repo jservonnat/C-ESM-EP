@@ -85,3 +85,26 @@ if os.path.exists('/scratch/globc'):
     #
     path_to_cesmep_output_rootdir_on_web_server = None
 
+
+# -- At Cerfacs
+# On scylla
+if os.path.exists('/data/scratch/globc'):
+    # Climaf Cache location - used for launching batch jobs in run_C-ESM-EP.py
+    # This could be a location shared among users.
+    # This can also be a location visible only from compute cluster (aneto)
+    climaf_cache='/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/CESMEP_climaf_cache'
+
+    # Root on file system for atlas.
+    # If using http for rendering, this should be somehow visible by the http server
+    # This value is used as 'pathwebspace' in run_C-ESM-EP.py
+    # It will be complemented with 'C-ESM-EP/'
+    # This location can be shared among users, as username will be added at end of data path
+    path_to_cesmep_output_rootdir='/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/CESMEP_html'
+
+    # Describe the rendering method; if it is http, must match the workspace and the adress for http server
+    # For now we do not use http:// but file:// for atlas rendering
+    root_url_to_cesmep_outputs = 'http://cerfacs.fr/giec6/C-ESM-EP/CESMEP_html/'
+    #
+    path_to_cesmep_output_rootdir_on_web_server = None
+
+

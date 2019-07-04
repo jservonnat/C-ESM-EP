@@ -101,10 +101,8 @@ derive('CMIP6','sicsit','multiply','sic','sit')
 derive('CMIP6','to_12','ccdo','thetao', operator='intlevel,100')
 
 time_series_specs = [
-    dict(variable='tos',
+    dict(variable='tos', table='Omon', grid='gn',
          project_specs = dict(
-                              CMIP5    = dict(table='Omon'),
-                              CMIP6    = dict(table='Omon',grid="gn"),
                               IGCM_OUT = dict(DIR='OCE'),
                              ),
          domain=dict(lonmin=0,lonmax=360,latmin=-50,latmax=50),

@@ -98,11 +98,8 @@ for var in atlas_explorer_variables_list:
 
 # -- Project Specs
 for var in atlas_explorer_variables:
-    var.update(dict(project_specs = dict(
-                                         CMIP5      = dict(table = 'Amon'),
-                                         CMIP6      = dict(table = 'Amon'),
+    var.update(dict(table='Amon', project_specs = dict(
                                          IGCM_OUT   = dict(DIR   = 'ATM'),
-                                         IGCM_CMIP6 = dict(table = 'Amon'),
                                         ),
               ))
 

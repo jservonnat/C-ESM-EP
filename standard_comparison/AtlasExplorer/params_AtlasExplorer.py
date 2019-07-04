@@ -83,23 +83,15 @@ from climaf.api import *
 atlas_explorer_variables = [dict(variable='tas',
                                  project_specs = dict(
                                      IGCM_OUT=dict(DIR='ATM'),
-                                     IGCM_CMIP6=dict(table='Amon'),
-                                     CMIP5      = dict(table = 'Amon'),
-                                     CMIP6      = dict(table = 'Amon'),
                                 )),
-                            dict(variable='tos',
+                            dict(variable='tos', table = 'Omon',
                                  project_specs = dict(
                                      IGCM_OUT=dict(DIR='OCE'),
-                                     IGCM_CMIP6=dict(table='Omon'),
-                                     CMIP5      = dict(table = 'Omon'),
-                                     CMIP6      = dict(table = 'Omon', grid='gn'),
+                                     CMIP6      = dict(grid='gn'),
                                 )),
-                            dict(variable='ua', season='DJF',
+                            dict(variable='ua', season='DJF', table='Amon',
                                  project_specs = dict(
                                      IGCM_OUT=dict(DIR='ATM'),
-                                     IGCM_CMIP6=dict(table='Amon'),
-                                     CMIP5      = dict(table = 'Amon'),
-                                     CMIP6      = dict(table = 'Amon'),
                                  ))
                           ]
 
