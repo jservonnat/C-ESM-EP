@@ -32,8 +32,8 @@
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
 #email = "gaelle.rigoudy@meteo.fr" 
-email = "jerome.servonnat@lsce.ipsl.fr"
-#email=None
+#email = "jerome.servonnat@lsce.ipsl.fr"
+email=None
 
 # -- Import python modules ----------------------------------------------------------------
 import os, sys
