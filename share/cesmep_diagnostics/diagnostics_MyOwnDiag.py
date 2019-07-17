@@ -30,6 +30,7 @@
 # --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
 
+from os import getcwd
 
 # ----------------------------------------------
 # --                                             \
@@ -48,9 +49,6 @@ atlas_head_title = "My own diagnostics"
 # - Init html index
 # -----------------------------------------------------------------------------------
 index = header(atlas_head_title, style_file=style_file)
-
-
-
 
 # - 1. Make climatology maps by hand (not even using datasets_setup.py)
 
@@ -75,15 +73,15 @@ if do_my_own_climaf_diag:
     # ==> -- Control the size of the thumbnail -> thumbN_size
     # -----------------------------------------------------------------------------------------
     if thumbnail_size:
-       thumbN_size = thumbnail_size
+        thumbN_size = thumbnail_size
     else:
-       thumbN_size = thumbnail_size_global
+        thumbN_size = thumbnail_size_global
     #
     # ==> -- Open the html line with the title
     # -----------------------------------------------------------------------------------------
     index += open_table()
     line_title = 'Diag #1 = amplitude of the annual cycle'
-    index+=start_line(line_title)
+    index += start_line(line_title)
     #
     # ==> -- Apply the period_for_diag_manager (not actually needed here)
     # -----------------------------------------------------------------------------------------
@@ -92,8 +90,8 @@ if do_my_own_climaf_diag:
     # -- Define plot parameters per variable -> better if in the params file
     # -----------------------------------------------------------------------------------------
     my_own_climaf_diag_plot_params = dict(
-       tas = dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
-       pr  = dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
+       tas=dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
+       pr=dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
 
     )
     #
@@ -109,8 +107,8 @@ if do_my_own_climaf_diag:
             # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
             # -- in the list models, and add the variable
             # -----------------------------------------------------------------------------------------
-            wmodel = model.copy() # - copy the dictionary to avoid modifying the original dictionary
-            wmodel.update(dict(variable=variable)) # - add a variable to the dictionary with update
+            wmodel = model.copy()  # - copy the dictionary to avoid modifying the original dictionary
+            wmodel.update(dict(variable=variable))  # - add a variable to the dictionary with update
             #
             # ==> -- Apply frequency and period manager
             # -----------------------------------------------------------------------------------------
@@ -122,46 +120,40 @@ if do_my_own_climaf_diag:
             #
             # /// -- Get the dataset and compute the annual cycle
             # -----------------------------------------------------------------------------------------
-            dat = annual_cycle( ds(**wmodel) )
+            dat = annual_cycle(ds(**wmodel))
             #
             # -- Compute the amplitude of the annual cycle (max - min)
             # -----------------------------------------------------------------------------------------
-            amp = minus( ccdo(dat, operator='timmax'), ccdo(dat, operator='timmin') )
+            amp = minus(ccdo(dat, operator='timmax'), ccdo(dat, operator='timmin'))
             #
             # /// -- Build the titles
             # -----------------------------------------------------------------------------------------
-            title = build_plot_title(wmodel,None) # > returns the model name if project=='CMIP5'
-            #                                         otherwise it returns the simulation name
-            #                                         It returns the name of the reference if you provide
-            #                                         a second argument ('dat1 - dat2')
+            title = build_plot_title(wmodel, None)  # > returns the model name if project=='CMIP5'
+            #                                           otherwise it returns the simulation name
+            #                                           It returns the name of the reference if you provide
+            #                                           a second argument ('dat1 - dat2')
             LeftString = variable
             RightString = build_str_period(wmodel)  # -> finds the right key for the period (period of clim_period)
             CenterString = 'Seas cyc. amplitude'
             #
             # -- Plot the amplitude of the annual cycle
             # -----------------------------------------------------------------------------------------
-            plot_amp = plot(amp, title=title, gsnLeftString = LeftString, gsnRightString = RightString, gsnCenterString = CenterString,
-                            **my_own_climaf_diag_plot_params[variable] )
+            plot_amp = plot(amp, title=title, gsnLeftString=LeftString, gsnRightString=RightString,
+                            gsnCenterString=CenterString, **my_own_climaf_diag_plot_params[variable])
             #
             # ==> -- Add the plot to the line
             # -----------------------------------------------------------------------------------------
-            index += cell("",safe_mode_cfile_plot(plot_amp, safe_mode=safe_mode),
+            index += cell("", safe_mode_cfile_plot(plot_amp, safe_mode=safe_mode),
                           thumbnail=thumbN_size, hover=hover, **alternative_dir)
             #
         # ==> -- Close the line and the table for this section
         # -----------------------------------------------------------------------------------------
-        index+=close_line() + close_table()
-
-
-
-
-
+        index += close_line() + close_table()
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
-from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -170,8 +162,6 @@ clean_cache = False
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
-
-
 
 # -----------------------------------------------------------------------------------
 # --   End

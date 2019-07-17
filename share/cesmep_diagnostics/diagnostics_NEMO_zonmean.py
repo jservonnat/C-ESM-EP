@@ -55,7 +55,7 @@ index = header(atlas_head_title, style_file=style_file)
 print '---------------------------------'
 print '-- Running Zonal Mean slices   --'
 print '-- zonmean_slices_variables =  --'
-print '-> ',zonmean_slices_variables
+print '-> ', zonmean_slices_variables
 print '--                             --'
 
 # ---------------------------------------------------------------------------------------- #
@@ -64,21 +64,21 @@ print '--                             --'
 # Loop over variables
 # -- Period Manager
 if not use_available_period_set:
-   Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
+    Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
 else:
-   Wmodels = copy.deepcopy(Wmodels_clim)
+    Wmodels = copy.deepcopy(Wmodels_clim)
 # -- Add table
-for model in Wmodels: model.update(dict(table='Omon', grid='gn'))
-kwargs = dict(models=Wmodels,reference=reference,zonmean_slices_variables=zonmean_slices_variables,
-              zonmean_slices_basins=zonmean_slices_basins,zonmean_slices_seas=zonmean_slices_seas,
+for model in Wmodels:
+    model.update(dict(table='Omon', grid='gn'))
+kwargs = dict(models=Wmodels, reference=reference, zonmean_slices_variables=zonmean_slices_variables,
+              zonmean_slices_basins=zonmean_slices_basins, zonmean_slices_seas=zonmean_slices_seas,
               custom_plot_params=custom_plot_params,  custom_obs_dict=custom_obs_dict,
               safe_mode=safe_mode, y=y, thumbsize_zonalmean=thumbsize_zonalmean, do_parallel=do_parallel,
               hover=hover, alternative_dir=alternative_dir)
 if do_parallel:
-   index += parallel_section(section_zonalmean_slices, **kwargs)
+    index += parallel_section(section_zonalmean_slices, **kwargs)
 else:
-   index += section_zonalmean_slices(**kwargs)
-
+    index += section_zonalmean_slices(**kwargs)
 
 
 # -----------------------------------------------------------------------------------

@@ -13,15 +13,17 @@ for cesmep_module in cesmep_modules:
     new_html_lines.append(newline)
 
 # -> Add the end of the html file
-new_html_lines = new_html_lines + ['','</body>','','</html>']
+new_html_lines = new_html_lines + ['', '</body>', '', '</html>']
 
 # -> We concatenate all the lines together
 new_html = ''
-for new_html_line in new_html_lines: new_html = new_html+new_html_line+'\n'
+for new_html_line in new_html_lines:
+    new_html = new_html+new_html_line+'\n'
 
 # -> Save as the html file that will be copied on the web server
-main_html='C-ESM-EP_'+comparison+'.html'
-with open(main_html,"w") as filout : filout.write(new_html)
+main_html = 'C-ESM-EP_' + comparison + '.html'
+with open(main_html, "w") as filout:
+    filout.write(new_html)
 
 
 

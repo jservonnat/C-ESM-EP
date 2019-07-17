@@ -22,13 +22,13 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
-
+from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
@@ -37,8 +37,7 @@ clean_cache = 'False'
 routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar')]
 
 
-
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -46,22 +45,19 @@ routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar')]
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
-
+# reference = 'default'
 
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
-season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-#domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30) # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2) 
+# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
+season = 'ANM'
+# -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'GLOB'
+# -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
+# domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = {}
-
-
-
-
 
 
 # ---------------------------------------------------------------------------- >
@@ -72,10 +68,10 @@ domain = {}
 # ---------------------------------------------------------------------------- >
 # -- Atmosphere maps
 do_atmos_maps = True
-atmos_variables = [dict(variable='tas',season='JAS')]
+atmos_variables = [dict(variable='tas', season='JAS')]
 
 # -- 2D Maps
-do_ocean_2D_maps       = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
+do_ocean_2D_maps = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
 ocean_2D_variables = ['to1000']
 
 period_manager_test_variable = 'tos'
@@ -83,19 +79,19 @@ period_manager_test_variable = 'tos'
 remapping = True
 
 # -- Mixed Layer Depth
-do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
-MLD_diags=[('JFM','NH40'),('Annual Max','NH40'),('JAS','SH30'),('Annual Max','SH30')]
+do_MLD_maps = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
+MLD_diags = [('JFM', 'NH40'), ('Annual Max', 'NH40'), ('JAS', 'SH30'), ('Annual Max', 'SH30')]
 
 # -- MOC Diagnostics (over basins)
 do_ATLAS_MOC_DIAGS = True
 MOC_basins = ["ATL"]
 do_TS_MOC = True
-llats = [26.5,40]
+llats = [26.5, 40]
 
 # ---------------------------------------------------------------------------- >
 # -- White Ocean : Sea Ice diagnostics
 # ---------------------------------------------------------------------------- >
-do_seaice_maps         = True    # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
+do_seaice_maps = True    # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
 
 
 # ---------------------------------------------------------------------------- >
@@ -118,14 +114,14 @@ atlas_head_title = "CM6011 Essentials - Simulations comparator"
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
 style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
+i = 1
+while not os.path.isfile(os.getcwd() + style_file):
     print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
+    style_file = '/..' + style_file
+    if i == 3:
+        break
+    i = i + 1
+style_file = os.getcwd() + style_file
 
 
 # -- Add the name of the product in the title of the figures
@@ -156,10 +152,8 @@ index_name = None
 # ---------------------------------------------------------------------------- >
 # Load an auxilliary file custom_plot_params (from the working directory)
 # of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
-
 
 
 # ---------------------------------------------------------------------------------------- #

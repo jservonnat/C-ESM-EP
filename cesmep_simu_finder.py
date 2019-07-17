@@ -7,92 +7,88 @@ from CM_atlas import *
 # -- and refine your request
 
 # -- Dictionary of your requested dataset -> same dictionary as in the models list in datasets_setup.py
-dat_dict = dict(project = 'IGCM_OUT',
-                root    = '/ccc/store/cont003/thredds',
-                login   = 'p86denvb',
-                model   = 'IPSLCM6',
-                experiment = 'historical',
-                simulation = '*',
-                period     = '0001_9998',
-                frequency  = 'monthly',
-                )
+dat_dict = dict(
+    project='IGCM_OUT',
+    root='/ccc/store/cont003/thredds',
+    login='p86denvb',
+    model='IPSLCM6',
+    experiment='historical',
+    simulation='*',
+    period='0001_9998',
+    frequency='monthly',
+)
 
 # -- Variable dictionary -> specifications that might be project-dependant to reach one file
-var_dict = dict(variable = 'ua',
-                DIR      = 'ATM')
+var_dict = dict(
+    variable='ua',
+    DIR='ATM',
+)
 
 # -- control the verbosity (debug for maximum, critical for minimum)
 clog('debug')
 # --------------------------------------------------------------------------
 
-
-
-
-
-
 # --------------------------------------------------------------------------
 # -- CESMEP SIMU FINDER
-
-
 
 # -- Get the comparison name and build the datasets_setup.py file name
 args = sys.argv
 dataset_number = None
 models = None
-if len(args)>=2:
+if len(args) >= 2:
     comparison = args[1]
-    if not comparison[len(comparison)-1]=='/': comparison+='/'
-    datasets_setup_file = comparison+'datasets_setup.py'
+    if not comparison[len(comparison) - 1] == '/':
+        comparison += '/'
+    datasets_setup_file = comparison + 'datasets_setup.py'
     execfile(datasets_setup_file)
-if len(args)==3:
+if len(args) == 3:
     dataset_number = int(args[2])
-
-
 
 # -- Analyse if we use the datasets_setup of a comparison or dat_dict (provided by the user)
 if not models:
-   apply_period_manager = False
-   models = [ dat_dict ]
+    apply_period_manager = False
+    models = [dat_dict]
 else:
-   apply_period_manager = True
+    apply_period_manager = True
 
 if not dataset_number:
-   ind = range(len(models))
+    ind = range(len(models))
 else:
-   ind = [ dataset_number - 1 ]
+    ind = [dataset_number - 1]
 
 # -- Loop on models
 for i in ind:
 
-  model = models[i]
+    model = models[i]
 
-  # -- Update dictionary
-  model.update(var_dict)
+    # -- Update dictionary
+    model.update(var_dict)
 
-  # -- Apply frequency and period manager
-  if apply_period_manager:
-     frequency_manager_for_diag(model, diag='clim')
-     get_period_manager(model)
+    # -- Apply frequency and period manager
+    if apply_period_manager:
+        frequency_manager_for_diag(model, diag='clim')
+        get_period_manager(model)
   
-  # -- Find the datasets
-  dat = ds(**model)
+    # -- Find the datasets
+    dat = ds(**model)
 
-  if dat.baseFiles():
-     print '  '
-     print '  '
-     print '  '
-     print ' CliMAF found those files with your request ',model
-     print '-->  '
-     for found_file in str.split(dat.baseFiles(),' '):
-         print found_file
-     print '  '
-     print ' -- Check that your request points to only one simulation, variable and frequency (and table for MIP simulations)'
-     print '  '
-  else:
-     print '  '
-     print '  '
-     print '  '
-     print 'No File found for your request -- ',model
-     print '  '
+    if dat.baseFiles():
+        print '  '
+        print '  '
+        print '  '
+        print ' CliMAF found those files with your request ', model
+        print '-->  '
+        for found_file in str.split(dat.baseFiles(), ' '):
+            print found_file
+        print '  '
+        print ' -- Check that your request points to only one simulation, variable and frequency ' \
+              '(and table for MIP simulations)'
+        print '  '
+    else:
+        print '  '
+        print '  '
+        print '  '
+        print 'No File found for your request -- ', model
+        print '  '
 # --------------------------------------------------------------------------
 

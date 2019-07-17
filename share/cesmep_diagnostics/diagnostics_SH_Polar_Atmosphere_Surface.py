@@ -56,17 +56,18 @@ print '--------------------------------------'
 print '-- Running Atlas Explorer           --'
 print '-- atlas_explorer_variables =       --'
 if 'atmos_variables' in locals():
-   atlas_explorer_variables = atmos_variables
-   print '-- (from atmos_variables in params) --'
-print '-> ',atlas_explorer_variables
+    atlas_explorer_variables = atmos_variables
+    print '-- (from atmos_variables in params) --'
+print '-> ', atlas_explorer_variables
 print '--                                  --'
 
 # -- Period Manager
 if not use_available_period_set:
-   Wmodels = period_for_diag_manager(models, diag='atm_2D_maps')
+    Wmodels = period_for_diag_manager(models, diag='atm_2D_maps')
 else:
-   Wmodels = copy.deepcopy(Wmodels_clim)
-for model in Wmodels: model.update(dict(table='Amon'))
+    Wmodels = copy.deepcopy(Wmodels_clim)
+for model in Wmodels:
+    model.update(dict(table='Amon'))
 
 # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
 kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
@@ -75,20 +76,20 @@ kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, var
               add_line_of_climato_plots=add_line_of_climato_plots,
               alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 if do_parallel:
-   index += parallel_section(section_2D_maps, **kwargs)
+    index += parallel_section(section_2D_maps, **kwargs)
 else:
-   index += section_2D_maps(**kwargs)
+    index += section_2D_maps(**kwargs)
 
    
 if atlas_explorer_climato_variables:
-   # -- Update kwargs accordingly
-   kwargs.pop('add_line_of_climato_plots')
-   kwargs.update(dict(variables=atlas_explorer_climato_variables, section_title='Atmosphere Surface Climatologies'))
-   #
-   if do_parallel:
-      index += parallel_section(section_climato_2D_maps, **kwargs)
-   else:
-      index += section_climato_2D_maps(**kwargs)
+    # -- Update kwargs accordingly
+    kwargs.pop('add_line_of_climato_plots')
+    kwargs.update(dict(variables=atlas_explorer_climato_variables, section_title='Atmosphere Surface Climatologies'))
+    #
+    if do_parallel:
+        index += parallel_section(section_climato_2D_maps, **kwargs)
+    else:
+        index += section_climato_2D_maps(**kwargs)
 
 
 # -----------------------------------------------------------------------------------

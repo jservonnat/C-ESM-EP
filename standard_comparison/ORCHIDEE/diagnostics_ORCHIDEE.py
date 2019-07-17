@@ -57,37 +57,42 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Energy Budget Variables                        --'
     print '-- do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps = True  --'
     print '-- variables_energy_budget =                                          --'
-    print '-> ',variables_energy_budget
+    print '-> ', variables_energy_budget
     print '--                                                                    --'
-    wvariables_energy_budget_bias=[]
+    wvariables_energy_budget_bias = []
     for tmpvar in variables_energy_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_energy_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_energy_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
-    index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
-                                                         'ORCHIDEE Energy Budget, Climato OBS, Bias and model-model differences',
+            Wmodels.remove(model)
+    index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season,
+                                                         wvariables_energy_budget_bias,
+                                                         'ORCHIDEE Energy Budget, Climato OBS, Bias and model-model'
+                                                         ' differences',
                                                          domain=domain, add_product_in_title=add_product_in_title,
-                                                         custom_plot_params=custom_plot_params, shade_missing=True, safe_mode=safe_mode,
-                                                         alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+                                                         custom_plot_params=custom_plot_params, shade_missing=True,
+                                                         safe_mode=safe_mode, alternative_dir=alternative_dir,
+                                                         custom_obs_dict=custom_obs_dict)
 
 
 if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
@@ -95,36 +100,38 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
     print '-- Processing ORCHIDEE Energy Budget Variables                        --'
     print '-- do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps = True  --'
     print '-- variables_energy_budget =                                          --'
-    print '-> ',variables_energy_budget
+    print '-> ', variables_energy_budget
     print '--                                                                    --'
-    wvariables_energy_budget_bias=[]
+    wvariables_energy_budget_bias = []
     for tmpvar in variables_energy_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_energy_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_energy_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_energy_budget_bias,
                              'ORCHIDEE Energy Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
-                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots,
+                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True,
+                             safe_mode=safe_mode, add_line_of_climato_plots=add_line_of_climato_plots,
                              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 
 
@@ -133,37 +140,38 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Energy Budget Variables                        --'
     print '-- do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True  --'
     print '-- variables_energy_budget =                                          --'
-    print '-> ',variables_energy_budget
+    print '-> ', variables_energy_budget
     print '--                                                                    --'
-    wvariables_energy_budget_modelmodel=[]
+    wvariables_energy_budget_modelmodel = []
     for tmpvar in variables_energy_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
-           wvariables_energy_budget_modelmodel.append(tmpvar)
+            wvariables_energy_budget_modelmodel.append(tmpvar)
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_energy_budget_modelmodel,
                              'ORCHIDEE Energy Budget, difference with first simulation', domain=domain,
-                              add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                              add_line_of_climato_plots=add_line_of_climato_plots,
-                              custom_plot_params=custom_plot_params, alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
-
+                             add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
+                             add_line_of_climato_plots=add_line_of_climato_plots, custom_plot_params=custom_plot_params,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 
 
 if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
@@ -171,28 +179,30 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
     print '-- Processing ORCHIDEE Energy Budget Variables                        --'
     print '-- do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True  --'
     print '-- variables_energy_budget =                                          --'
-    print '-> ',variables_energy_budget
+    print '-> ', variables_energy_budget
     print '--                                                                    --'
     for tmpvar in variables_energy_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if 'PFT' in tmpvar:
+            derive_var_PFT(tmpvar)
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, refsimulation, proj, season, variables_energy_budget,
-                             'ORCHIDEE Energy Budget, difference with a reference (climatological month, season)', domain=domain,
-                              add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                              custom_plot_params=custom_plot_params, alternative_dir=alternative_dir)
-
+                             'ORCHIDEE Energy Budget, difference with a reference (climatological month, season)',
+                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True,
+                             safe_mode=safe_mode, add_line_of_climato_plots=add_line_of_climato_plots,
+                             custom_obs_dict=custom_obs_dict, custom_plot_params=custom_plot_params,
+                             alternative_dir=alternative_dir)
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -202,39 +212,42 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Water Budget Variables                        --'
     print '-- do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps = True  --'
     print '-- variables_water_budget =                                          --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
-    wvariables_water_budget_bias=[]
+    wvariables_water_budget_bias = []
     for tmpvar in variables_water_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_water_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_water_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_water_budget_bias,
-                                                         'ORCHIDEE Water Budget, Climato OBS, Bias and model-model differences',
+                                                         'ORCHIDEE Water Budget, Climato OBS, Bias and model-model '
+                                                         'differences',
                                                          domain=domain, add_product_in_title=add_product_in_title,
-                                                         shade_missing=True, safe_mode=safe_mode, custom_plot_params=custom_plot_params,
+                                                         shade_missing=True, safe_mode=safe_mode,
+                                                         custom_plot_params=custom_plot_params,
                                                          custom_obs_dict=custom_obs_dict,
                                                          alternative_dir=alternative_dir)
-
 
 
 if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
@@ -242,37 +255,39 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
     print '-- Processing ORCHIDEE Water Budget Variables                        --'
     print '-- do_ORCHIDEE_Water_Budget_climobs_bias_maps = True  --'
     print '-- variables_water_budget =                                          --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
-    wvariables_water_budget_bias=[]
+    wvariables_water_budget_bias = []
     for tmpvar in variables_water_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_water_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_water_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_water_budget_bias,
                              'ORCHIDEE Water Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
-                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                             alternative_dir=alternative_dir)
+                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True,
+                             safe_mode=safe_mode, add_line_of_climato_plots=add_line_of_climato_plots,
+                             custom_obs_dict=custom_obs_dict, alternative_dir=alternative_dir)
 
 
 if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
@@ -280,36 +295,38 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Water Budget Variables                         --'
     print '-- do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps = True   --'
     print '-- variables_water_budget =                                           --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
-    wvariables_water_budget_modelmodel=[]
+    wvariables_water_budget_modelmodel = []
     for tmpvar in variables_water_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
-           wvariables_water_budget_modelmodel.append(tmpvar)
+            wvariables_water_budget_modelmodel.append(tmpvar)
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_water_budget_modelmodel,
                              'ORCHIDEE Water Budget, difference with first simulation', domain=domain,
-                              add_product_in_title=add_product_in_title, custom_plot_params=custom_plot_params,
-                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                              shade_missing=True, safe_mode=safe_mode, alternative_dir=alternative_dir)
+                             add_product_in_title=add_product_in_title, custom_plot_params=custom_plot_params,
+                             add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
+                             shade_missing=True, safe_mode=safe_mode, alternative_dir=alternative_dir)
 
 
 if do_ORCHIDEE_Water_Budget_climatology_maps:
@@ -317,66 +334,68 @@ if do_ORCHIDEE_Water_Budget_climatology_maps:
     print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
     print '-- do_ORCHIDEE_Water_Budget_climatology_maps = True                  --'
     print '-- variables_water_budget =                                          --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
         if model['project'] in ['IGCM_OUT']:
-           model.update(dict(DIR='SBG'))
+            model.update(dict(DIR='SBG'))
     index += section_climato_2D_maps(Wmodels, None, proj, season, variables_water_budget,
-                             'ORCHIDEE Water Budget, climatologies', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbnail_size)
+                                     'ORCHIDEE Water Budget, climatologies', domain=domain,
+                                     custom_plot_params=custom_plot_params, add_product_in_title=add_product_in_title,
+                                     safe_mode=safe_mode, alternative_dir=alternative_dir,
+                                     custom_obs_dict=custom_obs_dict, thumbnail_size=thumbnail_size)
 
 if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
     print '------------------------------------------------------------------------'
     print '-- Processing ORCHIDEE Energy Budget Variables                        --'
     print '-- do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True  --'
     print '-- variables_energy_budget =                                          --'
-    print '-> ',variables_energy_budget
+    print '-> ', variables_energy_budget
     print '--                                                                    --'
-    wvariables_energy_budget_modelmodel=[]
+    wvariables_energy_budget_modelmodel = []
     for tmpvar in variables_energy_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
-           wvariables_energy_budget_modelmodel.append(tmpvar)
+            wvariables_energy_budget_modelmodel.append(tmpvar)
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_energy_budget_modelmodel,
                              'ORCHIDEE Energy Budget, difference with first simulation', domain=domain,
-                              add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                              add_line_of_climato_plots=add_line_of_climato_plots,
-                              custom_plot_params=custom_plot_params, alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
-
+                             add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
+                             add_line_of_climato_plots=add_line_of_climato_plots, custom_plot_params=custom_plot_params,
+                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 
 
 if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
@@ -384,28 +403,30 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
     print '-- Processing ORCHIDEE Energy Budget Variables                        --'
     print '-- do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True  --'
     print '-- variables_energy_budget =                                          --'
-    print '-> ',variables_energy_budget
+    print '-> ', variables_energy_budget
     print '--                                                                    --'
     for tmpvar in variables_energy_budget:
-        if 'PFT' in tmpvar: derive_var_PFT(tmpvar)
+        if 'PFT' in tmpvar:
+            derive_var_PFT(tmpvar)
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, refsimulation, proj, season, variables_energy_budget,
-                             'ORCHIDEE Energy Budget, difference with a reference (climatological month, season)', domain=domain,
-                              add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                              custom_plot_params=custom_plot_params, alternative_dir=alternative_dir)
-
+                             'ORCHIDEE Energy Budget, difference with a reference (climatological month, season)',
+                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True,
+                             safe_mode=safe_mode, add_line_of_climato_plots=add_line_of_climato_plots,
+                             custom_obs_dict=custom_obs_dict, custom_plot_params=custom_plot_params,
+                             alternative_dir=alternative_dir)
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -415,39 +436,42 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Water Budget Variables                        --'
     print '-- do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps = True  --'
     print '-- variables_water_budget =                                          --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
-    wvariables_water_budget_bias=[]
+    wvariables_water_budget_bias = []
     for tmpvar in variables_water_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_water_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_water_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_water_budget_bias,
-                                                         'ORCHIDEE Water Budget, Climato OBS, Bias and model-model differences',
+                                                         'ORCHIDEE Water Budget, Climato OBS, Bias and model-model '
+                                                         'differences',
                                                          domain=domain, add_product_in_title=add_product_in_title,
-                                                         shade_missing=True, safe_mode=safe_mode, custom_plot_params=custom_plot_params,
+                                                         shade_missing=True, safe_mode=safe_mode,
+                                                         custom_plot_params=custom_plot_params,
                                                          custom_obs_dict=custom_obs_dict,
                                                          alternative_dir=alternative_dir)
-
 
 
 if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
@@ -455,37 +479,39 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
     print '-- Processing ORCHIDEE Water Budget Variables                        --'
     print '-- do_ORCHIDEE_Water_Budget_climobs_bias_maps = True  --'
     print '-- variables_water_budget =                                          --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
-    wvariables_water_budget_bias=[]
+    wvariables_water_budget_bias = []
     for tmpvar in variables_water_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_water_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_water_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_water_budget_bias,
                              'ORCHIDEE Water Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
-                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                             alternative_dir=alternative_dir)
+                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True,
+                             safe_mode=safe_mode, add_line_of_climato_plots=add_line_of_climato_plots,
+                             custom_obs_dict=custom_obs_dict, alternative_dir=alternative_dir)
 
 
 if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
@@ -493,36 +519,38 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Water Budget Variables                         --'
     print '-- do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps = True   --'
     print '-- variables_water_budget =                                           --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
-    wvariables_water_budget_modelmodel=[]
+    wvariables_water_budget_modelmodel = []
     for tmpvar in variables_water_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
-           wvariables_water_budget_modelmodel.append(tmpvar)
+            wvariables_water_budget_modelmodel.append(tmpvar)
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_water_budget_modelmodel,
                              'ORCHIDEE Water Budget, difference with first simulation', domain=domain,
-                              add_product_in_title=add_product_in_title, custom_plot_params=custom_plot_params,
-                              add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                              shade_missing=True, safe_mode=safe_mode, alternative_dir=alternative_dir)
+                             add_product_in_title=add_product_in_title, custom_plot_params=custom_plot_params,
+                             add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
+                             shade_missing=True, safe_mode=safe_mode, alternative_dir=alternative_dir)
 
 
 if do_ORCHIDEE_Water_Budget_climatology_maps:
@@ -530,30 +558,30 @@ if do_ORCHIDEE_Water_Budget_climatology_maps:
     print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
     print '-- do_ORCHIDEE_Water_Budget_climatology_maps = True                  --'
     print '-- variables_water_budget =                                          --'
-    print '-> ',variables_water_budget
+    print '-> ', variables_water_budget
     print '--                                                                    --'
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
         if model['project'] in ['IGCM_OUT']:
-           model.update(dict(DIR='SBG'))
+            model.update(dict(DIR='SBG'))
     index += section_climato_2D_maps(Wmodels, None, proj, season, variables_water_budget,
-                             'ORCHIDEE Water Budget, climatologies', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbnail_size)
-
+                                     'ORCHIDEE Water Budget, climatologies', domain=domain,
+                                     custom_plot_params=custom_plot_params, add_product_in_title=add_product_in_title,
+                                     safe_mode=safe_mode, alternative_dir=alternative_dir,
+                                     custom_obs_dict=custom_obs_dict, thumbnail_size=thumbnail_size)
 
 
 # ---------------------------------------------------------------------------------------- #
@@ -563,41 +591,47 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
     print '-- do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = True  --'
     print '-- variables_carbon_budget =                                          --'
-    print '-> ',variables_carbon_budget
+    print '-> ', variables_carbon_budget
     print '--                                                                    --'
-    wvariables_carbon_budget_bias=[]
+    wvariables_carbon_budget_bias = []
     for tmpvar in variables_carbon_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_carbon_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_carbon_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
         if model['project'] in ['IGCM_OUT']:
-           model.update(dict(DIR='SBG'))
-    index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season, wvariables_carbon_budget_bias,
-                                                         'ORCHIDEE Carbon Budget, Climato OBS, Bias and model-model differences',
+            model.update(dict(DIR='SBG'))
+    index += section_2D_maps_climobs_bias_modelmodeldiff(Wmodels, reference, proj, season,
+                                                         wvariables_carbon_budget_bias,
+                                                         'ORCHIDEE Carbon Budget, Climato OBS, Bias and model-model '
+                                                         'differences',
                                                          domain=domain, add_product_in_title=add_product_in_title,
-                                                         shade_missing=True, safe_mode=safe_mode, custom_plot_params=custom_plot_params,
-                                                         custom_obs_dict=custom_obs_dict, alternative_dir=alternative_dir)
+                                                         shade_missing=True, safe_mode=safe_mode,
+                                                         custom_plot_params=custom_plot_params,
+                                                         custom_obs_dict=custom_obs_dict,
+                                                         alternative_dir=alternative_dir)
 
 
 if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
@@ -605,42 +639,43 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
     print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
     print '-- do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = True  --'
     print '-- variables_carbon_budget =                                          --'
-    print '-> ',variables_carbon_budget
+    print '-> ', variables_carbon_budget
     print '--                                                                    --'
-    wvariables_carbon_budget_bias=[]
+    wvariables_carbon_budget_bias = []
     for tmpvar in variables_carbon_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
-           wvariables_carbon_budget_bias.append(tmpvar)
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            wvariables_carbon_budget_bias.append(tmpvar)
         except:
-           print 'No obs for ',tmpvar
+            print 'No obs for ', tmpvar
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
         if model['project'] in ['IGCM_OUT']:
-           model.update(dict(DIR='SBG'))
+            model.update(dict(DIR='SBG'))
     index += section_2D_maps(Wmodels, reference, proj, season, wvariables_carbon_budget_bias,
                              'ORCHIDEE Carbon Budget, Climato OBS and Bias maps', custom_plot_params=custom_plot_params,
-                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
-                             add_line_of_climato_plots=add_line_of_climato_plots, custom_obs_dict=custom_obs_dict,
-                             alternative_dir=alternative_dir)
-
+                             domain=domain, add_product_in_title=add_product_in_title, shade_missing=True,
+                             safe_mode=safe_mode, add_line_of_climato_plots=add_line_of_climato_plots,
+                             custom_obs_dict=custom_obs_dict, alternative_dir=alternative_dir)
 
 
 if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
@@ -648,35 +683,37 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
     print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
     print '-- do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = True  --'
     print '-- variables_carbon_budget =                                          --'
-    print '-> ',variables_carbon_budget
+    print '-> ', variables_carbon_budget
     print '--                                                                    --'
-    wvariables_carbon_budget_modelmodel=[]
+    wvariables_carbon_budget_modelmodel = []
     for tmpvar in variables_carbon_budget:
-        if isinstance(tmpvar,dict):
-           ttmpvar = tmpvar['variable']
+        if isinstance(tmpvar, dict):
+            ttmpvar = tmpvar['variable']
         else:
-           ttmpvar = tmpvar
-        if 'PFT' in ttmpvar: derive_var_PFT(ttmpvar)
+            ttmpvar = tmpvar
+        if 'PFT' in ttmpvar:
+            derive_var_PFT(ttmpvar)
         try:
-           cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
+            cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
         except:
-           wvariables_carbon_budget_modelmodel.append(tmpvar)
+            wvariables_carbon_budget_modelmodel.append(tmpvar)
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
         if model['project'] in ['IGCM_OUT']:
-           model.update(dict(DIR='SBG'))
+            model.update(dict(DIR='SBG'))
     index += section_2D_maps(Wmodels[1:len(Wmodels)], Wmodels[0], proj, season, wvariables_carbon_budget_modelmodel,
                              'ORCHIDEE Carbon Budget, difference with first simulation', domain=domain,
                              add_product_in_title=add_product_in_title, shade_missing=True, safe_mode=safe_mode,
@@ -689,32 +726,30 @@ if do_ORCHIDEE_Carbon_Budget_climatology_maps:
     print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
     print '-- do_ORCHIDEE_Carbon_Budget_climatology_maps = True                  --'
     print '-- variables_carbon_budget =                                          --'
-    print '-> ',variables_carbon_budget
+    print '-> ', variables_carbon_budget
     print '--                                                                    --'
     # -- Period Manager
     if not use_available_period_set:
-       Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
+        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
     else:
-       Wmodels = copy.deepcopy(Wmodels_clim)
+        Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
-    for model in Wmodels: model.update(dict(table='Lmon'))
+    for model in Wmodels:
+        model.update(dict(table='Lmon'))
     # -- Garde fou to avoid missing the first simulation
     WWmodels = copy.deepcopy(Wmodels)
     for model in WWmodels:
         if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-           Wmodels.remove(model)
+            Wmodels.remove(model)
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
         if model['project'] in ['IGCM_OUT']:
-           model.update(dict(DIR='SBG'))
+            model.update(dict(DIR='SBG'))
     index += section_climato_2D_maps(Wmodels, None, proj, season, variables_carbon_budget,
-                             'ORCHIDEE Carbon Budget, climatologies', domain=domain, custom_plot_params=custom_plot_params,
-                             add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                             alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
-                             thumbnail_size=thumbnail_size)
-
-
-
+                                     'ORCHIDEE Carbon Budget, climatologies', domain=domain,
+                                     custom_plot_params=custom_plot_params, add_product_in_title=add_product_in_title,
+                                     safe_mode=safe_mode, alternative_dir=alternative_dir,
+                                     custom_obs_dict=custom_obs_dict, thumbnail_size=thumbnail_size)
 
 
 # -----------------------------------------------------------------------------------
