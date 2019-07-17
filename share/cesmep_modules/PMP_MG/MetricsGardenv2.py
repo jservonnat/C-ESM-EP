@@ -173,7 +173,7 @@ def GPMultiRegions(df,
     # dumscore=score
     
     Normalization = 'NormByMean'
-    if (Normalization == 'NormByMean' and ByColumnsOrRows == 'Columns'):
+    if Normalization == 'NormByMean' and ByColumnsOrRows == 'Columns':
         score = 100*((score-scoreRefSimulations.mean(axis=0)) / scoreRefSimulations.mean(axis=0))
         scoreRefSimulations = 100*((scoreRefSimulations-scoreRefSimulations.mean(axis=0)) /
                                    scoreRefSimulations.mean(axis=0))
@@ -336,7 +336,7 @@ def ConnectionToIPSLMongoDBCollection(CollectionName='lmdz_pcmdi'):
     df = df.convert_objects(convert_numeric=True)
     del df['_id']
 
-    return(df)
+    return df
 
 
 def ConnectionToIPSLMongoDBSecured(MongoDatabase='172.20.179.73',
@@ -365,7 +365,7 @@ def ConnectionToIPSLMongoDBSecured(MongoDatabase='172.20.179.73',
     df = df2.convert_objects(convert_numeric=True)
     del df['_id']
 
-    return(df)
+    return df
 
 
 def FirstSelection(df, WhichMetrics={}, WhichNumericalExperiment={}):
@@ -376,7 +376,7 @@ def FirstSelection(df, WhichMetrics={}, WhichNumericalExperiment={}):
         df2 = df2[df2[K].str.match(WhichNumericalExperiment[K])]
     print "Nombre d'enregistrements: %d" % (len(df))
     print "Nombre d'enregistrements apres selection: %d" % (len(df2))
-    return(df2)
+    return df2
 
 
 def GlecklerPlot(df, MetricName='rms_xyt', dataType='ann', Region='GLB', displayTestOnly=True, SortBy=None,
@@ -405,7 +405,7 @@ def GlecklerPlot(df, MetricName='rms_xyt', dataType='ann', Region='GLB', display
     
     import numpy as np
     
-    if (MetricName not in ['rms_xyt', 'rms_xy', 'bias_xy', 'cor_xy', 'cor_xyt']):
+    if MetricName not in ['rms_xyt', 'rms_xy', 'bias_xy', 'cor_xy', 'cor_xyt']:
         print '# => MetricName ' + MetricName + ' not available'
         print '# => Choose among:'
         print '#     - rms_xyt + ann'
@@ -414,7 +414,7 @@ def GlecklerPlot(df, MetricName='rms_xyt', dataType='ann', Region='GLB', display
         print '#     - cor_xy + djf|mam|jja|son'
         print '#     - cor_xyt + ann'
 
-    if (MetricName == 'rms_xyt' and dataType != 'ann'):
+    if MetricName == 'rms_xyt' and dataType != 'ann':
         print 'rms_xyt only available for ann (annual cycle)'
         print 'For ' + dataType + ' use MetricName="rms_xy"'
         return 1
@@ -485,8 +485,8 @@ def GlecklerPlot(df, MetricName='rms_xyt', dataType='ann', Region='GLB', display
                                              index=WorkingIndex,
                                              aggfunc=np.mean)
     
-    if (MetricName in ['bias_xy', 'rms_xy', 'rms_xyt', 'cor_xyt', 'cor_xy', 'mae_xy']):
-        if (Normalization == 'NormByStandardDeviation' and ByColumnsOrRows == 'Columns'):
+    if MetricName in ['bias_xy', 'rms_xy', 'rms_xyt', 'cor_xyt', 'cor_xy', 'mae_xy']:
+        if Normalization == 'NormByStandardDeviation' and ByColumnsOrRows == 'Columns':
             refscore = scoreRefSimulations.std(axis=0)
             score = (score-scoreRefSimulations.mean(axis=0)) / refscore
             scoreRefSimulations = (scoreRefSimulations - scoreRefSimulations.mean(axis=0)) / \
@@ -500,7 +500,7 @@ def GlecklerPlot(df, MetricName='rms_xyt', dataType='ann', Region='GLB', display
                 MaxValue = 3
             MinValue = -MaxValue
         
-        if (Normalization == 'NormByMean' and ByColumnsOrRows == 'Columns'):
+        if Normalization == 'NormByMean' and ByColumnsOrRows == 'Columns':
             refscore = scoreRefSimulations.mean(axis=0)
             score = 100 * ((score - scoreRefSimulations.mean(axis=0)) / refscore)
             scoreRefSimulations = 100 * ((scoreRefSimulations - scoreRefSimulations.mean(axis=0)) /

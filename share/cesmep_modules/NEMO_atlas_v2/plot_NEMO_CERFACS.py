@@ -155,7 +155,7 @@ curves_options = 'vpXF=0|' + \
 
 def basename():
     from sys import _getframe
-    return (_getframe(1).f_code.co_name)
+    return _getframe(1).f_code.co_name
 
 
 def region2basin(modelname, region):
@@ -191,7 +191,7 @@ def region2basin(modelname, region):
         if region == "RED":
             basin = 10
     print "=> corresp. region<->basin found:" + region + "<->" + str(basin)
-    return (basin)
+    return basin
 
 
 def set_fixed_fields(cdftool, region, model):

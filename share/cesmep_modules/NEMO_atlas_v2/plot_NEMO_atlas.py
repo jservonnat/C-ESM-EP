@@ -33,7 +33,7 @@ def plot_curl(tauu_variable, tauv_variable, curl_variable, dat, season, proj='GL
     wdat.pop('variable')
     print wdat
     # -- Get the dataset
-    if (wdat['frequency'] in ['yearly', '1Y'] and season not in ['ANM']):
+    if wdat['frequency'] in ['yearly', '1Y'] and season not in ['ANM']:
         print ' !!! -> Cannot compute seasonal average on yearly data for wdat = ', wdat
         print ' ==> Try with frequency=monthly '
         wdat.update({'frequency': 'monthly'})
