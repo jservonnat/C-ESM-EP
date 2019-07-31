@@ -455,7 +455,7 @@ for component in job_components:
  \
               '\techo -n Job submitted : $jobId\n\n' + \
  \
-              ' \tsqsub -b \"-d afternotok:$jobID\" ' + \
+              ' \tsqsub -b \"--partition=P8HOST -d afternotok:$jobID\" ' + \
               '-e \"atlas_pathfilename=' + atlas_pathfilename + ',' + variables + '\"' + \
               ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
 
