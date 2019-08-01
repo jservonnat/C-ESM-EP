@@ -69,7 +69,7 @@ elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
     cesmep_modules=${PWD}/../../share/cesmep_modules
 fi
 
-# --> On Curie
+# --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
   unset PYTHONPATH
   module switch python/2.7.8
@@ -87,8 +87,10 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
   LD_LIBRARY_PATH=${working_conda}/lib:${LD_LIBRARY_PATH}
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=$(ccc_home -u igcmg --cccwork)/CliMAF/climaf_1.2
+  export CLIMAF=$(ccc_home -u igcmg --cccwork)/CliMAF/climaf_pre_1.2.12
   my_append -bp PYTHONPATH ${CLIMAF}
+  my_append -bp PYTHONPATH ${cesmep_modules}
+  my_append -bp PATH ${CLIMAF}
   # # -- CDFTools
   export CLIMAF_CACHE=${SCRATCHDIR}/cache_atlas_explorer
 

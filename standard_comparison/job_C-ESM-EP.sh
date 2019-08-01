@@ -43,7 +43,7 @@ echo "at TGCC"
 ##MSUB -q standard
 #MSUB -q skylake
 #MSUB -Q normal
-#MSUB -A gencmip6
+#MSUB -A devcmip6
 #MSUB -m store,work,scratch
 fi
 set +x
@@ -119,7 +119,7 @@ source ${env}
 # -- Set CliMAF cache (automatically)
 # -------------------------------------------------------- >
 if [[ -d "/ccc" && ! -d "/data" ]]; then
-export CLIMAF_CACHE=${SCRATCHDIR}/climafcache_${component}
+export CLIMAF_CACHE=${CCCSCRATCHDIR}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 

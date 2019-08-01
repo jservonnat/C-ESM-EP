@@ -1,9 +1,9 @@
 # -- Set default values for the variables
 # -----------------------------------------------------------------------------------
-verbose     = 'critical'
+verbose = 'critical'
 clean_cache = False
-safe_mode   = True
-index_name  = None
+safe_mode = True
+index_name = None
 routine_cache_cleaning = False
 
 season = 'ANM'
@@ -12,14 +12,14 @@ domain = {}
 
 custom_obs_dict = dict()
 
-reference_models=[]
+reference_models = []
 period_manager_test_variable = None
 apply_period_manager_once_for_all_diags = False
 do_SST_for_tuning = False
 do_atlas_explorer = False
 do_parallel_atlas_explorer = False
 do_parallel = False
-atlas_explorer_climato_variables=None
+atlas_explorer_climato_variables = None
 do_atmos_maps = False
 remapping = True
 do_ocean_2D_maps = False
@@ -33,7 +33,7 @@ do_TS_MOC = False
 llats = None
 MLD_diags = None
 do_curl_maps = False
-curl_diags=None
+curl_diags = None
 do_GLB_SFlux_maps = False
 do_Hotelling_Test = False
 do_Tropics_SFlux_maps = False
@@ -61,15 +61,15 @@ style_file = None
 add_product_in_title = True
 hover = False
 add_compareCompanion = True
-add_period_to_simname=True
-do_four_seasons_parcor=False
+add_period_to_simname = True
+do_four_seasons_parcor = False
 
 do_ATLAS_TIMESERIES_SPATIAL_INDEXES = False
 do_ATLAS_VERTICAL_PROFILES = False
 do_ATLAS_DRIFT_PROFILES = False
 do_ATLAS_MOC_DIAGS = False
 do_ATLAS_ZONALMEAN_SLICES = False
-y='lin'
+y = 'lin'
 
 do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps = False
 do_ORCHIDEE_Energy_Budget_climobs_bias_maps = False
@@ -85,17 +85,17 @@ do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = False
 do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = False
 do_ORCHIDEE_Carbon_Budget_climatology_maps = False
 
-thumbnail_size=None
-thumbnail_size_global="300*175"
-thumbnail_polar_size="250*250"
-thumbnail_size_3d="250*250"
-thumbsize_zonalmean='450*250'
-thumbsize_TS='450*250'
-thumbsize_MOC_slice="475*250"
-thumbsize_MAXMOC_profile="325*250"
-thumbsize_MOC_TS="325*250"
-thumbsize_VertProf="250*250"
-thumbnail_ENSO_size="400*175"
-thumbnail_ENSO_ts_size="400*175"
+thumbnail_size = None
+thumbnail_size_global = "300*175"
+thumbnail_polar_size = "250*250"
+thumbnail_size_3d = "250*250"
+thumbsize_zonalmean = '450*250'
+thumbsize_TS = '450*250'
+thumbsize_MOC_slice = "475*250"
+thumbsize_MAXMOC_profile = "325*250"
+thumbsize_MOC_TS = "325*250"
+thumbsize_VertProf = "250*250"
+thumbnail_ENSO_size = "400*175"
+thumbnail_ENSO_ts_size = "400*175"
 thumbnail_monsoon_pr_anncyc_size = '375*600'
 

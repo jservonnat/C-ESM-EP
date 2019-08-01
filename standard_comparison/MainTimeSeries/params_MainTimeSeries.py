@@ -22,8 +22,7 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
-
-
+from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
@@ -31,7 +30,7 @@ from os import getcwd
 from climaf.operators import derive
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -42,12 +41,11 @@ routine_cache_cleaning = [dict(access='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
 nprocs = 32
-#memory = 20 # in gb
-#queue = 'days3'
+# memory = 20 # in gb
+# queue = 'days3'
 
 
-
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # -- If you set it in the parameter file, it will overrule
 # -- the reference set in datasets_setup.py
 # ---------------------------------------------------------------------------- >
@@ -57,18 +55,18 @@ nprocs = 32
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
-
+# reference = 'default'
 
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
-season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB'   # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
-
+# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
+season = 'ANM'
+# -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'GLOB'
+# -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
+domain = dict()
 
 
 # ---------------------------------------------------------------------------- >
@@ -77,60 +75,61 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # -- It's meant to be a simple and flexible way to produce time series
 # -- on demand.
 # ---------------------------------------------------------------------------- >
-do_main_time_series        = True    # -> use atlas_explorer_variables to set your own selection of variables
+do_main_time_series = True  # -> use atlas_explorer_variables to set your own selection of variables
+
 
 def annual_mean_space_average(dat):
-    return space_average(ccdo(dat,operator='yearmean'))
+    return space_average(ccdo(dat, operator='yearmean'))
+
 
 def annual_seaice_volume(dat, **kwargs):
-    domain=dict(lonmin=0,lonmax=360,latmin=50,latmax=90)
+    domain = dict(lonmin=0, lonmax=360, latmin=50, latmax=90)
     if 'grid_file' in kwargs:
         ds_grid = fds(kwargs['grid_file'], period='fx', variable='area')
     else:
         print 'No grid file provided'
     return ccdo(
-            multiply(
-                llbox(ccdo(dat,operator='yearmean'),**domain),
-                llbox(ds_grid, **domain)
-            ),
-            operator='fldsum')
+        multiply(
+            llbox(ccdo(dat, operator='yearmean'), **domain),
+            llbox(ds_grid, **domain)
+        ),
+        operator='fldsum')
 
-derive('IGCM_OUT','sicsit','multiply','sic','sit')
-derive('IGCM_OUT','to_12','ccdo','thetao', operator='intlevel,100')
-derive('CMIP6','sicsit','multiply','sic','sit')
-derive('CMIP6','to_12','ccdo','thetao', operator='intlevel,100')
+
+derive('IGCM_OUT', 'sicsit', 'multiply', 'sic', 'sit')
+derive('IGCM_OUT', 'to_12', 'ccdo', 'thetao', operator='intlevel,100')
+derive('CMIP6', 'sicsit', 'multiply', 'sic', 'sit')
+derive('CMIP6', 'to_12', 'ccdo', 'thetao', operator='intlevel,100')
 
 time_series_specs = [
     dict(variable='tos', table='Omon', grid='gn',
-         project_specs = dict(
-                              IGCM_OUT = dict(DIR='OCE'),
-                             ),
-         domain=dict(lonmin=0,lonmax=360,latmin=-50,latmax=50),
+         project_specs=dict(
+             IGCM_OUT=dict(DIR='OCE'),
+         ),
+         domain=dict(lonmin=0, lonmax=360, latmin=-50, latmax=50),
          operation=annual_mean_space_average,
          offset=-273.15,
          left_string='SST 50S/50N',
          ylabel='SST (degC)', xlabel='Time (years)',
          horizontal_lines_values=22.41, horizontal_lines_colors='gray',
-         text=['1800-01-01',22.42,'HadISST 1990-2010'],
-         ylim=[20,23],
+         text=['1800-01-01', 22.42, 'HadISST 1990-2010'],
+         ylim=[20, 23],
          text_fontsize=15,
-    ),
-
-
+         ),
 
     dict(variable='tas',
-         project_specs = dict(
-                              CMIP5    = dict(table='Amon'),
-                              CMIP6    = dict(table='Amon'),
-                              IGCM_OUT = dict(DIR='ATM'),
-                             ),
+         project_specs=dict(
+             CMIP5=dict(table='Amon'),
+             CMIP6=dict(table='Amon'),
+             IGCM_OUT=dict(DIR='ATM'),
+         ),
          operation=annual_mean_space_average,
          offset=-273.15,
          left_string='2m Temperature Global average',
          ylabel='Temperature (degC)', xlabel='Time (years)',
-    ),
+         ),
 
-    #dict(variable='sicsit',
+    # dict(variable='sicsit',
     #     operation=annual_seaice_volume,
     #     operation_kwargs = dict(grid_file='/data/igcmg/database/grids/eORCA1.2_grid.nc'),
     #     scale=1/1e8,
@@ -142,7 +141,7 @@ time_series_specs = [
 
 ]
 
-apply_period_manager_once_for_all_diags=False
+apply_period_manager_once_for_all_diags = False
 period_manager_test_variable = 'tos'
 
 common_ts_plot_params = dict(
@@ -152,24 +151,22 @@ common_ts_plot_params = dict(
          highlight_period_lw=4,
          right_margin=0.95, bottom_margin=0.4,
          legend_fontsize=15,
-         legend_labels=['simulation','climato period'],
-         legend_lw=[7,2,4],
-         legend_xy_pos=[-0.03,-0.3],
+         legend_labels=['simulation', 'climato period'],
+         legend_lw=[7, 2, 4],
+         legend_xy_pos=[-0.03, -0.3],
          legend_colors='black,black',
          legend_ncol=4,
          append_custom_legend_to_default=True,
-         #xlim=['1800','2800']
+         # xlim=['1800','2800']
 )
 
 for elt in time_series_specs:
     for common_key in common_ts_plot_params:
         if common_key not in elt:
-           elt.update({common_key:common_ts_plot_params[common_key]})
+            elt.update({common_key: common_ts_plot_params[common_key]})
 
 
 # ---------------------------------------------------------------------------- >
-
-
 
 
 # -- Some settings -- customization
@@ -188,10 +185,8 @@ index_name = None
 # ---------------------------------------------------------------------------- >
 # Load an auxilliary file custom_plot_params (from the working directory)
 # of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
-
 
 
 # ---------------------------------------------------------------------------------------- #

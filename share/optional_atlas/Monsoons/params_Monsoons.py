@@ -22,14 +22,13 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
-
-
+from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
@@ -39,9 +38,8 @@ routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
 nprocs = 32
-#memory = 20 # in gb
-#queue = 'days3'
-
+# memory = 20 # in gb
+# queue = 'days3'
 
 
 # -- Set the reference against which we plot the diagnostics 
@@ -52,36 +50,33 @@ nprocs = 32
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
-
+# reference = 'default'
 
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
-season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-#domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30) # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2) 
+# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
+season = 'ANM'
+# -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'GLOB'
+# -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
+# domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = {}
-
 
 
 # ---------------------------------------------------------------------------- >
 # -- Monsoons - precipitation annual cycles 
 # ---------------------------------------------------------------------------- >
-do_Monsoons_pr_anncyc  = True    # -> Same for the seasonal averages in the tropics
+do_Monsoons_pr_anncyc = True    # -> Same for the seasonal averages in the tropics
 
-#monsoon_precip_regions = [
+# monsoon_precip_regions = [
 #        dict(name='All-India Rainfall', domain=dict(lonmin=65,lonmax=95,latmin=5,latmax=30)),
 #        dict(name='West African Monsoon', domain=dict(lonmin=-20,lonmax=30,latmin=0,latmax=20)),
 #      ]
 period_manager_test_variable = 'pr'
 
 # ---------------------------------------------------------------------------- >
-
-
-
 
 
 # -- Some settings -- customization
@@ -94,26 +89,26 @@ atlas_head_title = "Monsoons Diagnostics"
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
 style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
+i = 1
+while not os.path.isfile(os.getcwd() + style_file):
     print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
+    style_file = '/..' + style_file
+    if i == 3:
+        break
+    i = i + 1
+style_file = os.getcwd() + style_file
 
 # -- Thumbnail sizes
 # ---------------------------------------------------------------------------- >
-thumbnail_size           = '300*175'
-thumbnail_polar_size     = '250*250'
-thumbnail_size_3d        = '250*250'
-thumbsize_zonalmean      = '450*250'
-thumbsize_TS             = '450*250'
-thumbsize_MOC_slice      = '475*250'
+thumbnail_size = '300*175'
+thumbnail_polar_size = '250*250'
+thumbnail_size_3d = '250*250'
+thumbsize_zonalmean = '450*250'
+thumbsize_TS = '450*250'
+thumbsize_MOC_slice = '475*250'
 thumbsize_MAXMOC_profile = '325*250'
-thumbsize_MOC_TS         = '325*250'
-thumbsize_VertProf       = '250*250'
+thumbsize_MOC_TS = '325*250'
+thumbsize_VertProf = '250*250'
 thumbnail_monsoon_pr_anncyc_size = '375*600'
 
 # -- Add the name of the product in the title of the figures
@@ -144,7 +139,6 @@ index_name = None
 # ---------------------------------------------------------------------------- >
 # Load an auxilliary file custom_plot_params (from the working directory)
 # of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
 

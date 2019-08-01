@@ -22,14 +22,13 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
-
-
+from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
@@ -38,8 +37,7 @@ clean_cache = 'False'
 routine_cache_cleaning = [dict(age='+20')]
 
 
-
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # -- If you set it in the parameter file, it will overrule
 # -- the reference set in datasets_setup.py
 # ---------------------------------------------------------------------------- >
@@ -49,18 +47,18 @@ routine_cache_cleaning = [dict(age='+20')]
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
-
+# reference = 'default'
 
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
-season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB'   # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-domain = dict(lonmin=-100,lonmax=20,latmin=25,latmax=90) # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
-
+# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
+season = 'ANM'
+# -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'GLOB'
+# -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
+domain = dict(lonmin=-100, lonmax=20, latmin=25, latmax=90)
 
 
 # ---------------------------------------------------------------------------- >
@@ -74,8 +72,8 @@ domain = dict(lonmin=-100,lonmax=20,latmin=25,latmax=90) # -> set domain = dict(
 # --   - domain
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
-do_atlas_explorer        = True    # -> use atlas_explorer_variables to set your own selection of variables
-add_line_of_climato_plots=False
+do_atlas_explorer = True    # -> use atlas_explorer_variables to set your own selection of variables
+add_line_of_climato_plots = False
 
 calias('IGCM_OUT', 'hflsevap', 'flat', scale=-1./2.5e6, filenameVar='histmth')
 
@@ -84,29 +82,32 @@ uvs_vector_plot_params = dict(vcRefLengthF=0.001, vcRefMagnitudeF=0.08,
 tau_vector_plot_params = dict(vcRefLengthF=0.002, vcRefMagnitudeF=0.01,
                               vcMinDistanceF=0.015, vcLineArrowColor="black")
 
-atlas_explorer_variables = [#dict(variable='tos',add_aux_contours=dict(variable='sic',contours=15, aux_options='cnLineThicknessF=10'),
-                            #     line_title = 'SST + 0.15 contour Sea Ice conc. (black line)'),
-                            #'sos','wfo',
-                            'pme',
-                            # 'to1000',
-                            dict(variable='uas',vectors=dict(u_comp='uas',v_comp='vas', **uvs_vector_plot_params)),
-                            dict(variable='vas',vectors=dict(u_comp='uas',v_comp='vas', **uvs_vector_plot_params)),
-                            dict(variable='uas', season='DJF', vectors=dict(u_comp='uas',v_comp='vas', **uvs_vector_plot_params)),
-                            dict(variable='vas', season='DJF', vectors=dict(u_comp='uas',v_comp='vas', **uvs_vector_plot_params)),
-                            dict(variable='tauu', season='ANM', vectors=dict(u_comp='tauu',v_comp='tauv', **tau_vector_plot_params)),
-                            dict(variable='tauv', season='ANM', vectors=dict(u_comp='tauu',v_comp='tauv', **tau_vector_plot_params)),
-                            dict(variable='tauu', season='DJF', vectors=dict(u_comp='tauu',v_comp='tauv', **tau_vector_plot_params)),
-                            dict(variable='tauv', season='DJF', vectors=dict(u_comp='tauu',v_comp='tauv', **tau_vector_plot_params)),
-                            #dict(variable='tauuo',vectors=dict(u_comp='tauuo',v_comp='tauvo', **tau_vector_plot_params)),
-                            #dict(variable='tauvo',vectors=dict(u_comp='tauuo',v_comp='tauvo', **tau_vector_plot_params)),
-                           ]
+atlas_explorer_variables = [
+    # dict(variable='tos',add_aux_contours=dict(variable='sic',contours=15, aux_options='cnLineThicknessF=10'),
+    # line_title = 'SST + 0.15 contour Sea Ice conc. (black line)'),
+    # 'sos','wfo',
+    'pme',
+    # 'to1000',
+    dict(variable='uas', vectors=dict(u_comp='uas', v_comp='vas', **uvs_vector_plot_params)),
+    dict(variable='vas', vectors=dict(u_comp='uas', v_comp='vas', **uvs_vector_plot_params)),
+    dict(variable='uas', season='DJF', vectors=dict(u_comp='uas', v_comp='vas', **uvs_vector_plot_params)),
+    dict(variable='vas', season='DJF', vectors=dict(u_comp='uas', v_comp='vas', **uvs_vector_plot_params)),
+    dict(variable='tauu', season='ANM', vectors=dict(u_comp='tauu', v_comp='tauv', **tau_vector_plot_params)),
+    dict(variable='tauv', season='ANM', vectors=dict(u_comp='tauu', v_comp='tauv', **tau_vector_plot_params)),
+    dict(variable='tauu', season='DJF', vectors=dict(u_comp='tauu', v_comp='tauv', **tau_vector_plot_params)),
+    dict(variable='tauv', season='DJF', vectors=dict(u_comp='tauu', v_comp='tauv', **tau_vector_plot_params)),
+    # dict(variable='tauuo',vectors=dict(u_comp='tauuo',v_comp='tauvo', **tau_vector_plot_params)),
+    # dict(variable='tauvo',vectors=dict(u_comp='tauuo',v_comp='tauvo', **tau_vector_plot_params)),
+    ]
 period_manager_test_variable = 'tas'
 
-#atlas_explorer_variables = ['tauuo','tauvo']
-#atlas_explorer_climato_variables = [dict(variable='mlotst',season='JFM'), 'socurl', 'curltau', 'sic']
-atlas_explorer_climato_variables = ['curltau',
-                                    #dict(variable='mlotst',season='JFM',add_aux_contours=dict(variable='sic',contours=15, aux_options='cnLineThicknessF=10')),
-                                    #dict(variable='sic',season='JFM',)]
+# atlas_explorer_variables = ['tauuo','tauvo']
+# atlas_explorer_climato_variables = [dict(variable='mlotst',season='JFM'), 'socurl', 'curltau', 'sic']
+atlas_explorer_climato_variables = [
+    'curltau',
+    # dict(variable='mlotst', season='JFM', add_aux_contours=dict(variable='sic', contours=15,
+    #                                                             aux_options='cnLineThicknessF=10')),
+    # dict(variable='sic',season='JFM',)]
                                    ]
 # Biais = 'tos', 'sos', 'uas', 'vas'
 # Climatos = 'curltau', 'socurl', 'mlotst', 'sic'
@@ -115,18 +116,18 @@ atlas_explorer_climato_variables = ['curltau',
 calias('ref_climatos', 'tauuo', 'tauu')
 calias('ref_climatos', 'tauvo', 'tauv')
 # -- Mixed Layer Depth
-#do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
-#MLD_diags=[('JFM','GLOB')]
+# do_MLD_maps            = True    # -> [NEMO Atlas] Maps of Mixed Layer Depth
+# MLD_diags=[('JFM','GLOB')]
 
 # -- Wind stress curl
-#do_curl_maps = True
-#curl_diags= [ dict(name='North Atlantic, annual mean', season='ANM', domain=dict(lonmin=-80,lonmax=0,latmin=30,latmax=90), thumbNsize='400*300')]
+# do_curl_maps = True
+# curl_diags= [ dict(name='North Atlantic, annual mean', season='ANM', domain=dict(lonmin=-80,lonmax=0,
+# latmin=30,latmax=90), thumbNsize='400*300')]
 
 
-
-#dict_params = dict(focus='land')
-#new_atlas_explorer_variables = []
-#for elt in atlas_explorer_variables:
+# dict_params = dict(focus='land')
+# new_atlas_explorer_variables = []
+# for elt in atlas_explorer_variables:
 #    if not isinstance(elt,dict):
 #       new_elt = dict(variable=elt)
 #    else:
@@ -135,8 +136,6 @@ calias('ref_climatos', 'tauvo', 'tauv')
 
 
 # ---------------------------------------------------------------------------- >
-
-
 
 
 # -- Some settings -- customization
@@ -149,14 +148,14 @@ atlas_head_title = "Focus North Atlantic for AMOC"
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
 style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
+i = 1
+while not os.path.isfile(os.getcwd() + style_file):
     print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
+    style_file = '/..' + style_file
+    if i == 3:
+        break
+    i = i + 1
+style_file = os.getcwd() + style_file
 
 
 # -- Add the name of the product in the title of the figures
@@ -187,10 +186,8 @@ index_name = None
 # ---------------------------------------------------------------------------- >
 # Load an auxilliary file custom_plot_params (from the working directory)
 # of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
-
 
 
 # ---------------------------------------------------------------------------------------- #

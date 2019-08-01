@@ -22,13 +22,13 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
-
+from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -39,9 +39,8 @@ routine_cache_cleaning = [dict(access='+20'), dict(access='+10', pattern='oneVar
 # -- Parallel and memory instructions
 do_parallel = True
 nprocs = 32
-memory = 30 # in gb; 30 for ocean atlasas
-queue = 'days3' # onCiclad: h12, days3
-
+memory = 30  # in gb; 30 for ocean atlasas
+queue = 'days3'  # onCiclad: h12, days3
 
 
 # -- Set the reference against which we plot the diagnostics 
@@ -52,22 +51,19 @@ queue = 'days3' # onCiclad: h12, days3
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
-
+# reference = 'default'
 
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
-season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB' # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-#domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30) # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2) 
+# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
+season = 'ANM'
+# -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'GLOB'
+# -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
+# domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = {}
-
-
-
-
 
 
 # ---------------------------------------------------------------------------- >
@@ -77,14 +73,14 @@ domain = {}
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
 # -- 2D Maps
-do_ocean_2D_maps       = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
+do_ocean_2D_maps = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
 atlas_explorer_variables = []
 for var in ['to200', 'to1000', 'so200', 'so1000']:
-    atlas_explorer_variables.append (dict(variable=var, season='ANM', table='Omon', grid='gn',
-                                    project_specs = dict(
-                                                         IGCM_OUT   = dict(DIR   = 'OCE'),
-                                                        ),
-                                    ))
+    atlas_explorer_variables.append(dict(variable=var, season='ANM', table='Omon', grid='gn',
+                                         project_specs=dict(
+                                             IGCM_OUT=dict(DIR='OCE'),
+                                         ),
+                                         ))
 remapping = True
 
 
@@ -96,14 +92,9 @@ atlas_explorer_climato_variables = None
 period_manager_test_variable = 'to'
 
 # -- Activate the parallel execution of the plots
-do_parallel=True
+do_parallel = True
 
 # ---------------------------------------------------------------------------- >
-
-
-
-
-
 
 
 # -- Some settings -- customization
@@ -128,13 +119,10 @@ index_name = None
 # ---------------------------------------------------------------------------- >
 # Load an auxilliary file custom_plot_params (from the working directory)
 # of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
-
 
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

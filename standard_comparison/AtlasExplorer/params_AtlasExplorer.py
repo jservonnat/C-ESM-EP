@@ -22,14 +22,14 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
-
-
+from climaf.api import *
+from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -38,13 +38,12 @@ clean_cache = False
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
-#nprocs = 32
-#memory = 20 # in gb
-#queue = 'days3'
+# nprocs = 32
+# memory = 20 # in gb
+# queue = 'days3'
 
 
-
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # -- If you set it in the parameter file, it will overrule
 # -- the reference set in datasets_setup.py
 # ---------------------------------------------------------------------------- >
@@ -54,18 +53,18 @@ do_parallel = False
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
-
+# reference = 'default'
 
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
-season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB'   # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
-
+# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
+season = 'ANM'
+# -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'GLOB'
+# -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
+domain = dict()
 
 
 # ---------------------------------------------------------------------------- >
@@ -79,23 +78,22 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # --   - domain
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
-from climaf.api import *
 atlas_explorer_variables = [dict(variable='tas',
-                                 project_specs = dict(
+                                 project_specs=dict(
                                      IGCM_OUT=dict(DIR='ATM'),
-                                )),
-                            dict(variable='tos', table = 'Omon',
-                                 project_specs = dict(
+                                 )),
+                            dict(variable='tos', table='Omon',
+                                 project_specs=dict(
                                      IGCM_OUT=dict(DIR='OCE'),
-                                     CMIP6      = dict(grid='gn'),
-                                )),
+                                     CMIP6=dict(grid='gn'),
+                                 )),
                             dict(variable='ua', season='DJF', table='Amon',
-                                 project_specs = dict(
+                                 project_specs=dict(
                                      IGCM_OUT=dict(DIR='ATM'),
                                  ))
-                          ]
+                            ]
 
-#atlas_explorer_variables = ['tas','pr',
+# atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',
 #                            dict(variable='ua', season='DJF', add_climato_contours=True),
 #                            dict(variable='ua', season='JJA', add_climato_contours=True),
@@ -105,7 +103,7 @@ atlas_explorer_variables = [dict(variable='tas',
 #                           ]
 
 # -- Activate the parallel execution of the plots
-do_parallel=False
+do_parallel = False
 
 period_manager_test_variable = 'tas'
 
@@ -114,8 +112,6 @@ period_manager_test_variable = 'tas'
 atlas_explorer_climato_variables = None
 
 # ---------------------------------------------------------------------------- >
-
-
 
 
 # -- Some settings -- customization
@@ -137,10 +133,8 @@ index_name = None
 # ---------------------------------------------------------------------------- >
 # Load an auxilliary file custom_plot_params (from the working directory)
 # of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
-
 
 
 # ---------------------------------------------------------------------------------------- #

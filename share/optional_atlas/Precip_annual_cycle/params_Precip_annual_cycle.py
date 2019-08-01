@@ -23,13 +23,13 @@
 # --------------------------------------------------------------------------------------------- /
 
 
-
-
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
+from custom_plot_params import dict_plot_params as custom_plot_params
+
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose='debug'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to 'True' (string) to clean the CliMAF cache
@@ -38,9 +38,7 @@ clean_cache = 'False'
 #    to crm() at the end of the atlas (for a routine cache management)
 routine_cache_cleaning = [dict(access='+20')]
 
-
-
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # -- If you set it in the parameter file, it will overrule
 # -- the reference set in datasets_setup.py
 # ---------------------------------------------------------------------------- >
@@ -50,19 +48,18 @@ routine_cache_cleaning = [dict(access='+20')]
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
-
+# reference = 'default'
 
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
-season = 'ANM'  # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-proj = 'GLOB'   # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
-
-
+# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
+season = 'ANM'
+# -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
+proj = 'GLOB'
+# -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
+domain = dict()
 
 # ---------------------------------------------------------------------------- >
 # -- Atlas Explorer diagnostics
@@ -75,13 +72,13 @@ domain = dict() # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y
 # --   - domain
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
-do_annual_cycle_precip        = True    # -> use atlas_explorer_variables to set your own selection of variables
-#atlas_explorer_variables = ['tas', 'tos', dict(variable='ua', season='DJF', add_climato_contours=True) ]
+do_annual_cycle_precip = True  # -> use atlas_explorer_variables to set your own selection of variables
+# atlas_explorer_variables = ['tas', 'tos', dict(variable='ua', season='DJF', add_climato_contours=True) ]
 ##
 domain = dict(lonmin=0, lonmax=360, latmin=-80, latmax=80)
-months = ['ANM','DJF','MAM','JJA','SON']
+months = ['ANM', 'DJF', 'MAM', 'JJA', 'SON']
 
-#atlas_explorer_variables = ['tas','pr',
+# atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',
 #                            dict(variable='ua', season='DJF', add_climato_contours=True),
 #                            dict(variable='ua', season='JJA', add_climato_contours=True),
@@ -91,8 +88,6 @@ months = ['ANM','DJF','MAM','JJA','SON']
 #                           ]
 
 # ---------------------------------------------------------------------------- >
-
-
 
 
 # -- Some settings -- customization
@@ -105,15 +100,14 @@ atlas_head_title = "Annual cycle of pr for metrics"
 # -- Setup a custom css style file
 # ---------------------------------------------------------------------------- >
 style_file = '/share/fp_template/cesmep_atlas_style_css'
-i=1
-while not os.path.isfile(os.getcwd()+style_file):
+i = 1
+while not os.path.isfile(os.getcwd() + style_file):
     print i
-    style_file = '/..'+style_file
-    if i==3:
-       break
-    i=i+1
-style_file = os.getcwd()+style_file
-
+    style_file = '/..' + style_file
+    if i == 3:
+        break
+    i = i + 1
+style_file = os.getcwd() + style_file
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
@@ -129,7 +123,6 @@ hover = False
 # ---------------------------------------------------------------------------- >
 add_compareCompanion = True
 
-
 # -- Name of the html file
 # -- if index_name is set to None, it will be build as user_comparisonname_season
 # -- with comparisonname being the name of the parameter file without 'params_'
@@ -137,19 +130,15 @@ add_compareCompanion = True
 # ---------------------------------------------------------------------------- >
 index_name = None
 
-
 # -- Custom plot params
 # -- Changing the plot parameters of the plots
 # ---------------------------------------------------------------------------- >
 # Load an auxilliary file custom_plot_params (from the working directory)
 # of plot params (like atmos_plot_params.py)
-from custom_plot_params import dict_plot_params as custom_plot_params
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
-
 
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

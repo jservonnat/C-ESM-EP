@@ -64,9 +64,6 @@
 # --                                                                                      - /
 # ---------------------------------------------------------------------------------------- /
 
-
-
-
 # -- List of simulations: models = [dict(...), dict(...), ...]
 # -- 
 # -- Specify the list of 'datasets' (list of python dictionaries) you want to assess with the atlas.
@@ -135,127 +132,139 @@
 # --    - ORCHIDEE_2D_maps
   
 # ---------------------------------------------------------------------------- >
+from climaf.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
+from CM_atlas import *
+
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 
 # -- Set the path to the grids
-from climaf.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
 if onCiclad:
-   gridpath='/data/igcmg/database/grids/'
+    gridpath = '/data/igcmg/database/grids/'
 if atTGCC:
-   gridpath='/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+    gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
 if atCNRM:
-   gridpath='/cnrm/est/COMMON/C-ESM-EP/grids/'
+    gridpath = '/cnrm/est/COMMON/C-ESM-EP/grids/'
 
 # -- Setup the models list
 # --> case atCNRM:
-if atCNRM :
-   models = [
+if atCNRM:
+    models = [
 
-      dict(project = 'CMIP5', model='CNRM-CM5', experiment='piControl',
-            frequency='monthly', period='1850-1853', version="*",
-            customname='CNRM-CM5-hist'
-            ),
-      dict(project = 'CMIP6', model='CNRM-CM6-1', experiment='piControl',
-           frequency='monthly', period='1950-1953',
-           customname='CNRM-CM6-control'
-           ),
+        dict(project='CMIP5', model='CNRM-CM5', experiment='piControl',
+             frequency='monthly', period='1850-1853', version="*",
+             customname='CNRM-CM5-hist'
+             ),
+        dict(project='CMIP6', model='CNRM-CM6-1', experiment='piControl',
+             frequency='monthly', period='1950-1953',
+             customname='CNRM-CM6-control'
+             ),
 
-   ]
-   for model in models:
-      if model['model']=='CNRM-CM6-1' or model['model']=='CNRM-ESM2-1' :
-         model['gridfile']=gridpath+'ORCA1_mesh_zgr.nc'
-         model['mesh_hgr']=gridpath+'ORCA1_mesh_hgr.nc'
+    ]
+    for model in models:
+        if model['model'] == 'CNRM-CM6-1' or model['model'] == 'CNRM-ESM2-1':
+            model['gridfile'] = gridpath+'ORCA1_mesh_zgr.nc'
+            model['mesh_hgr'] = gridpath+'ORCA1_mesh_hgr.nc'
 
-if atCerfacs :
-   models = [
+if atCerfacs:
+    models = [
 
-      # Sorte de dataset mais que avec les attributs communs a toutes les variables et simus
-      dict(project = 'PRIMAVERA', model='CNRM-CM6-1', simulation='spinup-1950',
-           realization='r1i1p1f2', period='1950-1979', frequency='monthly',
-           customname='CNRM-CM6-1_spinup-1950_r1i1p1f2'
-           ),
-      # dict(project = 'CMIP6', model='CNRM-CM6-1', experiment='abrupt-4xCO2',
-      #      frequency='monthly', period='1850-1853',
-      #      customname='CNRM-CM6-abrupt'
-      #      ),
+        # Sorte de dataset mais que avec les attributs communs a toutes les variables et simus
+        dict(project='PRIMAVERA', model='CNRM-CM6-1', simulation='spinup-1950',
+             realization='r1i1p1f2', period='1950-1979', frequency='monthly',
+             customname='CNRM-CM6-1_spinup-1950_r1i1p1f2'
+             ),
 
-   ]
+        # dict(project='CMIP6', model='CNRM-CM6-1', experiment='abrupt-4xCO2',
+        #      frequency='monthly', period='1850-1853',
+        #      customname='CNRM-CM6-abrupt'
+        #      ),
+
+    ]
 
 
 # --> case onCiclad or atTGCC:
-if onCiclad or atTGCC :
-   models = [
+if onCiclad or atTGCC:
+    models = [
 
-      dict(project='IGCM_OUT',
-           login='lurtont',
-           model='IPSLCM6',
-           experiment='pdControl',
-           simulation='CM6015S-pd-03',
-           clim_period='2500_2509',
-           customname='CM6015S-pd-03 2500_2509',
-           color='red'
-           ),
+        dict(project='IGCM_OUT',
+             login='lurtont',
+             model='IPSLCM6',
+             experiment='pdControl',
+             simulation='CM6015S-pd-03',
+             clim_period='2500_2509',
+             customname='CM6015S-pd-03 2500_2509',
+             color='red'
+             ),
 
-      dict(project='IGCM_OUT',
-           login='lurtont',
-           model='IPSLCM6',
-           experiment='pdControl',
-           simulation='CM6015S-pd-03',
-           frequency='monthly',
-           clim_period='last_10Y',
-           customname='CM6015S-pd-03 last_10Y',
-           color='blue',
-          ),
+        dict(project='IGCM_OUT',
+             login='lurtont',
+             model='IPSLCM6',
+             experiment='pdControl',
+             simulation='CM6015S-pd-03',
+             frequency='monthly',
+             clim_period='last_10Y',
+             customname='CM6015S-pd-03 last_10Y',
+             color='blue',
+             ),
 
-      dict(project = 'CMIP5', model='IPSL-CM5A-MR', experiment='historical',
-           frequency='monthly', period='1980-2005', version='latest',
-           customname='CMIP5 IPSL-CM5A-MR'
-           ),
+        dict(project='CMIP5',
+             model='IPSL-CM5A-MR',
+             experiment='historical',
+             frequency='monthly',
+             period='1980-2005',
+             version='latest',
+             customname='CMIP5 IPSL-CM5A-MR'
+             ),
 
-      dict(project = 'CMIP6',
-           model='IPSL-CM6A-LR', experiment='historical',
-           frequency='monthly', period='1980-2005', realization='r2i1p1f1', version='latest'
-           ),
+        dict(project='CMIP6',
+             model='IPSL-CM6A-LR',
+             experiment='historical',
+             frequency='monthly',
+             period='1980-2005',
+             realization='r2i1p1f1',
+             version='latest'
+             ),
 
-   ]
-   # -- We don't have access to the CMIP5 archive at TGCC; we remove them from the list models 
-   if atTGCC:
-      models.pop(2)
-      root = '/ccc/store/cont003/gencmip6'
-   if onCiclad:
-      root='/ccc/store/cont003/thredds'
-   #
-   # -- Provide a set of common keys to the elements of models
-   # ---------------------------------------------------------------------------- >
-   common_keys = dict(
-           root=root, login='*',
-           frequency='monthly',
-           clim_period='last_30Y',
-           ts_period='full',
-           ENSO_ts_period='last_80Y',
-           mesh_hgr=gridpath+'eORCA1.2_mesh_mask_glo.nc',
-           gridfile=gridpath+'eORCA1.1_grid.nc',
-           varname_area='area',
-           )
-   #
-   for model in models:
-     if model['project']=='IGCM_OUT' :
-       for key in common_keys:
-           if key not in model:
-              model.update({key:common_keys[key]})
+    ]
+    # -- We don't have access to the CMIP5 archive at TGCC; we remove them from the list models
+    if atTGCC:
+        models.pop(2)
+        root = '/ccc/store/cont003/gencmip6'
+    if onCiclad:
+        root = '/ccc/store/cont003/thredds'
+    #
+    # -- Provide a set of common keys to the elements of models
+    # ---------------------------------------------------------------------------- >
+    common_keys = dict(
+        root=root,
+        login='*',
+        frequency='monthly',
+        clim_period='last_30Y',
+        ts_period='full',
+        ENSO_ts_period='last_80Y',
+        mesh_hgr=gridpath + 'eORCA1.2_mesh_mask_glo.nc',
+        gridfile=gridpath + 'eORCA1.1_grid.nc',
+        varname_area='area',
+    )
+    #
+    for model in models:
+        if model['project'] == 'IGCM_OUT':
+            for key in common_keys:
+                if key not in model:
+                    model.update({key: common_keys[key]})
 
 
 # -- Find the last available common period to all the datasets
 # -- with clim_period = 'common_clim_period'
 # ---------------------------------------------------------------------------- >
-from CM_atlas import *
-common_period_variable='tas'
-#common_clim_period='last_10Y'
-common_clim_period=None
+common_period_variable = 'tas'
+# common_clim_period = 'last_10Y'
+common_clim_period = None
 
-if common_clim_period: find_common_period(models, common_period_variable, common_clim_period)
+if common_clim_period:
+    find_common_period(models, common_period_variable, common_clim_period)
 
 
 # -- Set the reference against which we plot the diagnostics
@@ -268,33 +277,33 @@ if common_clim_period: find_common_period(models, common_period_variable, common
 # --       differences relative to the first simulation of the list 'models'
 reference = 'default'
 
-#reference = dict(project = 'CMIP5', model='CNRM-CM5', experiment='historical',
-#                 frequency='monthly', period='1980-2005',
-#                 customname='CMIP5 CNRM-CM5'
+# reference = dict(project='CMIP5', model='CNRM-CM5', experiment='historical',
+#                  frequency='monthly', period='1980-2005',
+#                  customname='CMIP5 CNRM-CM5'
 #                 )
 
-
-
-## -- Declare a 'CMIP5_bis' CliMAF project (a replicate of the CMIP5 project)
-## ---------------------------------------------------------------------------- >
-#cproject('CMIP5_bis', ('frequency','monthly'), 'model', 'realm', 'table', 'experiment', ensemble=['model','simulation'],separator='%')
-## --> systematic arguments = simulation, frequency, variable
-## -- Set the aliases for the frequency
-#cfreqs('CMIP5_bis', {'monthly':'mon'})
-## -- Set default values
-#cdef('simulation'  , 'r1i1p1'       , project='CMIP5_bis')
-#cdef('experiment'  , 'historical'   , project='CMIP5_bis')
-#cdef('table'       , '*'            , project='CMIP5_bis')
-#cdef('realm'       , '*'            , project='CMIP5_bis')
-## -- Define the pattern
-#pattern="/prodigfs/project/CMIP5/output/*/${model}/${experiment}/${frequency}/${realm}/${table}/${simulation}/latest/${variable}/${variable}_${table}_${model}_${experiment}_${simulation}_YYYYMM-YYYYMM.nc"
-## --> Note that the YYYYMM-YYYYMM string means that the period is described in the filename and that CliMAF can
-## --> perform period selection among the files it found in the directory (can be YYYY, YYYYMM, YYYYMMDD).
-## --> You can use an argument like ${years} instead if you just want to do string matching (no smart period selection)
+# -- Declare a 'CMIP5_bis' CliMAF project (a replicate of the CMIP5 project)
+# ---------------------------------------------------------------------------- >
+# cproject('CMIP5_bis', ('frequency','monthly'), 'model', 'realm', 'table', 'experiment',
+#          ensemble=['model','simulation'],separator='%')
+# --> systematic arguments = simulation, frequency, variable
+# -- Set the aliases for the frequency
+# cfreqs('CMIP5_bis', {'monthly':'mon'})
+# -- Set default values
+# cdef('simulation'  , 'r1i1p1'       , project='CMIP5_bis')
+# cdef('experiment'  , 'historical'   , project='CMIP5_bis')
+# cdef('table'       , '*'            , project='CMIP5_bis')
+# cdef('realm'       , '*'            , project='CMIP5_bis')
+# -- Define the pattern
+# pattern="/prodigfs/project/CMIP5/output/*/${model}/${experiment}/${frequency}/${realm}/${table}/${simulation}/latest/
+#         "${variable}/${variable}_${table}_${model}_${experiment}_${simulation}_YYYYMM-YYYYMM.nc"
+# --> Note that the YYYYMM-YYYYMM string means that the period is described in the filename and that CliMAF can
+# --> perform period selection among the files it found in the directory (can be YYYY, YYYYMM, YYYYMMDD).
+# --> You can use an argument like ${years} instead if you just want to do string matching (no smart period selection)
 # 
-## -- call the dataloc CliMAF function
-#dataloc(project='CMIP5_bis', organization='generic', url=pattern)
-## ---------------------------------------------------------------------------- >
+# -- call the dataloc CliMAF function
+# dataloc(project='CMIP5_bis', organization='generic', url=pattern)
+# ---------------------------------------------------------------------------- >
 
 #
 # ---------------------------------------------------------------------------------------- #
