@@ -19,13 +19,6 @@ for oceanvar in ocean_plot_params:
     ocean_variables.append(oceanvar)
 
 
-# def start_line(title):
-#    tmpindex = open_table()
-#    tmpindex += open_line(title) + close_line() + close_table()
-#    tmpindex += open_table()
-#    tmpindex += open_line()
-#    return tmpindex
-
 def is3d(variable):
     if variable in ['ta', 'ua', 'va', 'hus', 'hur', 'wap', 'cl', 'clw', 'cli', 'mc', 'tro3', 'vitu', 'vitv', 'vitw',
                     'geop', 'temp']:
@@ -102,28 +95,6 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
         title = str.replace(title, '*', '')
     return title
 
-
-# def safe_mode_cfile_plot(myplot,do_cfile=True,safe_mode=True):
-#    if not do_cfile:
-#       return myplot
-#       #
-#    else:
-#       # -- We try to 'cfile' the plot
-#       if not safe_mode:
-#          print '-- plot function is not in safe mode --'
-#          return cfile(myplot)
-#          cprotect(myplot)
-#       else:
-#          try:
-#             plot_filename = cfile(myplot)
-#             print '--> Successfully plotted ',myplot
-#             cprotect(myplot)
-#             return plot_filename
-#          except:
-#             # -- In case it didn't work, we try to see if it comes from the availability of the data
-#             print '!! Plotting failed ',myplot
-#             print "set clog('debug') and safe_mode=False to identify where the plotting failed"
-#             return blank_cell
 
 
 # -- 2D Maps
@@ -292,7 +263,10 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
         except:
             return safe_mode_cfile_plot(plot(ds(**wdat_dict)), do_cfile, safe_mode)
     else:
-        ds_dat = ds(**wdat_dict).explore('resolve')
+        try:
+           ds_dat = ds(**wdat_dict).explore('resolve')
+        except:
+           ds_dat = ds(**wdat_dict)
     #
     # -- Compute the seasonal climatology
     climato_dat = clim_average(ds_dat, season)

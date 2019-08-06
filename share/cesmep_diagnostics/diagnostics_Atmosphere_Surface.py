@@ -48,8 +48,6 @@ atlas_head_title = "Atmosphere Surface"
 # -----------------------------------------------------------------------------------
 index = header(atlas_head_title, style_file=style_file)
 
-# -- Ensure backward-compatibility with v1:
-# -----------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the maps of the Atlas Explorer                                            -- #
