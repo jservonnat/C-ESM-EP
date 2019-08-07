@@ -212,6 +212,10 @@ for cesmep_module in cesmep_modules:
 newline = '<h2>Comparison directory: ' + main_cesmep_path + '/' + comparison + '</h2>'
 new_html_lines.append(newline)
 
+# -- Add links to C-ESM-EP and CliMAF documentation:
+new_html_lines += [ '<li><a href="https://github.com/jservonnat/C-ESM-EP/wiki">C-ESM-EP Wiki - Documentation</a></li>',
+                    '<li><a href="https://climaf.readthedocs.io/en/master/">CliMAF documentation</a></li>' ]
+
 # -> Add the end of the html file
 new_html_lines = new_html_lines + ['', '</body>', '', '</html>']
 
@@ -251,6 +255,10 @@ path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server +
 
 # -- URL  to the comparison
 comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
+
+# -- URL to C-ESM-EP frontpage
+frontpage_address = comparison_url + frontpage_html
+
 
 if os.path.exists('/ccc') and not os.path.exists('/data'):
     atTGCC = True
@@ -370,7 +378,8 @@ for component in job_components:
             add_email = ''
         if component not in metrics_components:
             cmd = 'cd ' + submitdir + ' ; export comparison=' + comparison + \
-                  ' ; export component=' + component + ' ; ccc_msub' + add_email + ' -r ' + \
+                  ' ; export component=' + component + ' export cesmep_frontpage=' + frontpage_address + \
+                  ' ; ccc_msub' + add_email + ' -r ' + \
                   component + '_' + comparison + '_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
     #
     # -- Case onCiclad
@@ -424,7 +433,8 @@ for component in job_components:
         #
         # -- Build the job command line
         cmd = 'cd ' + submitdir + ' ; jobID=$(qsub' + job_options + ' -j eo -v component=' + component + ',comparison='\
-              + comparison + ',WD=${PWD} -N ' + component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
+              + comparison + ',WD=${PWD},cesmep_frontpage='+frontpage_address\
+              +' -N '+ component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
               ') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
               ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
               ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
@@ -439,6 +449,7 @@ for component in job_components:
         variables = 'component=' + component
         variables += ',comparison=' + comparison
         variables += ',WD=$(pwd)'
+        variables += ',cesmep_frontpage=' + frontpage_address
         variables += ',CLIMAF_CACHE=' + climaf_cache
         #
         mail = ''
@@ -469,7 +480,7 @@ for component in job_components:
         print component
         print comparison
         cmd = 'cd ' + submitdir + ' ; export comparison=' + comparison + \
-              ' ; export component=' + component + ' ; ' + \
+              ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address + ' ; ' + \
               'sbatch ../' + job_script
     print(cmd)
 
@@ -524,7 +535,6 @@ if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
 
 # -- Final: Print the final message with the address of the C-ESM-EP front page
 # -----------------------------------------------------------------------------------------
-frontpage_address = comparison_url + frontpage_html
 
 print ''
 print '-- The CliMAF ESM Evaluation Platform atlas is available here: '

@@ -48,6 +48,9 @@ parser.add_option("--comparison",
 parser.add_option("--component",
                   help="Name of the component - set of diagnostics",
                   action="store", default=None)
+parser.add_option("--cesmep_frontpage",
+                  help="URL to C-ESM-EP frontpage",
+                  action="store", default=None)
 
 (opts, args) = parser.parse_args()
 
@@ -72,7 +75,7 @@ execfile(main_cesmep_path+default_file)
 component = opts.component
 comparison = opts.comparison
 index_name = opts.index_name
-
+cesmep_frontpage = opts.cesmep_frontpage
 
 # -- Build the paths to:
 # -----------------------------------------------------------------------------------
@@ -278,6 +281,20 @@ if add_compareCompanion:
 # -- End the index
 index += trailer()
 
+
+# -- Add link to main frontpage
+# final url to main frontpage
+# 1. Cas general (Ciclad):
+# boucle sur les elements de index
+# str.replace( , url CliMAF, url_frontpage)
+# str.replace( , CliMAF documentation, C-ESM-EP frontpage for COMPARISON)
+#pysed(atlas_pathfilename, 'target_component', component)
+climaf_doc_url = 'https://climaf.readthedocs.io/en/master/'
+# -- Replace url to CliMAF documentation with url to C-ESM-EP frontpage
+index = str.replace(index, climaf_doc_url, cesmep_frontpage)
+# -- Replace CliMAF documentation with C-ESM-EP frontpage of comparison COMPARISON
+index = str.replace(index, 'CliMAF documentation', 'Back to C-ESM-EP frontpage of comparison: '+comparison)
+
 # -- Write the atlas html file
 outfile = atlas_dir + "/" + index_name
 print 'outfile = ', outfile
@@ -310,6 +327,7 @@ print(' -- ')
 print(' -- ')
 print(' -- ')
 print('Index available at : ' + outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
+
 if atTGCC:
     print("The atlas is ready as ", str.replace(index_name, atlas_dir, path_to_comparison_outdir_workdir_tgcc))
 else:
