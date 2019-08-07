@@ -283,12 +283,6 @@ index += trailer()
 
 
 # -- Add link to main frontpage
-# final url to main frontpage
-# 1. Cas general (Ciclad):
-# boucle sur les elements de index
-# str.replace( , url CliMAF, url_frontpage)
-# str.replace( , CliMAF documentation, C-ESM-EP frontpage for COMPARISON)
-#pysed(atlas_pathfilename, 'target_component', component)
 climaf_doc_url = 'https://climaf.readthedocs.io/en/master/'
 # -- Replace url to CliMAF documentation with url to C-ESM-EP frontpage
 index = str.replace(index, climaf_doc_url, cesmep_frontpage)
