@@ -41,16 +41,16 @@ parser = OptionParser(desc)
 parser.set_usage("%%prog [-h]\n%s" % desc)
 parser.add_option("--index_name",
                   help="Name of the html file (atlas)",
-                  action="store", default=None)
+                  action="store", type=str, default="My Atlas")
 parser.add_option("--comparison",
                   help="Name of the comparison",
-                  action="store", default=None)
+                  action="store", type=str, default="My comparison")
 parser.add_option("--component",
                   help="Name of the component - set of diagnostics",
-                  action="store", default=None)
+                  action="store", type=str, default="My component")
 parser.add_option("--cesmep_frontpage",
                   help="URL to C-ESM-EP frontpage",
-                  action="store", default=None)
+                  action="store", type=str, default="C-ESM-EP frontpage")
 
 (opts, args) = parser.parse_args()
 

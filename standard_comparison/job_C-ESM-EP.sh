@@ -10,11 +10,22 @@ echo "at CNRM"
 # Temps limite du job
 #SBATCH --time=03:00:00
 #SBATCH --nodes=1
-elif [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
-echo "at Cerfacs"
 #############
 ## CERFACS ##
 #############
+elif [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
+echo "at Cerfacs scylla"
+set -x
+# Nom du job
+#SBATCH --job-name CESMEP
+# Temps limite du job
+#SBATCH --partition bigmem
+#SBATCH --output=cesmep.o
+#SBATCH --error=cesmep.e
+# Nombre de noeuds et de processus
+#SBATCH --nodes=1 --ntasks-per-node=1
+elif [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
+echo "at Cerfacs on kraken"
 #SBATCH --partition visu
 # Nom du job
 #SBATCH --job-name CESMEP
@@ -30,7 +41,7 @@ echo "on Ciclad - Climserv - CLIMERI"
 ######################
 ## Ciclad - CLIMERI ##
 ######################
-# Using qsub for the job submission ; arguments are passed via run_C-ESM-EP.py 
+# Using qsub for the job submission ; arguments are passed via run_C-ESM-EP.py
 elif [[ -d "/ccc" && ! -d "/data" ]]; then
 echo "at TGCC"
 ######################
@@ -119,13 +130,13 @@ source ${env}
 # -- Set CliMAF cache (automatically)
 # -------------------------------------------------------- >
 if [[ -d "/ccc" && ! -d "/data" ]]; then
-export CLIMAF_CACHE=${CCCSCRATCHDIR}/climafcache_${component}
-export TMPDIR=${CLIMAF_CACHE}
+    export CLIMAF_CACHE=${CCCSCRATCHDIR}/climafcache_${component}
+    export TMPDIR=${CLIMAF_CACHE}
 fi
 
 if [[ -d "/data" && -d "/prodigfs" ]]; then
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
-export TMPDIR=${CLIMAF_CACHE}
+    export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
+    export TMPDIR=${CLIMAF_CACHE}
 fi
 
 if [[ -d "/cnrm" ]]; then
@@ -134,8 +145,11 @@ if [[ -d "/cnrm" ]]; then
     export TMPDIR=${CLIMAF_CACHE}
 fi
 
+if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
+	export CLIMAF_CACHE=/scratch/globc/coquart/C-ESM-EP/climafcache_${component}
+fi
 if [[ -d "/data/scratch/globc" ]] ; then
-export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
+    export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
 fi
 
 
@@ -146,5 +160,3 @@ echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 #echo python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
 #python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
 python ${main} --comparison ${comparison} --component ${component}
-
-
