@@ -275,7 +275,7 @@ if os.path.exists('/cnrm'):
     from locations import climaf_cache
 
 # Case atCerfacs
-if os.path.exists('/scratch/globc'):
+if os.path.exists('/data/scratch/globc'):
     atCerfacs = True
     from locations import climaf_cache
 
@@ -473,9 +473,9 @@ for component in job_components:
     if atCerfacs:
         jobname = component + '_' + comparison + '_C-ESM-EP'
         if component not in metrics_components:
-            job_script = 'job_C-ESM-EP_Cerfacs.sh'
+            job_script = 'job_C-ESM-EP.sh'
         else:
-            job_script = 'job_PMP_C-ESM-EP_Cerfacs.sh'
+            job_script = 'job_PMP_C-ESM-EP.sh'
         #
         print component
         print comparison
