@@ -24,6 +24,7 @@
 
 from climaf.api import *
 from custom_plot_params import dict_plot_params as custom_plot_params
+from custom_obs_dict import custom_obs_dict
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >

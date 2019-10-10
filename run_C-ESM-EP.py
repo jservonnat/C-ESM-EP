@@ -41,8 +41,8 @@ from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootd
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
 # email = "gaelle.rigoudy@meteo.fr"
-# email = "jerome.servonnat@lsce.ipsl.fr"
-email = None
+email = "jerome.servonnat@lsce.ipsl.fr"
+# email = None
 
 # -- 0/ Identify where we are...
 # -----------------------------------------------------------------------------------------
@@ -154,6 +154,7 @@ available_components = []
 # -> First, we work on the known components listed in allcomponents. If they are in readable subdirs, we add them to 
 for component in allcomponents:
     if component in subdirs:
+        #if 'ParallelCoordinates_Atmosphere' in component or os.access(comparison + "/" + component, os.R_OK):
         if os.access(comparison + "/" + component, os.R_OK):
             available_components.append(component)
         else:

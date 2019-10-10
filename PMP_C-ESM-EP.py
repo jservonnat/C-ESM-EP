@@ -29,7 +29,7 @@ from CM_atlas import build_plot_title
 from optparse import OptionParser
 
 
-clog('debug')
+clog('critical')
 
 # -- Define the path to the main C-ESM-EP directory:
 # -----------------------------------------------------------------------------------
@@ -374,7 +374,6 @@ if not root_outpath:
         root_outpath = '/prodigfs/ipslfs/dods/' + getuser()
     if atCNRM:
         root_outpath = '/cnrm/est/USERS/' + getuser() + '/NO_SAVE/CESMEP_climaf_cache'
-
 # -- Check if the tmp_hermes directory exists; if not, create it. If yes, clean it.
 tmp_hermes_dir = root_outpath + '/PMP_OUT/metrics_results/tmp_hermes'
 if not os.path.isdir(tmp_hermes_dir):
@@ -543,6 +542,8 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                         wmodel_dict.update(dict(table='Amon'))
                     if 'grid' not in wmodel_dict:
                         wmodel_dict.update(dict(grid='gr'))
+                    if 'simulation' in wmodel_dict:
+                        wmodel_dict.pop('simulation')
                 # -- Fix!!! for tas IGCM_OUT we use ATM
                 if wmodel['project'] == 'IGCM_OUT':
                     if 'DIR' not in wmodel_dict:
@@ -560,7 +561,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                 #
                 # -- If the variable is available for the simulation
                 try:
-                    if model_ds.frequency in ['monthly', '1M', 'MO']:
+                    if model_ds.frequency in ['monthly', '1M', 'MO'] or model_ds.project=='CMIP6':
                         wmodel_ds = annual_cycle(model_ds)
                     else:
                         wmodel_ds = model_ds
@@ -617,6 +618,8 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
             pysed(tmp_paramfile, '@model', keys_wmodel['model'])
             pysed(tmp_paramfile, '@experiment', keys_wmodel['experiment'])
             pysed(tmp_paramfile, '@simulation', keys_wmodel['simulation'])
+            if not 'simulation' in keys_wmodel:
+               pysed(tmp_paramfile, '@simulation', keys_wmodel['realization'])
             pysed(tmp_paramfile, '@institute_id', institute_id)
             pysed(tmp_paramfile, '@reference', reference)
             pysed(tmp_paramfile, '@targetGrid', targetGrid)
@@ -636,8 +639,8 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
             cmd = 'pcmdi_metrics_driver.py -p ' + tmp_paramfile
             print cmd
 
-            p = subprocess.Popen(shlex.split(cmd))
-            p.communicate()
+            #p = subprocess.Popen(shlex.split(cmd))
+            #p.communicate()
             if rm_tmp_paramfile:
                 os.system('rm -f ' + tmp_paramfile + '*')
             # 
@@ -697,6 +700,10 @@ for path_filename in requested_json_files:
 path_for_pmp_plot = []  # -- We store the paths to the metrics
 for wmodel in Wmodels:
     print 'wmodel in block 5 : ', wmodel
+    # -- Fix..
+    if not 'simulation' in wmodel and 'realization' in wmodel:
+       wmodel['simulation'] = wmodel['realization']
+    #
     for key in wmodel:
         if wmodel[key] == '*':
             wmodel[key] = key + '_not_defined'
@@ -731,6 +738,8 @@ correct_metric_path_list = []
 colors = []
 i = 0
 for model in Wmodels:
+    if model['project']=='CMIP6' and 'simulation' in model:
+       model.pop('simulation')
     customname = str.replace(build_plot_title(model, None), ' ', '_')
     if add_period_to_simname:
         if 'period' in model:
