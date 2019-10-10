@@ -95,6 +95,8 @@ else
   echo $component
   echo '$WD'
   echo $WD
+  echo '$cesmep_frontpage'
+  echo $cesmep_frontpage
   env=../../${env_script}
   main=../../${atlas_file}
   #datasets_setup_file=../datasets_setup.py
@@ -124,7 +126,7 @@ export TMPDIR=${CLIMAF_CACHE}
 fi
 
 if [[ -d "/data" && -d "/prodigfs" ]]; then
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
+export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}_test1.2.12
 export TMPDIR=${CLIMAF_CACHE}
 fi
 
@@ -145,6 +147,6 @@ echo "Running ${atlas_file} for season ${season} with parameter file ${param_fil
 echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 #echo python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
 #python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
-python ${main} --comparison ${comparison} --component ${component}
+python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
 
 

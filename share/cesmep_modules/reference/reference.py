@@ -6,6 +6,8 @@ def variable2reference(variable, project=None, my_obs={}):
         tmpdict.update(my_obs[variable])
         return tmpdict
     else:
+        if variable in ['tos','sos','thetao','so']:
+            return dict(project='ref_climatos', product='WOA13-v2', clim_period='195501-201212', table='Omon', variable=variable)
         if not project:
             tmp_Amon_vars = ['pr', 'prw', 'rlut', 'rsut', 'rlutcs', 'rsutcs', 'rlus', 'rsus', 'rluscs', 'rsuscs',
                              'rlds', 'rsds',
@@ -54,8 +56,8 @@ def variable2reference(variable, project=None, my_obs={}):
                 'RSS': ['prw'],
                 'GPCP': ['pr'],
                 'NSIDC': ['sic'],
-                'WOA13-v2': ['thetao', 'so', 'to', 'tos', 'to200', 'to1000', 'to2000', 'so200', 'so1000', 'so2000'],
-                'NODC-WOA09': ['sos'],
+                'WOA13-v2': ['thetao', 'sos','so', 'to', 'tos', 'to200', 'to1000', 'to2000', 'so200', 'so1000', 'so2000'],
+                #'NODC-WOA09': ['sos'],
                 'WOA09': ['NO3', 'PO4', 'O2', 'Si',
                           'NO3_surf', 'PO4_surf', 'O2_surf', 'Si_surf',
                           'NO3_300m', 'PO4_300m', 'O2_300m', 'Si_300m',

@@ -135,11 +135,13 @@ def get_keys_for_PMP_MG(wmodel):
     ''' PMP, or to provide the keys in the PMP so that the metrics      '''
     ''' metadata are provided.                                          '''
     Wmodel = wmodel.copy()
+    if 'simulation' not in Wmodel and 'realization' in Wmodel:
+        Wmodel['simulation'] = Wmodel['realization']
     for key in ['project', 'model', 'experiment', 'simulation', 'variable', 'login']:
-        if key not in wmodel:
+        if key not in Wmodel:
             Wmodel.update({key: key + '_not_defined'})
         else:
-            if wmodel[key] == '*':
+            if Wmodel[key] == '*':
                 Wmodel.update({key: key + '_not_defined'})
     #
     return Wmodel
@@ -168,6 +170,8 @@ def build_metric_outpath(model, group, subdir=None, root_outpath=None):
     model = wmodel['model']
     experiment = wmodel['experiment']
     simulation = wmodel['simulation']
+    if 'simulation' not in wmodel and 'realization' in wmodel:
+       simulation = wmodel['realization']
     login = wmodel['login']
     if wmodel['period'] == 'fx':
         period = wmodel['clim_period']

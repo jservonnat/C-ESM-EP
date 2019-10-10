@@ -13,6 +13,14 @@ StringFontHeight = 0.019
 
 hover = False
 
+cscript('rmse_xyt','cdo sqrt -fldmean -timmean -sqr -sub ${in_1} ${in_2} ${out}')
+
+def corr_xy(dat1, dat2):
+    anom_dat1 = fsub(dat1, cscalar(ccdo(dat1, operator='fldmean')))
+    anom_dat2 = fsub(dat2, cscalar(ccdo(dat2, operator='fldmean')))
+    return divide( ccdo(multiply(anom_dat1, anom_dat2), operator='fldmean'),
+                            multiply(ccdo(anom_dat1, operator='fldstd'),ccdo(anom_dat2, operator='fldstd'))
+                          )
 
 ocean_variables = []
 for oceanvar in ocean_plot_params:
@@ -139,6 +147,8 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
         if 'add_climato_contours' in wvar:
             add_climato_contours = wvar['add_climato_contours']
             wvar.pop('add_climato_contours')
+        if 'add_product_in_title' in wvar:
+            wvar.pop('add_product_in_title')
         if 'add_aux_contours' in wvar:
             add_aux_contours = wvar['add_aux_contours']
             wvar.pop('add_aux_contours')
@@ -473,11 +483,14 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
 def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product_in_title=True,
               ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapdis',
               safe_mode=True, custom_plot_params={}, do_cfile=True, spatial_anomalies=False, shade_missing=False,
-              zonmean_variable=False, plot_context_suffix=None, add_vectors=False, add_aux_contours=False):
+              zonmean_variable=False, plot_context_suffix=None, add_vectors=False, add_aux_contours=False,
+              display_bias_corr_rmse=False):
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
     print 'var = ', var
+    scale = 1.
+    offset = 0.
     grid = None
     table = None
     realm = None
@@ -501,6 +514,12 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         if 'domain' in wvar:
             domain = wvar['domain']
             wvar.pop('domain')
+        if 'scale' in wvar:
+            scale = wvar['scale']
+            wvar.pop('scale')
+        if 'offset' in wvar:
+            offset = wvar['offset']
+            wvar.pop('offset')
         if 'zonmean_variable' in wvar:
             zonmean_variable = wvar['zonmean_variable']
             wvar.pop('zonmean_variable')
@@ -516,6 +535,12 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         if 'plot_context_suffix' in wvar:
             plot_context_suffix = wvar['plot_context_suffix']
             wvar.pop('plot_context_suffix')
+        if 'add_product_in_title' in wvar:
+            add_product_in_title = wvar['add_product_in_title']
+            wvar.pop('add_product_in_title')
+        if 'display_bias_corr_rmse' in wvar:
+            display_bias_corr_rmse = wvar['display_bias_corr_rmse']
+            wvar.pop('display_bias_corr_rmse')
         if 'vectors' in wvar:
             add_vectors = True
             vectors_u = wvar['vectors']['u_comp']
@@ -722,15 +747,14 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         # -- Alternative: 2D variable ------------------------------------------- #
         climato_sim = clim_average(ds_model, modelseason)
         # -- Particular case of SSH: we compute the spatial anomalies
-        if 'spatial_anomalies' in wvar:
+        if spatial_anomalies:
             try:
-                climato_sim = fsub(climato_sim, str(cvalue(space_average(climato_sim))))
-                climato_ref = fsub(climato_ref, str(cvalue(space_average(climato_ref))))
+                climato_sim = fsub(climato_sim, cscalar(ccdo(climato_sim, operator='fldmean')))
+                climato_ref = fsub(climato_ref, cscalar(ccdo(climato_ref, operator='fldmean')))
             except:
                 print '==> Error when trying to compute spatial anomalies for ', climato_ref, climato_sim
                 print '==> Check data availability'
                 return ''
-            wvar.pop('spatial_anomalies')
         # -- If we work on ocean variables, we regrid both the model and the ref on a 1deg grid
         # -- If not, we regrid the model on the ref
         if variable in ocean_variables:
@@ -738,13 +762,19 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
                 climato_sim = add_nav_lon_nav_lat_from_mesh_mask(climato_sim,
                                                                  mesh_mask_file=wmodel['meshmask_for_navlon_navlat'])
             if not cdogrid:
-                bias = diff_regridn(climato_sim, climato_ref, cdogrid='r360x180', option=regrid_option)
+                climato_sim = regrid(climato_sim, climato_ref, option=regrid_option)
+                bias = minus(climato_sim, climato_ref)
             else:
-                bias = diff_regridn(climato_sim, climato_ref, cdogrid=cdogrid, option=regrid_option)
+                climato_sim = regridn(climato_sim, cdogrid=cdogrid, option=regrid_option)
+                climato_ref = regridn(climato_ref, cdogrid=cdogrid, option=regrid_option)
+                bias = diff_minus(climato_sim, climato_ref)
         elif cdogrid:
-            bias = diff_regridn(climato_sim, climato_ref, cdogrid=cdogrid, option=regrid_option)
+            climato_sim = regridn(climato_sim, cdogrid=cdogrid, option=regrid_option)
+            climato_ref = regridn(climato_ref, cdogrid=cdogrid, option=regrid_option)
+            bias = minus(climato_sim, climato_ref)
         else:
-            bias = diff_regrid(climato_sim, climato_ref)
+            climato_sim = regrid(climato_sim, climato_ref)
+            bias = minus(climato_sim, climato_ref)
     #
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)
@@ -809,6 +839,8 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     # -- Select a lon/lat box and discard mpCenterLonF (or get it from var)
     if domain:
         bias = llbox(bias, **domain)
+        climato_sim = llbox(climato_sim, **domain)
+        climato_ref = llbox(climato_ref, **domain)
         if 'mpCenterLonF' in p:
             p.pop('mpCenterLonF')
         if proj == 'GLOB':
@@ -849,6 +881,53 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     if plot_context_suffix:
         refcontext = refcontext + '_' + plot_context_suffix
     ref_aux_params = plot_params(variable, refcontext, custom_plot_params=custom_plot_params)
+    
+    # -- Field stats
+    if display_bias_corr_rmse:
+        if 'scale' in p:
+           mscale = float(p['scale'])
+        else:
+           mscale = scale
+        if safe_mode:
+            try:
+                avg_bias = '%s' % (
+                    float('%.3g' % (float(cscalar(ccdo(bias, operator='fldmean'))) * mscale)))
+                field_rmse = '%s' % (
+                    float('%.3g' % (float(cscalar(rmse_xyt(climato_sim, climato_ref)) * mscale))))
+                field_corr = '%s' % (
+                    float('%.3g' % (float(cscalar(corr_xy(climato_sim, climato_ref))))))
+                stats_str = variable + ' bias=' + str(avg_bias) + ' ; rmse=' + str(field_rmse) + ' ; corr=' + str(
+                    field_corr)
+                p.update(dict(gsnLeftString=stats_str,
+                              gsnCenterString=' ',
+                              gsnRightString=season))
+                title += ' ' + tmp_period
+            except:
+                print '----> display_bias_corr_rmse failed'
+        else:
+            avg_bias = '%s' % (
+                    float('%.3g' % (float(cscalar(ccdo(bias, operator='fldmean'))) * mscale )))
+            field_rmse = '%s' % (
+                    float('%.3g' % (float(cscalar(rmse_xyt(climato_sim, climato_ref)) * mscale ))))
+            field_corr = '%s' % (
+                    float('%.3g' % (float(cscalar(corr_xy(climato_sim, climato_ref))))))
+            stats_str = 'bias=' + str(avg_bias) + ' ; rmse=' + str(field_rmse) + ' ; corr=' + str(
+                    field_corr)
+            p.update(dict(gsnRightString=stats_str,
+                              gsnCenterString=' ',
+                              gsnLeftString=variable+', '+season))
+            title += ' ' + tmp_period
+    else:
+        # -- Set the left, center and right strings of the plot
+        p.update(dict(gsnLeftString=tmp_period,
+                      gsnCenterString=variable,
+                      gsnRightString=season))
+
+        #
+        # -- Call the climaf plot function
+        myplot = plot(bias, climato_ref, title=title,
+                      gsnStringFontHeightF=StringFontHeight,
+                      **p)
     # -- ... and update the dictionary 'p'
     # if 'colors' in ref_aux_params and add_climato_contours:
     if add_climato_contours:
@@ -875,9 +954,10 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             p.update({'scale_aux': ref_aux_params['scale']})
         #
         # -- Call the climaf plot function
-        myplot = plot(bias, climato_ref, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
+        myplot = plot(bias,climato_ref,title = title,
+                      gsnStringFontHeightF = StringFontHeight,
                       **p)
+
     #
     elif add_aux_contours and not add_vectors:
         p.update(aux_plot_params)

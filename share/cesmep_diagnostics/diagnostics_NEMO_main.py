@@ -544,6 +544,7 @@ if do_seaice_maps:
             #
             # -- Add the table
             wmodel['table'] = 'SImon'
+            wmodel['grid'] = 'gn'
             #
             # -- Do the plot
             SIT_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
@@ -566,6 +567,8 @@ if do_seaice_maps:
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
             wmodel = model.copy()
+            wmodel.update(dict(table='SImon', grid='gn'))
+            #
             if 'frequency_for_annual_cycle' in wmodel:
                 wmodel.update(dict(frequency=wmodel['frequency_for_annual_cycle']))
             #

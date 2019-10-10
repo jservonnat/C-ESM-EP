@@ -130,11 +130,11 @@ def plot_sic_climato_with_ref(variable, model, ref, season, proj, add_product_in
     if 'table' not in wmodel:
         if wmodel['project'] in ['CMIP5']:
             wmodel.update(dict(variable=variable, table='OImon'))
-        if wmodel['project'] in ['CMIP6']:
+        if wmodel['project'] in ['CMIP6','CMIP6CERFACS']:
             wmodel.update(dict(variable=variable, table='SImon'))
     # wmodel.update(dict(variable=variable, table='OImon'))
     wref = ref.copy()
-    if wref['project'] == 'CMIP6':
+    if wref['project'] in ['CMIP6','CMIP6CERFACS']:
         wref.update(dict(variable=variable, table='SImon'))
     else:
         wref.update(dict(variable=variable, table='OImon'))
