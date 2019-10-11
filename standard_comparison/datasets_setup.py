@@ -154,11 +154,11 @@ if atCNRM:
 
         dict(project='CMIP5', model='CNRM-CM5', experiment='piControl',
              frequency='monthly', period='1850-1853', version="*",
-             customname='CNRM-CM5-hist'
+             customname='CNRM-CM5-hist', table="Amon"
              ),
         dict(project='CMIP6', model='CNRM-CM6-1', experiment='piControl',
              frequency='monthly', period='1950-1953',
-             customname='CNRM-CM6-control'
+             customname='CNRM-CM6-control', table="Amon"
              ),
 
     ]
