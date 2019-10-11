@@ -504,9 +504,9 @@ for component in job_components:
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
     if component not in metrics_components:
-        url = comparison_url + component + '/atlas_' + component + '_' + comparison + '.html'
+        url = "./" + component + '/atlas_' + component + '_' + comparison + '.html'
     else:
-        url = comparison_url + component + '/' + component + '_' + comparison + '.html'
+        url = "./" + component + '/' + component + '_' + comparison + '.html'
     pysed(frontpage_html, 'target_' + component, url)
 
 # -- Edit the comparison name
