@@ -10,21 +10,15 @@ echo "at CNRM"
 # Temps limite du job
 #SBATCH --time=03:00:00
 #SBATCH --nodes=1
-elif [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
-echo "at Cerfacs"
+elif [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
+echo "at Cerfacs scylla"
 #############
 ## CERFACS ##
 #############
-#SBATCH --partition visu
+set -x
 # Nom du job
-#SBATCH --job-name CESMEP
 # Nombre de noeuds et de processus
-#SBATCH --nodes=1 --ntasks-per-node=36
-# Temps limite du job
-#SBATCH --partition bigmem
-#SBATCH --output=cesmep.o
-#SBATCH --error=cesmep.e
-# Nombre de noeuds et de processus
+#SBATCH --nodes=1 --ntasks-per-node=1
 elif [[ -d "/data" && -d "/prodigfs" ]]; then
 echo "on Ciclad - Climserv - CLIMERI"
 ######################
