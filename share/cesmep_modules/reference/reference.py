@@ -7,7 +7,7 @@ def variable2reference(variable, project=None, my_obs={}):
         return tmpdict
     else:
         if variable in ['tos','sos','thetao','so']:
-            return dict(project='ref_climatos', product='WOA13-v2', clim_period='195501-201212', table='Omon', variable=variable)
+            return dict(project='ref_climatos', product='WOA13-v2', clim_period='195501-201212', table='Omon', variable=variable, frequency='seasonal')
         if not project:
             tmp_Amon_vars = ['pr', 'prw', 'rlut', 'rsut', 'rlutcs', 'rsutcs', 'rlus', 'rsus', 'rluscs', 'rsuscs',
                              'rlds', 'rsds',
