@@ -1,0 +1,26 @@
+ ! NOAA/PMEL TMAP
+ ! FERRET v6.9  
+ ! Linux 2.6.32-431.23.3.el6.x86_64 64-bit - 08/22/14
+ ! 27-Aug-19 17:13     
+
+use "/data/jservon/climafcache/cd05d/eb4c0/3e7f2/e3135/6221a/a2e38/169df/ab039/630a8/bccbb/02a45/6.nc"
+sho d
+shade tos
+use /data/jservon/climafcache/831f5/884dc/6c167/73995/b5a95/0bb1b/b54ba/a8684/a7ef3/49594/1a1d6/0.nc
+use /data/jservon/climafcache/831f5/884dc/6c167/73995/b5a95/0bb1b/b54ba/a8684/a7ef3/49594/1a1d6/0.ncuse
+use "/data/jservon/climafcache/831f5/884dc/6c167/73995/b5a95/0bb1b/b54ba/a8684/a7ef3/49594/1a1d6/0.nc"
+shade tos
+use "/data/jservon/climafcache/b0743/e2c80/674dd/29f81/2040c/09d21/1c85e/52f28/2909b/26052/381c9/d.nc"
+shade tos
+sho d
+shade tos*tos[d=2]
+shade tos*tos
+shade tos[d=1]
+use "/data/jservon/climafcache/108a9/4e776/4c555/9a520/51cd2/7917b/e0cb1/5bb9f/a7cec/ea315/092c1/b.nc"
+sho d
+list tos
+use "/data/jservon/climafcache/3ffb3/0ac95/f17ac/c9baf/a943f/dbc9f/e4687/65c5f/76a7b/d06a2/290a3/1.nc"
+list tos
+use "/data/jservon/climafcache/d0bff/582cc/b8cdb/d6fc2/6dd15/11240/0f919/f93c2/ffd31/911e2/bc739/4.nc"
+list tos
+q

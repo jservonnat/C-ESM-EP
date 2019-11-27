@@ -67,6 +67,9 @@ else:
     Wmodels = copy.deepcopy(Wmodels_clim)
 for model in Wmodels:
     model.update(dict(table='Amon'))
+if isinstance(reference,dict):
+   if reference['project'] in ['CMIP5','CMIP6']:
+      reference['table'] = 'Amon'
 
 # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
 kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,

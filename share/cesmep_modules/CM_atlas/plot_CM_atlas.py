@@ -8,6 +8,7 @@ from climaf import cachedir
 import shutil
 import getpass
 from climaf.plot.ocean_plot_params import dict_plot_params as ocean_plot_params
+from climaf.html import blank_cell
 
 StringFontHeight = 0.019
 
@@ -589,6 +590,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     if project_specs:
         if wmodel['project'] in project_specs:
             wmodel.update(project_specs[wmodel['project']])
+    #
     if 'table' in wmodel:
         table = wmodel['table']
     #
@@ -613,6 +615,9 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     # -- Reference
     wref = ref.copy()
     wref.update(dict(variable=variable))
+    if project_specs:
+        if wref['project'] in project_specs:
+            wref.update(project_specs[wref['project']])
     if 'CMIP' in wref['project']:
         if grid:
             wref.update(dict(grid=grid))
@@ -1070,6 +1075,8 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
             else:
                 ref = wref.copy()
                 ref.update(dict(variable=variable))
+                if 'table' in var: ref['table'] = var['table']
+                if 'grid' in var: ref['grid'] = var['grid']
                 if project_specs:
                     if ref['project'] in project_specs:
                         ref.update(project_specs[ref['project']])
