@@ -519,7 +519,7 @@ if atTGCC:
     print cmd1
     os.system(cmd1)
     cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
-          + ' ; rm ' + main_html
+          + ' ; rm ' + frontpage_html
 
 if onCiclad or atCNRM or atCerfacs:
     cmd = 'mv -f ' + frontpage_html + ' ' + path_to_comparison_on_web_server
