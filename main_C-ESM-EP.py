@@ -180,6 +180,20 @@ for model in models:
     print '  --'
     print '  --'
 
+print '==> ----------------------------------- #'
+print '==> Against reference:'
+print '==> ----------------------------------- #'
+print '  '
+if reference=='default':
+   print '  reference = default'
+   print '  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)'
+   print '  --> you can setup you own references in custom_obs_dict.py for each variable independently'
+else:
+   for key in reference:
+        print '  '+key+' = ', reference[key]
+    print '  --'
+    print '  --'
+
 
 # -----------------------------------------------------------------------------------
 # --   End PART 1 
