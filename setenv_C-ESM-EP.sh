@@ -108,7 +108,7 @@ if [[ -d "/data" && -d "/prodigfs/ipslfs/dods" && ! -d "/scratch/globc" ]] ; the
   #module switch climaf/1.2.11
   #module switch climaf/pre_1.2.12
   #source /prodigfs/ipslfs/dods/jservon/miniconda/etc/profile.d/conda.sh
-  #working_conda=/prodigfs/ipslfs/dods/jservon/miniconda/envs/cesmep_env
+  working_conda=/prodigfs/ipslfs/dods/jservon/miniconda/envs/analyse_env_2.7
   #conda activate ${working_conda}
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
