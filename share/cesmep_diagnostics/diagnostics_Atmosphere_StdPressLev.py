@@ -42,7 +42,8 @@
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Standard press. lev. - seasonal"
+if 'atlas_head_title' not in locals():
+    atlas_head_title = "Atmosphere Standard press. lev. - seasonal"
 
 # - Init html index
 # -----------------------------------------------------------------------------------

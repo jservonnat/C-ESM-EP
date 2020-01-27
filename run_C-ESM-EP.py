@@ -206,7 +206,7 @@ for component in available_components:
 # -> Adding the links to the html lines
 new_html_lines = html.splitlines()
 for cesmep_module in cesmep_modules:
-    newline = '<li><a href="target_' + cesmep_module[0] + '" target="_blank">' + cesmep_module[1] + '</a></li>'
+    newline = '<li><a href="%%target_' + cesmep_module[0] + '%%" target="_blank">' + cesmep_module[1] + '</a></li>'
     new_html_lines.append(newline)
 
 # -- Add the path to the working directory:
@@ -436,7 +436,7 @@ for component in job_components:
         cmd = 'cd ' + submitdir + ' ; jobID=$(qsub' + job_options + ' -j eo -v component=' + component + ',comparison='\
               + comparison + ',WD=${PWD},cesmep_frontpage='+frontpage_address\
               +' -N '+ component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
-              ') ; qsub -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
+              ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
               ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
               ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
@@ -508,7 +508,8 @@ for component in available_components:
         url = comparison_url + component + '/atlas_' + component + '_' + comparison + '.html'
     else:
         url = comparison_url + component + '/' + component + '_' + comparison + '.html'
-    pysed(frontpage_html, 'target_' + component, url)
+    #pysed(frontpage_html, 'target_' + component, url)
+    pysed(frontpage_html, '%%target_' + component + '%%', url)
 
 # -- Edit the comparison name
 pysed(frontpage_html, 'target_comparison', comparison)

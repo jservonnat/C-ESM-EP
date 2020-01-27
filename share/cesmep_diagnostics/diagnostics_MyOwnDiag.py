@@ -43,7 +43,8 @@ from os import getcwd
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "My own diagnostics"
+if 'atlas_head_title' not in locals():
+    atlas_head_title = "My own diagnostics"
 
 
 # - Init html index

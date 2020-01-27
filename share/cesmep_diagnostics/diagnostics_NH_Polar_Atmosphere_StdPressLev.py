@@ -42,7 +42,8 @@
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "NH Polar St. - Atmosphere Std press levels"
+if 'atlas_head_title' not in locals():
+    atlas_head_title = "NH Polar St. - Atmosphere Std press levels"
 
 
 # - Init html index

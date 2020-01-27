@@ -42,7 +42,8 @@
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Zonal Mean"
+if 'atlas_head_title' not in locals():
+    atlas_head_title = "Atmosphere Zonal Mean"
 
 
 # - Init html index

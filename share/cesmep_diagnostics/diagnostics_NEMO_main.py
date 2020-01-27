@@ -42,7 +42,8 @@
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "NEMO general diagnostics"
+if 'atlas_head_title' not in locals():
+    atlas_head_title = "NEMO general diagnostics"
 
 
 # - Init html index
