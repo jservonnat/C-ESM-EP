@@ -483,7 +483,7 @@ for component in job_components:
         print comparison
         cmd = 'cd ' + submitdir + ' ; export comparison=' + comparison + \
               ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address + ';' + \
-              'sbatch --job-name=CESMEP --partition=prod --output=cesmep.o --error=cesmep.e -w gsa4 ../'+job_script              
+              'sbatch --job-name=CESMEP --partition=prod --output=cesmep.o --error=cesmep.e -w gsa4 ../'+job_script
     print(cmd)
 
     #
@@ -505,9 +505,9 @@ for component in job_components:
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
     if component not in metrics_components:
-        url = comparison_url + component + '/atlas_' + component + '_' + comparison + '.html'
+        url = "./" + component + '/atlas_' + component + '_' + comparison + '.html'
     else:
-        url = comparison_url + component + '/' + component + '_' + comparison + '.html'
+        url = "./" + component + '/' + component + '_' + comparison + '.html'
     #pysed(frontpage_html, 'target_' + component, url)
     pysed(frontpage_html, '%%target_' + component + '%%', url)
 
