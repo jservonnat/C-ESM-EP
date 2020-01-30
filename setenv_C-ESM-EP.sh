@@ -221,3 +221,4 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
     #echo "PATH ${PATH}"
 fi
 
+[[ ! -d $CLIMAF_CACHE ]] && mkdir -p $CLIMAF_CACHE
