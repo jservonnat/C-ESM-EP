@@ -191,8 +191,8 @@ if reference=='default':
 else:
    for key in reference:
         print '  '+key+' = ', reference[key]
-    print '  --'
-    print '  --'
+   print '  --'
+   print '  --'
 
 
 # -----------------------------------------------------------------------------------
