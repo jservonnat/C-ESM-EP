@@ -88,6 +88,9 @@ for var in atlas_explorer_variables_list:
                                                  IGCM_OUT=dict(DIR='ATM'),
                                              ),
                                              ))
+# -- Regrid the reference on the model (rather than the model on the reference)
+regrid_ref_on_model=False
+
 
 # -- Activate the parallel execution of the plots
 do_parallel = False

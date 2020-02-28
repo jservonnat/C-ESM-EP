@@ -136,6 +136,7 @@ atlas_dir = path_to_cesmep_output_rootdir + '/C-ESM-EP/' + comparison + '_' + us
 atlas_url = str.replace(atlas_dir, path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs)
 
 
+
 # -- We create the atlas directory if it doesn't exist, or remove the figures
 # -----------------------------------------------------------------------------------
 if atCNRM or atTGCC or onCiclad:

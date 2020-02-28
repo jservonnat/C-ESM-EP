@@ -639,8 +639,8 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
             cmd = 'pcmdi_metrics_driver.py -p ' + tmp_paramfile
             print cmd
 
-            #p = subprocess.Popen(shlex.split(cmd))
-            #p.communicate()
+            p = subprocess.Popen(shlex.split(cmd))
+            p.communicate()
             if rm_tmp_paramfile:
                 os.system('rm -f ' + tmp_paramfile + '*')
             # 

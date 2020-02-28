@@ -87,6 +87,9 @@ for var in atlas_explorer_variables_list:
                                              ),
                                              ))
 
+# -- Regrid the reference on the model (rather than the model on the reference)
+regrid_ref_on_model=False
+
 # -- Display full climatology maps =
 # -- Use this variable as atlas_explorer_variables to activate the climatology maps
 atlas_explorer_climato_variables = None

@@ -3,6 +3,13 @@
 # Adapter : J.Servonnat - april 2016
 
 dict_plot_params = {
+    'evap': {
+        'default': {'color': 'precip3_16lev', 'units': '', 'scale':86400},
+        'full_field': {'colors': '0 0.1 0.5 1 2 3 4 5 6 7 8 9 10'},
+        'bias': {'min':-1,'max':1,'delta':0.01, 'color': 'BlueWhiteOrangeRed'},
+        'model_model': {'min':-0.7,'max':0.7,'delta':0.05, 'color': 'BlueWhiteOrangeRed'},
+
+    },
     'pr': {
         'default': {'scale': 86400., 'color': 'precip_11lev', 'contours': 1},
         'full_field': {'colors': '0.5 1 2 3 4 6 8 10 12 14'},

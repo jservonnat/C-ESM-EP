@@ -80,6 +80,9 @@ atlas_explorer_variables_list = [
     'hus850', 'hus500', 'hus200',
     'zg500']
 
+# -- Regrid the reference on the model (rather than the model on the reference)
+regrid_ref_on_model=False
+
 period_manager_test_variable = 'tas'
 
 atlas_explorer_variables = []

@@ -236,6 +236,7 @@ if do_main_time_series:
         print 'ens_ts = ', ens_ts
         print 'p = ', p
         myplot = ts_plot(ens_ts, **p)
+        cdrop(myplot)
         #
         # ==> -- Add the plot to the line
         # -----------------------------------------------------------------------------------------

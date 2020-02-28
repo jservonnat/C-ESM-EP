@@ -93,6 +93,7 @@ atlas_explorer_variables = [dict(variable='tas',
                                      IGCM_OUT=dict(DIR='ATM'),
                                  ))
                             ]
+regrid_ref_on_model=False
 
 # atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',

@@ -1,6 +1,7 @@
 from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
+from climaf.clogging import clogger, dedent
 from time_manager import *
 from climaf import __path__ as cpath
 import os
@@ -97,7 +98,7 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
         if 'model' in ds_ref.kvp:
             ref_in_title = (
                 ref['customname'] if 'customname' in ref else ds_ref.kvp['model'] + ' ' + get_realization_simulation_kw(
-                    ds_model))
+                    ds_ref))
         else:
             ref_in_title = ('OBS' if ref['project'] == 'LMDZ_OBS' else ds_ref.kvp["product"])
         title = title + ' (vs ' + ref_in_title + ')'
@@ -127,6 +128,11 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
         wvar = var.copy()
         variable = wvar['variable']
         wvar.pop('variable')
+        if 'climato_plot_params' in wvar:
+            wvar.update(wvar['climato_plot_params'])
+            wvar.pop('climato_plot_params')
+        if 'diff_plot_params' in wvar:
+            wvar.pop('diff_plot_params')
         if 'season' in wvar:
             season = wvar['season']
             wvar.pop('season')
@@ -435,35 +441,38 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
             p['options'] = p['options'] + '|cnMissingValFillColor=gray'
         else:
             p.update(dict(options='cnMissingValFillColor=gray'))
+    # -- gsnStringFontHeightF
+    if not 'gsnStringFontHeightF' in p:
+       p['gsnStringFontHeightF']=StringFontHeight
     # -- Call the climaf plot function
     myplot = plot(climato_dat,
                   title=title,
-                  gsnStringFontHeightF=StringFontHeight,
+                  #gsnStringFontHeightF=StringFontHeight,
                   **p)
     # -- ... and update the dictionary 'p'
     if add_aux_contours and not add_vectors:
         p.update(aux_plot_params)
         # -- Call the climaf plot function
         myplot = plot(climato_dat, climato_aux_dat, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
+                      #gsnStringFontHeightF=StringFontHeight,
                       **p)
     elif add_vectors and not add_aux_contours:
         p.update(vectors_options)
         # -- Call the climaf plot function
         myplot = plot(climato_dat, None, vectors_field_u, vectors_field_v, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
+                      #gsnStringFontHeightF=StringFontHeight,
                       **p)
     elif add_vectors and add_aux_contours:
         p.update(vectors_options)
         p.update(aux_plot_params)
         # -- Call the climaf plot function
         myplot = plot(climato_dat, climato_aux_dat, vectors_field_u, vectors_field_v, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
+                      #gsnStringFontHeightF=StringFontHeight,
                       **p)
     else:
         # -- Call the climaf plot function
         myplot = plot(climato_dat, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
+                      #gsnStringFontHeightF=StringFontHeight,
                       **p)
 
     #
@@ -485,7 +494,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
               ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapdis',
               safe_mode=True, custom_plot_params={}, do_cfile=True, spatial_anomalies=False, shade_missing=False,
               zonmean_variable=False, plot_context_suffix=None, add_vectors=False, add_aux_contours=False,
-              display_bias_corr_rmse=False):
+              display_bias_corr_rmse=False, regrid_ref_on_model=False):
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
@@ -500,6 +509,11 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         wvar = var.copy()
         variable = wvar['variable']
         wvar.pop('variable')
+        if 'climato_plot_params' in wvar:
+            wvar.pop('climato_plot_params')
+        if 'diff_plot_params' in wvar:
+            wvar.update(wvar['diff_plot_params'])
+            wvar.pop('diff_plot_params')
         if 'season' in wvar:
             season = wvar['season']
             wvar.pop('season')
@@ -778,7 +792,11 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             climato_ref = regridn(climato_ref, cdogrid=cdogrid, option=regrid_option)
             bias = minus(climato_sim, climato_ref)
         else:
-            climato_sim = regrid(climato_sim, climato_ref)
+            if regrid_ref_on_model:
+               clogger.warning("Warning in plot_CM_atlas.plot_diff : regridding the reference on the model (and not the model on the reference) ; regrid_ref_on_model is set to True (in the params file or the diagnostic file)")
+               climato_ref = regrid(climato_ref, climato_sim)
+            else:
+               climato_sim = regrid(climato_sim, climato_ref)
             bias = minus(climato_sim, climato_ref)
     #
     # -- Get the period for display in the plot: we build a tmp_period string
@@ -825,9 +843,9 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     #
     #
     # -- Set the left, center and right strings of the plot
-    p.update(dict(gsnLeftString=tmp_period,
-                  gsnCenterString=variable,
-                  gsnRightString=modelseason))
+    if not 'gsnLeftString' in p: p['gsnLeftString']=tmp_period
+    if not 'gsnCenterString' in p: p['gsnCenterString']=variable
+    if not 'gsnRightString' in p: p['gsnRightString']=modelseason
     #
     # -- If the variable is 3d, add the plotting parameters that are specific to the
     # -- zonal mean fields
@@ -924,14 +942,21 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             title += ' ' + tmp_period
     else:
         # -- Set the left, center and right strings of the plot
-        p.update(dict(gsnLeftString=tmp_period,
-                      gsnCenterString=variable,
-                      gsnRightString=season))
+        if not 'gsnLeftString' in p: p['gsnLeftString']=tmp_period
+        if not 'gsnCenterString' in p: p['gsnCenterString']=variable
+        if not 'gsnRightString' in p: p['gsnRightString']=season
+        #p.update(dict(gsnLeftString=tmp_period,
+        #              gsnCenterString=variable,
+        #              gsnRightString=season))
 
+        #
+        # -- gsnStringFontHeightF
+        if not 'gsnStringFontHeightF' in p:
+           p['gsnStringFontHeightF'] = StringFontHeight
         #
         # -- Call the climaf plot function
         myplot = plot(bias, climato_ref, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
+                      #gsnStringFontHeightF=StringFontHeight,
                       **p)
     # -- ... and update the dictionary 'p'
     # if 'colors' in ref_aux_params and add_climato_contours:
@@ -960,7 +985,6 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         #
         # -- Call the climaf plot function
         myplot = plot(bias,climato_ref,title = title,
-                      gsnStringFontHeightF = StringFontHeight,
                       **p)
 
     #
@@ -968,25 +992,21 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         p.update(aux_plot_params)
         # -- Call the climaf plot function
         myplot = plot(bias, climato_aux_model, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
                       **p)
     elif add_vectors and not add_aux_contours:
         p.update(vectors_options)
         # -- Call the climaf plot function
         myplot = plot(bias, None, vectors_field_u, vectors_field_v, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
                       **p)
     elif add_vectors and add_aux_contours:
         p.update(vectors_options)
         p.update(aux_plot_params)
         # -- Call the climaf plot function
         myplot = plot(bias, climato_aux_model, vectors_field_u, vectors_field_v, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
                       **p)
     else:
         # -- Call the climaf plot function
         myplot = plot(bias, title=title,
-                      gsnStringFontHeightF=StringFontHeight,
                       **p)
     #
     # -- If the user doesn't want to do the cfile within plot_diff, set do_cfile=False
@@ -1008,7 +1028,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                     safe_mode=True, add_product_in_title=True, shade_missing=False, zonmean_variable=False,
                     ocean_variables=ocean_variables,
                     custom_plot_params={}, custom_obs_dict={}, alternative_dir={}, add_line_of_climato_plots=False,
-                    thumbnail_size=None,
+                    thumbnail_size=None, regrid_ref_on_model=False,
                     do_cfile=True):
     #
     # -- Upper band at the top of the section
@@ -1023,6 +1043,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
     for var in variables:
         line_title = None
         project_specs = None
+        w_thumbnail_size = thumbnail_size
         print 'var in section_2D_maps = ', var
         if isinstance(var, dict):
             variable = var['variable']
@@ -1035,6 +1056,9 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                 var.pop('line_title')
             if 'project_specs' in var:
                 project_specs = var['project_specs']
+            if 'thumbnail_size' in var:
+                w_thumbnail_size = var['thumbnail_size']
+                var.pop('thumbnail_size')
         else:
             variable = var
         #
@@ -1108,8 +1132,8 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
             #    (from params.py)
             # -> For a zonal mean field, we set thumbN_size to thumbnail_size_3d (from params.py)
             # -> And for the other cases, we set thumbN_size to thumbnail_size
-            if thumbnail_size:
-                thumbN_size = thumbnail_size
+            if w_thumbnail_size:
+                thumbN_size = w_thumbnail_size
             else:
                 thumbN_size = (thumbnail_size_3d if is3d(variable) or zonmean_variable else thumbnail_size_global)
                 if 'SH' in proj or 'NH' in proj:
@@ -1140,7 +1164,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                                        custom_plot_params=custom_plot_params,
                                        ocean_variables=ocean_variables,
                                        safe_mode=safe_mode, add_product_in_title=add_product_in_title,
-                                       shade_missing=shade_missing,
+                                       shade_missing=shade_missing, regrid_ref_on_model=regrid_ref_on_model,
                                        do_cfile=do_cfile)
                 if do_cfile:
                     index += cell("", model_diff, thumbnail=thumbN_size, hover=hover, **alternative_dir)

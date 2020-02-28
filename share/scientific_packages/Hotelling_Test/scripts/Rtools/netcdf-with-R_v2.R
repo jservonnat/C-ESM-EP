@@ -3,7 +3,8 @@
 # --------------------------------------------------------------------------------------- #
 # -- Load the "ncdf" package needed to work with netcdf files in R                     -- #
 
-library(ncdf)
+#library(ncdf)
+library(ncdf4)
 
 
 # --------------------------------------------------------------------------------------- #
@@ -47,9 +48,10 @@ function(file,varname=NULL,region=NULL,period=NULL,time.axis=NULL,ndims=NULL,tra
    # -- Open a list that will receive the results
    RES=list()
    RES$file=file
+   print(paste('file =',file))
 
    # -- Open the netcdf file
-   nc=open.ncdf(file)
+   nc=nc_open(file)
 
 
 
@@ -75,7 +77,8 @@ function(file,varname=NULL,region=NULL,period=NULL,time.axis=NULL,ndims=NULL,tra
 
    # -> Get the dimensions names (dimnames)
    if (is.null(dimnames)==TRUE){dimnames=names(nc$dim)} # !!!! WARNING !!! nc$vars$varname$dim
-   dimnames=dimnames[nc$var[[varname]]$dimids]
+   #dimnames=dimnames[nc$var[[varname]]$dimids]
+   dimnames=dimnames[nc$var[[varname]]$dimids+1]
    RES$dimnames=dimnames
 
 
@@ -179,8 +182,7 @@ function(file,varname=NULL,region=NULL,period=NULL,time.axis=NULL,ndims=NULL,tra
 
    # --> Get the time axis
    if (is.null(time.axis) & (any(dimnames=="time") | any(dimnames=="time_counter") | any(dimnames=="TIME"))){
-   dumtime=get.dim(nc,"time")
-   time=dumtime
+   time=get.dim(nc,"time")
    }#end if
 
    if (is.null(period)==FALSE){
@@ -221,11 +223,14 @@ function(file,varname=NULL,region=NULL,period=NULL,time.axis=NULL,ndims=NULL,tra
    # -- 3/ Extract the dataset ---------------------------------------------------------------------------------------------------------------------
 
    if (nload==1){
-   dum.dat=get.var.ncdf(nc,nc$var[[varname]],start=start,count=count)
+   #dum.dat=get.var.ncdf(nc,nc$var[[varname]],start=start,count=count)
+   dum.dat=ncvar_get(nc,varname,start=start,count=count)
    }
    if (nload==2){
-   dum.dat1=get.var.ncdf(nc,nc$var[[varname]],start=start1,count=count1)
-   dum.dat2=get.var.ncdf(nc,nc$var[[varname]],start=start2,count=count2)
+   #dum.dat1=get.var.ncdf(nc,nc$var[[varname]],start=start1,count=count1)
+   #dum.dat2=get.var.ncdf(nc,nc$var[[varname]],start=start2,count=count2)
+   dum.dat1=ncvar_get(nc,varname,start=start1,count=count1)
+   dum.dat2=ncvar_get(nc,varname,start=start2,count=count2)
    dum.dat=array(data=NA,c(length(RES$lon),length(RES$lat),length(RES$time)))
    #print(dim(dum.dat))
    #print(dim(dum.dat1))
@@ -233,7 +238,7 @@ function(file,varname=NULL,region=NULL,period=NULL,time.axis=NULL,ndims=NULL,tra
    dum.dat[1:nrow(dum.dat2),,]=dum.dat2
    dum.dat[(nrow(dum.dat2)+1):(nrow(dum.dat2)+nrow(dum.dat1)),,]=dum.dat1
    }
-   close.ncdf(nc)
+   nc_close(nc)
 
    # !!! The number of dimensions associated with the variable in the dataset is not always the number of useful dimensions
    # !!! For example, if the file has been prepocessed, and that the variable has been selected from only one vertical level, or one longitude,
@@ -241,7 +246,8 @@ function(file,varname=NULL,region=NULL,period=NULL,time.axis=NULL,ndims=NULL,tra
    # !!! We thus eliminate the dimension of length = 1
    varsize=dumvarsize[dumvarsize!=1]
    if (length(varsize)!=length(dumvarsize)){
-   dimnames=names(nc$dim)[nc$var[[varname]]$dimids][dumvarsize!=1]
+   dimnames=names(nc$dim)[(1+nc$var[[varname]]$dimids)[dumvarsize!=1]]
+   #dimnames=names(nc$dim)[nc$var[[varname]]$dimids][dumvarsize!=1]
    ndims=length(dimnames)
    print("Useful dimensions are =")
    print(paste(dimnames))
@@ -309,15 +315,19 @@ function(file,varname=NULL,region=NULL,period=NULL,time.axis=NULL,ndims=NULL,tra
          #   - NX being either x or y
          #   - NY being either y or z
          #   - NT being either z or t
-
            NX=nc$dim[[dimnames[1]]]$len
        	   NY=nc$dim[[dimnames[2]]]$len
 	   NT=nc$dim[[dimnames[3]]]$len
            
+           print(paste('NT',NT))
 	   if (is.null(region)==FALSE){NX=length(lon) ; NY=length(lat)}
-           if (is.null(period)==FALSE){NAT=length(time$years)}
+           if (is.null(period)==FALSE){NT=length(time$years)}
 
            # We have dim=c(NX,NY,NT) and we want dim=c(NT,NX*NY)
+           print(paste('NX',NX))
+           print(paste('NY',NY))
+           print('dim(dum.dat) = ')
+           print(dim(dum.dat))
            dat = dum.dat*NA; dim(dat) <- c(NT,NY,NX)
            for (i in 1:NT){
 	   dat[i,,] <- t(as.matrix(dum.dat[,,i]))
