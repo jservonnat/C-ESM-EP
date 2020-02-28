@@ -100,4 +100,4 @@ thumbnail_ENSO_ts_size = "400*175"
 thumbnail_monsoon_pr_anncyc_size = '375*600'
 
 regrid_ref_on_model=False
-
+regridding = 'model_on_ref'

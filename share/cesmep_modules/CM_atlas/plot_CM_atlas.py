@@ -491,7 +491,7 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
 # -  
 
 def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product_in_title=True,
-              ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapdis',
+              ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapdis', regridding='model_on_ref',
               safe_mode=True, custom_plot_params={}, do_cfile=True, spatial_anomalies=False, shade_missing=False,
               zonmean_variable=False, plot_context_suffix=None, add_vectors=False, add_aux_contours=False,
               display_bias_corr_rmse=False, regrid_ref_on_model=False):
@@ -520,6 +520,9 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         if 'spatial_anomalies' in wvar:
             spatial_anomalies = wvar['spatial_anomalies']
             wvar.pop('spatial_anomalies')
+        if 'regridding' in wvar:
+            regridding = wvar['regridding']
+            wvar.pop('regridding')
         if 'cdogrid' in wvar:
             cdogrid = wvar['cdogrid']
             wvar.pop('cdogrid')
@@ -753,14 +756,26 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         # -- Eventually, compute the zonal mean difference
         if safe_mode:
             try:
-                bias = diff_zonmean(climato_sim, climato_ref)
-                climato_ref = zonmean(climato_ref)
+                if regridding=='model_on_ref':
+                   bias = diff_zonmean(climato_sim, climato_ref)
+                   climato_ref = zonmean(climato_ref)
+                if regridding=='ref_on_model':
+                   bias = diff_zonmean(climato_ref, climato_sim)
+                   climato_ref = zonmean(climato_ref)
+                if regridding=='no_regridding':
+                   bias = minus(zonmean(climato_sim), zonmean(climato_sim))
+                   climato_ref = zonmean(climato_ref)
             except:
                 bias = minus(climato_sim, climato_ref)
                 print 'No data found for zonal mean for ', climato_ref, climato_sim
                 return blank_cell
         else:
-            bias = diff_zonmean(climato_sim, climato_ref)
+            if regridding=='model_on_ref':
+               bias = diff_zonmean(climato_sim, climato_ref)
+            if regridding=='ref_on_model':
+               bias = diff_zonmean(climato_sim, climato_ref)
+            if regridding=='no_regridding':
+               bias = minus(zonmean(climato_sim), zonmean(climato_ref))
             climato_ref = zonmean(climato_ref)
     else:
         # -- Alternative: 2D variable ------------------------------------------- #
@@ -776,28 +791,26 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
                 return ''
         # -- If we work on ocean variables, we regrid both the model and the ref on a 1deg grid
         # -- If not, we regrid the model on the ref
-        if variable in ocean_variables:
-            if 'meshmask_for_navlon_navlat' in wmodel:
-                climato_sim = add_nav_lon_nav_lat_from_mesh_mask(climato_sim,
-                                                                 mesh_mask_file=wmodel['meshmask_for_navlon_navlat'])
-            if not cdogrid:
-                climato_sim = regrid(climato_sim, climato_ref, option=regrid_option)
-                bias = minus(climato_sim, climato_ref)
-            else:
+        if regridding!='no_regridding':
+            if variable in ocean_variables:
+                if 'meshmask_for_navlon_navlat' in wmodel:
+                    climato_sim = add_nav_lon_nav_lat_from_mesh_mask(climato_sim,
+                                                                     mesh_mask_file=wmodel['meshmask_for_navlon_navlat'])
+                if not cdogrid:
+                    climato_sim = regrid(climato_sim, climato_ref, option=regrid_option)
+                else:
+                    climato_sim = regridn(climato_sim, cdogrid=cdogrid, option=regrid_option)
+                    climato_ref = regridn(climato_ref, cdogrid=cdogrid, option=regrid_option)
+            elif cdogrid:
                 climato_sim = regridn(climato_sim, cdogrid=cdogrid, option=regrid_option)
                 climato_ref = regridn(climato_ref, cdogrid=cdogrid, option=regrid_option)
-                bias = diff_minus(climato_sim, climato_ref)
-        elif cdogrid:
-            climato_sim = regridn(climato_sim, cdogrid=cdogrid, option=regrid_option)
-            climato_ref = regridn(climato_ref, cdogrid=cdogrid, option=regrid_option)
-            bias = minus(climato_sim, climato_ref)
-        else:
-            if regrid_ref_on_model:
-               clogger.warning("Warning in plot_CM_atlas.plot_diff : regridding the reference on the model (and not the model on the reference) ; regrid_ref_on_model is set to True (in the params file or the diagnostic file)")
-               climato_ref = regrid(climato_ref, climato_sim)
             else:
-               climato_sim = regrid(climato_sim, climato_ref)
-            bias = minus(climato_sim, climato_ref)
+                if regridding=='ref_on_model':
+                   clogger.warning("Warning in plot_CM_atlas.plot_diff : regridding the reference on the model (and not the model on the reference) ; regridding is set to ref_on_model (in the params file or the diagnostic file)")
+                   climato_ref = regrid(climato_ref, climato_sim)
+                if regridding=='model_on_ref':
+                   climato_sim = regrid(climato_sim, climato_ref)
+        bias = minus(climato_sim, climato_ref)
     #
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)

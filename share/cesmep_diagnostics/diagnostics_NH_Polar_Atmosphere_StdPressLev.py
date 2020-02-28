@@ -75,7 +75,7 @@ kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, var
               section_title='Atmosphere Surface', domain=domain, custom_plot_params=custom_plot_params,
               add_product_in_title=add_product_in_title, safe_mode=safe_mode,
               add_line_of_climato_plots=add_line_of_climato_plots,
-              regrid_ref_on_model=regrid_ref_on_model,
+              regridding=regridding,
               alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
 if do_parallel:
     index += parallel_section(section_2D_maps, **kwargs)

@@ -76,6 +76,7 @@ if do_ocean_2D_maps:
                   add_product_in_title=add_product_in_title, safe_mode=safe_mode,
                   add_line_of_climato_plots=add_line_of_climato_plots,
                   alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+                  regridding=regridding,
                   thumbnail_size=thumbN_size,
                   ocean_variables=ocean_variables)
     if do_parallel:
