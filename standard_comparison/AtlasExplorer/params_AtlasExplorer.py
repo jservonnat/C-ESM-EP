@@ -93,7 +93,9 @@ atlas_explorer_variables = [dict(variable='tas',
                                      IGCM_OUT=dict(DIR='ATM'),
                                  ))
                             ]
-regrid_ref_on_model=False
+
+# -- Choose the regridding (explicit ; can also be used in the variable dictionary)
+regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
 
 # atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',

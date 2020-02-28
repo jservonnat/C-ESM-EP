@@ -133,6 +133,8 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
             wvar.pop('climato_plot_params')
         if 'diff_plot_params' in wvar:
             wvar.pop('diff_plot_params')
+        if 'regridding' in wvar:
+            wvar.pop('regridding')
         if 'season' in wvar:
             season = wvar['season']
             wvar.pop('season')
@@ -811,6 +813,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
                 if regridding=='model_on_ref':
                    climato_sim = regrid(climato_sim, climato_ref)
         bias = minus(climato_sim, climato_ref)
+        print 'bias = ', bias
     #
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)
@@ -1025,6 +1028,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     # -- If the user doesn't want to do the cfile within plot_diff, set do_cfile=False
     # -- Otherwise we check if the plot has been done successfully.
     # -- If not, the user can set safe_mode=False and clog('debug') to debug.
+    print 'myplot = ', myplot
     return safe_mode_cfile_plot(myplot, do_cfile, safe_mode)
 
 
@@ -1041,7 +1045,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                     safe_mode=True, add_product_in_title=True, shade_missing=False, zonmean_variable=False,
                     ocean_variables=ocean_variables,
                     custom_plot_params={}, custom_obs_dict={}, alternative_dir={}, add_line_of_climato_plots=False,
-                    thumbnail_size=None, regrid_ref_on_model=False,
+                    thumbnail_size=None, regridding='model_on_ref',
                     do_cfile=True):
     #
     # -- Upper band at the top of the section
@@ -1177,7 +1181,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                                        custom_plot_params=custom_plot_params,
                                        ocean_variables=ocean_variables,
                                        safe_mode=safe_mode, add_product_in_title=add_product_in_title,
-                                       shade_missing=shade_missing, regrid_ref_on_model=regrid_ref_on_model,
+                                       shade_missing=shade_missing, regridding=regridding,
                                        do_cfile=do_cfile)
                 if do_cfile:
                     index += cell("", model_diff, thumbnail=thumbN_size, hover=hover, **alternative_dir)

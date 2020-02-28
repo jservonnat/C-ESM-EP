@@ -4,7 +4,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: NEMO_main                                                          - |
+# --             - component: AtlasExplorer                                                 - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -22,7 +22,9 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
+from climaf.api import *
 from custom_plot_params import dict_plot_params as custom_plot_params
+from custom_obs_dict import custom_obs_dict
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
@@ -33,17 +35,18 @@ verbose = 'debug'
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
 clean_cache = False
-# -- routine_cache_cleaning is a dictionary or list of dictionaries provided
-#    to crm() at the end of the atlas (for a routine cache management)
-routine_cache_cleaning = [dict(access='+20'), dict(access='+10', pattern='oneVar')]
+# -- Patterns to clean the cache at the end of the execution of the atlas
+routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
-do_parallel = True
-nprocs = 32
-memory = 30  # in gb; 30 for ocean atlasas
-queue = 'days3'  # onCiclad: h12, days3
+do_parallel = False
+# nprocs = 32
+# memory = 20 # in gb
+# queue = 'days3'
 
 
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
+# -- If you set it in the parameter file, it will overrule
+# -- the reference set in datasets_setup.py
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -62,40 +65,52 @@ season = 'ANM'
 # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
 proj = 'GLOB'
 # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
-# domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
-domain = {}
+domain = dict()
 
 
 # ---------------------------------------------------------------------------- >
-# -- Blue Ocean : Physical Ocean diagnostics
-# -- The do_ocean_2D_maps section is based on the same mechanisms as Atlas Explorer; it is
-# -- thus possible to use the functionalities (python dictionaries to add options
-# -- with a variable)
+# -- Atlas Explorer diagnostics
+# -- Atlas Explorer is meant to be a simple and flexible way to produce an atlas
+# -- on demand.
+# -- atlas_explorer_variables is a list of variables, and/or python dictionaries
+# -- that allow to pass custom specifs with the variable, like:
+# --   - season
+# --   - region
+# --   - domain
+# --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
-# -- 2D Maps
-do_ocean_2D_maps = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
-atlas_explorer_variables = []
-for var in ['to200', 'to1000', 'so200', 'so1000']:
-    atlas_explorer_variables.append(dict(variable=var, season='ANM', table='Omon', grid='gn',
-                                         project_specs=dict(
-                                             IGCM_OUT=dict(DIR='OCE'),
-                                         ),
-                                         ))
-remapping = True
+atlas_explorer_variables = [dict(variable='tas',
+                                 project_specs=dict(
+                                     IGCM_OUT=dict(DIR='ATM'),
+                                 )),
+                            dict(variable='tos', table='Omon',
+                                 project_specs=dict(
+                                     IGCM_OUT=dict(DIR='OCE'),
+                                     CMIP6=dict(grid='gn'),
+                                 )),
+                            dict(variable='ua', season='DJF', table='Amon',
+                                 project_specs=dict(
+                                     IGCM_OUT=dict(DIR='ATM'),
+                                 ))
+                            ]
 
-# -- Choose the regridding (explicit ; can also be used in the variable dictionary)
-regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
+# atlas_explorer_variables = ['tas','pr',
+#                            'tos','sos',
+#                            dict(variable='ua', season='DJF', add_climato_contours=True),
+#                            dict(variable='ua', season='JJA', add_climato_contours=True),
+#                            dict(variable='tos',domain=dict(lonmin=-80,lonmax=40,latmin=10,latmax=85)),
+#                            dict(variable='sic', proj='NH50', season='March'),
+#                            dict(variable='lai', season='MAM'),
+#                           ]
 
+# -- Activate the parallel execution of the plots
+do_parallel = False
+
+period_manager_test_variable = 'tas'
 
 # -- Display full climatology maps =
 # -- Use this variable as atlas_explorer_variables to activate the climatology maps
 atlas_explorer_climato_variables = None
-
-
-period_manager_test_variable = 'to'
-
-# -- Activate the parallel execution of the plots
-do_parallel = True
 
 # ---------------------------------------------------------------------------- >
 
@@ -103,16 +118,13 @@ do_parallel = True
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
 
 
 # -- Name of the html file
-# -- if index_name is set to None, it will be build as user_comparisonname_season
-# -- with comparisonname being the name of the parameter file without 'params_'
-# -- (and '.py' of course)
+# -- if index_name is set to None, it will be build as atlas_component_comparison.html
 # ---------------------------------------------------------------------------- >
 index_name = None
 
@@ -129,3 +141,4 @@ index_name = None
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
+
