@@ -57,11 +57,19 @@ parser.add_option("--cesmep_frontpage",
 
 # -- Define the path to the main C-ESM-EP directory:
 # -----------------------------------------------------------------------------------
-rootmainpath = str.split(os.getcwd(), 'C-ESM-EP')[0] + 'C-ESM-EP/'
+#rootmainpath = str.split(os.getcwd(), 'C-ESM-EP')[0] + 'C-ESM-EP/'
+#if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
+#    main_cesmep_path = rootmainpath
+#if os.path.isfile(rootmainpath+str.split(str.split(os.getcwd(), 'C-ESM-EP')[1], '/')[1] + '/main_C-ESM-EP.py'):
+#    main_cesmep_path = rootmainpath+str.split(str.split(os.getcwd(), 'C-ESM-EP')[1], '/')[1] + '/'
+rootmainpath = os.getcwd()
+print 'rootmainpath = ',rootmainpath
 if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
-    main_cesmep_path = rootmainpath
-if os.path.isfile(rootmainpath+str.split(str.split(os.getcwd(), 'C-ESM-EP')[1], '/')[1] + '/main_C-ESM-EP.py'):
-    main_cesmep_path = rootmainpath+str.split(str.split(os.getcwd(), 'C-ESM-EP')[1], '/')[1] + '/'
+     main_cesmep_path = rootmainpath
+if os.path.isfile(rootmainpath+'/../main_C-ESM-EP.py'):
+     main_cesmep_path = rootmainpath+'/../'
+if os.path.isfile(rootmainpath+'/../../main_C-ESM-EP.py'):
+      main_cesmep_path = rootmainpath+'/../../'
 
 
 # -- Get the default parameters from default_atlas_settings.py -> Priority = default
@@ -118,7 +126,7 @@ else:
 # -- Get the username ; if we work on fabric (ciclad), we get the manually attributed username
 # -----------------------------------------------------------------------------------
 username = getuser()
-user_login = (str.split(getcwd(), '/')[4] if username == 'fabric' else username)
+user_login = (str.split(os.getcwd(), '/')[4] if username == 'fabric' else username)
 
 
 # -- Get the site specifications:

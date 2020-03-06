@@ -86,6 +86,7 @@ else:
 if atlas_explorer_climato_variables:
     # -- Update kwargs accordingly
     kwargs.pop('add_line_of_climato_plots')
+    kwargs.pop('regridding')
     kwargs.update(dict(variables=atlas_explorer_climato_variables, section_title='Atmosphere Surface Climatologies'))
     #
     if do_parallel:

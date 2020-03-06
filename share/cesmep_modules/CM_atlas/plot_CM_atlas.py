@@ -1110,7 +1110,7 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
             if wref == 'default':
                 ref = variable2reference(variable, my_obs=custom_obs_dict)
                 if not ref:
-                    ref = dict(project='ref_climatos', frequency='seasonal')
+                    ref = dict(project='ref_climatos', frequency='seasonal', table='Amon')
                 if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
                     ref.update(dict(product='CERES'))
             else:
