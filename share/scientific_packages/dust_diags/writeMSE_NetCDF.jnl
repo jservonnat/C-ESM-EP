@@ -1,0 +1,55 @@
+
+! We compute LSE, DSE and MSE, the Latent Static Energy, Dry Static Energy and Moist Static Energy
+! All Energies have Units of  J kg-1
+! All quantities are averaged over JAS
+
+! use $1
+! ovap
+! temp
+! zfull
+! zhalf
+use "$1"
+use "$2"
+use "$3"
+use "$4"
+
+
+! Units for cp are J kg-1 K-1
+let cp=1006.1
+
+!let Lv in units of J kg-1
+let Lv=2510000
+
+! g is in m s-2
+let g=9.81
+
+!ovap is the specific humidity in 3D units kg kg-1
+let LSE=Lv*ovap[l=7:9@ave, d=1]
+
+let DSE= cp*temp[l=7:9@ave, d=2] + g*(zfull[l=7:9@ave, d=3]-zhalf[k=79,l=7:9@ave, d=4])
+
+let MSE= LSE[k=79]+DSE[k=79]
+
+! at 922 mb (See Fig. 4 Hill et al., 2017)
+!set mode metafile 
+
+SAVE/FILE="$5" MSE
+
+
+
+
+!!set w 1; fill/pal=rougebleu partmse[X=60W:70E,Y=5N:35N]; go land
+!set w 1; fill/pal=rougebleu/lev=(0,60,5) LSE[k=79]/1.e3; go land
+!set w 2; fill/pal=rougebleu/lev=(0,60,5) DSE[k=79]/1.e3; go land
+!! set w 2, fill/pal=rougebleu DSE[k=79]; go land
+
+!set w 3; fill/pal=rougebleu MSE[k=79]
+
+!! at 922 mb (See Fig. 4 Hill et al., 2017)
+!set w 4; fill/pal=idl_019_rev/lev=(311.5,350,3.5) MSE[X=42W:62E,Y=5S:35N,k=64]/cp; go land
+
+!! at 506 mb (See Fig. 4 Hill et al., 2017)
+!set w 5; fill/pal=idl_019_rev/lev=(311.5,350,3.5) MSE[X=42W:62E,Y=5S:35N,k=47]/cp; go land
+
+!list MSE[X=120E,Y=5N,l=@ave]
+!=========================

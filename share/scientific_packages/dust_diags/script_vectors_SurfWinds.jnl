@@ -1,0 +1,32 @@
+ ! NOAA/PMEL TMAP
+ ! FERRET v6.96  
+ ! Linux 2.6.32-573.7.1.el6.x86_64 64-bit - 12/02/15
+ !  3-Jan-20 10:50     
+
+GO "$HOME/.ferret"
+!! go poly_vectors.jnl
+
+use "$1"
+use "$2" 
+use "$3"
+use "$4"
+use "$5"
+
+set mode metafile
+set w 1; GO basemap X=-35:50 Y=0:40 5
+LET x_vec = X[d=1,GX=VITU,X=-35:50] + 0*Y[GY=VITV,Y=0:40,d=2]
+LET y_vec = 0*X[GX=VITU,X=-35:50,d=1] + Y[GY=VITV,Y=0:40,d=2]
+LET u_vec = VITU[d=1,X=-35:50,Y=0:40,K=79,L=7:9@ave]-VITU[d=4,X=-35:50,Y=0:40,K=79,L=7:9@ave]
+LET v_vec = VITV[d=2,X=-35:50,Y=0:40,K=79,L=7:9@ave]-VITV[d=5,X=-35:50,Y=0:40,K=79,L=7:9@ave]
+GO poly_vectors.jnl x_vec y_vec u_vec v_vec 2 "arrow"
+LET press = YSEQUENCE(pres[X=-35:50,Y=0:40,K=79,L=7:9@ave,d=3]/100.)
+POLYGON/OVER/NOAX/NOLAB/KEY/LINE/PAL=rainbow plt_x_arrow, plt_y_arrow, press
+GO poly_arrow_key "Diff. winds", "2 m/s"
+LABEL 7, 42, 0, 0, .2 @P1UWND, VWND
+LABEL 7, 45, 0, 0, .2 @P1$6
+
+cancel mode metafile
+!!sp Fprint -o SurfWindsChange.ps metafile.plt
+!!sp ps2png SurfWindsChange.ps
+!!sp mv SurfWindsChange.png "$6"
+exit
