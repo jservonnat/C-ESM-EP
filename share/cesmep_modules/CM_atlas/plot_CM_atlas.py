@@ -1430,9 +1430,9 @@ def section_2D_maps_climobs_bias_modelmodeldiff(models, reference, proj, season,
             if wref == 'default':
                 ref = variable2reference(variable, my_obs=custom_obs_dict)
                 if not ref:
-                    ref = dict(project='ref_climatos')
+                    ref = dict(project='ref_climatos', frequency='seasonal')
                 if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
-                    ref.update(dict(product='CERES'))
+                    ref.update(dict(product='CERES', frequency='seasonal'))
             else:
                 ref = wref.copy()
             #

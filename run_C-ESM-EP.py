@@ -433,7 +433,7 @@ for component in job_components:
             print '    -> Parallel execution: nprocs = ' + nprocs
         #
         # -- Build the job command line
-        cmd = 'cd ' + submitdir + ' ; jobID=$(qsub' + job_options + ' -j eo -v component=' + component + ',comparison='\
+        cmd = 'cd ' + submitdir + ' ; jobID=$(qsub ' + job_options + ' -j eo -v component=' + component + ',comparison='\
               + comparison + ',WD=${PWD},cesmep_frontpage='+frontpage_address\
               +' -N '+ component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
               ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\

@@ -27,8 +27,7 @@ from PMP_MG.PMP_MG_time_manager import build_metric_outpath, get_keys_for_PMP_MG
 from climaf.html import *
 from CM_atlas import build_plot_title
 from optparse import OptionParser
-
-
+csync(True)
 clog('critical')
 
 # -- Define the path to the main C-ESM-EP directory:
@@ -480,7 +479,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
         # -- Dealing with the group related sets of variables
         if 'metrics_variables' in wmodel:
             vars = wmodel['metrics_variables']
-
+        print 'vars in run_CliMAF_PMP = ', vars
         # -- Prepare the output directory for the temporary netcdf files that will be used
         # -- to compute the metrics (root_outpath can be None)
         metrics_output_path = build_metric_outpath(wmodel, group=group, subdir=subdir, root_outpath=root_outpath)
@@ -514,6 +513,8 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                     print 'Already have ', metric_json_file
 
         # -- Si il y a des metriques a calculer...
+        print 'For model wmodel =', wmodel
+        print 'We want w_variables = ', w_variables
         str_vars_list = []
         if w_variables:
             for var in w_variables:
@@ -532,6 +533,7 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                     wvar = str.split(var, '_')[0]
                     strvar = var
                 #
+                print 'strvar in loop on w_variables = ',strvar
                 # wvar = str.split(var,'_')[0]
                 wmodel_dict.update(dict(variable=wvar))
                 if wmodel_dict['project'] == 'CMIP5':
@@ -560,12 +562,14 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                 #
                 #
                 # -- If the variable is available for the simulation
+                #if True:
                 try:
                     if model_ds.frequency in ['monthly', '1M', 'MO'] or model_ds.project=='CMIP6':
                         wmodel_ds = annual_cycle(model_ds)
                     else:
                         wmodel_ds = model_ds
-                    cdrop(wmodel_ds)
+                    wmodel_ds = ccdo(wmodel_ds, operator='setvrange,-1000,100000000')
+                    #cdrop(wmodel_ds)
                     print cfile(wmodel_ds,
                                 target=input_climatologies_dir + '/' + target_filename,
                                 ln=True)
@@ -576,7 +580,10 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
                         print cmd
                         os.system(cmd)
                     # -- build the list of vars to be used for the parameter file
+                    print 'debug wmodel_dict = ', wmodel_dict
+                    print 'Should be: wmodel_ds = ', wmodel_ds
                     str_vars_list.append(strvar)
+                    #else:
                 except:
                     w_variables.remove(var)
                 #
@@ -639,8 +646,8 @@ def run_CliMAF_PMP(models, group=None, variables=None, root_outpath=None,
             cmd = 'pcmdi_metrics_driver.py -p ' + tmp_paramfile
             print cmd
 
-            p = subprocess.Popen(shlex.split(cmd))
-            p.communicate()
+            #p = subprocess.Popen(shlex.split(cmd))
+            #p.communicate()
             if rm_tmp_paramfile:
                 os.system('rm -f ' + tmp_paramfile + '*')
             # 

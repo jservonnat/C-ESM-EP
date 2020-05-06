@@ -6,12 +6,12 @@ def variable2reference(variable, project=None, my_obs={}):
         tmpdict.update(my_obs[variable])
         return tmpdict
     else:
-        if variable in ['tos','sos','thetao','so']:
+        if variable in ['tos','sos','thetao','so','so200', 'so1000', 'so2000', 'to200', 'to1000','to2000']:
             return dict(project='ref_climatos', product='WOA13-v2', clim_period='195501-201212', table='Omon', variable=variable, frequency='seasonal')
         if not project:
             tmp_Amon_vars = ['pr', 'prw', 'rlut', 'rsut', 'rlutcs', 'rsutcs', 'rlus', 'rsus', 'rluscs', 'rsuscs',
                              'rlds', 'rsds',
-                             'rsdscs', 'rldscs', 'tas', 'ta', 'ua', 'va', 'psl', 'uas', 'vas', 'hus', 'hur', 'alb',
+                             'rsdscs', 'rldscs', 'tas', 'ta', 'ua', 'va', 'psl', 'uas', 'vas', 'hus', 'hur', 'alb','albt','albs',
                              'hurs', 'huss',
                              'cltcalipso', 'clhcalipso', 'clmcalipso', 'cllcalipso', 'hfls', 'hfss', 'tauu', 'tauv',
                              'ua850', 'ua700', 'ua500', 'ua200',
@@ -43,7 +43,7 @@ def variable2reference(variable, project=None, my_obs={}):
         refs = {
             'ref_climatos': {
                 'CERES': ['rlut', 'rsut', 'rlutcs', 'rsutcs', 'rlus', 'rsus', 'rluscs', 'rsuscs', 'rlds', 'rsds',
-                          'rsdscs', 'rldscs'],
+                          'rsdscs', 'rldscs','alb','albt','albs'],
                 'ERAINT': ['tas', 'ta', 'psl', 'uas', 'vas', 'hus', 'hur', 'huss', 'ua', 'va', 'wfo',
                            'ua850', 'ua700', 'ua500', 'ua200',
                            'ta850', 'ta700', 'ta500', 'ta200',

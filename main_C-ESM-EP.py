@@ -20,7 +20,6 @@ from optparse import OptionParser
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
 
-
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
 # --              - the default values
