@@ -33,17 +33,12 @@
 
 # ----------------------------------------------
 # --                                             \
-# --  Atmosphere Surface                          \
+# --  Atmosphere Std press lev - NH Polar         \
 # --                                              /
 # --                                             /
 # --                                            /
 # ---------------------------------------------
 
-
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-if 'atlas_head_title' not in locals():
-    atlas_head_title = "NH Polar St. - Atmosphere Std press levels"
 
 
 # - Init html index

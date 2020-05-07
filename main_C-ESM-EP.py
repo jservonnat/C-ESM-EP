@@ -230,7 +230,7 @@ style_file = main_cesmep_path+'share/fp_template/cesmep_atlas_style_css'
 
 # -- Head title of the atlas -> default value should be override from diagnostics_${comp}.py
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "A C-ESM-EP atlas"
+atlas_head_title = component
 
 
 # -- Get the parameters from the param file -> Priority = 2

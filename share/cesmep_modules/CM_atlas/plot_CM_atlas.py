@@ -496,7 +496,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
               ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapdis', regridding='model_on_ref',
               safe_mode=True, custom_plot_params={}, do_cfile=True, spatial_anomalies=False, shade_missing=False,
               zonmean_variable=False, plot_context_suffix=None, add_vectors=False, add_aux_contours=False,
-              display_bias_corr_rmse=False, regrid_ref_on_model=False):
+              display_bias_corr_rmse=False):
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments

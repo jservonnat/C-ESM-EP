@@ -54,6 +54,11 @@ queue = 'days3'  # onCiclad: h12, days3
 # reference = 'default'
 
 
+# -- Head title of the atlas
+# ---------------------------------------------------------------------------- >
+atlas_head_title = "NEMO - T & S @depth"
+
+
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >

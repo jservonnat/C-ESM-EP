@@ -177,20 +177,24 @@ for component in available_components:
     # paramfile = comparison+'/'+component+'/params_'+component+'.py'
     submitdir = main_cesmep_path + '/' + comparison + '/' + component
     diag_filename = submitdir + '/diagnostics_' + component + '.py'
+    params_filename = submitdir + '/params_' + component + '.py'
+
     if not os.path.isfile(diag_filename):
         diag_filename = main_cesmep_path + '/share/cesmep_diagnostics/diagnostics_' + component + '.py'
     # paramfile = comparison+'/'+component+'/diagnostics_'+component+'.py'
     # Allow to de-activate a component by setting read attribute to false
     try:
-        with open(diag_filename, 'r') as content_file:
-            content = content_file.read()
+        with open(diag_filename, 'r') as content_file_diag:
+            content_diag = content_file_diag.read()
+        with open(params_filename, 'r') as content_file_params:
+            content_params = content_file_params.read()
     except:
         print "Skipping component ", component, " which diagnostic file is not readable"
         available_components.remove(component)
         continue
-    content.splitlines()
+    #content.splitlines()
     module_title = None
-    for tmpline in content.splitlines():
+    for tmpline in content_diag.splitlines()+content_params.splitlines():
         if 'atlas_head_title' in str.split(tmpline, '=')[0]:
             if '"' in tmpline:
                 sep = '"'

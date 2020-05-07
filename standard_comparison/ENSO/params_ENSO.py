@@ -53,6 +53,12 @@ nprocs = 32
 # reference = 'default'
 
 
+# -- Head title of the atlas
+# ---------------------------------------------------------------------------- >
+atlas_head_title = "ENSO CLIVAR Diagnostics"
+
+
+
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >

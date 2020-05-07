@@ -33,17 +33,11 @@
 
 # ----------------------------------------------
 # --                                             \
-# --  Atlas Explorer                              \
+# --  NEMO General Diagnostics                    \
 # --                                              /
 # --                                             /
 # --                                            /
 # ---------------------------------------------
-
-
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-if 'atlas_head_title' not in locals():
-    atlas_head_title = "NEMO general diagnostics"
 
 
 # - Init html index

@@ -58,6 +58,12 @@ nprocs = 32
 # reference = 'default'
 
 
+# -- Head title of the atlas
+# ---------------------------------------------------------------------------- >
+atlas_head_title = "Main Time Series"
+
+
+
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >
@@ -112,7 +118,7 @@ time_series_specs = [
          left_string='SST 50S/50N',
          ylabel='SST (degC)', xlabel='Time (years)',
          horizontal_lines_values=22.41, horizontal_lines_colors='gray',
-         text=['1800-01-01', 22.42, 'HadISST 1990-2010'],
+         text=['1950-01-01', 22.42, 'HadISST 1990-2010'],
          ylim=[20, 23],
          text_fontsize=15,
          ),

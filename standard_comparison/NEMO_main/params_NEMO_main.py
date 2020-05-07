@@ -54,6 +54,11 @@ memory = 40  # in gb; 30 for ocean atlasas
 # reference = 'default'
 
 
+# -- Head title of the atlas
+# ---------------------------------------------------------------------------- >
+atlas_head_title = "NEMO general diagnostics"
+
+
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 # ---------------------------------------------------------------------------- >

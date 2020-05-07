@@ -40,11 +40,6 @@
 # ---------------------------------------------
 
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-if 'atlas_head_title' not in locals():
-    atlas_head_title = "Atmosphere Surface"
-
 # -- Init html index
 # -----------------------------------------------------------------------------------
 index = header(atlas_head_title, style_file=style_file)
