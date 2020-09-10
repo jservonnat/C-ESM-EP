@@ -59,7 +59,7 @@ atCerfacs = os.path.exists('/data/scratch/globc')
 # -- Get user name
 username = getpass.getuser()
 if username == 'fabric':
-    user_login = str.split(os.getcwd(), '/')[4]
+    user_login = os.getcwd().split('/')[4]
 else:
     user_login = username
 
@@ -114,10 +114,10 @@ metrics_components = ['ParallelCoordinates_Atmosphere', 'Seasonal_one_variable_p
 if len(args) == 1:
     print 'Provide the name of a comparison setup as argument of the script'
 else:
-    comparison = str.replace(args[1], '/', '')
+    comparison = args[1].replace('/', '')
     argument = 'None'
     if len(args) == 3:
-        argument = str.replace(args[2], '/', '')
+        argument = args[2].replace('/', '')
         if argument.lower() in ['url']:
             components = allcomponents
         elif argument == 'OA':
@@ -132,7 +132,7 @@ else:
         elif argument == 'NEMO':
             components = ['NEMO_main', 'NEMO_zonmean', 'NEMO_depthlevels', 'NEMO_PISCES']
         else:
-            components = str.split(argument, ',')
+            components = argument.split(',')
     else:
         components = allcomponents
 
@@ -195,12 +195,12 @@ for component in available_components:
     #content.splitlines()
     module_title = None
     for tmpline in content_diag.splitlines()+content_params.splitlines():
-        if 'atlas_head_title' in str.split(tmpline, '=')[0]:
+        if 'atlas_head_title' in tmpline.split('=')[0]:
             if '"' in tmpline:
                 sep = '"'
             if "'" in tmpline:
                 sep = "'"
-            module_title = str.split(tmpline, sep)[1]
+            module_title = tmpline.split(sep)[1]
     if module_title:
         name_in_html = module_title
     else:
@@ -268,7 +268,7 @@ frontpage_address = comparison_url + frontpage_html
 if os.path.exists('/ccc') and not os.path.exists('/data'):
     atTGCC = True
     # -- outworkdir = path to the work equivalent of the scratch
-    path_to_comparison_outdir_workdir_tgcc = str.replace(path_to_comparison_outdir, 'scratch', 'work')
+    path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace('scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
 
@@ -306,7 +306,7 @@ if argument.lower() not in ['url']:
             atlas_url = comparison_url + component + '/' + component + '_' + comparison + '.html'
         if onCiclad or atCNRM:
             if component in job_components:
-                atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
+                atlas_pathfilename = atlas_url.replace(comparison_url, path_to_comparison_outdir)
                 if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
                     os.makedirs(os.path.dirname(atlas_pathfilename))
                 # -- Copy an html template to say that the atlas is not yet available
@@ -317,7 +317,7 @@ if argument.lower() not in ['url']:
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
         if atTGCC:
             if component in job_components:
-                atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir_workdir_tgcc)
+                atlas_pathfilename = atlas_url.replace(comparison_url, path_to_comparison_outdir_workdir_tgcc)
                 if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
                     os.makedirs(os.path.dirname(atlas_pathfilename))
                 # -- Copy an html template to say that the atlas is not yet available
@@ -346,24 +346,27 @@ for component in job_components:
     param_lines = []
     if os.path.isfile(submitdir + '/params_' + component + '.py'):
         param_filename = open(submitdir + '/params_' + component + '.py')
+        print 'param file = ', submitdir + '/params_' + component + '.py'
         param_lines = param_filename.readlines()
     #
     diag_filename = submitdir + '/diagnostics_' + component + '.py'
     if not os.path.isfile(diag_filename):
         diag_filename = main_cesmep_path + '/share/cesmep_diagnostics/diagnostics_' + component + '.py'
+    print 'diag_file = ', diag_filename
     diag_file = open(diag_filename)
     diag_lines = diag_file.readlines()
     param_lines = param_lines + diag_lines
     for param_line in param_lines:
         if 'do_parallel' in param_line and param_line[0] != '#':
             if 'True' in param_line:
+                print 'param_line =', param_line
                 do_parallel = True
         if 'nprocs' in param_line and param_line[0] != '#':
-            nprocs = str.split(str.split(str.replace(param_line, ' ', ''), '=')[1], '#')[0]
+            nprocs = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'memory' in param_line and param_line[0] != '#':
-            memory = str.split(str.split(str.replace(param_line, ' ', ''), '=')[1], '#')[0]
+            memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
-            queue = str.split(str.split(str.replace(param_line, ' ', ''), '=')[1], '#')[0]
+            queue = param_line.replace(' ', '').split('=')[1].split('#')[0] 
     #
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
@@ -371,7 +374,7 @@ for component in job_components:
     else:
         atlas_url = comparison_url + component + '/' + component + '_' + comparison + '.html'
     if component in job_components:
-        atlas_pathfilename = str.replace(atlas_url, comparison_url, path_to_comparison_outdir)
+        atlas_pathfilename = atlas_url.replace(comparison_url, path_to_comparison_outdir)
     #
     # -- Build the command line that will submit the job
     # ---------------------------------------------------
@@ -403,7 +406,7 @@ for component in job_components:
         if not queue:
             queue = 'h12'
         # -- add it to job_options
-        job_options += ' -q ' + str.replace(queue, '\n', '')
+        job_options += ' -q ' + queue.replace('\n', '')
         print '    -> queue = ' + queue
         #
         # -- Specify the job script (only for Parallel coordinates)
@@ -430,7 +433,7 @@ for component in job_components:
         #
         # -- If the user specified do_parallel=True in parameter file, we ask for one node and 32 cores
         if do_parallel:
-            nprocs = str.replace(str(nprocs), '\n', '')
+            nprocs = str(nprocs).replace('\n', '')
             parallel_instructions = ' -l nodes=1:ppn=' + nprocs
             # -- add it to job_options
             job_options += parallel_instructions

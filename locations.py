@@ -38,10 +38,10 @@ if os.path.exists('/cnrm'):
     path_to_cesmep_output_rootdir_on_web_server = None
     
 # -- Ciclad
-if os.path.exists('/data') and os.path.exists('/prodigfs'):
+if os.path.exists('/data') and os.path.exists('/thredds/ipsl'):
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we store all the C-ESM-EP comparisons
-    path_to_cesmep_output_rootdir = '/prodigfs/ipslfs/dods/'+username
+    path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
     root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username
@@ -51,7 +51,7 @@ if os.path.exists('/data') and os.path.exists('/prodigfs'):
     path_to_cesmep_output_rootdir_on_web_server = None
 
 # -- TGCC
-if os.path.exists('/ccc') and not os.path.exists('/prodigfs'):
+if os.path.exists('/ccc') and not os.path.exists('/thredds/ipsl'):
     CWD = os.getcwd()
     if '/drf/' in CWD:
         wspace = 'drf'

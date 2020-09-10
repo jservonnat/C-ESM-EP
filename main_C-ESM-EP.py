@@ -7,8 +7,8 @@ from climaf.api import *
 from climaf.html import * 
 from climaf import cachedir
 from CM_atlas import *
-from climaf.site_settings import onCiclad, atTGCC, atCNRM
-from climaf.classes import Climaf_Error
+from env.site_settings import onCiclad, atTGCC, atCNRM
+from climaf.utils import Climaf_Error
 from getpass import getuser
 from climaf import __path__ as cpath
 import json
@@ -19,6 +19,8 @@ import shlex
 from optparse import OptionParser
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
+
+csync(True)
 
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
@@ -56,11 +58,6 @@ parser.add_option("--cesmep_frontpage",
 
 # -- Define the path to the main C-ESM-EP directory:
 # -----------------------------------------------------------------------------------
-#rootmainpath = str.split(os.getcwd(), 'C-ESM-EP')[0] + 'C-ESM-EP/'
-#if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
-#    main_cesmep_path = rootmainpath
-#if os.path.isfile(rootmainpath+str.split(str.split(os.getcwd(), 'C-ESM-EP')[1], '/')[1] + '/main_C-ESM-EP.py'):
-#    main_cesmep_path = rootmainpath+str.split(str.split(os.getcwd(), 'C-ESM-EP')[1], '/')[1] + '/'
 rootmainpath = os.getcwd()
 print 'rootmainpath = ',rootmainpath
 if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
@@ -91,7 +88,7 @@ cesmep_frontpage = opts.cesmep_frontpage
 #     - the diagnostics file
 datasets_setup = main_cesmep_path + comparison + '/datasets_setup.py'
 param_file = main_cesmep_path + comparison + '/' + component + '/params_' + component + '.py'
-diagnostics_file = str.replace(param_file, 'params_', 'diagnostics_')
+diagnostics_file = param_file.replace('params_', 'diagnostics_')
 if not os.path.isfile(diagnostics_file):
     diagnostics_file = main_cesmep_path + 'share/cesmep_diagnostics/diagnostics_' + component + '.py'
 print '-- Use diagnostics_file =', diagnostics_file
@@ -99,7 +96,7 @@ print '-- Use diagnostics_file =', diagnostics_file
 
 # -- If we specify a datasets_setup from the command line, we use 'models' from this file
 # -----------------------------------------------------------------------------------
-datasets_setup_available_period_set_file = str.replace(datasets_setup, '.py', '_available_period_set.py')
+datasets_setup_available_period_set_file = datasets_setup.replace('.py', '_available_period_set.py')
 if os.path.isfile(datasets_setup_available_period_set_file):
     use_available_period_set = True
     execfile(datasets_setup_available_period_set_file)
@@ -125,7 +122,7 @@ else:
 # -- Get the username ; if we work on fabric (ciclad), we get the manually attributed username
 # -----------------------------------------------------------------------------------
 username = getuser()
-user_login = (str.split(os.getcwd(), '/')[4] if username == 'fabric' else username)
+user_login = (os.getcwd().split('/')[4] if username == 'fabric' else username)
 
 
 # -- Get the site specifications:
@@ -140,7 +137,7 @@ user_login = (str.split(os.getcwd(), '/')[4] if username == 'fabric' else userna
 atlas_dir = path_to_cesmep_output_rootdir + '/C-ESM-EP/' + comparison + '_' + user_login + '/' + component
 
 # -- Url of the atlas (without the html file)
-atlas_url = str.replace(atlas_dir, path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs)
+atlas_url = atlas_dir.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs)
 
 
 
@@ -307,9 +304,9 @@ index += trailer()
 # -- Add link to main frontpage
 climaf_doc_url = 'https://climaf.readthedocs.io/en/master/'
 # -- Replace url to CliMAF documentation with url to C-ESM-EP frontpage
-index = str.replace(index, climaf_doc_url, cesmep_frontpage)
+index = index.replace(climaf_doc_url, cesmep_frontpage)
 # -- Replace CliMAF documentation with C-ESM-EP frontpage of comparison COMPARISON
-index = str.replace(index, 'CliMAF documentation', 'Back to C-ESM-EP frontpage of comparison: '+comparison)
+index = index.replace('CliMAF documentation', 'Back to C-ESM-EP frontpage of comparison: '+comparison)
 
 # -- Write the atlas html file
 outfile = atlas_dir + "/" + index_name
@@ -345,7 +342,7 @@ print(' -- ')
 print('Index available at : ' + outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
 
 if atTGCC:
-    print("The atlas is ready as ", str.replace(index_name, atlas_dir, path_to_comparison_outdir_workdir_tgcc))
+    print("The atlas is ready as ", index_name.replace(atlas_dir, path_to_comparison_outdir_workdir_tgcc))
 else:
     print("The atlas is ready as ", index_name)
 

@@ -19,7 +19,7 @@ set -x
 # Nom du job
 # Nombre de noeuds et de processus
 #SBATCH --nodes=1 --ntasks-per-node=1
-elif [[ -d "/data" && -d "/prodigfs" ]]; then
+elif [[ -d "/data" && -d "/thredds/ipsl" ]]; then
 echo "on Ciclad - Climserv - CLIMERI"
 ######################
 ## Ciclad - CLIMERI ##
@@ -119,8 +119,8 @@ export CLIMAF_CACHE=${CCCSCRATCHDIR}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 
-if [[ -d "/data" && -d "/prodigfs" ]]; then
-export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/climafcache_${component}
+if [[ -d "/data" && -d "/thredds/ipsl" ]]; then
+export CLIMAF_CACHE=/thredds/ipsl/${USER}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 

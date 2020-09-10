@@ -86,7 +86,7 @@ def frequency_manager_for_diag(model, diag='TS'):
             model.update(dict(diag=diag))
             # -- Fix to avoid errors when clim_period contains a - instead of _
             if 'clim_period' in model:
-                model.update(dict(clim_period=str.replace(model['clim_period'], '-', '_')))
+                model.update(dict(clim_period=model['clim_period'].replace('-', '_')))
                 # -- If frequency=='monthly' or 'yearly', we use clim_period for period
                 if model['frequency'] in ['daily', 'monthly', 'yearly']:
                     if 'SE' in model['clim_period']:

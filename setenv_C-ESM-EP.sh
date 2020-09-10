@@ -101,18 +101,19 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
 fi
 
 # --> On Ciclad
-if [[ -d "/data" && -d "/prodigfs/ipslfs/dods" && ! -d "/scratch/globc" ]] ; then
+if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc" ]] ; then
   unset PYTHONPATH
   module load climaf
-  module switch climaf/1.2.13
-  working_conda=/prodigfs/ipslfs/dods/jservon/miniconda/envs/analyse_env_2.7
+  #module switch climaf/1.2.13-phw
+  module switch climaf/2.0.0
+  working_conda=/modfs/modtools-phw/miniconda2/envs/analyse_env_2.7
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
   my_append -bp PYTHONPATH ${CLIMAF}
   my_append -bp PYTHONPATH ${cesmep_modules}
   my_append -bp PATH ${CLIMAF}
-  export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/atlas_explorer
+  export CLIMAF_CACHE=/thredds/ipsl/${USER}/atlas_explorer
   # -- CDFTools
   my_append -bp PATH /home/lvignon/bin
   my_append -bp PATH ${CLIMAF}/bin

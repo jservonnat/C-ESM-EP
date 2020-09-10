@@ -39,7 +39,7 @@ def ENSO_ts_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params={})
     ssta_nino3 = ccdo(space_average(llbox(ssta, **nino3)), operator='detrend')
     #
     # -- Get the period
-    tmp_period = str.replace(str.replace(build_period_str(wdat_dict), '-', ''), '-', '')
+    tmp_period = build_period_str(wdat_dict).replace('-', '').replace('-', '')
     print "tmp_period = ", tmp_period
     #
     # -- Title
@@ -269,12 +269,12 @@ def find_common_period(period1, period2):
         common_period = 'fx'
     else:
         sep_period1 = ('-' if '-' in period1 else '_')
-        start_period1 = int(str.split(period1, sep_period1)[0][0:4])
-        end_period1 = int(str.split(period1, sep_period1)[1][0:4])
+        start_period1 = int(period1.split(sep_period1)[0][0:4])
+        end_period1 = int(period1.split(sep_period1)[1][0:4])
         #
         sep_period2 = ('-' if '-' in period2 else '_')
-        start_period2 = int(str.split(period2, sep_period2)[0][0:4])
-        end_period2 = int(str.split(period2, sep_period2)[1][0:4])
+        start_period2 = int(period2.split(sep_period2)[0][0:4])
+        end_period2 = int(period2.split(sep_period2)[1][0:4])
         #
         start = str(sorted([start_period1, start_period2], reverse=True)[0])
         end = str(sorted([end_period1, end_period2])[0])

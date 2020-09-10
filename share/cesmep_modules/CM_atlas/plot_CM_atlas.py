@@ -1,7 +1,7 @@
 from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
-from climaf.clogging import clogger, dedent
+from env.clogging import clogger, dedent
 from time_manager import *
 from climaf import __path__ as cpath
 import os
@@ -53,15 +53,15 @@ def replace_keywords_with_values(dat_dict, string):
     ds_dat = ds(**dat_dict)
     if '${' in string:
         new_string = string
-        dum_split_string = str.split(string, '${')
+        dum_split_string = string.split('${')
         for elt in dum_split_string:
-            dum_split_elt = str.split(elt, '}')
+            dum_split_elt = elt.split('}')
             if len(dum_split_elt) == 2:
                 kw = dum_split_elt[0]
                 if kw in ds_dat.kvp:
-                    new_string = str.replace(new_string, '${' + kw + '}', ds_dat.kvp[kw])
+                    new_string = new_string.replace('${' + kw + '}', ds_dat.kvp[kw])
                 else:
-                    new_string = str.replace(new_string, '${' + kw + '}', kw + '_not_available')
+                    new_string = new_string.replace('${' + kw + '}', kw + '_not_available')
         return new_string
     else:
         return string
@@ -102,7 +102,7 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
         else:
             ref_in_title = ('OBS' if ref['project'] == 'LMDZ_OBS' else ds_ref.kvp["product"])
         title = title + ' (vs ' + ref_in_title + ')'
-        title = str.replace(title, '*', '')
+        title = title.replace('*', '')
     return title
 
 
@@ -208,6 +208,8 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
         if 'title' in wvar:
             title = wvar['title']
             wvar.pop('title')
+        if 'display_bias_corr_rmse' in wvar:
+            wvar.pop('display_bias_corr_rmse')
     else:
         variable = var
         wvar = dict()
@@ -478,6 +480,7 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
                       **p)
 
     #
+    print 'climato_dat  = ', cfile(climato_dat)
     # -- If the user doesn't want to do the cfile within plot_climato, set do_cfile=False
     # -- Otherwise we check if the plot has been done successfully.
     # -- If not, the user can set safe_mode=False and clog('debug') to debug.
@@ -1028,6 +1031,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     # -- If the user doesn't want to do the cfile within plot_diff, set do_cfile=False
     # -- Otherwise we check if the plot has been done successfully.
     # -- If not, the user can set safe_mode=False and clog('debug') to debug.
+    #print 'cfile(bias) = ', cfile(bias)
     print 'myplot = ', myplot
     return safe_mode_cfile_plot(myplot, do_cfile, safe_mode)
 

@@ -644,13 +644,13 @@ def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True
         model_period = str(var_model.period)
         print 'model_period = ', model_period
         sep_model_period = ('-' if '-' in model_period else '_')
-        start_year_model = int(str.split(model_period, sep_model_period)[0][0:4])
-        end_year_model = int(str.split(model_period, sep_model_period)[1][0:4])
+        start_year_model = int(model_period.split(sep_model_period)[0][0:4])
+        end_year_model = int(model_period.split(sep_model_period)[1][0:4])
         # -- Get the period covered by the obs
         obs_period = obse['period']
         sep_obs_period = ('-' if '-' in model_period else '_')
-        start_year_obs = int(str.split(obs_period, sep_obs_period)[0][0:4])
-        end_year_obs = int(str.split(obs_period, sep_obs_period)[1][0:4])
+        start_year_obs = int(obs_period.split(sep_obs_period)[0][0:4])
+        end_year_obs = int(obs_period.split(sep_obs_period)[1][0:4])
         # -- Set the commmon period
         if start_year_model >= start_year_obs and end_year_model <= end_year_obs:
             new_obs_period = model_period
@@ -795,7 +795,7 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             if 'path_mesh_mask' in ref:
                 mask_file = ref['path_mesh_mask'] + ref['mesh_masks'][basin]
             else:
-                mask_file = os.path.dirname(str.split(ref_dat.baseFiles(), ' ')[0]) + '/' + basin.lower() + '_mask.nc'
+                mask_file = os.path.dirname(ref_dat.baseFiles().split(' ')[0]) + '/' + basin.lower() + '_mask.nc'
             print '----'
             print '----'
             print '----'
@@ -843,7 +843,7 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             if 'path_mesh_mask' in model:
                 mask_file = model['path_mesh_mask'] + model['mesh_masks'][basin]
             else:
-                mask_file = os.path.dirname(str.split(model_dat.baseFiles(), ' ')[0]) + '/' + basin.lower() + '_mask.nc'
+                mask_file = os.path.dirname(model_dat.baseFiles().split(' ')[0]) + '/' + basin.lower() + '_mask.nc'
             print 'mask_file = ', mask_file
             mask_dat = fds(mask_file, variable='mask', period='fx')
             basin_mask = mask(mask_dat, miss=0.0)
