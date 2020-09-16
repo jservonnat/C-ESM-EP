@@ -132,7 +132,7 @@
 # --    - ORCHIDEE_2D_maps
   
 # ---------------------------------------------------------------------------- >
-from climaf.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
+from env.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
 from CM_atlas import *
 
 
@@ -233,7 +233,7 @@ if onCiclad or atTGCC:
         models.pop(2)
         root = '/ccc/store/cont003/gencmip6'
     if onCiclad:
-        root = '/ccc/store/cont003/thredds'
+        root = '/thredds/tgcc/store'
     #
     # -- Provide a set of common keys to the elements of models
     # ---------------------------------------------------------------------------- >

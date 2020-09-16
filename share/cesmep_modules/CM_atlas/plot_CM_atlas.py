@@ -480,7 +480,7 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
                       **p)
 
     #
-    print 'climato_dat  = ', cfile(climato_dat)
+    #print 'climato_dat  = ', cfile(climato_dat)
     # -- If the user doesn't want to do the cfile within plot_climato, set do_cfile=False
     # -- Otherwise we check if the plot has been done successfully.
     # -- If not, the user can set safe_mode=False and clog('debug') to debug.
