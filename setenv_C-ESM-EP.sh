@@ -72,13 +72,17 @@ fi
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
   unset PYTHONPATH
-  module switch python/2.7.8
+  #module switch python/2.7.15
   # CDO fix
   module unload nco/4.4.8
   module unload netcdf/4.3.3.1_hdf5_parallel
   module unload cdo/1.6.7_netcdf-4.3.2_hdf5
-  module load netcdf/4.4.0_hdf5
-  module load cdo/1.9.2
+  module unload netcdf-fortran
+  #module load netcdf-fortran/4.5.3
+  module load netcdf-c/4.6.0
+  #module load module load netcdf/4.4.0_hdf5
+  module unload cdo
+  module load cdo/1.9.5
   module load ncview ncl_ncarg nco
   # CDO fix
   source /ccc/work/cont003/drf/p86jser/miniconda/etc/profile.d/conda.sh
@@ -87,7 +91,7 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
   LD_LIBRARY_PATH=${working_conda}/lib:${LD_LIBRARY_PATH}
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
-  export CLIMAF=$(ccc_home -u igcmg --cccwork)/CliMAF/climaf_pre_1.2.12
+  export CLIMAF=$(ccc_home -u igcmg --cccwork)/CliMAF/climaf_V1.2.13_post
   my_append -bp PYTHONPATH ${CLIMAF}
   my_append -bp PYTHONPATH ${cesmep_modules}
   my_append -bp PATH ${CLIMAF}
