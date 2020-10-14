@@ -104,9 +104,9 @@ fi
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc" ]] ; then
   unset PYTHONPATH
   module load climaf
-  #module switch climaf/1.2.13-phw
-  module switch climaf/2.0.0
-  working_conda=/modfs/modtools-phw/miniconda2/envs/analyse_env_2.7
+  module switch climaf/1.2.13_post
+  #module switch climaf/2.0.0
+  working_conda=/modfs/modtools/miniconda2/envs/analyse_env_2.7
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False

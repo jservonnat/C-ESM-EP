@@ -8,7 +8,7 @@ from climaf.html import *
 from climaf import cachedir
 from CM_atlas import *
 from env.site_settings import onCiclad, atTGCC, atCNRM
-from climaf.utils import Climaf_Error
+#from climaf.utils import Climaf_Error
 from getpass import getuser
 from climaf import __path__ as cpath
 import json
