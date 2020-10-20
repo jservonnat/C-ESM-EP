@@ -84,7 +84,7 @@ domain = dict()
 # --   - domain
 # --   - and various plot parameters taken as argument by plot() (CliMAF operator)
 # ---------------------------------------------------------------------------- >
-atlas_explorer_variables = [dict(variable='tas',
+atlas_explorer_variables = [dict(variable='tas', table='Amon',
                                  project_specs=dict(
                                      IGCM_OUT=dict(DIR='ATM'),
                                  )),
