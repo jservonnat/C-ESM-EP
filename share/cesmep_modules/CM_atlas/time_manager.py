@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+#from __future__ import unicode_literals, print_function, absolute_import, division
+
+
 from climaf.api import *
 import os
 import copy
@@ -41,7 +48,7 @@ def period_for_diag_manager(DAT_DICT, diag=''):
             wdat_dict.update(dict(ts_period=wdat_dict[diag + '_ts_period']))
         return wdat_dict
 
-    print ''
+    print('')
     if isinstance(DAT_DICT, dict):
         return period_update_dict(dat_dict, diag)
     if isinstance(DAT_DICT, list):
@@ -93,7 +100,7 @@ def frequency_manager_for_diag(model, diag='TS'):
                         model.update({'frequency': 'seasonal'})
                     else:
                         model.update(dict(period=model['clim_period']))
-    print "model in frequency_manager = ", model
+    print("model in frequency_manager = ", model)
     return ''
 
 
@@ -119,7 +126,7 @@ def get_period_manager(dat_dict, diag=None):
             period = dat_dict['period']
         else:
             period = 'No period provided and diag=None'
-            print period, 'in', dat_dict
+            print(period, 'in', dat_dict)
     #
     # - 2. diag = 'clim'
     if diag == 'clim':
@@ -151,9 +158,9 @@ def get_period_manager(dat_dict, diag=None):
                     period = dat_dict['period']
                 else:
                     period = 'No period nor ts_period provided'
-                    print period, 'in ', dat_dict
+                    print(period, 'in ', dat_dict)
     #
-    print 'dat_dict before .resolve ', dat_dict
+    print('dat_dict before .resolve ', dat_dict)
     # -- request for all the files
     req_dict = dat_dict.copy()
     #
@@ -170,12 +177,12 @@ def get_period_manager(dat_dict, diag=None):
             # -- Use ds.explore method to find the available period
             try:
                 req = ds(**req_dict).explore('resolve')
-                print 'req.kvp = ', req.kvp
+                print('req.kvp = ', req.kvp)
                 dat_dict['period'] = str(req.kvp['period'])
             except:
-                print 'Error in get_period_manager => No File found for ', req_dict
+                print('Error in get_period_manager => No File found for ', req_dict)
                 if tested_variable != req_dict['variable']:
-                    print 'Initially you asked for variable ', tested_variable
+                    print('Initially you asked for variable ', tested_variable)
         else:
             dat_dict.update(dict(period=period))
     if clim_period and dat_dict['frequency'] in ['annual_cycle', 'seasonal']:
@@ -218,8 +225,8 @@ def find_common_period(models, common_period_variable, common_clim_period):
                     wperiod = wmodel['period']
                 if model['frequency'] == 'seasonal':
                     wperiod = wmodel['clim_period']
-                print wmodel
-                print wperiod
+                print(wmodel)
+                print(wperiod)
                 last_available_periods.append(wperiod)
                 startyear_last_available_periods.append(int(wperiod[0:4]))
     #
@@ -232,9 +239,9 @@ def find_common_period(models, common_period_variable, common_clim_period):
         if 'clim_period' in model:
             if model['clim_period'] == 'common_clim_period':
                 model.update(dict(clim_period=last_available_period))
-        print '--> Updated model with common period found accross all simulations:'
-        print model
+        print('--> Updated model with common period found accross all simulations:')
+        print(model)
     #
-    print '==> Model with earliest last available clim_period = ' + common_period_models[
-        startyear_last_available_periods.index(sorted_periods[0])]
+    print('==> Model with earliest last available clim_period = ' + common_period_models[
+        startyear_last_available_periods.index(sorted_periods[0])])
     return models

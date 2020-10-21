@@ -1,5 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # Defining locations and rendering for C-ESM-EP atlas 
 # SS - August 2018
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
 
 import getpass
 import os

@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+
 custom_obs_dict = {
         #'NO3':dict(project='ref_climatos', product='WOA09', frequency='yr'),
         #'Si' :dict(project='ref_climatos', product='WOA09', frequency='yr'),

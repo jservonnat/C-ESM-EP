@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 from climaf.api import *
 from CM_atlas.plot_CM_atlas import *
 from CM_atlas.time_manager import *
@@ -31,11 +37,11 @@ def plot_curl(tauu_variable, tauv_variable, curl_variable, dat, season, proj='GL
     # -- Apply the frequency and time manager (IGCM_OUT)
     wdat = get_period_manager(wdat, diag='clim')
     wdat.pop('variable')
-    print wdat
+    print(wdat)
     # -- Get the dataset
     if wdat['frequency'] in ['yearly', '1Y'] and season not in ['ANM']:
-        print ' !!! -> Cannot compute seasonal average on yearly data for wdat = ', wdat
-        print ' ==> Try with frequency=monthly '
+        print(' !!! -> Cannot compute seasonal average on yearly data for wdat = ', wdat)
+        print(' ==> Try with frequency=monthly ')
         wdat.update({'frequency': 'monthly'})
     tauu_dat = ds(variable=tauu_variable, **wdat)
     tauv_dat = ds(variable=tauv_variable, **wdat)
@@ -48,16 +54,16 @@ def plot_curl(tauu_variable, tauv_variable, curl_variable, dat, season, proj='GL
     if 'mesh_hgr' in wdat:
         mesh_hgr = wdat['mesh_hgr']
     elif 'mesh_mask' in wdat:
-        print ' --> mesh_hgr not found in wdat; trying mesh_mask '
+        print(' --> mesh_hgr not found in wdat; trying mesh_mask ')
         mesh_hgr = wdat['mesh_mask']
     elif 'grid' in wdat:
-        print ' --> mesh_mask not found in wdat; trying grid '
+        print(' --> mesh_mask not found in wdat; trying grid ')
         mesh_hgr = wdat['grid']
     elif 'gridfile' in wdat:
-        print ' --> grid not found in wdat; trying gridfile '
+        print(' --> grid not found in wdat; trying gridfile ')
         mesh_hgr = wdat['gridfile']
     else:
-        print ' !!! No file found in wdat that can be provided to ccdfcurl as mesh_hgr : ', wdat
+        print(' !!! No file found in wdat that can be provided to ccdfcurl as mesh_hgr : ', wdat)
     climato_curl = ccdo(ccdfcurl(climato_tauu, climato_tauv, mesh_hgr=mesh_hgr), operator='setvrange,-1000,1000')
     #
     # -- Get the period for display in the plot: we build a tmp_period string
@@ -143,7 +149,7 @@ def plot_sic_climato_with_ref(variable, model, ref, season, proj, add_product_in
     if wmodel['frequency'] in ['yearly', '1Y']:
         wmodel.update(dict(frequency='monthly'))
     # -- Apply the frequency and time manager (IGCM_OUT)
-    print 'wmodel in plot_sic_climato_with_ref = ', wmodel
+    print('wmodel in plot_sic_climato_with_ref = ', wmodel)
     wmodel = get_period_manager(wmodel, diag='clim')
     wref = get_period_manager(wref, diag='clim')
     # -- Get the datasets
@@ -249,7 +255,7 @@ def plot_SIV(models, pole, safe_mode=True, do_cfile=True, maxvalNH=4 * 1e4, maxv
                 cfile(scyc_siv)
                 siv_ens_dict.update({name_in_plot: scyc_siv})
             except:
-                print 'No data to compute SIV for ', model
+                print('No data to compute SIV for ', model)
         else:
             cfile(scyc_siv)
             siv_ens_dict.update({name_in_plot: scyc_siv})
@@ -257,7 +263,7 @@ def plot_SIV(models, pole, safe_mode=True, do_cfile=True, maxvalNH=4 * 1e4, maxv
     #
     # -- We check if we have found the data to compute SIV for at least one model
     if not siv_ens_dict:
-        print 'No data for any model to compute SIV'
+        print('No data for any model to compute SIV')
         return ''
     else:
         # -- Build the climaf ensembles
@@ -278,7 +284,7 @@ def plot_SIV(models, pole, safe_mode=True, do_cfile=True, maxvalNH=4 * 1e4, maxv
                        'xyLineThicknessF=12|' + \
                        'tiYAxisString=Sea Ice Volume|' + \
                        'gsnStringFontHeightF=0.017'
-        print 'Plot the Sea Ice Volume for ', models
+        print('Plot the Sea Ice Volume for ', models)
         # -- And then, do the plots with 'curves'
         if pole == 'NH':
             title = 'Sea Ice Volume Northern Hemisphere'

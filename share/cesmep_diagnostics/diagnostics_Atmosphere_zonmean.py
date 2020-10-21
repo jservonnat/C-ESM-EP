@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------------------------------ #
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
 # --                                                                                                     - \
@@ -48,14 +55,14 @@ index = header(atlas_head_title, style_file=style_file)
 
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the maps of the Atlas Explorer                                            -- #
-print '--------------------------------------'
-print '-- Running Atlas Explorer           --'
-print '-- atlas_explorer_variables =       --'
+print('--------------------------------------')
+print('-- Running Atlas Explorer           --')
+print('-- atlas_explorer_variables =       --')
 if 'atmos_variables' in locals():
     atlas_explorer_variables = atmos_variables
-    print '-- (from atmos_variables in params) --'
-print '-> ', atlas_explorer_variables
-print '--                                  --'
+    print('-- (from atmos_variables in params) --')
+print('-> ', atlas_explorer_variables)
+print('--                                  --')
 
 
 # -- Period Manager

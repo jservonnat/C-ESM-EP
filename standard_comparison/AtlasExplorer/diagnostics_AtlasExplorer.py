@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
 # --                                                                                                     - \
@@ -30,6 +32,9 @@
 # --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
 
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 
 # ----------------------------------------------
 # --                                             \
@@ -52,11 +57,11 @@ index = header(atlas_head_title, style_file=style_file)
 
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the maps of the Atlas Explorer                                            -- #
-print '---------------------------------'
-print '-- Running Atlas Explorer      --'
-print '-- atlas_explorer_variables =  --'
-print '-> ', atlas_explorer_variables
-print '--                             --'
+print('---------------------------------')
+print('-- Running Atlas Explorer      --')
+print('-- atlas_explorer_variables =  --')
+print('-> ', atlas_explorer_variables    )
+print('--                             --')
 # -- Period Manager
 if not use_available_period_set:
     Wmodels = period_for_diag_manager(models, diag='atlas_explorer')

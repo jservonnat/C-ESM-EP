@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 from climaf.api import *
 from CM_atlas.plot_CM_atlas import *
 
@@ -36,8 +42,8 @@ def ref_ensemble_GB2015(var):
                              'DFS4.3', 'DASILVA', 'HOAPS3', 'ERAInterim']
     #
     ens_products = sorted(list(set(list_of_ref_files) & set(available_products)))
-    print 'list_of_ref_files => ', list_of_ref_files
-    print 'ens_products => ', ens_products
+    print('list_of_ref_files => ', list_of_ref_files)
+    print('ens_products => ', ens_products)
     #
     # -- Get the ensemble of products on project ref_climatos
     ens = eds(project='ref_climatos', product=ens_products, variable=var)
@@ -71,8 +77,8 @@ def stat_ref_ensemble_GB2015(var, climatology='annual_cycle', statistic='mean', 
     #    if get_product(f) in list_of_ref_files: 
     #        ens_products.append(get_product(f))
     ens_products = sorted(list(set(list_of_ref_files) & set(available_products)))
-    print 'list_of_ref_files => ', list_of_ref_files
-    print 'ens_products => ', ens_products
+    print('list_of_ref_files => ', list_of_ref_files)
+    print('ens_products => ', ens_products)
     #
     # -- Get the ensemble of products on project ref_climatos
     ens = eds(project='ref_climatos', product=ens_products, variable=var)
@@ -99,14 +105,14 @@ def plot_bias_TurbFlux_vs_GB2015(variable, dat, climatology='ANM', region='Tropi
                                  custom_plot_params={}, do_cfile=True, safe_mode=True, **kwargs):
     #
     # -- Add the variable and get the dataset
-    print 'function -- dat = ', dat
+    print('function -- dat = ', dat)
     wdat = dat.copy()
     wdat.update(dict(variable=variable))
-    print wdat
+    print(wdat)
     # -- Apply the frequency and time manager (IGCM_OUT)
     wdat = get_period_manager(wdat, diag='clim')
     ds_dat = ds(**wdat)
-    print 'ds_dat', ds_dat
+    print('ds_dat', ds_dat)
     #
     var = variable
     #
@@ -197,12 +203,12 @@ def plot_climato_TurbFlux_GB2015(variable, dat, climatology='ANM', region='Tropi
         # -- Add the variable and get the dataset
         wdat = dat.copy()
         wdat.update(dict(variable=variable))
-        print wdat
+        print(wdat)
         # -- Apply the frequency and time manager (IGCM_OUT)
         wdat = get_period_manager(wdat, diag='clim')
-        print '====> wdat = ', wdat
+        print('====> wdat = ', wdat)
         ds_dat = ds(**wdat)
-        print 'ds_dat', ds_dat
+        print('ds_dat', ds_dat)
         # -- Get the period for display in the plot: we build a tmp_period string
         # -- Check whether the period is described by clim_period, years or period (default)
         # -- and make a string with it

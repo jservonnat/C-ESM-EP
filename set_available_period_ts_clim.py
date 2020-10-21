@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------------------------------
 # -- set_period.py is used to speed up the execution of the C-ESM-EP.
 # -- A time consuming operation is the period_manager, that checks the available periods for
@@ -15,6 +17,11 @@
 # -- Author: Jerome Servonnat, LSCE-CEA
 # -- Contact: jerome.servonnat at lsce.ipsl.fr
 # -----------------------------------------------------------------------------------------------------
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
+
 from CM_atlas import *
 from datetime import datetime
 

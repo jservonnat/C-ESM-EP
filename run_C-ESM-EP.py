@@ -1,4 +1,5 @@
-#!/bin/python
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------------------------------------------------
 # -- This script run_C-ESM-EP.py runs the C-ESM-EP and builds the C-ESM-EP html frontpage for the comparison.
 # -- It will:
@@ -29,32 +30,47 @@
 # --
 # -------------------------------------------------------------------------------------------------------------------- #
 
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 # -- Import python modules ----------------------------------------------------------------
 import os
 import sys
 import getpass
 import re
-from urllib import urlopen
+#from urllib2 import urlopen
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
 
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
 # email = "gaelle.rigoudy@meteo.fr"
-email = "jerome.servonnat@lsce.ipsl.fr"
-# email = None
+# email = "jerome.servonnat@lsce.ipsl.fr"
+email = None
 
 # -- 0/ Identify where we are...
 # -----------------------------------------------------------------------------------------
 
+# -- Where are we?
+if os.path.exists('/ccc') and not os.path.exists('/data'):
+    atTGCC = True
+
+if 'ciclad' in os.uname()[1].strip().lower():
+    onCiclad = True
+
+if os.path.exists('/cnrm'):
+    atCNRM = True
+
+# Case atCerfacs
+if os.path.exists('/data/scratch/globc'):
+    atCerfacs = True
+
+
 # -- Working directory
 main_cesmep_path = os.getcwd()
 # Special case at CNRM for directory /cnrm, which is a link 
-atCNRM = os.path.exists('/cnrm')
 if atCNRM:
     main_cesmep_path = re.sub('^/mnt/nfs/d[0-9]*/', '/cnrm/', main_cesmep_path)
-# Case atCerfacs
-atCerfacs = os.path.exists('/data/scratch/globc')
 
 # -- Get user name
 username = getpass.getuser()
@@ -112,7 +128,7 @@ metrics_components = ['ParallelCoordinates_Atmosphere', 'Seasonal_one_variable_p
 # -- Get the arguments passed to the script
 # --> If we do not specify the component(s), run all available components
 if len(args) == 1:
-    print 'Provide the name of a comparison setup as argument of the script'
+    print('Provide the name of a comparison setup as argument of the script')
 else:
     comparison = args[1].replace('/', '')
     argument = 'None'
@@ -142,8 +158,12 @@ else:
 template = 'share/fp_template/C-ESM-EP_template.html'
 
 # -> First, we read the template of the html file in share/fp_template
-url = template
-html = urlopen(template).read()
+#html = urlopen(template).read()
+
+if argument.lower() not in ['url']:
+   do_print = True
+else:
+   do_print = False
 
 # -- Get the subdirectories available in the comparison directory
 # --> we will extract the available components from this list
@@ -159,7 +179,8 @@ for component in allcomponents:
             available_components.append(component)
         else:
             # pass
-            print "Skipping component", component, "which dir is not readable"
+            if do_print:
+                print("Skipping component", component, "which dir is not readable")
 # -> Then, we check whether there are some components not listed in allcomponents;
 # if yes, they will be added at the end of the list
 for subdir in subdirs:
@@ -189,9 +210,10 @@ for component in available_components:
         with open(params_filename, 'r') as content_file_params:
             content_params = content_file_params.read()
     except:
-        print "Skipping component ", component, " which diagnostic file is not readable"
-        available_components.remove(component)
-        continue
+        if do_print:
+            print("Skipping component ", component, " which diagnostic file is not readable")
+            available_components.remove(component)
+            continue
     #content.splitlines()
     module_title = None
     for tmpline in content_diag.splitlines()+content_params.splitlines():
@@ -208,7 +230,8 @@ for component in available_components:
     cesmep_modules.append([component, name_in_html])
 
 # -> Adding the links to the html lines
-new_html_lines = html.splitlines()
+#new_html_lines = html.splitlines()
+new_html_lines = open(template).readlines()
 for cesmep_module in cesmep_modules:
     newline = '<li><a href="%%target_' + cesmep_module[0] + '%%" target="_blank">' + cesmep_module[1] + '</a></li>'
     new_html_lines.append(newline)
@@ -265,28 +288,19 @@ comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
 frontpage_address = comparison_url + frontpage_html
 
 
-if os.path.exists('/ccc') and not os.path.exists('/data'):
-    atTGCC = True
+if atTGCC:
     # -- outworkdir = path to the work equivalent of the scratch
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace('scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
 
-if 'ciclad' in os.uname()[1].strip().lower():
-    onCiclad = True
-
-if os.path.exists('/cnrm'):
-    atCNRM = True
-    from locations import climaf_cache
-
-# Case atCerfacs
-if os.path.exists('/data/scratch/globc'):
-    atCerfacs = True
+if atCNRM or atCerfacs:
     from locations import climaf_cache
 
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
     os.makedirs(path_to_comparison_on_web_server)
+
 
 # -- 3/ Submit the jobs (one per requested component)
 # -----------------------------------------------------------------------------------------
@@ -333,7 +347,8 @@ if argument.lower() not in ['url']:
 
 # -- Submit the jobs
 for component in job_components:
-    print '  -- component = ', component
+    if do_print:
+        print('  -- component = ', component)
     # -- Define where the directory where the job is submitted
     submitdir = main_cesmep_path + '/' + comparison + '/' + component
     #
@@ -346,20 +361,22 @@ for component in job_components:
     param_lines = []
     if os.path.isfile(submitdir + '/params_' + component + '.py'):
         param_filename = open(submitdir + '/params_' + component + '.py')
-        print 'param file = ', submitdir + '/params_' + component + '.py'
+        if do_print:
+            print('param file = ', submitdir + '/params_' + component + '.py')
         param_lines = param_filename.readlines()
     #
     diag_filename = submitdir + '/diagnostics_' + component + '.py'
     if not os.path.isfile(diag_filename):
         diag_filename = main_cesmep_path + '/share/cesmep_diagnostics/diagnostics_' + component + '.py'
-    print 'diag_file = ', diag_filename
+    if do_print:
+        print('diag_file = ', diag_filename)
     diag_file = open(diag_filename)
     diag_lines = diag_file.readlines()
     param_lines = param_lines + diag_lines
     for param_line in param_lines:
         if 'do_parallel' in param_line and param_line[0] != '#':
-            if 'True' in param_line:
-                print 'param_line =', param_line
+            if 'True' in param_line and do_print:
+                print('param_line =', param_line)
                 do_parallel = True
         if 'nprocs' in param_line and param_line[0] != '#':
             nprocs = param_line.replace(' ', '').split('=')[1].split('#')[0]
@@ -407,7 +424,8 @@ for component in job_components:
             queue = 'h12'
         # -- add it to job_options
         job_options += ' -q ' + queue.replace('\n', '')
-        print '    -> queue = ' + queue
+        if do_print:
+            print('    -> queue = ' + queue)
         #
         # -- Specify the job script (only for Parallel coordinates)
         if component not in metrics_components:
@@ -429,7 +447,8 @@ for component in job_components:
             memory_instructions = ' -l mem=' + memory + 'gb -l vmem=' + vmemory + 'gb'
             # -- add it to job_options
             job_options += memory_instructions
-            print '    -> Memory (mem) = ' + memory + ' ; Virtual Memory (vmem) = ' + vmemory
+            if do_print:
+                print('    -> Memory (mem) = ' + memory + ' ; Virtual Memory (vmem) = ' + vmemory)
         #
         # -- If the user specified do_parallel=True in parameter file, we ask for one node and 32 cores
         if do_parallel:
@@ -437,7 +456,8 @@ for component in job_components:
             parallel_instructions = ' -l nodes=1:ppn=' + nprocs
             # -- add it to job_options
             job_options += parallel_instructions
-            print '    -> Parallel execution: nprocs = ' + nprocs
+            if do_print:
+                print('    -> Parallel execution: nprocs = ' + nprocs)
         #
         # -- Build the job command line
         cmd = 'cd ' + submitdir + ' ; jobID=$(qsub ' + job_options + ' -j eo -v component=' + component + ',comparison='\
@@ -486,26 +506,26 @@ for component in job_components:
             job_script = 'job_C-ESM-EP.sh'
             #job_script = 'job_PMP_C-ESM-EP.sh'
         #
-        print component
-        print comparison
-        cmd = 'cd ' + submitdir + ' ; export comparison=' + comparison + \
-              ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address + ';' + \
-              'sbatch --job-name=CESMEP --partition=prod --output=cesmep.o --error=cesmep.e -w gsa4 ../'+job_script              
-    print(cmd)
+        if do_print:
+            print(component)
+            print(comparison)
+            cmd = 'cd ' + submitdir + ' ; export comparison=' + comparison + \
+                  ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address + ';' + \
+                  'sbatch --job-name=CESMEP --partition=prod --output=cesmep.o --error=cesmep.e -w gsa4 ../'+job_script              
+            print(cmd)
 
     #
     # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the
     # frontpage
     # -- Otherwise it submits the jobs
     # ------------------------------------------------------------------------------------------------------------------
-    if argument.lower() not in ['url']:
+    if do_print:
         os.system(cmd)
         jobfile = comparison + "/" + component + "/job.in"
         with open(jobfile, "w") as job:
             job.write(cmd)
-        print "-- See job in ", jobfile
-        print
-
+        print("-- See job in ", jobfile)
+#
 # -- 4/ Create the C-ESM-EP html front page for 'comparison' from the template
 # -----------------------------------------------------------------------------------------
 
@@ -524,7 +544,7 @@ pysed(frontpage_html, 'target_comparison', comparison)
 # -- Copy the edited html front page
 if atTGCC:
     cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
-    print cmd1
+    print(cmd1)
     os.system(cmd1)
     cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
           + ' ; rm ' + frontpage_html
@@ -546,11 +566,11 @@ if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
 # -- Final: Print the final message with the address of the C-ESM-EP front page
 # -----------------------------------------------------------------------------------------
 
-print ''
-print '-- The CliMAF ESM Evaluation Platform atlas is available here: '
-print '--'
-print '--   ' + frontpage_address
-print '--'
-print '--'
-print '-- The html file is here: '
-print '-- ' + path_to_comparison_on_web_server + frontpage_html
+print('')
+print('-- The CliMAF ESM Evaluation Platform atlas is available here: ')
+print('--')
+print('--   ' + frontpage_address)
+print('--')
+print('--')
+print('-- The html file is here: ')
+print('-- ' + path_to_comparison_on_web_server + frontpage_html)

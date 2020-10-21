@@ -93,7 +93,6 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
   export UVCDAT_ANONYMOUS_LOG=False
   export CLIMAF=$(ccc_home -u igcmg --cccwork)/CliMAF/climaf_V1.2.13_post
   my_append -bp PYTHONPATH ${CLIMAF}
-  my_append -bp PYTHONPATH ${cesmep_modules}
   my_append -bp PATH ${CLIMAF}
   # # -- CDFTools
   export CLIMAF_CACHE=${SCRATCHDIR}/cache_atlas_explorer
@@ -105,22 +104,26 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
 fi
 
 # --> On Ciclad
-if [[ -d "/data" && -d "/prodigfs/ipslfs/dods" && ! -d "/scratch/globc" ]] ; then
+if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc" ]] ; then
   unset PYTHONPATH
   module load climaf
-  module switch climaf/1.2.13
-  working_conda=/prodigfs/ipslfs/dods/jservon/miniconda/envs/analyse_env_2.7
+  #module switch climaf/1.2.13-phw
+  module switch climaf/2.0.0-python3.6
+  working_conda=/modfs/modtools/miniconda3/envs/analyse_3.6_test
   LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
   export HDF5_DISABLE_VERSION_CHECK=1
   export UVCDAT_ANONYMOUS_LOG=False
   my_append -bp PYTHONPATH ${CLIMAF}
   my_append -bp PYTHONPATH ${cesmep_modules}
+  my_append -bp PYTHONPATH ${cesmep_modules}/CM_atlas
+  my_append -bp PYTHONPATH ${cesmep_modules}/NEMO_atlas_v2
+  my_append -bp PYTHONPATH ${cesmep_modules}/reference
+  my_append -bp PYTHONPATH ${cesmep_modules}/PMP_MG
   my_append -bp PATH ${CLIMAF}
-  export CLIMAF_CACHE=/prodigfs/ipslfs/dods/${USER}/atlas_explorer
+  export CLIMAF_CACHE=/thredds/ipsl/${USER}/atlas_explorer
   # -- CDFTools
   my_append -bp PATH /home/lvignon/bin
   my_append -bp PATH ${CLIMAF}/bin
-  #export PATH=/prodigfs/ipslfs/dods/jservon/miniconda/envs/cesmep_env/bin:/home/igcmg/atlas:/home/igcmg/fast:/opt/scilab-5.4.1/bin:/usr/lib64/qt-3.3/bin:/opt/pgi-2013/linux86-64/2013/bin:/opt/matlab-2013b:/opt/matlab-2013b/bin:/opt/intel/composer_xe_2011_sp1.9.293/bin/intel64:/opt/g95-stable-0.92/bin:/opt/ferret-6.7.2/fast:/opt/ferret-6.7.2/bin:/opt/cdfTools-3.0:/opt/canopy-1.3.0/Canopy_64bit/User/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/opt/idl8/idl/bin:/opt/intel/composer_xe_2011_sp1.9.293/mpirt/bin/intel64:/opt/ncl-6.1.2/bin:/home/lvignon/bin:/home/jservon/bin:/opt/idl8/idl/bin:/opt/intel/composer_xe_2011_sp1.9.293/mpirt/bin/intel64:/opt/ncl-6.1.2/bin:/home/lvignon/bin:/home/jservon/bin
   echo "PATH ${PATH}"
 fi
 

@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+#from __future__ import unicode_literals, print_function, absolute_import, division
+from __future__ import unicode_literals, print_function, division
+
+
 from CM_atlas import *
 from time_manager import *
 
@@ -40,7 +48,7 @@ def ENSO_ts_ssta(dat_dict, do_cfile=True, safe_mode=True, custom_plot_params={})
     #
     # -- Get the period
     tmp_period = build_period_str(wdat_dict).replace('-', '').replace('-', '')
-    print "tmp_period = ", tmp_period
+    print("tmp_period = ", tmp_period)
     #
     # -- Title
     title = build_plot_title(wdat_dict, None)
@@ -200,9 +208,9 @@ def ENSO_linreg_tauuA_on_SSTANino3(tauu_dat_dict, tos_dat_dict, do_cfile=True, s
     # -- Tau U anomalies model
     # -- Apply the frequency and time manager (IGCM_OUT)
     wtauu_dat_dict = tauu_dat_dict.copy()
-    print 'wtauu_dat_dict before get_period_manager = ', wtauu_dat_dict
+    print('wtauu_dat_dict before get_period_manager = ', wtauu_dat_dict)
     wtauu_dat_dict = get_period_manager(wtauu_dat_dict, diag='ts')
-    print 'wtauu_dat_dict after get_period_manager = ', wtauu_dat_dict
+    print('wtauu_dat_dict after get_period_manager = ', wtauu_dat_dict)
     #
     # -- SSTA Nino3
     # -- Apply the frequency and time manager (IGCM_OUT)
@@ -212,18 +220,18 @@ def ENSO_linreg_tauuA_on_SSTANino3(tauu_dat_dict, tos_dat_dict, do_cfile=True, s
     # -- Find a common period to tos and rsds
     tauu_period = wtauu_dat_dict['period']
     tos_period = wtos_dat_dict['period']
-    print 'tauu_period ', tauu_period
-    print 'tos_period ', tos_period
-    print 'type(tauu_period)', type(tauu_period)
-    print 'type(tos_period)', type(tos_period)
+    print('tauu_period ', tauu_period)
+    print('tos_period ', tos_period)
+    print('type(tauu_period)', type(tauu_period))
+    print('type(tos_period)', type(tos_period))
     tauu_tos_common_period = find_common_period(tauu_period, tos_period)
     wtauu_dat_dict.update(dict(period=tauu_tos_common_period))
     wtos_dat_dict.update(dict(period=tauu_tos_common_period))
     #
     # -- SSTA Nino3
-    print 'nino3 = ', nino3
-    print 'wtauu_dat_dict = ', wtauu_dat_dict
-    print 'wtos_dat_dict = ', wtos_dat_dict
+    print('nino3 = ', nino3)
+    print('wtauu_dat_dict = ', wtauu_dat_dict)
+    print('wtos_dat_dict = ', wtos_dat_dict)
     SST_nino3 = space_average(ds(domain=nino3, **wtos_dat_dict).explore('resolve'))
     scyc_SST_nino3 = annual_cycle(SST_nino3)
     SSTA_nino3 = minus(SST_nino3, scyc_SST_nino3)
@@ -263,9 +271,9 @@ def ENSO_linreg_tauuA_on_SSTANino3(tauu_dat_dict, tos_dat_dict, do_cfile=True, s
 def find_common_period(period1, period2):
     '''Returns the period covered both by period1 and period2'''
     if str(period1) == 'fx' or str(period2) == 'fx':
-        print '--'
-        print 'Warning in find_common_period => cant work on fx period'
-        print '--'
+        print('--')
+        print('Warning in find_common_period => cant work on fx period')
+        print('--')
         common_period = 'fx'
     else:
         sep_period1 = ('-' if '-' in period1 else '_')
@@ -299,8 +307,8 @@ def ENSO_linreg_rsds_on_SSTANino3(rsds_dat_dict, tos_dat_dict, do_cfile=True, sa
     # -- Find a common period to tos and rsds
     rsds_period = wrsds_dat_dict['period']
     tos_period = wtos_dat_dict['period']
-    print 'rsds_period ', rsds_period
-    print 'tos_period ', tos_period
+    print('rsds_period ', rsds_period)
+    print('tos_period ', tos_period)
     rsds_tos_common_period = find_common_period(rsds_period, tos_period)
     wrsds_dat_dict.update(dict(period=rsds_tos_common_period))
     wtos_dat_dict.update(dict(period=rsds_tos_common_period))
@@ -374,7 +382,7 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
             scyc_STD_ens_dict.update(dict(REF=STDscyc_SSTA_nino3_ref))
             names_in_plot.append('REF')
         except:
-            print 'No data to compute the SST annual cycles for reference ', ref
+            print('No data to compute the SST annual cycles for reference ', ref)
     else:
         scyc_SST_ens_dict.update(dict(REF=scyc_SST_nino3_ref))
         scyc_SSTA_ens_dict.update(dict(REF=scyc_SSTA_nino3_ref))
@@ -400,8 +408,8 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
         SSTA_nino3 = minus(SST_nino3, scyc_SST_nino3)
         if safe_mode:
             try:
-                print 'time_average(scyc_SST_nino3) ', time_average(scyc_SST_nino3)
-                print 'cMA(time_average(scyc_SST_nino3)) = ', cMA(time_average(scyc_SST_nino3))
+                print('time_average(scyc_SST_nino3) ', time_average(scyc_SST_nino3))
+                print('cMA(time_average(scyc_SST_nino3)) = ', cMA(time_average(scyc_SST_nino3)))
                 scyc_SSTA_nino3 = ccdo(scyc_SST_nino3,
                                        operator='subc,' + str(cMA(time_average(scyc_SST_nino3))[0][0][0]))
                 STDscyc_SSTA_nino3 = ccdo(SSTA_nino3, operator='ymonstd')
@@ -411,7 +419,7 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
                 scyc_STD_ens_dict.update({name_in_plot: STDscyc_SSTA_nino3})
                 names_in_plot.append(name_in_plot)
             except:
-                print 'No data to compute the SST annual cycles for model ', model
+                print('No data to compute the SST annual cycles for model ', model)
         else:
             scyc_SSTA_nino3 = ccdo(scyc_SST_nino3, operator='subc,' + str(cMA(time_average(scyc_SST_nino3))[0][0][0]))
             STDscyc_SSTA_nino3 = ccdo(SSTA_nino3, operator='ymonstd')
@@ -426,8 +434,8 @@ def plot_ENSO_annual_cycles(models, ref='default', do_cfile=True, safe_mode=True
     scyc_SSTA_ens = cens(scyc_SSTA_ens_dict)
     scyc_STD_ens = cens(scyc_STD_ens_dict)
     #
-    print 'names_in_plot = ', names_in_plot
-    print 'scyc_SST_ens.keys() = ', scyc_SST_ens.keys()
+    print('names_in_plot = ', names_in_plot)
+    print('scyc_SST_ens.keys() = ', scyc_SST_ens.keys())
     # -- Set the order
     scyc_SST_ens.set_order(names_in_plot)
     scyc_SSTA_ens.set_order(names_in_plot)
@@ -495,10 +503,8 @@ def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_
         # -- Apply the frequency and time manager (IGCM_OUT)
         wmodel.update(dict(variable='tauu'))
         wmodel = get_period_manager(wmodel, diag='clim')
-        print 'ENSO wmodel = ', wmodel
+        print('ENSO wmodel = ', wmodel)
         taux_model = regrid(clim_average(ds(domain=[-5, 5, 120, 290], **wmodel).explore('resolve'), 'ANM'), taux_ref)
-        print " ds(domain=[-5,5,120,290], **wmodel).explore('resolve').kvp = ", ds(domain=[-5, 5, 120, 290],
-                                                                                   **wmodel).explore('resolve').kvp
         # -- Compute the meridional mean
         mermean_taux_model = ccdo(taux_model, operator='mermean')
         # -- Update the dictionary ens_dict
@@ -512,7 +518,7 @@ def plot_ZonalWindStress_long_profile(models, ref='default', safe_mode=True, do_
                 names_in_plot.append(name_in_plot)
                 ens_dict.update({name_in_plot: mermean_taux_model})
             except:
-                print 'No data to compute the Zonal Wind Stress Equatorial prodile for ', wmodel
+                print('No data to compute the Zonal Wind Stress Equatorial prodile for ', wmodel)
         else:
             cfile(mermean_taux_model)
             if 'customname' in wmodel:

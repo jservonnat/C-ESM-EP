@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+#from __future__ import unicode_literals, print_function, absolute_import, division
+from __future__ import unicode_literals, print_function, division
+
 from plot_NEMO_CERFACS import *
 from plot_NEMO_atlas import *
 from CM_atlas import *

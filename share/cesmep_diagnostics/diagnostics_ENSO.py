@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------------------------------ #
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
 # --                                                                                                     - \
@@ -49,20 +56,20 @@ index = header(atlas_head_title, style_file=style_file)
 # ---------------------------------------------------------------------------------------- #
 # -- ENSO - CLIVAR diagnostics                                                          -- #
 if do_ENSO_CLIVAR:
-    print '----------------------------------------------'
-    print '-- ENSO - CLIVAR diagnostics                --'
-    print '-- do_ENSO_CLIVAR = True                    --'
-    print '----------------------------------------------'
+    print('----------------------------------------------')
+    print('-- ENSO - CLIVAR diagnostics                --')
+    print('-- do_ENSO_CLIVAR = True                    --')
+    print('----------------------------------------------')
     # -- Open the section ---------------------------------------------------------------
     index += section("ENSO - CLIVAR diagnostics", level=4)
     #
     # -- Period Manager
     Wmodels = period_for_diag_manager(models, diag='ENSO')
-    print 'Wmodels in ENSO: '
+    print('Wmodels in ENSO: ')
     for wmodel in Wmodels:
-        print wmodel
-    print '--'
-    print '--'
+        print(wmodel)
+    print('--')
+    print('--')
     #
     if do_ENSO_CLIVAR_sstanino3_timeseries:
         # -- Time series of SST anomalies (departures from annual cycle ---------------
@@ -150,7 +157,7 @@ if do_ENSO_CLIVAR:
         # And loop over the models
         WWmodels = copy.deepcopy(Wmodels)
         for model in WWmodels:
-            print 'model in do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps = ', model
+            print('model in do_ENSO_CLIVAR_linearRegression_dtauu_dsstanino3_maps = ', model)
             tos_model = model.copy()
             tos_model.update(variable='tos', table='Omon', grid='gn')
             tauu_model = model.copy()

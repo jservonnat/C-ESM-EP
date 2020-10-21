@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------------------------------ #
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
 # --                                                                                                     - \
@@ -48,11 +55,11 @@ index = header(atlas_head_title, style_file=style_file)
 
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the maps of the Atlas Explorer                                            -- #
-print '---------------------------------'
-print '-- Running Zonal Mean slices   --'
-print '-- zonmean_slices_variables =  --'
-print '-> ', zonmean_slices_variables
-print '--                             --'
+print('---------------------------------')
+print('-- Running Zonal Mean slices   --')
+print('-- zonmean_slices_variables =  --')
+print('-> ', zonmean_slices_variables)
+print('--                             --')
 
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the Zonal Mean Slices                                                     -- #

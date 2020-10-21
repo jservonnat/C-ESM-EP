@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------------------------------ #
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
 # --                                                                                                     - \
@@ -83,12 +90,12 @@ def ts_plot(ens_ts, **kwargs):
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the time series for the IGCMG meetings                                     -- #
 if do_main_time_series:
-    print '---------------------------------'
-    print '-- Processing Main Time Series --'
-    print '-- do_main_time_series = True  --'
-    print '-- time_series_specs =         --'
-    print '-> ', time_series_specs
-    print '--                             --'
+    print('---------------------------------')
+    print('-- Processing Main Time Series --')
+    print('-- do_main_time_series = True  --')
+    print('-- time_series_specs =         --')
+    print('-> ', time_series_specs)
+    print('--                             --')
     #
     # ==> -- Open the section and an html table
     # -----------------------------------------------------------------------------------------
@@ -155,7 +162,7 @@ if do_main_time_series:
         if 'highlight_period' in time_series:
             if time_series['highlight_period'] == 'clim_period':
                 for dataset_dict in WWmodels_clim:
-                    print 'dataset_dict in time_series = ', dataset_dict
+                    print('dataset_dict in time_series = ', dataset_dict)
                     # -- Apply period manager if needed
                     dataset_dict.update(dict(variable=time_series['variable']))
                     dataset_dict = get_period_manager(dataset_dict, diag='clim')
@@ -170,7 +177,7 @@ if do_main_time_series:
             wdataset_dict = get_period_manager(wdataset_dict, diag='ts')
             #
             # -- Get the dataset
-            print 'wdataset_dict in time_series = ', wdataset_dict
+            print('wdataset_dict in time_series = ', wdataset_dict)
             dat = ds(**wdataset_dict)
             #
             # -- select a domain if the user provided one
@@ -225,11 +232,11 @@ if do_main_time_series:
         if highlight_period:
             p.update(dict(highlight_period=highlight_period))
         else:
-            print '==> No highlight period provided => ', highlight_period
+            print('==> No highlight period provided => ', highlight_period)
         # -- Colors
         p.update(dict(colors=colors_manager(WWmodels_ts, cesmep_python_colors)))
-        print 'ens_ts = ', ens_ts
-        print 'p = ', p
+        print('ens_ts = ', ens_ts)
+        print('p = ', p)
         myplot = ts_plot(ens_ts, **p)
         cdrop(myplot)
         #

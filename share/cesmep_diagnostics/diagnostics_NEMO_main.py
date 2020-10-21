@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------------------------------ #
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
 # --                                                                                                     - \
@@ -48,12 +55,12 @@ index = header(atlas_head_title, style_file=style_file)
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the Ocean 2D maps                                                         -- #
 if do_ocean_2D_maps:
-    print '----------------------------------'
-    print '-- Processing Oceanic variables --'
-    print '-- do_ocean_2D_maps = True      --'
-    print '-- ocean_variables =            --'
-    print '-> ', ocean_2D_variables
-    print '--                              --'
+    print('----------------------------------')
+    print('-- Processing Oceanic variables --')
+    print('-- do_ocean_2D_maps = True      --')
+    print('-- ocean_variables =            --')
+    print('-> ', ocean_2D_variables)
+    print('--                              --')
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ocean_2D_maps')
@@ -144,7 +151,7 @@ if do_MLD_maps:
             wmodel.update(dict(table='Omon', grid='gn'))
             if 'frequency_for_annual_cycle' in wmodel:
                 wmodel.update(dict(frequency=wmodel['frequency_for_annual_cycle']))
-            print 'wmodel = '
+            print('wmodel = ')
             MLD_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
                                        safe_mode=safe_mode, regrid_option='remapdis')
             index += cell("", MLD_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
@@ -428,10 +435,10 @@ if do_ATLAS_DRIFT_PROFILES:
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the Sea Ice volume annual cycle of both hemispheres                       -- #
 if do_seaice_annual_cycle:
-    print '--------------------------------------------------'
-    print '-- Computing Sea Ice Volume of both hemispheres --'
-    print '-- do_seaice_annual_cycle = True                --'
-    print '--------------------------------------------------'
+    print('--------------------------------------------------')
+    print('-- Computing Sea Ice Volume of both hemispheres --')
+    print('-- do_seaice_annual_cycle = True                --')
+    print('--------------------------------------------------')
     # -- Open the section and an html table
     index += section("Sea Ice volume - annual cycle", level=4)
     index += open_table()
@@ -462,10 +469,10 @@ if do_seaice_annual_cycle:
 # ---------------------------------------------------------------------------------------- #
 # -- Sea Ice polar stereographic maps (sic and sit)                                     -- #
 if do_seaice_maps:
-    print '----------------------------------------------'
-    print '-- Sea Ice Concentration and Thickness Maps --'
-    print '-- do_seaice_maps = True                    --'
-    print '----------------------------------------------'
+    print('----------------------------------------------')
+    print('-- Sea Ice Concentration and Thickness Maps --')
+    print('-- do_seaice_maps = True                    --')
+    print('----------------------------------------------')
     # -- Open the section and an html table
     index += section("Sea Ice Concentration and Thickness (NH and SH)", level=4)
     #

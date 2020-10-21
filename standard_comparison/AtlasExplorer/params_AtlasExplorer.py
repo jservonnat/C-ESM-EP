@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # ------------------------------------------------------------------------------------------ \
 # --                                                                                        - \
 # --                                                                                         - \
@@ -21,6 +23,9 @@
 # --                                                                                            - /
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
 
 from climaf.api import *
 from custom_plot_params import dict_plot_params as custom_plot_params

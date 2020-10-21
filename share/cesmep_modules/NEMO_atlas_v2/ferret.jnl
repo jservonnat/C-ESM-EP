@@ -1,8 +1,0 @@
- ! NOAA/PMEL TMAP
- ! FERRET v6.9  
- ! Linux 2.6.32-431.23.3.el6.x86_64 64-bit - 08/22/14
- !  7-Nov-19 15:32     
-
-use "/data/jmlod/IPSL_CM5A/historical/BSF.v3.historical1.19800101_20051231.nc"
-sho d
-q

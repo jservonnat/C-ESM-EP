@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 from climaf.api import *
 from climaf.html import *
 from climaf.cache import csync
@@ -23,7 +29,7 @@ def parallel_section(section, **kwargs):
     #
     if len(plots_crs) < num_cores:
         num_cores = len(plots_crs)
-    print 'num_cores = ', num_cores
+    print('num_cores = ', num_cores)
     #
     # -- Execute the plots in parallel
     r = Parallel(n_jobs=num_cores)(delayed(safe_mode_cfile_plot)(climaf_crs) for climaf_crs in plots_crs)

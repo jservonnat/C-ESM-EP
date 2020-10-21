@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# ------------------------------------------------------------------------------------ #
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+from __future__ import unicode_literals, print_function, absolute_import, division
+
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
 # --                                                                                                     - \
@@ -48,12 +55,12 @@ index = header(atlas_head_title, style_file=style_file)
 # ---------------------------------------------------------------------------------------- #
 # -- ORCHIDEE Energy Budget                                                             -- #
 if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Energy Budget Variables                        --'
-    print '-- do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps = True  --'
-    print '-- variables_energy_budget =                                          --'
-    print '-> ', variables_energy_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Energy Budget Variables                        --')
+    print('-- do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps = True  --')
+    print('-- variables_energy_budget =                                          --')
+    print('-> ', variables_energy_budget)
+    print('--                                                                    --')
     wvariables_energy_budget_bias = []
     for tmpvar in variables_energy_budget:
         if isinstance(tmpvar, dict):
@@ -66,7 +73,7 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
             cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
             wvariables_energy_budget_bias.append(tmpvar)
         except:
-            print 'No obs for ', tmpvar
+            print('No obs for ', tmpvar)
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -91,12 +98,12 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps:
 
 
 if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Energy Budget Variables                        --'
-    print '-- do_ORCHIDEE_Energy_Budget_climobs_bias_maps = True                 --'
-    print '-- variables_energy_budget =                                          --'
-    print '-> ', variables_energy_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Energy Budget Variables                        --')
+    print('-- do_ORCHIDEE_Energy_Budget_climobs_bias_maps = True                 --')
+    print('-- variables_energy_budget =                                          --')
+    print('-> ', variables_energy_budget)
+    print('--                                                                    --')
     wvariables_energy_budget_bias = []
     for tmpvar in variables_energy_budget:
         if isinstance(tmpvar, dict):
@@ -109,7 +116,7 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
             cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
             wvariables_energy_budget_bias.append(tmpvar)
         except:
-            print 'No obs for ', tmpvar
+            print('No obs for ', tmpvar)
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -131,12 +138,12 @@ if do_ORCHIDEE_Energy_Budget_climobs_bias_maps:
 
 
 if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Energy Budget Variables                        --'
-    print '-- do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True  --'
-    print '-- variables_energy_budget =                                          --'
-    print '-> ', variables_energy_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Energy Budget Variables                        --')
+    print('-- do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True  --')
+    print('-- variables_energy_budget =                                          --')
+    print('-> ', variables_energy_budget)
+    print('--                                                                    --')
     wvariables_energy_budget_modelmodel = []
     for tmpvar in variables_energy_budget:
         if isinstance(tmpvar, dict):
@@ -171,12 +178,12 @@ if do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps:
 
 
 if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Energy Budget Variables                        --'
-    print '-- do_ORCHIDEE_Energy_Budget_diff_with_ref_maps  = True               --'
-    print '-- variables_energy_budget =                                          --'
-    print '-> ', variables_energy_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Energy Budget Variables                        --')
+    print('-- do_ORCHIDEE_Energy_Budget_diff_with_ref_maps  = True               --')
+    print('-- variables_energy_budget =                                          --')
+    print('-> ', variables_energy_budget)
+    print('--                                                                    --')
     for tmpvar in variables_energy_budget:
         if 'PFT' in tmpvar:
             derive_var_PFT(tmpvar)
@@ -204,12 +211,12 @@ if do_ORCHIDEE_Energy_Budget_diff_with_ref_maps:
 # ---------------------------------------------------------------------------------------- #
 # -- ORCHIDEE Water Budget                                                             -- #
 if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Water Budget Variables                        --'
-    print '-- do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps = True  --'
-    print '-- variables_water_budget =                                          --'
-    print '-> ', variables_water_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Water Budget Variables                        --')
+    print('-- do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps = True  --')
+    print('-- variables_water_budget =                                          --')
+    print('-> ', variables_water_budget)
+    print('--                                                                    --')
     wvariables_water_budget_bias = []
     for tmpvar in variables_water_budget:
         if isinstance(tmpvar, dict):
@@ -222,7 +229,7 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
             cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
             wvariables_water_budget_bias.append(tmpvar)
         except:
-            print 'No obs for ', tmpvar
+            print('No obs for ', tmpvar)
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -247,12 +254,12 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps:
 
 
 if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Water Budget Variables                        --'
-    print '-- do_ORCHIDEE_Water_Budget_climobs_bias_maps = True  --'
-    print '-- variables_water_budget =                                          --'
-    print '-> ', variables_water_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Water Budget Variables                        --')
+    print('-- do_ORCHIDEE_Water_Budget_climobs_bias_maps = True  --')
+    print('-- variables_water_budget =                                          --')
+    print('-> ', variables_water_budget)
+    print('--                                                                    --')
     wvariables_water_budget_bias = []
     for tmpvar in variables_water_budget:
         if isinstance(tmpvar, dict):
@@ -265,7 +272,7 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
             cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
             wvariables_water_budget_bias.append(tmpvar)
         except:
-            print 'No obs for ', tmpvar
+            print('No obs for ', tmpvar)
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -287,12 +294,12 @@ if do_ORCHIDEE_Water_Budget_climobs_bias_maps:
 
 
 if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Water Budget Variables                         --'
-    print '-- do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps = True   --'
-    print '-- variables_water_budget =                                           --'
-    print '-> ', variables_water_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Water Budget Variables                         --')
+    print('-- do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps = True   --')
+    print('-- variables_water_budget =                                           --')
+    print('-> ', variables_water_budget)
+    print('--                                                                    --')
     wvariables_water_budget_modelmodel = []
     for tmpvar in variables_water_budget:
         if isinstance(tmpvar, dict):
@@ -326,12 +333,12 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
 
 
 if do_ORCHIDEE_Water_Budget_climatology_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
-    print '-- do_ORCHIDEE_Water_Budget_climatology_maps = True                  --'
-    print '-- variables_water_budget =                                          --'
-    print '-> ', variables_water_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Carbon Budget Variables                        --')
+    print('-- do_ORCHIDEE_Water_Budget_climatology_maps = True                  --')
+    print('-- variables_water_budget =                                          --')
+    print('-> ', variables_water_budget)
+    print('--                                                                    --')
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -359,12 +366,12 @@ if do_ORCHIDEE_Water_Budget_climatology_maps:
 # ---------------------------------------------------------------------------------------- #
 # -- ORCHIDEE Carbon Budget                                                             -- #
 if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
-    print '-- do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = True  --'
-    print '-- variables_carbon_budget =                                          --'
-    print '-> ', variables_carbon_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Carbon Budget Variables                        --')
+    print('-- do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = True  --')
+    print('-- variables_carbon_budget =                                          --')
+    print('-> ', variables_carbon_budget)
+    print('--                                                                    --')
     wvariables_carbon_budget_bias = []
     for tmpvar in variables_carbon_budget:
         if isinstance(tmpvar, dict):
@@ -377,7 +384,7 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
             cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
             wvariables_carbon_budget_bias.append(tmpvar)
         except:
-            print 'No obs for ', tmpvar
+            print('No obs for ', tmpvar)
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -407,12 +414,12 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
 
 
 if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
-    print '-- do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = True                 --'
-    print '-- variables_carbon_budget =                                          --'
-    print '-> ', variables_carbon_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Carbon Budget Variables                        --')
+    print('-- do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = True                 --')
+    print('-- variables_carbon_budget =                                          --')
+    print('-> ', variables_carbon_budget)
+    print('--                                                                    --')
     wvariables_carbon_budget_bias = []
     for tmpvar in variables_carbon_budget:
         if isinstance(tmpvar, dict):
@@ -425,7 +432,7 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
             cfile(ds(**variable2reference(ttmpvar, my_obs=custom_obs_dict)))
             wvariables_carbon_budget_bias.append(tmpvar)
         except:
-            print 'No obs for ', tmpvar
+            print('No obs for ', tmpvar)
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
@@ -451,12 +458,12 @@ if do_ORCHIDEE_Carbon_Budget_climobs_bias_maps:
 
 
 if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
-    print '-- do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = True  --'
-    print '-- variables_carbon_budget =                                          --'
-    print '-> ', variables_carbon_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Carbon Budget Variables                        --')
+    print('-- do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = True  --')
+    print('-- variables_carbon_budget =                                          --')
+    print('-> ', variables_carbon_budget)
+    print('--                                                                    --')
     wvariables_carbon_budget_modelmodel = []
     for tmpvar in variables_carbon_budget:
         if isinstance(tmpvar, dict):
@@ -494,12 +501,12 @@ if do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps:
 
 
 if do_ORCHIDEE_Carbon_Budget_climatology_maps:
-    print '------------------------------------------------------------------------'
-    print '-- Processing ORCHIDEE Carbon Budget Variables                        --'
-    print '-- do_ORCHIDEE_Carbon_Budget_climatology_maps = True                  --'
-    print '-- variables_carbon_budget =                                          --'
-    print '-> ', variables_carbon_budget
-    print '--                                                                    --'
+    print('------------------------------------------------------------------------')
+    print('-- Processing ORCHIDEE Carbon Budget Variables                        --')
+    print('-- do_ORCHIDEE_Carbon_Budget_climatology_maps = True                  --')
+    print('-- variables_carbon_budget =                                          --')
+    print('-> ', variables_carbon_budget)
+    print('--                                                                    --')
     # -- Period Manager
     if not use_available_period_set:
         Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')

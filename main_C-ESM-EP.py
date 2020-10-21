@@ -1,8 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # ----------------------------------------------------------------------------------- #
 # -- Header of the atlas.py ; import the useful python modules (CliMAF, NEMO_atlas, -- #
 # -- and potentially your own stuff stored in my_plot_functions.py in the current   -- #
 # -- working directory.                                                             -- #
 # ------------------------------------------------------------------------------------ #
+
+# -- Python 2 <-> 3 compatibility ---------------------------------------------------------
+#from __future__ import unicode_literals, print_function, absolute_import, division
+from __future__ import unicode_literals, print_function, division
+
+# -- Imports
 from climaf.api import *
 from climaf.html import * 
 from climaf import cachedir
@@ -59,7 +67,7 @@ parser.add_option("--cesmep_frontpage",
 # -- Define the path to the main C-ESM-EP directory:
 # -----------------------------------------------------------------------------------
 rootmainpath = os.getcwd()
-print 'rootmainpath = ',rootmainpath
+print('rootmainpath = ',rootmainpath)
 if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
      main_cesmep_path = rootmainpath
 if os.path.isfile(rootmainpath+'/../main_C-ESM-EP.py'):
@@ -71,8 +79,8 @@ if os.path.isfile(rootmainpath+'/../../main_C-ESM-EP.py'):
 # -- Get the default parameters from default_atlas_settings.py -> Priority = default
 # -----------------------------------------------------------------------------------
 default_file = '/share/default/default_atlas_settings.py'
-execfile(main_cesmep_path+default_file)
-
+#execfile(main_cesmep_path+default_file)
+exec(open(main_cesmep_path+default_file).read())
 
 # -- Get the values for comparison and component
 # -----------------------------------------------------------------------------------
@@ -91,7 +99,7 @@ param_file = main_cesmep_path + comparison + '/' + component + '/params_' + comp
 diagnostics_file = param_file.replace('params_', 'diagnostics_')
 if not os.path.isfile(diagnostics_file):
     diagnostics_file = main_cesmep_path + 'share/cesmep_diagnostics/diagnostics_' + component + '.py'
-print '-- Use diagnostics_file =', diagnostics_file
+print('-- Use diagnostics_file =', diagnostics_file)
 
 
 # -- If we specify a datasets_setup from the command line, we use 'models' from this file
@@ -99,7 +107,7 @@ print '-- Use diagnostics_file =', diagnostics_file
 datasets_setup_available_period_set_file = datasets_setup.replace('.py', '_available_period_set.py')
 if os.path.isfile(datasets_setup_available_period_set_file):
     use_available_period_set = True
-    execfile(datasets_setup_available_period_set_file)
+    exec(open(datasets_setup_available_period_set_file).read())
     # Create Wmodels_ts and Wmodels_clim from Wmodels
     Wmodels_clim = copy.deepcopy(Wmodels)
     for item in Wmodels_clim:
@@ -115,7 +123,7 @@ if os.path.isfile(datasets_setup_available_period_set_file):
         item.pop('clim_period')
         item.update(ts_period_args)
 else:
-    execfile(datasets_setup)
+    exec(open(datasets_setup).read())
     use_available_period_set = False
 
 
@@ -150,17 +158,6 @@ if atCNRM or atTGCC or onCiclad:
         os.system('rm -f '+atlas_dir+'/*.png')
 
 
-# -> Specif TGCC and CNRM:
-#      - Copy the empty.png image in the cache
-# -----------------------------------------------------------------------------------
-# if atTGCC or atCNRM :
-#   if not os.path.isdir(cachedir):
-#      os.makedirs(cachedir)
-#   if not os.path.isfile(cachedir+'/Empty.png'):
-#      cmd = 'cp '+cpath+'/plot/Empty.png '+cachedir
-#      print cmd
-#      os.system(cmd)
-
 
 # -- Specify the directory where we will output the atlas html file and the figures
 # -----------------------------------------------------------------------------------
@@ -175,29 +172,29 @@ clog(verbose)
 
 # -- Print the models
 # -----------------------------------------------------------------------------------
-print '==> ----------------------------------- #'
-print '==> Working on models:'
-print '==> ----------------------------------- #'
-print '  '
+print('==> ----------------------------------- #')
+print('==> Working on models:')
+print('==> ----------------------------------- #')
+print('  ')
 for model in models:
     for key in model:
-        print '  '+key+' = ', model[key]
-    print '  --'
-    print '  --'
+        print('  '+key+' = ', model[key])
+    print('  --')
+    print('  --')
 
-print '==> ----------------------------------- #'
-print '==> Against reference:'
-print '==> ----------------------------------- #'
-print '  '
+print('==> ----------------------------------- #')
+print('==> Against reference:')
+print('==> ----------------------------------- #')
+print('  ')
 if reference=='default':
-   print '  reference = default'
-   print '  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)'
-   print '  --> you can setup you own references in custom_obs_dict.py for each variable independently'
+   print('  reference = default')
+   print('  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
+   print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
 else:
    for key in reference:
-        print '  '+key+' = ', reference[key]
-   print '  --'
-   print '  --'
+        print('  '+key+' = ', reference[key])
+   print('  --')
+   print('  --')
 
 
 # -----------------------------------------------------------------------------------
@@ -233,7 +230,7 @@ atlas_head_title = component
 # -- Get the parameters from the param file -> Priority = 2
 # -----------------------------------------------------------------------------------
 if os.path.isfile(param_file):
-    execfile(param_file)
+    exec(open(param_file).read())
 
 
 # -- Add the season to the html file name
@@ -257,14 +254,14 @@ add_compareCompanion = True
 # -> Clean the cache if specified by the user
 # -----------------------------------------------------------------------------------
 if clean_cache and not clean_cache == 'False':
-    print '!!! Fully clean the cache before starting the atlas !!!'
+    print('!!! Fully clean the cache before starting the atlas !!!')
     craz()
-    print '!!! Cache cleaned !!!'
+    print('!!! Cache cleaned !!!')
 
 
 # -- Execute the diagnostic file ${comparison}/${component}/diagnostics_${component}.py
 # -----------------------------------------------------------------------------------
-execfile(diagnostics_file)
+exec(open(diagnostics_file).read())
 
 
 # -----------------------------------------------------------------------------------
@@ -294,7 +291,7 @@ execfile(diagnostics_file)
 
 # -- Adding the compareCompanion JavaScript functionality to make a selection of images
 if add_compareCompanion:
-    print 'Add compareCompanion'
+    print('Add compareCompanion')
     index += compareCompanion()
 
 # -- End the index
@@ -310,7 +307,7 @@ index = index.replace('CliMAF documentation', 'Back to C-ESM-EP frontpage of com
 
 # -- Write the atlas html file
 outfile = atlas_dir + "/" + index_name
-print 'outfile = ', outfile
+print('outfile = ', outfile)
 with open(outfile, "w") as filout:
     filout.write(index)
 #
@@ -320,20 +317,20 @@ if atTGCC:
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
     else:
-        print 'rm -rf '+path_to_comparison_outdir_workdir_tgcc+'/*'
+        print('rm -rf '+path_to_comparison_outdir_workdir_tgcc+'/*')
         os.system('rm -rf '+path_to_comparison_outdir_workdir_tgcc+'/*')
     cmd1 = 'cp -r '+atlas_dir+'* '+path_to_comparison_outdir_workdir_tgcc
-    print cmd1
+    print(cmd1)
     os.system(cmd1)
     #
     # -- thredds_cp du repertoire copie sur le work
     path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + '/C-ESM-EP/' + comparison + '_' + \
                                        user_login
     cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
-    print cmd12
+    print(cmd12)
     os.system(cmd12)
     cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_tgcc+' '+path_to_comparison_on_web_server+'/'
-    print cmd2
+    print(cmd2)
     os.system(cmd2)
 
 print(' -- ')
@@ -357,7 +354,7 @@ if isinstance(routine_cache_cleaning, list) or isinstance(routine_cache_cleaning
     if not isinstance(routine_cache_cleaning, list):
         routine_cache_cleaning = [routine_cache_cleaning]
     for clean_args in routine_cache_cleaning:
-        print 'clean_args = ', clean_args
+        print('clean_args = ', clean_args)
         crm(**clean_args)
 elif routine_cache_cleaning == 'figures_only':
     craz()
