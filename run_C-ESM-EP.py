@@ -52,16 +52,20 @@ email = None
 # -----------------------------------------------------------------------------------------
 
 # -- Where are we?
+atTGCC = False
 if os.path.exists('/ccc') and not os.path.exists('/data'):
     atTGCC = True
 
+onCiclad = False:
 if 'ciclad' in os.uname()[1].strip().lower():
     onCiclad = True
 
+atCNRM = False
 if os.path.exists('/cnrm'):
     atCNRM = True
 
 # Case atCerfacs
+atCerfacs = False
 if os.path.exists('/data/scratch/globc'):
     atCerfacs = True
 
@@ -261,9 +265,6 @@ with open(frontpage_html, "w") as filout:
 # -----------------------------------------------------------------------------------------
 
 # -- Initialize positioning variables
-atTGCC = False
-onCiclad = False
-
 if not path_to_cesmep_output_rootdir_on_web_server:
     path_to_cesmep_output_rootdir_on_web_server = path_to_cesmep_output_rootdir
 
