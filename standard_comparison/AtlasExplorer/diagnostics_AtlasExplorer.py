@@ -78,6 +78,7 @@ kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, var
               add_product_in_title=add_product_in_title, safe_mode=safe_mode,
               add_line_of_climato_plots=add_line_of_climato_plots,
               alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict,
+              regridding=regridding,
               thumbnail_size=thumbN_size)
 if do_parallel:
     index += parallel_section(section_2D_maps, **kwargs)

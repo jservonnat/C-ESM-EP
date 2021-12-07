@@ -105,10 +105,16 @@ if do_main_time_series:
     # -----------------------------------------------------------------------------------------
     thumbN_size = thumbnail_size
     #
+    # -- Add the reference if you compare against a simulation
+    if reference!='default':
+        wmodels = [reference] + models
+    else:
+        wmodels = models
+    #
     # -- Period Manager
     if not use_available_period_set:
-        WWmodels_ts = period_for_diag_manager(models, diag='TS')
-        WWmodels_clim = period_for_diag_manager(models, diag='clim')
+        WWmodels_ts = period_for_diag_manager(wmodels, diag='TS')
+        WWmodels_clim = period_for_diag_manager(wmodels, diag='clim')
     else:
         WWmodels_ts = copy.deepcopy(Wmodels_ts)
         WWmodels_clim = copy.deepcopy(Wmodels_clim)

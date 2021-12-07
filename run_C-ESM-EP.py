@@ -56,7 +56,7 @@ atTGCC = False
 if os.path.exists('/ccc') and not os.path.exists('/data'):
     atTGCC = True
 
-onCiclad = False:
+onCiclad = False
 if 'ciclad' in os.uname()[1].strip().lower():
     onCiclad = True
 
@@ -185,6 +185,7 @@ for component in allcomponents:
             # pass
             if do_print:
                 print("Skipping component", component, "which dir is not readable")
+
 # -> Then, we check whether there are some components not listed in allcomponents;
 # if yes, they will be added at the end of the list
 for subdir in subdirs:
@@ -197,6 +198,8 @@ if components == allcomponents:
 
 # -- We get the atlas_head_title variable in the params_component.py file to have a more explicit string for the links
 cesmep_modules = []
+
+tested_available_components = []
 for component in available_components:
     atlas_head_title = None
     # paramfile = comparison+'/'+component+'/params_'+component+'.py'
@@ -213,25 +216,42 @@ for component in available_components:
             content_diag = content_file_diag.read()
         with open(params_filename, 'r') as content_file_params:
             content_params = content_file_params.read()
+        #content.splitlines()
+        module_title = None
+        for tmpline in content_diag.splitlines()+content_params.splitlines():
+            if 'atlas_head_title' in tmpline.split('=')[0]:
+                if '"' in tmpline:
+                    sep = '"'
+                if "'" in tmpline:
+                    sep = "'"
+                module_title = tmpline.split(sep)[1]
+        if module_title:
+            name_in_html = module_title
+        else:
+            name_in_html = component
+        cesmep_modules.append([component, name_in_html])
+        tested_available_components.append(component)
     except:
         if do_print:
             print("Skipping component ", component, " which diagnostic file is not readable")
-            available_components.remove(component)
+            #available_components.remove(component)
             continue
     #content.splitlines()
-    module_title = None
-    for tmpline in content_diag.splitlines()+content_params.splitlines():
-        if 'atlas_head_title' in tmpline.split('=')[0]:
-            if '"' in tmpline:
-                sep = '"'
-            if "'" in tmpline:
-                sep = "'"
-            module_title = tmpline.split(sep)[1]
-    if module_title:
-        name_in_html = module_title
-    else:
-        name_in_html = component
-    cesmep_modules.append([component, name_in_html])
+    #module_title = None
+    #for tmpline in content_diag.splitlines()+content_params.splitlines():
+    #    if 'atlas_head_title' in tmpline.split('=')[0]:
+    #        if '"' in tmpline:
+    #            sep = '"'
+    #        if "'" in tmpline:
+    #            sep = "'"
+    #        module_title = tmpline.split(sep)[1]
+    #if module_title:
+    #    name_in_html = module_title
+    #else:
+    #    name_in_html = component
+    #cesmep_modules.append([component, name_in_html])
+available_components = tested_available_components
+
 
 # -> Adding the links to the html lines
 #new_html_lines = html.splitlines()

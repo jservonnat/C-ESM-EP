@@ -63,8 +63,13 @@ if do_ENSO_CLIVAR:
     # -- Open the section ---------------------------------------------------------------
     index += section("ENSO - CLIVAR diagnostics", level=4)
     #
+    # -- If reference is not default, we add the reference at the beginning of the models list
+    if reference!='default':
+        wmodels = [reference]+models
+    else:
+        wmodels = copy.deepcopy(models)
     # -- Period Manager
-    Wmodels = period_for_diag_manager(models, diag='ENSO')
+    Wmodels = period_for_diag_manager(wmodels, diag='ENSO')
     print('Wmodels in ENSO: ')
     for wmodel in Wmodels:
         print(wmodel)

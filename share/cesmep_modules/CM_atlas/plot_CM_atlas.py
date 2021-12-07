@@ -775,7 +775,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
                    bias = diff_zonmean(climato_ref, climato_sim)
                    climato_ref = zonmean(climato_ref)
                 if regridding=='no_regridding':
-                   bias = minus(zonmean(climato_sim), zonmean(climato_sim))
+                   bias = minus(zonmean(climato_sim), zonmean(climato_ref))
                    climato_ref = zonmean(climato_ref)
             except:
                 bias = minus(climato_sim, climato_ref)
@@ -823,7 +823,9 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
                 if regridding=='model_on_ref':
                    climato_sim = regrid(climato_sim, climato_ref)
         bias = minus(climato_sim, climato_ref)
-        print('bias = ', bias)
+        if regridding=='no_regridding' and variable in ocean_variables:
+            bias = regridn(bias, cdogrid='r360x180')
+    print('bias = ', bias)
     #
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)
