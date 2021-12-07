@@ -275,6 +275,8 @@ def find_common_period(period1, period2):
         print('Warning in find_common_period => cant work on fx period')
         print('--')
         common_period = 'fx'
+    elif period == '*':
+        print('period="*" in find_common_period !!')
     else:
         sep_period1 = ('-' if '-' in period1 else '_')
         start_period1 = int(period1.split(sep_period1)[0][0:4])

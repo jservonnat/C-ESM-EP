@@ -175,14 +175,23 @@ def get_period_manager(dat_dict, diag=None):
         # - Get the period corresponding to the user request (among *, last_10Y,...)
         if period.upper() in ['FULL', '*'] or 'LAST_' in period.upper() or 'FIRST_' in period.upper():
             # -- Use ds.explore method to find the available period
-            try:
-                req = ds(**req_dict).explore('resolve')
-                print('req.kvp = ', req.kvp)
+            #try:
+            #    req = ds(**req_dict).explore('resolve')
+            #    print('req.kvp = ', req.kvp)
+            #    dat_dict['period'] = str(req.kvp['period'])
+            #except:
+            #    print('Error in get_period_manager => No File found for ', req_dict)
+            #    if tested_variable != req_dict['variable']:
+            #        print('Initially you asked for variable ', tested_variable)
+            req = ds(**req_dict).explore('resolve')
+            if req.baseFiles():
                 dat_dict['period'] = str(req.kvp['period'])
-            except:
+            else:
                 print('Error in get_period_manager => No File found for ', req_dict)
+                print(cfile(req))
                 if tested_variable != req_dict['variable']:
                     print('Initially you asked for variable ', tested_variable)
+
         else:
             dat_dict.update(dict(period=period))
     if clim_period and dat_dict['frequency'] in ['annual_cycle', 'seasonal']:

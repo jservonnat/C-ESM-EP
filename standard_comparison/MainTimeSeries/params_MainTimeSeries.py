@@ -93,7 +93,7 @@ def annual_seaice_volume(dat, **kwargs):
     if 'grid_file' in kwargs:
         ds_grid = fds(kwargs['grid_file'], period='fx', variable='area')
     else:
-        print 'No grid file provided'
+        print('No grid file provided')
     return ccdo(
         multiply(
             llbox(ccdo(dat, operator='yearmean'), **domain),
