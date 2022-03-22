@@ -6,6 +6,7 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 
 from CM_atlas import *
 from climaf.netcdfbasics import fileHasVar, fileHasDim, dimsOfFile
+import xarray as xr
 
 # from time_manager import *
 # from climaf import cachedir
@@ -797,7 +798,13 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             print('----')
             print('----')
             print('----')
-            mask_dat = fds(mask_file, variable='mask', period='fx')
+            # -- Add the selection of the vertical levels corresponding with the ref
+            tmp_ref = xr.open_dataset(cfile(clim_ref), decode_times=False)
+            str_depth_vals = ''
+            for val in tmp_ref['depth'].values:
+                str_depth_vals += ',' + str(int(val))
+
+            mask_dat = ccdo( fds(mask_file, variable='mask', period='fx'), operator='sellevel'+str_depth_vals)
             basin_mask = mask(mask_dat, miss=0.0)
             #
             # -- Apply the mask to the model and the ref
@@ -839,7 +846,14 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             else:
                 mask_file = os.path.dirname(model_dat.baseFiles().split(' ')[0]) + '/' + basin.lower() + '_mask.nc'
             print('mask_file = ', mask_file)
-            mask_dat = fds(mask_file, variable='mask', period='fx')
+
+            # -- Select vertical levels 
+            tmp_model = xr.open_dataset(cfile(clim_model), decode_times=False)
+            str_depth_vals = ''
+            for val in tmp_model['depth'].values:
+                str_depth_vals += ',' + str(int(val))
+            mask_dat = ccdo( fds(mask_file, variable='mask', period='fx'), operator='sellevel'+str_depth_vals)
+            #mask_dat = fds(mask_file, variable='mask', period='fx')
             basin_mask = mask(mask_dat, miss=0.0)
             #
             # -- Apply the mask to the model and the ref

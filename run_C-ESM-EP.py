@@ -405,6 +405,7 @@ for component in job_components:
             memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
             queue = param_line.replace(' ', '').split('=')[1].split('#')[0] 
+
     #
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
