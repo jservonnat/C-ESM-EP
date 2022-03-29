@@ -121,7 +121,7 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc" ]] ; then
   my_append -bp PYTHONPATH ${cesmep_modules}/reference
   my_append -bp PYTHONPATH ${cesmep_modules}/PMP_MG
   my_append -bp PATH ${CLIMAF}
-  export CLIMAF_CACHE=/thredds/ipsl/${USER}/atlas_explorer
+  export CLIMAF_CACHE=/scratchx/${USER}/atlas_explorer
   # -- CDFTools
   my_append -bp PATH /home/lvignon/bin
   my_append -bp PATH ${CLIMAF}/bin

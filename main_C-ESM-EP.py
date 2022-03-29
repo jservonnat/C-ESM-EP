@@ -158,7 +158,6 @@ if atCNRM or atTGCC or onCiclad:
         os.system('rm -f '+atlas_dir+'/*.png')
 
 
-
 # -- Specify the directory where we will output the atlas html file and the figures
 # -----------------------------------------------------------------------------------
 alternative_dir = {'dirname': atlas_dir}
@@ -310,6 +309,29 @@ outfile = atlas_dir + "/" + index_name
 print('outfile = ', outfile)
 with open(outfile, "w") as filout:
     filout.write(index)
+
+blabla = None
+if onCiclad:
+   # -- Copy on thredds... 
+   # ----------------------------------------------------------------------------------------------
+   # -- thredds directory (web server)
+   threddsdir = str.replace(atlas_dir,'scratchu','thredds/ipsl')
+   os.system('rm -rf '+threddsdir)
+   os.system('cp -r '+atlas_dir+' '+str.replace(threddsdir,'/'+component,''))
+   print("index copied in : "+threddsdir)
+
+   # -- Url to use to access the page from the web
+   #alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'thredds/ipsl')[1]+'/'+subdir
+   alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'thredds/ipsl')[1]
+   root_url = "https://vesg.ipsl.upmc.fr"
+
+   # -- and return the url of the atlas
+   # ----------------------------------------------------------------------------------------------
+   print("Available at this address "+root_url+outfile.replace(atlas_dir,alt_dir_name))
+
+
+#
+
 #
 if atTGCC:
     # -- Ecriture du fichier html dans le repertoire sur scratch

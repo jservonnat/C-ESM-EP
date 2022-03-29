@@ -47,7 +47,8 @@ if os.path.exists('/cnrm'):
 if os.path.exists('/data') and os.path.exists('/thredds/ipsl'):
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we store all the C-ESM-EP comparisons
-    path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
+    #path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
+    path_to_cesmep_output_rootdir = '/scratchu/'+username
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
     root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username

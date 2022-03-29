@@ -760,7 +760,10 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             # -- To do this the user has to specify 'press_levels' in the dictionary of the dataset, and 'press_var'
             #    if the variable is not 'pres'
             fixed_fields('ml2pl', ('press_levels.txt', model['press_levels']))
-            ds_pres = ds(variable=(model['press_var'] if 'press_var' in model else 'pres'), **model)
+            pres_wmodel = wmodel.copy()
+            pres_wmodel.pop('variable')
+            ds_pres = ds(variable=(model['press_var'] if 'press_var' in model else 'pres'), **pres_wmodel)
+            print("ds_pres",ds_pres)
             nds_model = ccdo(ds_model, operator='mulc,1')
             nds_pres = ccdo(ds_pres, operator='mulc,1')
             ds_model = ml2pl(nds_model, nds_pres)
