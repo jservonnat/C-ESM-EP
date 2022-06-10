@@ -339,7 +339,22 @@ if argument.lower() not in ['url']:
             atlas_url = comparison_url + component + '/atlas_' + component + '_' + comparison + '.html'
         else:
             atlas_url = comparison_url + component + '/' + component + '_' + comparison + '.html'
-        if onCiclad or atCNRM:
+        if onCiclad:
+            if component in job_components:
+                print(atlas_url)
+                print(comparison_url)
+                atlas_pathfilename = atlas_url.replace(root_url_to_cesmep_outputs, path_to_cesmep_output_rootdir_on_web_server)
+                #path_to_cesmep_output_rootdir_on_web_server+'/C-ESM-EP/'+comparison+'_'+user_login+'/'+component + '/atlas_' + component + '_' + comparison + '.html'
+                if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
+                    os.makedirs(os.path.dirname(atlas_pathfilename))
+                # -- Copy an html template to say that the atlas is not yet available
+                # 1. copy the template to the target html page
+                print('cp -f share/fp_template/Running_template.html ' + atlas_pathfilename)
+                os.system('cp -f share/fp_template/Running_template.html ' + atlas_pathfilename)
+                # 2. Edit target_component and target_comparison
+                pysed(atlas_pathfilename, 'target_component', component)
+                pysed(atlas_pathfilename, 'target_comparison', comparison)
+        if atCNRM:
             if component in job_components:
                 atlas_pathfilename = atlas_url.replace(comparison_url, path_to_comparison_outdir)
                 if not os.path.isdir(os.path.dirname(atlas_pathfilename)):

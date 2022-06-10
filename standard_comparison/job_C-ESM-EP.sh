@@ -120,7 +120,7 @@ export TMPDIR=${CLIMAF_CACHE}
 fi
 
 if [[ -d "/data" && -d "/thredds/ipsl" ]]; then
-export CLIMAF_CACHE=/thredds/ipsl/${USER}/climafcache_${component}
+export CLIMAF_CACHE=/scratchu/${USER}/climafcache_${component}
 export TMPDIR=${CLIMAF_CACHE}
 fi
 
