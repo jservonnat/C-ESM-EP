@@ -55,7 +55,7 @@ if os.path.exists('/data') and os.path.exists('/thredds/ipsl'):
     # -- At TGCC you can have a different path to access the data that are visible from the web
     #    than the path where you actually stored your data (ex: path to thredds )
     # -- Can be equal to store_atlas_results_dir, but at TGCC
-    path_to_cesmep_output_rootdir_on_web_server = None
+    path_to_cesmep_output_rootdir_on_web_server = '/thredds/ipsl/'+username
 
 # -- TGCC
 if os.path.exists('/ccc') and not os.path.exists('/thredds/ipsl'):

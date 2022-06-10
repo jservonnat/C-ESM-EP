@@ -310,7 +310,6 @@ print('outfile = ', outfile)
 with open(outfile, "w") as filout:
     filout.write(index)
 
-blabla = None
 if onCiclad:
    # -- Copy on thredds... 
    # ----------------------------------------------------------------------------------------------
