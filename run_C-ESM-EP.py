@@ -38,37 +38,18 @@ import os
 import sys
 import getpass
 import re
-#from urllib2 import urlopen
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
-    root_url_to_cesmep_outputs
+    root_url_to_cesmep_outputs, climaf_cache
 
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
 # email = "gaelle.rigoudy@meteo.fr"
-# email = "jerome.servonnat@lsce.ipsl.fr"
-email = None
+email = "jerome.servonnat@lsce.ipsl.fr"
+#email = "senesi@posteo.net"
 
-# -- 0/ Identify where we are...
+# -- 0/ Identify where we are, generally based on CliMAF logics
 # -----------------------------------------------------------------------------------------
-
-# -- Where are we?
-atTGCC = False
-if os.path.exists('/ccc') and not os.path.exists('/data'):
-    atTGCC = True
-
-onCiclad = False
-if 'ciclad' in os.uname()[1].strip().lower():
-    onCiclad = True
-
-atCNRM = False
-if os.path.exists('/cnrm'):
-    atCNRM = True
-
-# Case atCerfacs
-atCerfacs = False
-if os.path.exists('/data/scratch/globc'):
-    atCerfacs = True
-
+from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
 
 # -- Working directory
 main_cesmep_path = os.getcwd()
@@ -402,10 +383,16 @@ for component in job_components:
         else:
             add_email = ''
         if component not in metrics_components:
-            cmd = 'cd ' + submitdir + ' ; export comparison=' + comparison + \
-                  ' ; export component=' + component + ' export cesmep_frontpage=' + frontpage_address + \
-                  ' ; ccc_msub' + add_email + ' -r ' + \
-                  component + '_' + comparison + '_C-ESM-EP ../job_C-ESM-EP.sh ; cd -'
+            cmd = 'cd ' + submitdir + ' ; export ' +\
+                ' comparison=' + comparison +\
+                ' component=' + component +\
+                ' cesmep_frontpage=' + frontpage_address +\
+                ' CLIMAF_CACHE=' + climaf_cache +\
+                ' ; ccc_msub' + add_email +\
+                ' -r ' + component + '_' + comparison + '_C-ESM-EP ' +\
+                ' -n 1 -T 36000 -q skylake -Q normal -A devcmip6 ' +\
+                ' -m store,work,scratch ' +\
+                '../job_C-ESM-EP.sh  ; cd -'
     #
     # -- Case onCiclad
     if onCiclad:
@@ -545,16 +532,17 @@ for component in job_components:
             mail = ' --mail-type=END --mail-user=%s' % email
 
         # at CNRM, we use sqsub on PCs for launching on aneto; env vars are sent using arg '-e'
-        cmd = '( \n\tcd ' + submitdir + ' ; \n\n' + \
-              '\tsqsub \\\n\t\t-e \"' + variables + '\"' + \
-              ' \\\n\t\t-b "--partition=P8HOST --job-name=' + jobname + mail + ' " \\\n\t\t../' + job_script + \
+        cmd = '( \n\t cd ' + submitdir + ' ; \n\n' + \
+              '\t sqsub \\\n\t\t-e \"' + variables + '\"' + \
+              ' \\\n\t\t-b "--partition=P8HOST --job-name=' + jobname + \
+              ' --time=03:00:00 --nodes=1' + mail + ' " \\\n\t\t../' + job_script + \
               ' > jobname.tmp  2>&1; \n\n' + \
  \
               ' \tjobId=$(cat jobname.tmp | cut -d \" \" -f 4 jobname.tmp); rm jobname.tmp  ; \n' + \
  \
-              '\techo -n Job submitted : $jobId\n\n' + \
+              '\t echo -n Job submitted : $jobId\n\n' + \
  \
-              ' \tsqsub -b \"--partition=P8HOST -d afternotok:$jobID\" ' + \
+              ' \t sqsub -b \"--partition=P8HOST -d afternotok:$jobID\" ' + \
               '-e \"atlas_pathfilename=' + atlas_pathfilename + ',' + variables + '\"' + \
               ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
 
@@ -569,9 +557,11 @@ for component in job_components:
         if do_print:
             print(component)
             print(comparison)
-            cmd = 'cd ' + submitdir + ' ; export comparison=' + comparison + \
-                  ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address + ';' + \
-                  'sbatch --job-name=CESMEP --partition=prod --output=cesmep.o --error=cesmep.e -w gsa4 ../'+job_script              
+            cmd = 'set -x ; cd ' + submitdir + ' ; export comparison=' + comparison + \
+                ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address +\
+                ' ; export CLIMAF_CACHE=' + climaf_cache + \
+                ' ; sbatch --job-name=CESMEP --partition=prod --nodes=1 --ntasks-per-node=1 '+ \
+                ' --output=cesmep.o --error=cesmep.e -w gsa4 ../' + job_script              
             print(cmd)
 
     #

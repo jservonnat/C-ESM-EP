@@ -69,6 +69,10 @@ elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
     cesmep_modules=${PWD}/../../share/cesmep_modules
 fi
 
+# Default value for CliMAF cache
+here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
+export CLIMAF_CACHE=$(cd $here ; python -c 'from __future__ import print_function; from locations import climaf_cache; print(climaf_cache)')
+
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
   unset PYTHONPATH
@@ -95,8 +99,7 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
   my_append -bp PYTHONPATH ${CLIMAF}
   my_append -bp PATH ${CLIMAF}
   # # -- CDFTools
-  export CLIMAF_CACHE=${SCRATCHDIR}/cache_atlas_explorer
-
+  # ??
   export myroot=${WORKDIR}
 
   my_append -bp PATH  $(ccc_home -u p86ipsl)/bin   # Path vers dods_cp
@@ -157,8 +160,6 @@ if [[ -d "/cnrm" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
-    here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
-    export CLIMAF_CACHE=$(cd $here ; python -c 'from locations import climaf_cache; print climaf_cache')
 
     # -- CDFTools
     my_append -bp PATH /cnrm/est/COMMON/CDFTOOLS_3.0/bin
@@ -184,8 +185,6 @@ if [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
-    here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
-    export CLIMAF_CACHE=$(cd $here ; python -c 'from locations import climaf_cache; print climaf_cache')
     echo ">>> CC= "$CLIMAF_CACHE
     echo ">>> PP= "$PYTHONPATH
 
@@ -223,8 +222,6 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
-    here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
-    export CLIMAF_CACHE=$(cd $here ; python -c 'from locations import climaf_cache; print climaf_cache')
     echo ">>> CC= "$CLIMAF_CACHE
     echo ">>> PP= "$PYTHONPATH
 

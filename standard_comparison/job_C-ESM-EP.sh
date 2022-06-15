@@ -1,52 +1,12 @@
 #!/bin/bash
-if [[ -d "/cnrm" ]] ; then
-##########
-## CNRM ##
-##########
-echo "at CNRM"
-#SBATCH --partition P8HOST
-# Nom du job
-#SBATCH --job-name CESMEP
-# Temps limite du job
-#SBATCH --time=03:00:00
-#SBATCH --nodes=1
-elif [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
-echo "at Cerfacs scylla"
-#############
-## CERFACS ##
-#############
 set -x
-# Nom du job
-# Nombre de noeuds et de processus
-#SBATCH --nodes=1 --ntasks-per-node=1
-elif [[ -d "/data" && -d "/thredds/ipsl" ]]; then
-echo "on Ciclad - Climserv - CLIMERI"
-######################
-## Ciclad - CLIMERI ##
-######################
-# Using qsub for the job submission ; arguments are passed via run_C-ESM-EP.py 
-elif [[ -d "/ccc" && ! -d "/data" ]]; then
-echo "at TGCC"
-######################
-## CURIE   TGCC/CEA ##
-######################
-#MSUB -r C-ESM-EP_job
-#MSUB -eo
-#MSUB -n 1              # Reservation du processus
-#MSUB -T 36000          # Limite de temps elapsed du job
-##MSUB -q standard
-#MSUB -q skylake
-#MSUB -Q normal
-#MSUB -A devcmip6
-#MSUB -m store,work,scratch
-fi
-set +x
 # -------------------------------------------------------- >
 # --
-# -- Script to run a CliMAF atlas on Ciclad:
-# --   - sets up the environment
+# -- Script to run a CliMAF atlas on Ciclad, TGCC, CNRM, Spirit....
+# --   - sets up the environment, except batch system specific ones which are
+#          assumed to be set on the submit command 
 # --   - specify the parameter file and the season
-# --   - automatically sets up the CliMAF cache
+# --   - sets the CliMAF cache for special cases
 # --   - and run the atlas
 # --
 # --
@@ -57,8 +17,6 @@ set +x
 # -------------------------------------------------------- >
 date
 
-
-# -- On doit pouvoir le soumettre en batch, ou le soumettre en interactif dans le repertoire de la composante
 # -> # -- On doit pouvoir le soumettre en batch, ou le soumettre en interactif dans le repertoire de la composante
 
 # -> Separer le cas batch et le cas interactif : identifier les deux
@@ -83,14 +41,11 @@ if [[ $1 != '' ]]; then
 else
 
   # -- comparison, component et WD sont les variables passees avec qsub -v
-  echo '$comparison'
-  echo $comparison
-  echo '$component'
-  echo $component
-  echo '$WD'
-  echo $WD
-  echo '$cesmep_frontpage'
-  echo $cesmep_frontpage
+  echo '$comparison=' $comparison
+  echo '$component=' $component
+  echo '$WD=' $WD
+  echo '$cesmep_frontpage=' $cesmep_frontpage
+  echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
   env=../../${env_script}
   main=../../${atlas_file}
   #datasets_setup_file=../datasets_setup.py
@@ -112,26 +67,15 @@ source ${env}
 # -------------------------------------------------------- >
 #season='ANM'
 
-# -- Set CliMAF cache (automatically)
-# -------------------------------------------------------- >
-if [[ -d "/ccc" && ! -d "/data" ]]; then
-export CLIMAF_CACHE=${CCCSCRATCHDIR}/climafcache_${component}
-export TMPDIR=${CLIMAF_CACHE}
-fi
-
-if [[ -d "/data" && -d "/thredds/ipsl" ]]; then
-export CLIMAF_CACHE=/thredds/ipsl/${USER}/climafcache_${component}
-export TMPDIR=${CLIMAF_CACHE}
-fi
-
-if [[ -d "/cnrm" ]]; then
-    [ -z $CLIMAF_CACHE ] &&  echo "CLIMAF_CACHE should be set by launch job" && exit 1
-    export CLIMAF_CACHE
-    export TMPDIR=${CLIMAF_CACHE}
-fi
+# -- Set CliMAF cache in some special cases (default is to inherit it)
+# ------------------------------------------------------------------- >
 
 if [[ -d "/data/scratch/globc" ]] ; then
-export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
+    export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
+    echo ">>> CC= "$CLIMAF_CACHE
+else
+    export CLIMAF_CACHE
+    export TMPDIR=${CLIMAF_CACHE}
 fi
 
 
