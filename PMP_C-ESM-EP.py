@@ -14,7 +14,7 @@
 # -- Import modules
 import copy
 from CM_atlas import *
-from climaf.site_settings import atTGCC, onCiclad, atCNRM
+from climaf.site_settings import atTGCC, onCiclad, onSpirit, atCNRM
 import os
 import copy
 import subprocess
@@ -191,7 +191,7 @@ if opts.reference_data_path:
 # -- Output directory for the figures
 user_login = (str.split(os.getcwd(), '/')[4] if getuser() == 'fabric' else getuser())
 if not outfigdir:
-    if onCiclad:
+    if onCiclad or onSpirit:
         outfigdir = '/prodigfs/ipslfs/dods/' + getuser() + '/C-ESM-EP/' + comparison + '_' + user_login + \
                     '/ParallelCoordinates_Atmosphere/'
         if not os.path.isdir(outfigdir):
@@ -369,7 +369,7 @@ ok_json_files = []
 if not root_outpath:
     if atTGCC:
         root_outpath = '${SCRATCHDIR}'
-    if onCiclad:
+    if onCiclad or onSpirit:
         root_outpath = '/prodigfs/ipslfs/dods/' + getuser()
     if atCNRM:
         root_outpath = '/cnrm/est/USERS/' + getuser() + '/NO_SAVE/CESMEP_climaf_cache'

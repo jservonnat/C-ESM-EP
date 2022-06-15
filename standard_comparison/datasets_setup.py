@@ -132,7 +132,7 @@
 # --    - ORCHIDEE_2D_maps
   
 # ---------------------------------------------------------------------------- >
-from env.site_settings import onCiclad, atTGCC, atCNRM, atCerfacs
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs
 from CM_atlas import *
 
 
@@ -140,7 +140,7 @@ from CM_atlas import *
 routine_cache_cleaning = [dict(age='+20')]
 
 # -- Set the path to the grids
-if onCiclad:
+if onCiclad or onSpirit:
     gridpath = '/data/igcmg/database/grids/'
 if atTGCC:
     gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
@@ -185,7 +185,7 @@ if atCerfacs:
 
 
 # --> case onCiclad or atTGCC:
-if onCiclad or atTGCC:
+if onCiclad or atTGCC or onSpirit:
     models = [
 
         dict(project='IGCM_OUT',
@@ -232,7 +232,7 @@ if onCiclad or atTGCC:
     if atTGCC:
         models.pop(2)
         root = '/ccc/store/cont003/gencmip6'
-    if onCiclad:
+    if onCiclad or onSpirit:
         root = '/thredds/tgcc/store'
     #
     # -- Provide a set of common keys to the elements of models

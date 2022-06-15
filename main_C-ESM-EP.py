@@ -15,7 +15,7 @@ from climaf.api import *
 from climaf.html import * 
 from climaf import cachedir
 from CM_atlas import *
-from env.site_settings import onCiclad, atTGCC, atCNRM
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM
 #from climaf.utils import Climaf_Error
 from getpass import getuser
 from climaf import __path__ as cpath
@@ -151,7 +151,7 @@ atlas_url = atlas_dir.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_
 
 # -- We create the atlas directory if it doesn't exist, or remove the figures
 # -----------------------------------------------------------------------------------
-if atCNRM or atTGCC or onCiclad:
+if atCNRM or atTGCC or onCiclad or onSpirit:
     if not os.path.isdir(atlas_dir):
         os.makedirs(atlas_dir)
     else:
@@ -311,13 +311,16 @@ with open(outfile, "w") as filout:
     filout.write(index)
 
 blabla = None
-if onCiclad:
+if onCiclad or onSpirit:
    # -- Copy on thredds... 
    # ----------------------------------------------------------------------------------------------
    # -- thredds directory (web server)
    threddsdir = str.replace(atlas_dir,'scratchu','thredds/ipsl')
    os.system('rm -rf '+threddsdir)
-   os.system('cp -r '+atlas_dir+' '+str.replace(threddsdir,'/'+component,''))
+   th_dir = str.replace(threddsdir,'/'+component,'')
+   if not os.path.isdir(th_dir):
+        os.makedirs(th_dir)
+   os.system('cp -r '+atlas_dir+' '+th_dir)
    print("index copied in : "+threddsdir)
 
    # -- Url to use to access the page from the web

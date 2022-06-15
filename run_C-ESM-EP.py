@@ -161,9 +161,6 @@ else:
 # -----------------------------------------------------------------------------------------
 template = 'share/fp_template/C-ESM-EP_template.html'
 
-# -> First, we read the template of the html file in share/fp_template
-#html = urlopen(template).read()
-
 if argument.lower() not in ['url']:
    do_print = True
 else:
@@ -236,20 +233,7 @@ for component in available_components:
             print("Skipping component ", component, " which diagnostic file is not readable")
             #available_components.remove(component)
             continue
-    #content.splitlines()
-    #module_title = None
-    #for tmpline in content_diag.splitlines()+content_params.splitlines():
-    #    if 'atlas_head_title' in tmpline.split('=')[0]:
-    #        if '"' in tmpline:
-    #            sep = '"'
-    #        if "'" in tmpline:
-    #            sep = "'"
-    #        module_title = tmpline.split(sep)[1]
-    #if module_title:
-    #    name_in_html = module_title
-    #else:
-    #    name_in_html = component
-    #cesmep_modules.append([component, name_in_html])
+        
 available_components = tested_available_components
 
 
@@ -299,9 +283,6 @@ path_to_comparison_outdir = path_to_cesmep_output_rootdir + '/' + suffix_to_comp
 # -- Path to the directories actually accessible from the web 
 path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + suffix_to_comparison
 
-# -- Path 
-
-
 # -- URL  to the comparison
 comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
 
@@ -314,9 +295,6 @@ if atTGCC:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace('scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
-
-if atCNRM or atCerfacs:
-    from locations import climaf_cache
 
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
@@ -339,7 +317,7 @@ if argument.lower() not in ['url']:
             atlas_url = comparison_url + component + '/atlas_' + component + '_' + comparison + '.html'
         else:
             atlas_url = comparison_url + component + '/' + component + '_' + comparison + '.html'
-        if onCiclad or atCNRM:
+        if onCiclad or onSpirit or atCNRM:
             if component in job_components:
                 atlas_pathfilename = atlas_url.replace(comparison_url, path_to_comparison_outdir)
                 if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
@@ -487,7 +465,67 @@ for component in job_components:
               +' -N '+ component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
               ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
               ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
+              ',CLIMAF_CACHE=' + climaf_cache +\
               ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+    #
+    # -- Case onSpirit : use SBATCH
+    if onSpirit:
+        # -- Start the job_options variables: a string that will contain all the job options
+        #    to be passed to qsub
+        job_options = ''
+        #
+        # -- email
+        if email:
+            job_options += ' --mail-type=END --mail-user=' + email
+        #
+        # -- Set the partition
+        if not queue:
+            queue = 'zen16'
+        job_options += ' --partition ' + queue.replace('\n', '')
+        if do_print:
+            print('    -> partition = ' + queue)
+        #
+        # -- Specify the job script (only for Parallel coordinates)
+        if component not in metrics_components:
+            job_script = 'job_C-ESM-EP.sh'
+        else:
+            job_script = 'job_PMP_C-ESM-EP.sh'
+        #
+        # -- Set the memory (if provided by the user)
+        # -- If memory is not set, we set one by default for NEMO atlases
+        if not memory:
+            if 'NEMO' in component or 'Turbulent' in component:
+                memory = '30'
+        if memory:
+            memory = str(int(memory))
+            # -- Set total memory instructions (convert to MB)
+            memory_instructions = ' --mem=' + memory + '000'
+            # -- add it to job_options
+            job_options += memory_instructions
+            if do_print:
+                print('    -> Memory (mem) = ' + memory )
+        #
+        # -- If the user specified do_parallel=True in parameter file, we ask for a given numvber of cores
+        if do_parallel:
+            nprocs = str(nprocs).replace('\n', '')
+            parallel_instructions = ' --ntasks=' + nprocs
+            # -- add it to job_options
+            job_options += parallel_instructions
+            if do_print:
+                print('    -> Parallel execution: nprocs = ' + nprocs)
+        #
+        # -- Build the job command line
+        jobname=component + '_' + comparison + '_C-ESM-EP'
+        env_variables = ' --export=component=' + component + ',comparison=' + comparison + \
+            ',WD=${PWD},cesmep_frontpage=' + frontpage_address + ',CLIMAF_CACHE=' + climaf_cache  
+        cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
+            'jobID=$(sbatch --job-name=' + jobname + ' ' + job_options + env_variables + ' ../' + job_script + \
+            ' | awk "{print \$4}" ) ; \n'+\
+            '\n'+\
+            'sbatch --dependency=afternotok:$jobID '+ env_variables + \
+            ',atlas_pathfilename=' + atlas_pathfilename + ' ' + \
+            '--job-name=err_on_' + jobname + ' ../../share/fp_template/copy_html_error_page.sh ; \n\ncd -'
+        print("spirit main cmd="+cmd)
     #
     if atCNRM:
         jobname = component + '_' + comparison + '_C-ESM-EP'
@@ -571,7 +609,7 @@ if atTGCC:
     cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
           + ' ; rm ' + frontpage_html
 
-if onCiclad or atCNRM or atCerfacs:
+if onCiclad or onSpirit or atCNRM or atCerfacs:
     cmd = 'mv -f ' + frontpage_html + ' ' + path_to_comparison_on_web_server
 os.system(cmd)
 
@@ -581,7 +619,7 @@ if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
         os.system('cp share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_outdir_workdir_tgcc)
         cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
               path_to_comparison_on_web_server
-    if onCiclad or atCNRM or atCerfacs:
+    if onCiclad or onSpirit or atCNRM or atCerfacs:
         cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_on_web_server
     os.system(cmd)
 
