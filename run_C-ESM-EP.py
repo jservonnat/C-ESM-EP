@@ -44,8 +44,8 @@ from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootd
 
 # -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
 # email = "gaelle.rigoudy@meteo.fr"
-email = "jerome.servonnat@lsce.ipsl.fr"
-#email = "senesi@posteo.net"
+#email = "jerome.servonnat@lsce.ipsl.fr"
+email = "senesi@posteo.net"
 
 # -- 0/ Identify where we are, generally based on CliMAF logics
 # -----------------------------------------------------------------------------------------
@@ -64,6 +64,8 @@ if username == 'fabric':
 else:
     user_login = username
 
+# -- Use specific location for CLIMAF_CACHE if set
+cesmep_climaf_cache=os.getenv("CESMEP_CLIMAF_CACHE",'')
 
 # -- Def pysed
 def pysed(file, old_pattern, new_pattern):
@@ -387,7 +389,7 @@ for component in job_components:
                 ' comparison=' + comparison +\
                 ' component=' + component +\
                 ' cesmep_frontpage=' + frontpage_address +\
-                ' CLIMAF_CACHE=' + climaf_cache +\
+                ' CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
                 ' ; ccc_msub' + add_email +\
                 ' -r ' + component + '_' + comparison + '_C-ESM-EP ' +\
                 ' -n 1 -T 36000 -q skylake -Q normal -A devcmip6 ' +\
@@ -452,7 +454,7 @@ for component in job_components:
               +' -N '+ component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
               ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
               ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
-              ',CLIMAF_CACHE=' + climaf_cache +\
+              ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
               ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
     #
     # -- Case onSpirit : use SBATCH
@@ -504,7 +506,7 @@ for component in job_components:
         # -- Build the job command line
         jobname=component + '_' + comparison + '_C-ESM-EP'
         env_variables = ' --export=component=' + component + ',comparison=' + comparison + \
-            ',WD=${PWD},cesmep_frontpage=' + frontpage_address + ',CLIMAF_CACHE=' + climaf_cache  
+            ',WD=${PWD},cesmep_frontpage=' + frontpage_address + ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache  
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'jobID=$(sbatch --job-name=' + jobname + ' ' + job_options + env_variables + ' ../' + job_script + \
             ' | awk "{print \$4}" ) ; \n'+\
@@ -525,7 +527,7 @@ for component in job_components:
         variables += ',comparison=' + comparison
         variables += ',WD=$(pwd)'
         variables += ',cesmep_frontpage=' + frontpage_address
-        variables += ',CLIMAF_CACHE=' + climaf_cache
+        variables += ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache
         #
         mail = ''
         if email is not None:
@@ -559,7 +561,7 @@ for component in job_components:
             print(comparison)
             cmd = 'set -x ; cd ' + submitdir + ' ; export comparison=' + comparison + \
                 ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address +\
-                ' ; export CLIMAF_CACHE=' + climaf_cache + \
+                ' ; export CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache + \
                 ' ; sbatch --job-name=CESMEP --partition=prod --nodes=1 --ntasks-per-node=1 '+ \
                 ' --output=cesmep.o --error=cesmep.e -w gsa4 ../' + job_script              
             print(cmd)

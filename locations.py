@@ -143,3 +143,7 @@ if atCerfacs:
         path_to_cesmep_output_rootdir_on_web_server = None
 
 
+# Override climaf_cache with env variable CESMEP_CLIMAF_CACHE if (really) set
+cesmep_climaf_cache=os.getenv("CESMEP_CLIMAF_CACHE","")
+if cesmep_climaf_cache != "" :
+    climaf_cache = cesmep_climaf_cache
