@@ -136,10 +136,6 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
     #
     set +x
     my_append -bp PYTHONPATH ${cesmep_modules}
-    my_append -bp PYTHONPATH ${cesmep_modules}/CM_atlas
-    my_append -bp PYTHONPATH ${cesmep_modules}/NEMO_atlas_v2
-    my_append -bp PYTHONPATH ${cesmep_modules}/reference
-    my_append -bp PYTHONPATH ${cesmep_modules}/PMP_MG
     echo "PATH ${PATH}"
 fi
 

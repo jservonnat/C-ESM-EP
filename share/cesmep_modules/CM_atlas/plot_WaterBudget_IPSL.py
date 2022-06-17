@@ -3,7 +3,7 @@ from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
 from LMDZ_SE_atlas.lmdz_SE import *
-from time_manager import *
+from CM_atlas.time_manager import *
 from climaf import __path__ as cpath
 import os
 from climaf import cachedir

@@ -9,7 +9,7 @@ from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
 from env.clogging import clogger, dedent
-from time_manager import *
+from .time_manager import *
 from climaf import __path__ as cpath
 import os
 from climaf import cachedir

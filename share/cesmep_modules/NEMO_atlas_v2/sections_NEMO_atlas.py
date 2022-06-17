@@ -5,8 +5,8 @@
 #from __future__ import unicode_literals, print_function, absolute_import, division
 from __future__ import unicode_literals, print_function, division
 
-from plot_NEMO_CERFACS import *
-from plot_NEMO_atlas import *
+from .plot_NEMO_CERFACS import *
+from .plot_NEMO_atlas import *
 from CM_atlas import *
 
 
