@@ -368,7 +368,7 @@ ok_json_files = []
 
 if not root_outpath:
     if atTGCC:
-        root_outpath = '${SCRATCHDIR}'
+        root_outpath = '${CCCSCRATCHDIR}'
     if onCiclad or onSpirit:
         root_outpath = '/prodigfs/ipslfs/dods/' + getuser()
     if atCNRM:

@@ -45,7 +45,6 @@ else
   echo '$component=' $component
   echo '$WD=' $WD
   echo '$cesmep_frontpage=' $cesmep_frontpage
-  echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
   env=../../${env_script}
   main=../../${atlas_file}
   #datasets_setup_file=../datasets_setup.py
@@ -83,8 +82,26 @@ fi
 # -------------------------------------------------------- >
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 echo "Using CliMAF cache = ${CLIMAF_CACHE}"
-#echo python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
-#python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
-python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+if [ ${with_pcocc:-0} -eq 0 ] ; then 
 
+    #python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
+    python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+
+else
+    
+    # Using pcocc for running a container (named climaf)
+    # We assume this happens only at TGCC
+    # It needs that the user ran once:
+    #    pcocc image import docker-archive:/some/dir/climaf_docker.tar climaf
+    
+    env="-e CCCWORKDIR=$CCCWORKDIR -e CCCSTOREDIR=$CCCSTOREDIR"
+    env+=" -e CCCHOME=$CCCHOME -e CCCSCRATCHDIR=$CCCSCRATCHDIR"   # -e DISPLAY=$DISPLAY 
+    
+    env+=" -e CLIMAF_LOG_DIR=$CLIMAF_LOG_DIR -e CLIMAF_LOG_LEVEL=$CLIMAF_LOG_LEVEL"
+    env+=" -e CLIMAF_CACHE=$CLIMAF CACHE -e CLIMAF_REMOTE_CACHE=$CLIMAF_REMOTE_CACHE"
+    pcocc run -s $env -I climaf <<-EOF
+	conda activate climaf 
+	python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+	EOF
+fi
 

@@ -98,7 +98,7 @@ if atTGCC:
     path_to_cesmep_output_rootdir_on_web_server = str.replace(str.replace(path_to_cesmep_output_rootdir,
                                                                            '/scratch/', '/work/'),
                                                               '/'+wspace+'/', '/thredds/')
-    climaf_cache=os.getenv('SCRATCHDIR') + '/cache_atlas_explorer'
+    climaf_cache=os.getenv('CCCSCRATCHDIR') + '/cache_atlas_explorer'
 
 
 # At Cerfacs
