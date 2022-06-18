@@ -69,6 +69,8 @@ elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
     cesmep_modules=${PWD}/../../share/cesmep_modules
 fi
 
+echo CESMEP_CLIMAF_CACHE=$CESMEP_CLIMAF_CACHE
+
 # Set CliMAF cache
 here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
 cache=$(cd $here ; python -c 'from __future__ import print_function; from locations import climaf_cache; print(climaf_cache)')
