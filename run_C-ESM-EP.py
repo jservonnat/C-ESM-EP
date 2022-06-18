@@ -47,7 +47,7 @@ from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootd
 #email = "jerome.servonnat@lsce.ipsl.fr"
 email = "senesi@posteo.net"
 
-# -- 0/ Identify where we are, generally based on CliMAF logics
+# -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
 from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
 
@@ -327,6 +327,7 @@ if argument.lower() not in ['url']:
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
 
+
 # -- Submit the jobs
 for component in job_components:
     if do_print:
@@ -365,7 +366,7 @@ for component in job_components:
         if 'memory' in param_line and param_line[0] != '#':
             memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
-            queue = param_line.replace(' ', '').split('=')[1].split('#')[0] 
+            queue = param_line.replace(' ', '').split('=')[1].split('#')[0]
 
     #
     # -- Needed to copy the html error page if necessary
@@ -449,13 +450,16 @@ for component in job_components:
                 print('    -> Parallel execution: nprocs = ' + nprocs)
         #
         # -- Build the job command line
-        cmd = 'cd ' + submitdir + ' ; jobID=$(qsub ' + job_options + ' -j eo -v component=' + component + ',comparison='\
-              + comparison + ',WD=${PWD},cesmep_frontpage='+frontpage_address\
-              +' -N '+ component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
-              ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
-              ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
-              ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
-              ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+        cmd = 'cd ' + submitdir + ' ; jobID=$(qsub ' + job_options + ' -j eo '+\
+            '-v component=' + component + ',comparison='+\
+             comparison + ',WD=${PWD},cesmep_frontpage='+frontpage_address+\
+            ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
+            ' -N '+ component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
+            ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
+            ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
+            ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
+            ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
+        print("cmd=",cmd)
     #
     # -- Case onSpirit : use SBATCH
     if onSpirit:
@@ -572,6 +576,7 @@ for component in job_components:
     # -- Otherwise it submits the jobs
     # ------------------------------------------------------------------------------------------------------------------
     if do_print:
+        #print("cmd=",cmd)
         os.system(cmd)
         jobfile = comparison + "/" + component + "/job.in"
         with open(jobfile, "w") as job:
@@ -583,11 +588,10 @@ for component in job_components:
 
 # -- Loop on the components and edit the html file with pysed
 for component in available_components:
-    if component not in metrics_components:
-        url = comparison_url + component + '/atlas_' + component + '_' + comparison + '.html'
-    else:
-        url = comparison_url + component + '/' + component + '_' + comparison + '.html'
-    #pysed(frontpage_html, 'target_' + component, url)
+    prefix="/atlas_"
+    if component in metrics_components:
+        prefix="/"
+    url = comparison_url + component + prefix + component + '_' + comparison + '.html'
     pysed(frontpage_html, '%%target_' + component + '%%', url)
 
 # -- Edit the comparison name
