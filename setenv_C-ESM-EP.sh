@@ -80,6 +80,9 @@ export CLIMAF_CACHE=$cache
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     with_pcocc=1  # Means : use a container for setting the environment
+    CLIMAF=/home/ssenesi/climaf_installs/climaf_running
+    my_append -bp PYTHONPATH ${CLIMAF}
+    my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 
 # --> On Ciclad or Spirit
@@ -97,6 +100,7 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	export CLIMAF_CACHE=$cache
 	working_conda=/net/nfs/tools/Users/SU/jservon/miniconda3_envs/analyse_3.6_test
 	LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
+	CLIMAF=/home/ssenesi/climaf_installs/climaf_running
 	my_append -bp PATH ${CLIMAF}
 	my_append -bp PATH ${CLIMAF}/bin
 	my_append -bp PYTHONPATH ${CLIMAF}

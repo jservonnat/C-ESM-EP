@@ -335,6 +335,7 @@ for component in job_components:
     # -- Define where the directory where the job is submitted
     submitdir = main_cesmep_path + '/' + comparison + '/' + component
     #
+    account = 'devcmip6'
     # -- Do we execute the code in parallel?
     # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
     do_parallel = False
@@ -367,6 +368,9 @@ for component in job_components:
             memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
             queue = param_line.replace(' ', '').split('=')[1].split('#')[0]
+        if 'account' in param_line and param_line[0] != '#':
+            account = param_line.replace(' ', '').split('=')[1].split('#')[0]
+            print("account=",account,"|")
 
     #
     # -- Needed to copy the html error page if necessary
@@ -393,9 +397,10 @@ for component in job_components:
                 ' CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
                 ' ; ccc_msub' + add_email +\
                 ' -r ' + component + '_' + comparison + '_C-ESM-EP ' +\
-                ' -n 1 -T 36000 -q skylake -Q normal -A devcmip6 ' +\
+                ' -n 1 -T 36000 -q skylake -Q normal -A ' + account +\
                 ' -m store,work,scratch ' +\
                 '../job_C-ESM-EP.sh  ; cd -'
+            print("cmd=",cmd)
     #
     # -- Case onCiclad
     if onCiclad:
@@ -611,7 +616,7 @@ os.system(cmd)
 
 # -- Copy the top image
 if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
-    if atTGCC:
+    if atTGCC :
         os.system('cp share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_outdir_workdir_tgcc)
         cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
               path_to_comparison_on_web_server
