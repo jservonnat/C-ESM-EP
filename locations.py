@@ -57,11 +57,12 @@ if atCNRM:
 if onCiclad:
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we store all the C-ESM-EP comparisons
-    #path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
-    path_to_cesmep_output_rootdir = '/scratchu/'+username
+    path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
+    #path_to_cesmep_output_rootdir = '/scratchu/'+username
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
     root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username
+    
     # -- At TGCC you can have a different path to access the data that are visible from the web
     #    than the path where you actually stored your data (ex: path to thredds )
     # -- Can be equal to store_atlas_results_dir, but at TGCC
@@ -73,10 +74,11 @@ if onCiclad:
 if onSpirit:
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we store all the C-ESM-EP comparisons
-    path_to_cesmep_output_rootdir = '/scratchu/'+username
+    path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
+    #path_to_cesmep_output_rootdir = '/scratchu/'+username
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
-    root_url_to_cesmep_outputs = 'file://'+path_to_cesmep_output_rootdir
+    #root_url_to_cesmep_outputs = 'file://'+path_to_cesmep_output_rootdir
     path_to_cesmep_output_rootdir_on_web_server = None
     #
     climaf_cache = '/scratchu/' + username + '/atlas_explorer'
@@ -84,20 +86,26 @@ if onSpirit:
 
 # -- TGCC
 if atTGCC:
-    CWD = os.getcwd()
-    if '/drf/' in CWD:
-        wspace = 'drf'
-    if '/gencmip6/' in CWD:
-        wspace = 'gencmip6'
-    path_to_cesmep_output_rootdir = '/ccc/scratch/cont003/'+wspace+'/'+username
+    #CWD = os.readlink(os.getcwd())
+    # if '/drf/' in CWD:
+    #     wspace = 'drf'
+    # if '/gencmip6/' in CWD:
+    #     wspace = 'gencmip6'
+    # path_to_cesmep_output_rootdir = '/ccc/scratch/cont003/'+wspace+'/'+username
+    scratch = os.getenv("CCCSCRATCHDIR")
+    path_to_cesmep_output_rootdir = scratch
+
+    work = os.getenv("CCCWORKDIR")
+    wspace = str(scratch.split("/")[3])   # Should be smthng like gencmip6 or gen0826, or ...
+    #path_to_cesmep_output_rootdir_on_web_server = work.replace('/'+wspace+'/', '/thredds/')
+    path_to_cesmep_output_rootdir_on_web_server = work # SS: I have yet no right to write on thredds
+
     root_url = "https://vesg.ipsl.upmc.fr"
-    if 'gencmip6' in CWD:
-        root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work_thredds/' + username
-    else:
-        root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work/' + username
-    path_to_cesmep_output_rootdir_on_web_server = str.replace(str.replace(path_to_cesmep_output_rootdir,
-                                                                           '/scratch/', '/work/'),
-                                                              '/'+wspace+'/', '/thredds/')
+    #if 'gencmip6' in CWD:
+    root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work_thredds/' + username
+    #else:
+    #    root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work/' + username
+
     climaf_cache=os.getenv('CCCSCRATCHDIR') + '/cache_atlas_explorer'
 
 
