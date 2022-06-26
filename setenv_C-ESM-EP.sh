@@ -80,8 +80,6 @@ export CLIMAF_CACHE=$cache
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     with_pcocc=1  # Means : use a container for setting the environment
-    CLIMAF=/home/ssenesi/climaf_installs/climaf_running
-    my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 
@@ -162,6 +160,7 @@ if [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
+    export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
     echo ">>> CC= "$CLIMAF_CACHE
     echo ">>> PP= "$PYTHONPATH
 
@@ -208,3 +207,4 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
 fi
 
 echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
+#export CLIMAF_LOG_LEVEL=warning
