@@ -508,6 +508,7 @@ for component in job_components:
                 print('    -> Parallel execution: nprocs = ' + nprocs)
         #
         # -- Build the job command line
+        job_options += ' --time 480'
         jobname=component + '_' + comparison + '_C-ESM-EP'
         env_variables = ' --export=component=' + component + ',comparison=' + comparison + \
             ',WD=${PWD},cesmep_frontpage=' + frontpage_address + ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache  
@@ -518,7 +519,6 @@ for component in job_components:
             'sbatch --dependency=afternotok:$jobID '+ env_variables + \
             ',atlas_pathfilename=' + atlas_pathfilename + ' ' + \
             '--job-name=err_on_' + jobname + ' ../../share/fp_template/copy_html_error_page.sh ; \n\ncd -'
-        print("spirit main cmd="+cmd)
     #
     if atCNRM:
         jobname = component + '_' + comparison + '_C-ESM-EP'

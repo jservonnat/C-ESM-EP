@@ -13,7 +13,6 @@ from __future__ import unicode_literals, print_function, division
 # -- Imports
 from climaf.api import *
 from climaf.html import * 
-from climaf import cachedir
 from CM_atlas import *
 from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM
 #from climaf.utils import Climaf_Error

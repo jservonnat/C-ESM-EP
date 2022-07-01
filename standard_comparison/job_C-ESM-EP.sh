@@ -12,6 +12,8 @@ set -x
 # --
 # --     Author: Jerome Servonnat
 # --     Contact: jerome.servonnat__at__lsce.ipsl.fr
+# --     Changes :
+# --          2022 : S.Sénési - adapt to TGCC/pcocc
 # --
 # --
 # -------------------------------------------------------- >
@@ -70,12 +72,12 @@ source ${env}
 # ------------------------------------------------------------------- >
 
 if [[ -d "/data/scratch/globc" ]] ; then
-    export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
+    CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
     echo ">>> CC= "$CLIMAF_CACHE
 else
-    export CLIMAF_CACHE
     export TMPDIR=${CLIMAF_CACHE}
 fi
+export CLIMAF_CACHE
 
 
 # -- Run the atlas...
