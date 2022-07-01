@@ -86,7 +86,6 @@ fi
 # -------------------------------------------------------- >
 source ${env}
 
-
 # -- Run the atlas...
 # ------------------------------------------------------- >
 echo "Running Parallel Coordinates metrics for comparison ${comparison}"

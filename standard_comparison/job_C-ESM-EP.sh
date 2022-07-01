@@ -12,16 +12,12 @@ set -x
 # --
 # --     Author: Jerome Servonnat
 # --     Contact: jerome.servonnat__at__lsce.ipsl.fr
-# --     Changes :
-# --          2022 : S.Sénési - adapt to TGCC/pcocc
 # --
 # --
 # -------------------------------------------------------- >
 date
 
 # -> # -- On doit pouvoir le soumettre en batch, ou le soumettre en interactif dans le repertoire de la composante
-
-# -> Separer le cas batch et le cas interactif : identifier les deux
 
 # -- Specify the atlas script
 # -------------------------------------------------------- >
@@ -42,7 +38,8 @@ if [[ $1 != '' ]]; then
 
 else
 
-  # -- comparison, component et WD sont les variables passees avec qsub -v
+  # -- comparison, component, WD ... sont les variables passees avec qsub -v
+  component=${component%/}
   echo '$comparison=' $comparison
   echo '$component=' $component
   echo '$WD=' $WD
@@ -50,19 +47,20 @@ else
   env=../../${env_script}
   main=../../${atlas_file}
   #datasets_setup_file=../datasets_setup.py
+  #param_file=params_${component}.py
+  # -- Name of the parameter file
   if [[ -n ${WD} ]]; then
      cd $WD
   fi
-  component=${component%/}
-  # -- Name of the parameter file
-  #param_file=params_${component}.py
 
 fi
 
 
 # -- Setup the environment...
 # -------------------------------------------------------- >
+echo '$CESMEP_CLIMAF_CACHE=' $CESMEP_CLIMAF_CACHE
 source ${env}
+echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
 
 # -- Provide a season
 # -------------------------------------------------------- >
@@ -72,12 +70,12 @@ source ${env}
 # ------------------------------------------------------------------- >
 
 if [[ -d "/data/scratch/globc" ]] ; then
-    CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
+    export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
     echo ">>> CC= "$CLIMAF_CACHE
 else
+    export CLIMAF_CACHE
     export TMPDIR=${CLIMAF_CACHE}
 fi
-export CLIMAF_CACHE
 
 
 # -- Run the atlas...
@@ -85,10 +83,7 @@ export CLIMAF_CACHE
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 if [ ${with_pcocc:-0} -eq 0 ] ; then 
-
-    #python ${main} -p ${param_file} --season ${season} --datasets_setup ${datasets_setup_file} --comparison ${comparison}
     python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
-
 else
     
     # Using pcocc for running a container (named climaf)

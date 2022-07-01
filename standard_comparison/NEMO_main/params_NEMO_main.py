@@ -38,7 +38,7 @@ clean_cache = False
 routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar')]
 # -- Parallel and memory instructions
 do_parallel = False
-nprocs = 32
+nprocs = 12
 memory = 40  # in gb; 30 for ocean atlasas
 # queue = 'days3' # onCiclad: h12, days3
 
