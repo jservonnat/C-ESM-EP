@@ -331,6 +331,7 @@ if argument.lower() not in ['url']:
 # -- Submit the jobs
 for component in job_components:
     if do_print:
+        print()
         print('  -- component = ', component)
     # -- Define where the directory where the job is submitted
     submitdir = main_cesmep_path + '/' + comparison + '/' + component

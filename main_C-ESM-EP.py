@@ -136,7 +136,8 @@ user_login = (os.getcwd().split('/')[4] if username == 'fabric' else username)
 # -----------------------------------------------------------------------------------
 # -> path_to_cesmep_output_rootdir = where (directory) we physically store the results of the C-ESM-EP
 # (root directory of the whole atlas tree)
-# -> path_to_cesmep_output_rootdir_on_web_server = path to the results on the web server
+# -> path_to_cesmep_output_rootdir_on_web_server = path to the results on the web server (which are
+# soft- or hard-linked to results on path_to_cesmep_output_rootdir, or even copied from there)
 # -> root_url_to_cesmep_outputs = URL of the root directory of the C-ESM-EP atlas (need to add 'C-ESM-EP',
 # comparison and component to reach the atlas)
 

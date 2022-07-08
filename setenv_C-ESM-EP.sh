@@ -87,9 +87,12 @@ fi
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
 	# --> On Spirit
-	echo Loading module cesmep
+	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
-	module load /home/ssenesi/environnements/modules/cesmep
+	module purge
+	module load $emodule
+	echo $PYTHONPATH
     else
 	unset PYTHONPATH
 	module load climaf

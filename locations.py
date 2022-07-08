@@ -69,16 +69,17 @@ if onCiclad:
     #
     climaf_cache = '/scratchu/' + username + '/atlas_explorer'
 
-# -- Spirit, without web
+# -- Spirit
 if onSpirit:
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
-    # -- where we store all the C-ESM-EP comparisons
-    path_to_cesmep_output_rootdir = '/scratchu/'+username
+    # -- where we generate all the C-ESM-EP comparisons (later moved to thredds)
+    path_to_cesmep_output_rootdir = '/scratchu/'+username  # Pour résultats des comparaisons
+    #
+    # -- path 
+    path_to_cesmep_output_rootdir_on_web_server = '/thredds/ipsl/'+username    #pour index général
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
-    root_url_to_cesmep_outputs = 'file://'+path_to_cesmep_output_rootdir
-    path_to_cesmep_output_rootdir_on_web_server = None
-    #
+    root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username
     climaf_cache = '/scratchu/' + username + '/atlas_explorer'
 
 
@@ -95,6 +96,7 @@ if atTGCC:
         root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work_thredds/' + username
     else:
         root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work/' + username
+    #
     path_to_cesmep_output_rootdir_on_web_server = str.replace(str.replace(path_to_cesmep_output_rootdir,
                                                                            '/scratch/', '/work/'),
                                                               '/'+wspace+'/', '/thredds/')
