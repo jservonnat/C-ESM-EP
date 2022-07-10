@@ -92,7 +92,6 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	set +x
 	module purge
 	module load $emodule
-	echo $PYTHONPATH
     else
 	unset PYTHONPATH
 	module load climaf
