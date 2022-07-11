@@ -22,7 +22,5 @@ fi
 python run_C-ESM-EP.py $test 
 
 if [ ! -z $CESMEP_CLIMAF_CACHE ] ; then 
-    echo "-----------------------------------------------------------------------------------------"
     echo "Don't forget to erase temporary cache after results check. It is at $CESMEP_CLIMAF_CACHE"
-    echo "-----------------------------------------------------------------------------------------"
 fi
