@@ -57,11 +57,11 @@ if atCNRM:
 if onCiclad:
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we store all the C-ESM-EP comparisons
-    #path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
-    path_to_cesmep_output_rootdir = '/scratchu/'+username
+    path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
     root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username
+    
     # -- At TGCC you can have a different path to access the data that are visible from the web
     #    than the path where you actually stored your data (ex: path to thredds )
     # -- Can be equal to store_atlas_results_dir, but at TGCC
@@ -85,22 +85,19 @@ if onSpirit:
 
 # -- TGCC
 if atTGCC:
-    CWD = os.getcwd()
-    if '/drf/' in CWD:
-        wspace = 'drf'
-    if '/gencmip6/' in CWD:
-        wspace = 'gencmip6'
-    path_to_cesmep_output_rootdir = '/ccc/scratch/cont003/'+wspace+'/'+username
-    root_url = "https://vesg.ipsl.upmc.fr"
-    if 'gencmip6' in CWD:
-        root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work_thredds/' + username
-    else:
-        root_url_to_cesmep_outputs = root_url + '/thredds/fileServer/work/' + username
-    #
-    path_to_cesmep_output_rootdir_on_web_server = str.replace(str.replace(path_to_cesmep_output_rootdir,
-                                                                           '/scratch/', '/work/'),
-                                                              '/'+wspace+'/', '/thredds/')
-    climaf_cache=os.getenv('CCCSCRATCHDIR') + '/cache_atlas_explorer'
+    # Components outputs will be temporarily on scratchdir, and
+    # ultimately copied on workdir, with a hard link on the thredds 
+    # (using thredds_cp)
+    scratch = os.getenv("CCCSCRATCHDIR")
+    path_to_cesmep_output_rootdir = scratch
+    
+    work    = os.getenv("CCCWORKDIR")
+    project = str(work.split("/")[4])   # Should be the project label, e.g. gencmip6, gen0826
+    thredds = work.replace('/'+project+'/', '/thredds/')
+    path_to_cesmep_output_rootdir_on_web_server = thredds
+    root_url_to_cesmep_outputs = 'https://thredds-su.ipsl.fr/thredds/fileServer/tgcc_thredds/work/' + username
+
+    climaf_cache = scratch + '/cache_atlas_explorer'
 
 
 # At Cerfacs

@@ -278,6 +278,8 @@ if atTGCC:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace('scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
+    #thredds_cp = "/ccc/cont003/home/igcmg/igcmg/Tools/irene/thredds_cp" 
+    thredds_cp = "thredds_cp"   # actual complete path is a matter of user environment
 
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
@@ -323,7 +325,7 @@ if argument.lower() not in ['url']:
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 # 3. thredds_cp
-                os.system('thredds_cp ' + atlas_pathfilename + ' ' + path_to_comparison_on_web_server + component)
+                os.system(thredds_cp  + ' ' +  atlas_pathfilename + ' ' + path_to_comparison_on_web_server + component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
 
@@ -336,6 +338,7 @@ for component in job_components:
     # -- Define where the directory where the job is submitted
     submitdir = main_cesmep_path + '/' + comparison + '/' + component
     #
+    account = 'devcmip6'
     # -- Do we execute the code in parallel?
     # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
     do_parallel = False
@@ -368,6 +371,8 @@ for component in job_components:
             memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
             queue = param_line.replace(' ', '').split('=')[1].split('#')[0]
+        if 'account' in param_line and param_line[0] != '#':
+            account = param_line.replace(' ', '').split('=')[1].split('#')[0]
 
     #
     # -- Needed to copy the html error page if necessary
@@ -605,7 +610,7 @@ if atTGCC:
     cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
     print(cmd1)
     os.system(cmd1)
-    cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
+    cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
           + ' ; rm ' + frontpage_html
 
 if onCiclad or onSpirit or atCNRM or atCerfacs:
@@ -614,9 +619,9 @@ os.system(cmd)
 
 # -- Copy the top image
 if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
-    if atTGCC:
+    if atTGCC :
         os.system('cp share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_outdir_workdir_tgcc)
-        cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
+        cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
               path_to_comparison_on_web_server
     if onCiclad or onSpirit or atCNRM or atCerfacs:
         cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_on_web_server
