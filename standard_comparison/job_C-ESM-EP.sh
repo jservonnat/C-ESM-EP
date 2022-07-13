@@ -30,8 +30,8 @@ if [[ $1 != '' ]]; then
   component=${1%/}
   comparison=$(basename $PWD)
   #comparison=$(basename $(dirname $0) | sed 's=/==g')
-  env=../${env_script}
-  main=../${atlas_file}
+  env=$(cd ../; pwd)/${env_script}
+  main=$(cd ../; pwd)/${atlas_file}
   #datasets_setup_file=datasets_setup.py
   # -- Name of the parameter file
   #param_file=${component}/params_${component}.py
@@ -44,11 +44,11 @@ else
   echo '$component=' $component
   echo '$WD=' $WD
   echo '$cesmep_frontpage=' $cesmep_frontpage
-  env=../../${env_script}
-  main=../../${atlas_file}
+  env=$(cd ../..; pwd)/${env_script}
+  main=$(cd ../..; pwd)/${atlas_file}
   #datasets_setup_file=../datasets_setup.py
-  #param_file=params_${component}.py
   # -- Name of the parameter file
+  #param_file=params_${component}.py
   if [[ -n ${WD} ]]; then
      cd $WD
   fi
@@ -81,24 +81,35 @@ fi
 # -- Run the atlas...
 # -------------------------------------------------------- >
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
-echo "Using CliMAF cache = ${CLIMAF_CACHE}"
-if [ ${with_pcocc:-0} -eq 0 ] ; then 
+#echo "Using CliMAF cache = ${CLIMAF_CACHE}"
+if [ ${with_pcocc:-0} -eq 0 ] ; then
     python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
 else
     
     # Using pcocc for running a container (named climaf)
     # We assume this happens only at TGCC
     # It needs that the user ran once:
-    #    pcocc image import docker-archive:/some/dir/climaf_docker.tar climaf
+    #    pcocc image import docker-archive:/ccc/work/cont003/gen0826/senesis/docker_archives/cesmep.tar cesmep
     
-    env="-e CCCWORKDIR=$CCCWORKDIR -e CCCSTOREDIR=$CCCSTOREDIR"
-    env+=" -e CCCHOME=$CCCHOME -e CCCSCRATCHDIR=$CCCSCRATCHDIR"   # -e DISPLAY=$DISPLAY 
-    
-    env+=" -e CLIMAF_LOG_DIR=$CLIMAF_LOG_DIR -e CLIMAF_LOG_LEVEL=$CLIMAF_LOG_LEVEL"
-    env+=" -e CLIMAF_CACHE=$CLIMAF CACHE -e CLIMAF_REMOTE_CACHE=$CLIMAF_REMOTE_CACHE"
-    pcocc run -s $env -I climaf <<-EOF
-	conda activate climaf 
+    env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH -e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
+    # -e DISPLAY=$DISPLAY 
+    pcocc run -s $env -I cesmep --cwd $(pwd) <<-EOF
+	# Initialize conda environment for CliMAF and CESMEP
+	. /opt/conda/etc/profile.d/conda.sh
+	conda activate cesmep
+
+	set -x
+	umask 0022
+
+	# CliMAF version used is usually the one included in the Docker container
+	export PYTHONPATH=/src/climaf:\$PYTHONPATH 
+
+	# Need one IGCMG tool (thredds_cp)
+	PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene
+
+	# Run C-ESM-EP main script
 	python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+
 	EOF
 fi
 
