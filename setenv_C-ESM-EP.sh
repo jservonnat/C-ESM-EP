@@ -65,9 +65,9 @@ function my_append {
 if [[ -d "${PWD}/share/cesmep_modules" ]] ; then
     cesmep_modules=${PWD}/share/cesmep_modules
 elif [[ -d "${PWD}/../share/cesmep_modules" ]] ; then
-    cesmep_modules=${PWD}/../share/cesmep_modules
+    cesmep_modules=$(cd ${PWD}/../share/cesmep_modules; pwd)
 elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
-    cesmep_modules=${PWD}/../../share/cesmep_modules
+    cesmep_modules=$(cd ${PWD}/../../share/cesmep_modules; pwd)
 fi
 
 echo CESMEP_CLIMAF_CACHE=$CESMEP_CLIMAF_CACHE
@@ -81,6 +81,7 @@ export CLIMAF_CACHE=$cache
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     with_pcocc=1  # Means : use a container for setting the environment
+    env_name=climaf_spirit_0  # Name of the conda environment brought by the container
     my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 

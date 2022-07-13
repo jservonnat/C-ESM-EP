@@ -345,6 +345,7 @@ for component in job_components:
     nprocs = '32'
     memory = None
     queue = None
+    account = None # used at TGCC
     param_lines = []
     if os.path.isfile(submitdir + '/params_' + component + '.py'):
         param_filename = open(submitdir + '/params_' + component + '.py')
@@ -387,7 +388,6 @@ for component in job_components:
     # ---------------------------------------------------
     # -- Case atTGCC
     if atTGCC:
-        account = 'gen0826'
         name = component + '_' + comparison + '_C-ESM-EP'
         if email:
             add_email = ' -@ ' + email
