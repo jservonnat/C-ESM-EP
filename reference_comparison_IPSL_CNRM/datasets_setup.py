@@ -132,6 +132,7 @@
 # --    - ORCHIDEE_2D_maps
   
 # ---------------------------------------------------------------------------- >
+import sys
 from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs
 from CM_atlas import *
 
@@ -147,30 +148,93 @@ if atTGCC:
 if atCNRM:
     gridpath = '/cnrm/est/COMMON/C-ESM-EP/grids/'
 
-# -- Setup the models list
-models = [
-    dict(project='CMIP6', model='CNRM-CM6-1', experiment='piControl',
-         frequency='monthly', period='1950-1953',
-         customname='CNRM-CM6-control'
-    ),
-    dict(project='CMIP6', model='IPSL-CM6A-LR', experiment='historical',
-         frequency='monthly', period='1980-2005', realization='r2i1p1f1',
-         version='latest', customname='IPSL-CM6-hist-r2'
-    ),
-    ]
+# # -- Setup the models list
+# models = [
+#     dict(project='CMIP6', model='CNRM-CM6-1', experiment='piControl',
+#          frequency='monthly', period='1950-1953',
+#          customname='CNRM-CM6-control'
+#     ),
+#     dict(project='CMIP6', model='IPSL-CM6A-LR', experiment='historical',
+#          frequency='monthly', period='1980-2005', realization='r2i1p1f1',
+#          version='latest', customname='IPSL-CM6-hist-r2'
+#     ),
+#     ]
 
+# --> case onCiclad or atTGCC:
+if onCiclad or atTGCC or onSpirit:
+    models = [
+        
+        dict(project='IGCM_OUT',
+             login='lurtont',
+             model='IPSLCM6',
+             experiment='historical',
+            simulation='CM61-LR-hist-01',
+             clim_period='1980-2005',
+             customname='CM61-LR-hist-01 *',
+             color='red'
+        ),
+        
+        dict(project='IGCM_OUT',
+             login='lurtont',
+             model='IPSLCM6',
+             experiment='historical',
+             simulation='CM61-LR-hist-01',
+             frequency='monthly',
+             clim_period='last_10Y',
+             customname='CM61-LR-hist-01 last_10Y',
+             color='blue',
+        ),
+        
+        
+        # dict(project='CMIP6',
+        #      model='IPSL-CM6A-LR',
+        #      experiment='historical',
+        #      frequency='monthly',
+        #      period='1980-2005',
+        #      realization='r2i1p1f1',
+        #      version='latest'
+        #      ),
+        
+    ]
+    # -- We don't have access to the CMIP5 archive at TGCC; we remove them from the list models
+    if atTGCC:
+        root = '/ccc/store/cont003/gencmip6'
+    if onCiclad or onSpirit:
+        root = '/thredds/tgcc/store'
+    #
+    # -- Provide a set of common keys to the elements of models
+    # ---------------------------------------------------------------------------- >
+    common_keys = dict(
+        root=root,
+        login='*',
+        frequency='monthly',
+        clim_period='last_30Y',
+        ts_period='full',
+        ENSO_ts_period='last_80Y',
+        mesh_hgr=gridpath + 'eORCA1.2_mesh_mask_glo.nc',
+        gridfile=gridpath + 'eORCA1.1_grid.nc',
+        varname_area='area',
+    )
+    #
+    for model in models:
+        if model['project'] == 'IGCM_OUT':
+            for key in common_keys:
+                if key not in model:
+                    model.update({key: common_keys[key]})
+        if model['model'] == 'IPSL-CM6A-LR':
+            model['gridfile'] = gridpath+ 'eORCA1.2_mesh_mask_glo.nc'
+            model['mesh_hgr'] = gridpath + 'eORCA1.1_grid.nc'
+
+else:
+    print("reference_comparison is not yet tuned outside IPSL or TGCC")
+    sys.exit(1)
+    
 # --> case atCNRM:
 if atCNRM:
     for model in models:
         if model['model'] == 'CNRM-CM6-1' or model['model'] == 'CNRM-ESM2-1':
             model['gridfile'] = gridpath+'ORCA1_mesh_zgr.nc'
             model['mesh_hgr'] = gridpath+'ORCA1_mesh_hgr.nc'
-
-if atTGCC or onCiclad or onSpirit:
-    for model in models:
-        if model['model'] == 'IPSL-CM6A-LR':
-            model['gridfile'] = gridpath+ 'eORCA1.2_mesh_mask_glo.nc'
-            model['mesh_hgr'] = gridpath + 'eORCA1.1_grid.nc'
 
 
 # -- Find the last available common period to all the datasets
