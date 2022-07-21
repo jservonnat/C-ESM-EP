@@ -230,11 +230,11 @@ else:
     sys.exit(1)
     
 # --> case atCNRM:
-if atCNRM:
-    for model in models:
-        if model['model'] == 'CNRM-CM6-1' or model['model'] == 'CNRM-ESM2-1':
-            model['gridfile'] = gridpath+'ORCA1_mesh_zgr.nc'
-            model['mesh_hgr'] = gridpath+'ORCA1_mesh_hgr.nc'
+# if atCNRM:
+#     for model in models:
+#         if model['model'] == 'CNRM-CM6-1' or model['model'] == 'CNRM-ESM2-1':
+#             model['gridfile'] = gridpath+'ORCA1_mesh_zgr.nc'
+#             model['mesh_hgr'] = gridpath+'ORCA1_mesh_hgr.nc'
 
 
 # -- Find the last available common period to all the datasets
