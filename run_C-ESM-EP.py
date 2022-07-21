@@ -41,12 +41,6 @@ import re
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs, climaf_cache
 
-
-# -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-# email = "gaelle.rigoudy@meteo.fr"
-#email = "jerome.servonnat@lsce.ipsl.fr"
-email = "stephane.senesi@ipsl.fr"
-
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
 from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
@@ -64,6 +58,19 @@ if username == 'fabric':
 else:
     user_login = username
 
+# -- Get account, used at TGCC
+try :
+    from .settings import account
+except:
+    account = None 
+
+    
+# -- Get email
+try :
+    from .settings import email
+except:
+    email=None
+    
 # -- Use specific location for CLIMAF_CACHE if set
 cesmep_climaf_cache=os.getenv("CESMEP_CLIMAF_CACHE",'')
 
@@ -338,14 +345,12 @@ for component in job_components:
     # -- Define where the directory where the job is submitted
     submitdir = main_cesmep_path + '/' + comparison + '/' + component
     #
-    account = 'devcmip6'
     # -- Do we execute the code in parallel?
     # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
     do_parallel = False
     nprocs = '32'
     memory = None
     queue = None
-    account = None # used at TGCC
     param_lines = []
     if os.path.isfile(submitdir + '/params_' + component + '.py'):
         param_filename = open(submitdir + '/params_' + component + '.py')
@@ -372,8 +377,6 @@ for component in job_components:
             memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
             queue = param_line.replace(' ', '').split('=')[1].split('#')[0]
-        if 'account' in param_line and param_line[0] != '#':
-            account = param_line.replace(' ', '').split('=')[1].split('#')[0]
 
     #
     # -- Needed to copy the html error page if necessary
@@ -393,6 +396,9 @@ for component in job_components:
             add_email = ' -@ ' + email
         else:
             add_email = ''
+        if account is None:
+            # Deduce account from CCCHOME
+            account=os.getenv("CCCHOME").split("/")[3]
         if component not in metrics_components:
             cmd = 'cd ' + submitdir + ' ; export ' +\
                 ' comparison=' + comparison +\

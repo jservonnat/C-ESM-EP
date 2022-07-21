@@ -12,12 +12,13 @@ import os
 
 # Identify on which system we are running, generally using a CliMAF module
 if not os.path.exists('/ccc') or os.path.exists('/data'):
-    from env.site_settings import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
+    from env.site_settings import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs
 else:
     # On TGCC, we wish to avoid having to use CliMAF in this utility script, because
     # CliMAF is available through a docker container, and we would like to avoid using
     # this slightly heavy procedure when executing this script
-    from tgcc_settings import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
+    atCNRM = onCiclad = onSpirit = atCerfacs = False
+    atTGCC = True
 
 username = getpass.getuser()
 

@@ -70,12 +70,10 @@ echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
 # ------------------------------------------------------------------- >
 
 if [[ -d "/data/scratch/globc" ]] ; then
-    export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
-    echo ">>> CC= "$CLIMAF_CACHE
-else
-    export CLIMAF_CACHE
-    export TMPDIR=${CLIMAF_CACHE}
+    CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
 fi
+export CLIMAF_CACHE
+echo ">>> CC= "$CLIMAF_CACHE
 
 
 # -- Run the atlas...
@@ -83,20 +81,24 @@ fi
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 if [ ${with_pcocc:-0} -eq 0 ] ; then
+
+    export TMPDIR=${CLIMAF_CACHE}
     python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+
 else
-    
-    # Using pcocc for running a container (named climaf)
-    # We assume this happens only at TGCC
+
+    # This implies we are at TGCC -> using pcocc for running a container (named climaf)
     # It needs that the user ran once:
-    #    pcocc image import docker-archive:/ccc/work/cont003/gen0826/senesis/docker_archives/cesmep.tar cesmep
+    #    pcocc image import docker-archive:/ccc/work/cont003/gen0826/senesis/docker_archives/climaf.tar climaf
+    # We assume that $env_name has been set (by setenv_C-ESM-EP.sh) to the name of the conda
+    # environment provided by the climaf container
     
     env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH -e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
-    # -e DISPLAY=$DISPLAY 
-    pcocc run -s $env -I cesmep --cwd $(pwd) <<-EOF
+    pcocc run -s $env -I climaf --cwd $(pwd) <<-EOF
+
 	# Initialize conda environment for CliMAF and CESMEP
-	. /opt/conda/etc/profile.d/conda.sh
-	conda activate cesmep
+	. /opt/mamba/etc/profile.d/conda.sh
+	conda activate $env_name
 
 	set -x
 	umask 0022

@@ -174,16 +174,16 @@ if onCiclad or atTGCC or onSpirit:
              color='red'
         ),
         
-        dict(project='IGCM_OUT',
-             login='lurtont',
-             model='IPSLCM6',
-             experiment='historical',
-             simulation='CM61-LR-hist-01',
-             frequency='monthly',
-             clim_period='last_10Y',
-             customname='CM61-LR-hist-01 last_10Y',
-             color='blue',
-        ),
+        # dict(project='IGCM_OUT',
+        #      login='lurtont',
+        #      model='IPSLCM6',
+        #      experiment='historical',
+        #      simulation='CM61-LR-hist-01',
+        #      frequency='monthly',
+        #      clim_period='last_10Y',
+        #      customname='CM61-LR-hist-01 last_10Y',
+        #      color='blue',
+        # ),
         
         
         # dict(project='CMIP6',

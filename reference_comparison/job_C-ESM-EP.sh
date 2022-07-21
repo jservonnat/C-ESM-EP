@@ -81,9 +81,12 @@ echo ">>> CC= "$CLIMAF_CACHE
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 if [ ${with_pcocc:-0} -eq 0 ] ; then
+    
     export TMPDIR=${CLIMAF_CACHE}
     python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+    
 else
+
     # This implies we are at TGCC -> using pcocc for running a container (named climaf)
     # It needs that the user ran once:
     #    pcocc image import docker-archive:/ccc/work/cont003/gen0826/senesis/docker_archives/climaf.tar climaf
@@ -91,9 +94,6 @@ else
     # environment provided by the climaf container
     
     env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH -e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
-    # -e DISPLAY=$DISPLAY
-    env 
-    echo "TPDIR="$TMPDIR
     pcocc run -s $env -I climaf --cwd $(pwd) <<-EOF
 
 	# Initialize conda environment for CliMAF and CESMEP
