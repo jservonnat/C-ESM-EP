@@ -43,7 +43,7 @@ from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootd
 
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
-from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
+from locations import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs
 
 # -- Working directory
 main_cesmep_path = os.getcwd()
