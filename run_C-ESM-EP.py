@@ -43,7 +43,7 @@ from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootd
 
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
-from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
+from locations import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs
 
 # -- Working directory
 main_cesmep_path = os.getcwd()
@@ -398,7 +398,7 @@ for component in job_components:
             add_email = ''
         if account is None:
             # Deduce account from CCCHOME
-            account=os.getenv("CCCHOME").split("/")[3]
+            account=os.getenv("CCCHOME").split("/")[4]
         if component not in metrics_components:
             cmd = 'cd ' + submitdir + ' ; export ' +\
                 ' comparison=' + comparison +\
