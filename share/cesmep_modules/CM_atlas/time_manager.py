@@ -188,7 +188,7 @@ def get_period_manager(dat_dict, diag=None):
                 dat_dict['period'] = str(req.kvp['period'])
             else:
                 print('Error in get_period_manager => No File found for ', req_dict)
-                print(cfile(req))
+                #print(cfile(req))
                 if tested_variable != req_dict['variable']:
                     print('Initially you asked for variable ', tested_variable)
 
