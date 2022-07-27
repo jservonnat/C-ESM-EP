@@ -70,14 +70,6 @@ elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
     cesmep_modules=${PWD}/../../share/cesmep_modules
 fi
 
-echo CESMEP_CLIMAF_CACHE=$CESMEP_CLIMAF_CACHE
-
-# Set CliMAF cache
-here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
-cache=$(cd $here ; python3 -c 'from locations import climaf_cache; print(climaf_cache)')
-export CLIMAF_CACHE=$cache
-# export above will be re-done for some cases, further below, e.g. after a "module load climaf"
-
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     with_pcocc=1  # Means : use a container for setting the environment
@@ -96,8 +88,6 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	unset PYTHONPATH
 	module load climaf
 	module switch climaf/2.0.0-python3.6_test # This sets CLIMAF
-	# Must set again CLIMAF_CACHE
-	export CLIMAF_CACHE=$cache
 	working_conda=/net/nfs/tools/Users/SU/jservon/miniconda3_envs/analyse_3.6_test
 	LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
 	my_append -bp PATH ${CLIMAF}
@@ -161,7 +151,6 @@ if [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
-    echo ">>> CC= "$CLIMAF_CACHE
     echo ">>> PP= "$PYTHONPATH
 
     # -- CDFTools
@@ -198,7 +187,6 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
-    echo ">>> CC= "$CLIMAF_CACHE
     echo ">>> PP= "$PYTHONPATH
 
     # -- CDFTools
@@ -206,4 +194,12 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
     #echo "PATH ${PATH}"
 fi
 
-echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
+# Set CliMAF cache
+here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
+cache=$(cd $here ; python3 -c 'from locations import climaf_cache; print(climaf_cache)')
+export CLIMAF_CACHE=$cache
+# export above will be re-done for some cases, further below, e.g. after a "module load climaf"
+
+echo CLIMAF_CACHE = $CLIMAF_CACHE
+echo CESMEP_CLIMAF_CACHE = $CESMEP_CLIMAF_CACHE
+
