@@ -46,8 +46,8 @@ routine_cache_cleaning = [dict(age='+20')]
 do_parallel = False
 # nprocs = 32
 # memory = 20 # in gb
-# queue = 'days3'
-queue='zen4'
+queue = 'zen4'
+
 
 # -- Set the reference against which we plot the diagnostics
 # -- If you set it in the parameter file, it will overrule
