@@ -38,8 +38,8 @@ import os
 import sys
 import getpass
 import re
-from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
-    root_url_to_cesmep_outputs, climaf_cache
+from locations import path_to_cesmep_output_rootdir, \
+    path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs, climaf_cache
 
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
@@ -60,14 +60,14 @@ else:
 
 # -- Get account, used at TGCC
 try :
-    from .settings import account
+    from settings import account
 except:
     account = None 
 
     
 # -- Get email
 try :
-    from .settings import email
+    from settings import email
 except:
     email=None
     
