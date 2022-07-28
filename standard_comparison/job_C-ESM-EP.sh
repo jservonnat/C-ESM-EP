@@ -61,6 +61,8 @@ fi
 echo '$CESMEP_CLIMAF_CACHE=' $CESMEP_CLIMAF_CACHE
 source ${env}
 echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
+# Need to import from comparison directory :
+my_append -bp PYTHONPATH $(cd ..; pwd)
 
 # -- Provide a season
 # -------------------------------------------------------- >
@@ -89,7 +91,8 @@ else
 
     # This implies we are at TGCC -> using pcocc for running a container (named climaf)
     # It needs that the user ran once:
-    #    pcocc image import docker-archive:/ccc/work/cont003/gen0826/senesis/docker_archives/climaf.tar climaf
+    #    pcocc image import \
+    #      docker-archive:/ccc/work/cont003/gen0826/senesis/docker_archives/climaf.tar climaf
     # We assume that $env_name has been set (by setenv_C-ESM-EP.sh) to the name of the conda
     # environment provided by the climaf container
     
