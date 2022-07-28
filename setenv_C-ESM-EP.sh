@@ -70,14 +70,6 @@ elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
     cesmep_modules=$(cd ${PWD}/../../share/cesmep_modules; pwd)
 fi
 
-echo CESMEP_CLIMAF_CACHE=$CESMEP_CLIMAF_CACHE
-
-# Set CliMAF cache
-here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
-cache=$(cd $here ; python3 -c 'from locations import climaf_cache; print(climaf_cache)')
-export CLIMAF_CACHE=$cache
-# export above will be re-done for some cases, further below, e.g. after a "module load climaf"
-
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     with_pcocc=1  # Means : use a container for setting the environment
@@ -98,8 +90,6 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	unset PYTHONPATH
 	module load climaf
 	module switch climaf/2.0.0-python3.6_test # This sets CLIMAF
-	# Must set again CLIMAF_CACHE
-	export CLIMAF_CACHE=$cache
 	working_conda=/net/nfs/tools/Users/SU/jservon/miniconda3_envs/analyse_3.6_test
 	LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
 	CLIMAF=/home/ssenesi/climaf_installs/climaf_running
@@ -202,7 +192,6 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
-    echo ">>> CC= "$CLIMAF_CACHE
     echo ">>> PP= "$PYTHONPATH
 
     # -- CDFTools
@@ -210,5 +199,13 @@ if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
     #echo "PATH ${PATH}"
 fi
 
-echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
-#export CLIMAF_LOG_LEVEL=warning
+# Set CliMAF cache
+here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
+cache=$(cd $here ; python3 -c 'from locations import climaf_cache; print(climaf_cache)')
+if [[ ! "$CLIMAF_CACHE" = /data/scratch/globc/* ]] ; then  # special case for Cerfacs
+    export CLIMAF_CACHE=$cache
+fi
+
+echo CLIMAF_CACHE = $CLIMAF_CACHE
+echo CESMEP_CLIMAF_CACHE = $CESMEP_CLIMAF_CACHE
+
