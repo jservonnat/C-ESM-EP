@@ -94,11 +94,11 @@ atlas_explorer_variables = [dict(variable='tas',
                                      IGCM_OUT=dict(DIR='ATM'),
                                      CMIP6=dict(table='Amon'),
                                  )),
-                            dict(variable='tos', table='Omon',
-                                 project_specs=dict(
-                                     IGCM_OUT=dict(DIR='OCE'),
-                                     CMIP6=dict(grid='gn'),
-                                 )),
+                            # dict(variable='tos', table='Omon',
+                            #      project_specs=dict(
+                            #          IGCM_OUT=dict(DIR='OCE'),
+                            #          CMIP6=dict(grid='gn'),
+                            #      )),
                             dict(variable='ua', season='DJF', table='Amon',
                                  project_specs=dict(
                                      IGCM_OUT=dict(DIR='ATM'),

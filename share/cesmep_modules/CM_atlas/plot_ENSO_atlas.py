@@ -277,12 +277,20 @@ def find_common_period(period1, period2):
         common_period = 'fx'
     else:
         sep_period1 = ('-' if '-' in period1 else '_')
-        start_period1 = int(period1.split(sep_period1)[0][0:4])
-        end_period1 = int(period1.split(sep_period1)[1][0:4])
+        period_limits = period1.split(sep_period1)
+        start_period1 = int(period_limits[0][0:4])
+        if len(period_limits) > 1 : 
+            end_period1 = int(period_limits[1][0:4])
+        else:
+            end_period1 = start_period1
         #
         sep_period2 = ('-' if '-' in period2 else '_')
-        start_period2 = int(period2.split(sep_period2)[0][0:4])
-        end_period2 = int(period2.split(sep_period2)[1][0:4])
+        period_limits = period2.split(sep_period2)
+        start_period2 = int(period_limits[0][0:4])
+        if len(period_limits) > 1 : 
+            end_period2 = int(period_limits[1][0:4])
+        else:
+            end_period2 = start_period2
         #
         start = str(sorted([start_period1, start_period2], reverse=True)[0])
         end = str(sorted([end_period1, end_period2])[0])
