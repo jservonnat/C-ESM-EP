@@ -400,14 +400,19 @@ for component in job_components:
             # Deduce account from CCCHOME
             account=os.getenv("CCCHOME").split("/")[4]
         if component not in metrics_components:
+            if component != 'NEMO_zonmean':
+                partition = '-q skylake'
+            else:
+                partition = '-q xlarge'
             cmd = 'cd ' + submitdir + ' ; export ' +\
                 ' comparison=' + comparison +\
                 ' component=' + component +\
                 ' cesmep_frontpage=' + frontpage_address +\
                 ' CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
+                ' PYTHONPATH=' + os.getenv("PYTHONPATH") +\
                 ' ; ccc_msub' + add_email +\
                 ' -r ' + name + ' -o ' + name + '_%I.out' + ' -e ' + name + '_%I.out' +\
-                ' -n 1 -T 36000 -q skylake -Q normal -A ' + account +\
+                ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
                 ' -m store,work,scratch ' +\
                 '../job_C-ESM-EP.sh ; cd -'
     #

@@ -4,7 +4,8 @@
 import sys
 #from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs
 from CM_atlas import *
-from libIGCM_settings import root, Login, TagName, SpaceName, ExpType, ExperimentName, PackFrequency
+from libIGCM_settings import root, Login, TagName, SpaceName, \
+    ExpType, ExperimentName, frequency, OUT, begin, end, DateBegin
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
@@ -17,7 +18,7 @@ models = [
              login='lurtont',
              model='IPSLCM6',
              experiment='historical',
-            simulation='CM61-LR-hist-01',
+             simulation='CM61-LR-hist-01',
              clim_period='1981-2005',
              customname='CM61-LR-hist-01 *',
              color='red'
@@ -30,9 +31,11 @@ models = [
              status=SpaceName,
              experiment=ExpType,
              simulation=ExperimentName,
-             frequency='monthly',
-             OUT='Output',
-             clim_period='last_%s'%PackFrequency,
+             frequency=frequency,
+             OUT=OUT,
+             clim_period="%s_%s"%(begin,end),
+             period="%s_%s"%(begin,end),
+             ts_period="%s_%s"%(begin,end),
              color='blue'
         ),
 ]

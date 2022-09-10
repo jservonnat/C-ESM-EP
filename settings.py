@@ -6,4 +6,4 @@ email = "stephane.senesi@ipsl.fr"
 
 # Which account / project will be charged for computing hours ? If
 # None, on TGCC, CCCHOME path will be used to deduce default accout
-account=None
+account = None
