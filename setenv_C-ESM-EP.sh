@@ -80,8 +80,17 @@ export CLIMAF_CACHE=$cache
 
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
-    with_pcocc=1  # Means : use a container for setting the environment
-    env_name=climaf_spirit_0  # Name of the conda environment brought by the container
+    # container to use for setting the environment
+    prerequisites_container=cesmep_container    
+    if ! pcocc image show $prerequisites_container > /dev/null 2>&1 ; then
+	echo -e"\n\nBefore you firt run of C-ESM-EP at TGCC, you must tell pcocc which is the Docker "
+	echo "container that satisfies C-ESM-EP prerequisites, by issuing (only once) a command like"
+	echo -e "\n\t pcocc image import docker-archive:\$container_archive $prerequisites_container\n"
+	echo -e "Ask your C-ESM-EP guru for the up-to-date location of \$container_archive"
+	exit 1
+    fi
+    CLIMAF=/src/climaf  # This is Climaf location in container
+    my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 

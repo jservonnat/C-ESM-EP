@@ -5,37 +5,59 @@
 
 # Setup parameters are read from libIGMCM_post.param (as written by
 # libIGCM_install.sh when called by libIGCM ins_job)
+#set -x
 
 begin=$1
 end=$2
 
 cd $(dirname $0)
+out=$(pwd)/libIGCM_post.out
 
-#Read comparison and components to run from helper file
-read comparison components DateBegin ConfigCesmep CesmepCode remain < libIGCM_post.param
-[ $components = , ] && components=""
+# Read helper file
+read CesmepCode comparison DateBegin CesmepPeriod CesmepSlices cache components < libIGCM_post.param
+
+# Analyze if last batch of simulation outputs allow to compute a new atlas slice
+# (where slices are aligned with DateBegin and have a duration of CesmepPeriod).
+# i.e. that it exists a slice ending in the provided data period, 
+# If there is multiple such slices, we use the last one
+
+DateBegin=${DateBegin:0:4}
+begin=${begin:0:4}
+end=${end:0:4}
+
+if [ $CesmepPeriod != 0 ] ; then 
+    compute_new_slice=false
+    slice_end=$(( DateBegin + CesmepPeriod -1 ))
+    while [ $slice_end -le $end ]; do
+	if [ $slice_end -ge $begin -a $slice_end -le $end ] ; then
+	    compute_new_slice=true
+	fi
+	slice_end=$(( slice_end + CesmepPeriod ))
+    done
+    slice_end=$(( slice_end - CesmepPeriod ))
+
+    if [ $compute_new_slice = false ] ; then
+	echo "Not enough data for computing a new atlas slice ">$out
+	echo "DateBegin=$DateBegin, CesmepPeriod=$CesmepPeriod, begin=$begin, end=$end " > $out
+	exit 0
+    fi
+else
+    slice_end=$end
+fi
 
 # Complement settings with runtime parameters
+fixed_settings=$comparison/libIGCM_fixed_settings.py
 settings=$comparison/libIGCM_settings.py
-
-OUT='Analyse'
-frequency='monthly'
-if [ $ConfigCesmep = SE ]; then
-    frequency='seasonal'
-elif [ $ConfigCesmep != TS ]; then
-    OUT='Output'
-fi
+cat $fixed_settings > $settings
 cat <<-EOF >> $settings
-	DateBegin      = '${DateBegin/-/}'
-	begin          = '${begin}'
-	end            = '${end}'
-	frequency      = '${frequency}'
-	OUT            = '${OUT}' 
+	end            = $slice_end
+	data_end       = $end
 	EOF
 
-out=$(pwd)/libIGCM_post.out
 export PYTHONPATH=$CesmepCode:$PYTHONPATH
-python run_C-ESM-EP.py $comparison $components > $out 2>&1
+export CESMEP_CLIMAF_CACHE=$cache
+echo "Launching atlas for a period ending at $slice_end" > $out
+python run_C-ESM-EP.py $comparison $components >> $out 2>&1
 if [ $? -ne 0 ] ;then
     echo "Issue launching C-ESM-EP atlas - see $out"
     exit 1
