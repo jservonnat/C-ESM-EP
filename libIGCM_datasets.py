@@ -1,50 +1,55 @@
 # This is a version of datasets_setup.py adapted for the case of a libIGCM
-# running simulation at TGCC.
+# running simulation at TGCC. It creates a list of 'models' made of
+# successive time slices up to the last processed one (which is described by
+# imported file libIGCM_settings
 
-import sys
-#from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs
-from CM_atlas import *
 from libIGCM_settings import root, Login, TagName, SpaceName, \
-    ExpType, ExperimentName, frequency, OUT, begin, end, DateBegin
+    ExpType, ExperimentName, frequency, OUT, DateBegin, \
+    CesmepSlices, CesmepPeriod, end, data_end
+
+#from CM_atlas.time_manager import find_common_period
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 
-gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+models = []
+common = dict(project='IGCM_OUT',
+              root = root,
+              login=Login,
+              model=TagName,
+              status=SpaceName,
+              experiment=ExpType,
+              simulation=ExperimentName,
+              frequency=frequency,
+              OUT=OUT,
+              ts_period='full'
+)
 
-models = [
-        
-        dict(project='IGCM_OUT',
-             login='lurtont',
-             model='IPSLCM6',
-             experiment='historical',
-             simulation='CM61-LR-hist-01',
-             clim_period='1981-2005',
-             customname='CM61-LR-hist-01 *',
-             color='red'
-        ),
-
-        dict(project='IGCM_OUT',
-             root = root,
-             login=Login,
-             model=TagName,
-             status=SpaceName,
-             experiment=ExpType,
-             simulation=ExperimentName,
-             frequency=frequency,
-             OUT=OUT,
-             clim_period="%s_%s"%(begin,end),
-             period="%s_%s"%(begin,end),
-             ts_period="%s_%s"%(begin,end),
-             color='blue'
-        ),
-]
-        
-root = '/ccc/store/cont003/gencmip6'
+YearBegin = int(DateBegin[0:4])
+if CesmepPeriod != 0 :
+    begin = end - CesmepPeriod +1
+    count=0
+    while begin >= YearBegin and count <= CesmepSlices :
+        current_slice = common.copy()
+        clim_period = "%d-%d"%(begin,end)
+        current_slice.update(clim_period = clim_period,
+                             customname = ExperimentName + ' ' + clim_period)
+        models.insert(0,current_slice)
+        begin -= CesmepPeriod
+        end   -= CesmepPeriod
+        count += 1
+else:
+    clim_period = "%d-%d"%(YearBegin,data_end)
+    common.update(clim_period = clim_period,
+                         customname = ExperimentName + ' ' + clim_period)
+    models.append(common)
+    
 #
 # -- Provide a set of common keys to the elements of models
 # ---------------------------------------------------------------------------- >
-common_keys = dict(
+root = '/ccc/store/cont003/gencmip6'
+gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+IGCM_common_keys = dict(
     root=root,
     login='*',
     frequency='monthly',
@@ -58,9 +63,9 @@ common_keys = dict(
 #
 for model in models:
     if model['project'] == 'IGCM_OUT':
-        for key in common_keys:
+        for key in IGCM_common_keys:
             if key not in model:
-                model.update({key: common_keys[key]})
+                model.update({key: IGCM_common_keys[key]})
     if model['model'] == 'IPSL-CM6A-LR':
         model['gridfile'] = gridpath+ 'eORCA1.2_mesh_mask_glo.nc'
         model['mesh_hgr'] = gridpath + 'eORCA1.1_grid.nc'
