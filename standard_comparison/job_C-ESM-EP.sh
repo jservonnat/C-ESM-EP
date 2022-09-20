@@ -44,14 +44,14 @@ else
   echo '$component=' $component
   echo '$WD=' $WD
   echo '$cesmep_frontpage=' $cesmep_frontpage
+  if [[ -n ${WD} ]]; then
+     cd $WD
+  fi
   env=$(cd ../..; pwd)/${env_script}
   main=$(cd ../..; pwd)/${atlas_file}
   #datasets_setup_file=../datasets_setup.py
   # -- Name of the parameter file
   #param_file=params_${component}.py
-  if [[ -n ${WD} ]]; then
-     cd $WD
-  fi
 
 fi
 
