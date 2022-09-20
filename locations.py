@@ -43,15 +43,16 @@ if os.path.exists('/cnrm'):
     #
     path_to_cesmep_output_rootdir_on_web_server = None
     
-# -- Ciclad
+# -- Ciclad - Spirit
 if os.path.exists('/data') and os.path.exists('/thredds/ipsl'):
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we store all the C-ESM-EP comparisons
-    #path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
     path_to_cesmep_output_rootdir = '/scratchu/'+username
+    #path_to_cesmep_output_rootdir = '/modfs/project/CLIM4WATER/'+username
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
-    root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username
+    #root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username
+    root_url_to_cesmep_outputs = "https://thredds-su.ipsl.fr/thredds/fileServer/IPSLFS/"+username
     # -- At TGCC you can have a different path to access the data that are visible from the web
     #    than the path where you actually stored your data (ex: path to thredds )
     # -- Can be equal to store_atlas_results_dir, but at TGCC

@@ -9,7 +9,7 @@ from climaf.api import *
 from climaf.html import *
 from reference import variable2reference
 from env.clogging import clogger, dedent
-from time_manager import *
+from .time_manager import *
 from climaf import __path__ as cpath
 import os
 from climaf import cachedir
@@ -93,7 +93,7 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
         title = replace_keywords_with_values(model, model['customname'])
     else:
         if 'product' not in ds_model.kvp:
-            if model['project'] == 'CMIP5':
+            if model['project'] in ['CMIP5','CMIP6']:
                 title = ds_model.kvp['model']
             else:
                 title = get_realization_simulation_kw(ds_model)
@@ -661,7 +661,15 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             wref.update(dict(table=table))
     #
     # -- Apply get_period_manager
-    wmodel = get_period_manager(wmodel, diag='clim')
+    if safe_mode:
+        try:
+            wmodel = get_period_manager(wmodel, diag='clim')
+        except:
+            print('Error with get_period_manager on ',wmodel)
+            print('Check that the dataset is available')
+            return safe_mode_cfile_plot(wmodel, do_cfile, safe_mode)
+    else:
+        wmodel = get_period_manager(wmodel, diag='clim')
     wref = get_period_manager(wref, diag='clim')
     #
     # -- Get the dataset

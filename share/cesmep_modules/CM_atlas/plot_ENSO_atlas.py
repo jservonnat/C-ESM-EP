@@ -7,7 +7,7 @@ from __future__ import unicode_literals, print_function, division
 
 
 from CM_atlas import *
-from time_manager import *
+from .time_manager import *
 
 ENSO_domain = [-30, 30, 120, 290]
 nino3 = "-5,5,210,270"

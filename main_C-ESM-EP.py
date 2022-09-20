@@ -28,7 +28,9 @@ from optparse import OptionParser
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
 
-csync(True)
+craz()
+
+
 
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
@@ -314,15 +316,17 @@ if onCiclad:
    # -- Copy on thredds... 
    # ----------------------------------------------------------------------------------------------
    # -- thredds directory (web server)
-   threddsdir = str.replace(atlas_dir,'scratchu','thredds/ipsl')
+   #threddsdir = str.replace(atlas_dir,'scratchu','thredds/ipsl')
+   threddsdir = str.replace(atlas_dir,'/modfs/project/CLIM4WATER','/thredds/ipsl')
    os.system('rm -rf '+threddsdir)
    os.system('cp -r '+atlas_dir+' '+str.replace(threddsdir,'/'+component,''))
    print("index copied in : "+threddsdir)
 
    # -- Url to use to access the page from the web
    #alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'thredds/ipsl')[1]+'/'+subdir
-   alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'thredds/ipsl')[1]
-   root_url = "https://vesg.ipsl.upmc.fr"
+   alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'/thredds/ipsl')[1]
+   #root_url = "https://vesg.ipsl.upmc.fr"
+   root_url = root_url_to_cesmep_outputs.split('.fr/')[0] + '.fr'
 
    # -- and return the url of the atlas
    # ----------------------------------------------------------------------------------------------
