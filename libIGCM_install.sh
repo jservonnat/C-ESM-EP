@@ -111,8 +111,8 @@ echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $cache $comp
 
 # Set account/project to charge, and mail to use, in relevant file
 sed -i \
-    -e "s/account *=.*/account = $ProjectId/" \
-    -e "s/mail *=.*/mail = ${MailAdress}/" \
+    -e "s/account *=.*/account = \"$ProjectId\"/" \
+    -e "s/mail *=.*/mail = \"${MailAdress}\"/" \
     settings.py
 
 
