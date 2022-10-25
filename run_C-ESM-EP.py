@@ -62,6 +62,7 @@ else:
 try :
     from settings import account
 except:
+    print("Importing account from settings failed")
     account = None 
 
     

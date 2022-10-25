@@ -54,7 +54,7 @@ cat <<-EOF >> $settings
 	data_end       = $end
 	EOF
 
-export PYTHONPATH=$CesmepCode:$PYTHONPATH
+export PYTHONPATH=$(pwd):$CesmepCode:$PYTHONPATH
 export CESMEP_CLIMAF_CACHE=$cache
 echo "Launching atlas for a period ending at $slice_end" > $out
 python run_C-ESM-EP.py $comparison $components >> $out 2>&1

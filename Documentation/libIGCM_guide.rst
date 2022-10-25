@@ -21,7 +21,7 @@ Init phase
 
 Because C-ESM-EP requires a number of software packages, C-ESM-EP uses TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) and you must tell pcocc where to find a relevant environment, by interactively issuing this command :
 
-	pcocc import docker-archive:~igcmg/Tools/climaf/climaf_spirit_a.tar cesmep_container
+>	pcocc image import docker-archive:~igcmg/Tools/climaf/climaf_spirit_a.tar cesmep_container
 
 This should be done only once by each user. The path /ccc/cont003... is correct at the time of writing and may change in the future. 
 	
