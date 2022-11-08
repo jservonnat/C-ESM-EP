@@ -2,7 +2,7 @@
 C-ESM-EP user guide for the case of a libIGCM simulation
 =========================================================
 
-S.Sénési - sept 2022
+S.Senesi - sept 2022
 
 Pre-requisites :
   - some basic knowledege of C-ESM-EP (i.e. organization of a C-ESM-EP home directory, concept of a 'comparison')
@@ -23,7 +23,7 @@ Because C-ESM-EP requires a number of software packages, C-ESM-EP uses TGCC's to
 
 >	pcocc image import docker-archive:~igcmg/Tools/climaf/climaf_spirit_a.tar cesmep_container
 
-This should be done only once by each user. The path /ccc/cont003... is correct at the time of writing and may change in the future. 
+This should be done only once by each user. The path above is correct at the time of writing and may change in the future. 
 	
 
 Settings:
@@ -38,12 +38,12 @@ Computing a C-ESM-EP atlas is triggered using parameter 'Cesmep' in section Post
 
 In section Post of the config.card parameter 'CesmepSlices' allows to set the number of time slices to show in atlas (it defaults to 8).
 
-Example of config.card minimal content (in section 'Post'):
+Example of config.card minimal content (in section 'Post')::
 
-#D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years
-Cesmep=5Y
-#D- How many time slices in C-ESM-EP atlas ?
-# CesmepSlices=4
+  #D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years
+  Cesmep=5Y
+  #D- How many time slices in C-ESM-EP atlas ?
+  # CesmepSlices=4
 
 
 
@@ -77,7 +77,8 @@ The C-ESM-EP comparison used can be chosen using config.card's Post parameter 'C
 
 The comparison 'components' are activated based on the simulation physical components; their list can be changed manually after running ins_job (in $SUMBIT_DIR/cesemp_lite/libIGCM_post.param, which fields are Cesmep code location, comparison name, simulation start date, cache location, components list)
 
-At that stage, you may also change component parameters in component directories in $SUMBIT_DIR/cesemp_lite/. You may also make changes to the datasets_setup.py source for customizing the datasets to use; for that, you can make use of the variables available in comparison's directory file libIGCM_fixed_settings.py, as e.g. : 
+At that stage, you may also change component parameters in component directories in $SUMBIT_DIR/cesemp_lite/. You may also make changes to the datasets_setup.py source for customizing the datasets to use; for that, you can make use of the variables available in comparison's directory file libIGCM_fixed_settings.py, as e.g. :: 
+
    root           = '/ccc/store/cont003/gen0826'
    Login          = 'senesis'
    TagName        = 'IPSLCM6'
@@ -97,16 +98,17 @@ which names are self-explanatory in C-ESM-EP and libIGCM contexts except these o
 The location for CliMAF cache is dedicated to the simulation and is $CCCSCRATCHDIR/cesmep_climaf_caches/${OUT}_${TagName}_${SpaceName}_${ExperimentName}_${JobName}
 
 Example of config.card full content
------------------------------------
-
-#D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years
-Cesmep=10Y
-#D- Configure C-ESM-EP 'comparison' (defaults to standard_comparison)
-CesmepComparison=run_comparison
-#D- Tell where is C-ESM-EP source code 
-CesmepCode=/ccc/cont003/home/igcmg/igcmg/Tools/cesmep/
-#D- How many time slices in C-ESM-EP atlas ?
-CesmepSlices=4
+--------------------------------------
+::
+   
+  #D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years
+  Cesmep=10Y
+  #D- Configure C-ESM-EP 'comparison' (defaults to standard_comparison)
+  CesmepComparison=run_comparison
+  #D- Tell where is C-ESM-EP source code 
+  CesmepCode=/ccc/cont003/home/igcmg/igcmg/Tools/cesmep/
+  #D- How many time slices in C-ESM-EP atlas ?
+  CesmepSlices=4
 
 
 For power users
