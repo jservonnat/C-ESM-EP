@@ -80,7 +80,7 @@ if onSpirit:
     path_to_cesmep_output_rootdir_on_web_server = '/thredds/ipsl/'+username    #pour index général
     # --
     # -- Path that follows root_url to access path_to_cesmep_output_rootdir from a web page
-    root_url_to_cesmep_outputs = "https://vesg.ipsl.upmc.fr/thredds/fileServer/IPSLFS/"+username
+    root_url_to_cesmep_outputs = "https://thredds-su.ipsl.fr/thredds/fileServer/ipsl_thredds/"+username  
     climaf_cache = '/scratchu/' + username + '/atlas_explorer'
 
 
