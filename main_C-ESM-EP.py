@@ -344,7 +344,7 @@ if atTGCC:
     else:
         print('rm -rf '+path_to_comparison_outdir_workdir_tgcc+'/*')
         os.system('rm -rf '+path_to_comparison_outdir_workdir_tgcc+'/*')
-    cmd1 = 'cp -r '+atlas_dir+'* '+path_to_comparison_outdir_workdir_tgcc
+    cmd1 = 'cp -r '+atlas_dir+'/* '+path_to_comparison_outdir_workdir_tgcc
     print(cmd1)
     os.system(cmd1)
     #

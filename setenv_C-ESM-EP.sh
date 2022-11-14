@@ -65,14 +65,27 @@ function my_append {
 if [[ -d "${PWD}/share/cesmep_modules" ]] ; then
     cesmep_modules=${PWD}/share/cesmep_modules
 elif [[ -d "${PWD}/../share/cesmep_modules" ]] ; then
-    cesmep_modules=${PWD}/../share/cesmep_modules
+    cesmep_modules=$(cd ${PWD}/../share/cesmep_modules; pwd)
 elif [[ -d "${PWD}/../../share/cesmep_modules" ]] ; then
-    cesmep_modules=${PWD}/../../share/cesmep_modules
+    cesmep_modules=$(cd ${PWD}/../../share/cesmep_modules; pwd)
 fi
 
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
-    with_pcocc=1  # Means : use a container for setting the environment
+    # container to use for setting the environment
+    prerequisites_container=cesmep_container    
+    if ! pcocc image show $prerequisites_container > /dev/null 2>&1 ; then
+	echo -e"\n\nBefore you firt run of C-ESM-EP at TGCC, you must tell pcocc which is the Docker "
+	echo "container that satisfies C-ESM-EP prerequisites, by issuing (only once) a command like"
+	echo -e "\n\t pcocc image import docker-archive:\$container_archive $prerequisites_container\n"
+	echo -e "where \$container_archive could possibly be :"
+	echo -e "\t~igcmg/Tools/climaf/climaf_spirit_a.tar"
+	echo -e "(if it seems wrong, ask your C-ESM-EP guru for the up-to-date location)"
+	exit 1
+    fi
+    CLIMAF=/src/climaf  # This is Climaf location in container
+    my_append -bp PYTHONPATH ${CLIMAF}
+    my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 
 # --> On Ciclad or Spirit
@@ -90,6 +103,7 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	module switch climaf/2.0.0-python3.6_test # This sets CLIMAF
 	working_conda=/net/nfs/tools/Users/SU/jservon/miniconda3_envs/analyse_3.6_test
 	LD_LIBRARY_PATH=${working_conda}/lib:$LD_LIBRARY_PATH
+	CLIMAF=/home/ssenesi/climaf_installs/climaf_running
 	my_append -bp PATH ${CLIMAF}
 	my_append -bp PATH ${CLIMAF}/bin
 	my_append -bp PYTHONPATH ${CLIMAF}
@@ -151,6 +165,8 @@ if [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
+    export CLIMAF_CACHE=/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP/climafcache_${component}
+    echo ">>> CC= "$CLIMAF_CACHE
     echo ">>> PP= "$PYTHONPATH
 
     # -- CDFTools
@@ -197,8 +213,9 @@ fi
 # Set CliMAF cache
 here=$(cd $(dirname $BASH_ARGV); pwd) #In order to know the dir of present file
 cache=$(cd $here ; python3 -c 'from locations import climaf_cache; print(climaf_cache)')
-export CLIMAF_CACHE=$cache
-# export above will be re-done for some cases, further below, e.g. after a "module load climaf"
+if [[ ! "$CLIMAF_CACHE" = /data/scratch/globc/* ]] ; then  # special case for Cerfacs
+    export CLIMAF_CACHE=$cache
+fi
 
 echo CLIMAF_CACHE = $CLIMAF_CACHE
 echo CESMEP_CLIMAF_CACHE = $CESMEP_CLIMAF_CACHE

@@ -38,18 +38,12 @@ import os
 import sys
 import getpass
 import re
-from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
-    root_url_to_cesmep_outputs, climaf_cache
-
-
-# -- Provide your e-mail if you want to receive an e-mail at the end of the execution of the jobs
-# email = "gaelle.rigoudy@meteo.fr"
-#email = "jerome.servonnat@lsce.ipsl.fr"
-email = "senesi@posteo.net"
+from locations import path_to_cesmep_output_rootdir, \
+    path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs, climaf_cache
 
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
-from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atIPSL, onSpip, atCerfacs
+from locations import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs
 
 # -- Working directory
 main_cesmep_path = os.getcwd()
@@ -64,6 +58,20 @@ if username == 'fabric':
 else:
     user_login = username
 
+# -- Get account, used at TGCC
+try :
+    from settings import account
+except:
+    print("Importing account from settings failed")
+    account = None 
+
+    
+# -- Get email
+try :
+    from settings import email
+except:
+    email=None
+    
 # -- Use specific location for CLIMAF_CACHE if set
 cesmep_climaf_cache=os.getenv("CESMEP_CLIMAF_CACHE",'')
 
@@ -278,6 +286,8 @@ if atTGCC:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace('scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
+    #thredds_cp = "/ccc/cont003/home/igcmg/igcmg/Tools/irene/thredds_cp" 
+    thredds_cp = "thredds_cp"   # actual complete path is a matter of user environment
 
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
@@ -323,7 +333,7 @@ if argument.lower() not in ['url']:
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 # 3. thredds_cp
-                os.system('thredds_cp ' + atlas_pathfilename + ' ' + path_to_comparison_on_web_server + component)
+                os.system(thredds_cp  + ' ' +  atlas_pathfilename + ' ' + path_to_comparison_on_web_server + component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
 
@@ -382,21 +392,30 @@ for component in job_components:
     # ---------------------------------------------------
     # -- Case atTGCC
     if atTGCC:
+        name = component + '_' + comparison + '_C-ESM-EP'
         if email:
             add_email = ' -@ ' + email
         else:
             add_email = ''
+        if account is None:
+            # Deduce account from CCCHOME
+            account=os.getenv("CCCHOME").split("/")[4]
         if component not in metrics_components:
+            if component != 'NEMO_zonmean':
+                partition = '-q skylake'
+            else:
+                partition = '-q xlarge'
             cmd = 'cd ' + submitdir + ' ; export ' +\
                 ' comparison=' + comparison +\
                 ' component=' + component +\
                 ' cesmep_frontpage=' + frontpage_address +\
                 ' CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
+                ' PYTHONPATH=' + os.getenv("PYTHONPATH") +\
                 ' ; ccc_msub' + add_email +\
-                ' -r ' + component + '_' + comparison + '_C-ESM-EP ' +\
-                ' -n 1 -T 36000 -q skylake -Q normal -A devcmip6 ' +\
+                ' -r ' + name + ' -o ' + name + '_%I.out' + ' -e ' + name + '_%I.out' +\
+                ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
                 ' -m store,work,scratch ' +\
-                '../job_C-ESM-EP.sh  ; cd -'
+                '../job_C-ESM-EP.sh ; cd -'
     #
     # -- Case onCiclad
     if onCiclad:
@@ -603,7 +622,7 @@ if atTGCC:
     cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
     print(cmd1)
     os.system(cmd1)
-    cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
+    cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
           + ' ; rm ' + frontpage_html
 
 if onCiclad or onSpirit or atCNRM or atCerfacs:
@@ -612,9 +631,9 @@ os.system(cmd)
 
 # -- Copy the top image
 if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
-    if atTGCC:
+    if atTGCC :
         os.system('cp share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_outdir_workdir_tgcc)
-        cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
+        cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
               path_to_comparison_on_web_server
     if onCiclad or onSpirit or atCNRM or atCerfacs:
         cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_on_web_server

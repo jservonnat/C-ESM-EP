@@ -46,8 +46,8 @@ routine_cache_cleaning = [dict(age='+20')]
 do_parallel = False
 # nprocs = 32
 # memory = 20 # in gb
-queue = 'zen4'
-
+# queue = 'days3'
+queue='zen4'
 
 # -- Set the reference against which we plot the diagnostics
 # -- If you set it in the parameter file, it will overrule
@@ -94,11 +94,11 @@ atlas_explorer_variables = [dict(variable='tas',
                                      IGCM_OUT=dict(DIR='ATM'),
                                      CMIP6=dict(table='Amon'),
                                  )),
-                            dict(variable='tos', table='Omon',
-                                 project_specs=dict(
-                                     IGCM_OUT=dict(DIR='OCE'),
-                                     CMIP6=dict(grid='gn'),
-                                 )),
+                            # dict(variable='tos', table='Omon',
+                            #      project_specs=dict(
+                            #          IGCM_OUT=dict(DIR='OCE'),
+                            #          CMIP6=dict(grid='gn'),
+                            #      )),
                             dict(variable='ua', season='DJF', table='Amon',
                                  project_specs=dict(
                                      IGCM_OUT=dict(DIR='ATM'),
