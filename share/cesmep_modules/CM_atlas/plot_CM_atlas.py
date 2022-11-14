@@ -6,7 +6,7 @@
 
 
 from climaf.api import *
-from climaf.html import *
+from climaf.chtml import *
 from reference import variable2reference
 from env.clogging import clogger, dedent
 from .time_manager import *
@@ -16,7 +16,7 @@ from climaf import cachedir
 import shutil
 import getpass
 from climaf.plot.ocean_plot_params import dict_plot_params as ocean_plot_params
-from climaf.html import blank_cell
+from climaf.chtml import blank_cell
 
 StringFontHeight = 0.019
 

@@ -5,7 +5,7 @@
 from __future__ import unicode_literals, print_function, absolute_import, division
 
 from climaf.api import *
-from climaf.html import *
+from climaf.chtml import *
 from climaf.cache import csync
 from joblib import Parallel, delayed
 import multiprocessing

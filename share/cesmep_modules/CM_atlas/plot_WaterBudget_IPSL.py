@@ -1,6 +1,6 @@
 from CM_atlas.plot_CM_atlas import *
 from climaf.api import *
-from climaf.html import *
+from climaf.chtml import *
 from reference import variable2reference
 from LMDZ_SE_atlas.lmdz_SE import *
 from CM_atlas.time_manager import *

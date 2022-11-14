@@ -24,7 +24,7 @@ from shutil import copyfile
 from getpass import getuser
 from PMP_MG.PMP_MG_time_manager import build_metric_outpath, get_keys_for_PMP_MG, build_input_climatology_filename, \
     pysed, frequency_manager_for_diag_type, period_for_diag_manager
-from climaf.html import *
+from climaf.chtml import *
 from CM_atlas import build_plot_title
 from optparse import OptionParser
 csync(True)

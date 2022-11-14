@@ -34,7 +34,7 @@ from shutil import copyfile
 from getpass import getuser
 from PMP_MG import *
 from optparse import OptionParser
-from climaf.html import *
+from climaf.chtml import *
 
 
 clog('debug')
