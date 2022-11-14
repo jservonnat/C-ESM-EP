@@ -86,19 +86,18 @@ comps=","
 for comp in $(cd $comparison ; ls ) ; do
     ! [ -d $comparison/$comp ] && continue
     add=false
-    case comp in
-	MainTimeSeries,AtlasExplorer)
-	    [[ $Components = *,ATM,* || $Components = *,OCE,* ]] && add=true && break ;;
-	Atmosphere_Surface,Atmosphere_StdPressLev,Atmosphere_zonmean,NH_Polar_Atmosphere_StdPressLev,NH_Polar_Atmosphere_Surface,SH_Polar_Atmosphere_StdPressLev,SH_Polar_Atmosphere_Surface)
-	    [[ $Components = *,ATM,* ]] && add=true && break ;;
+    case $comp in
+	MainTimeSeries | AtlasExplorer)
+	    [[ $Components = *,ATM,* || $Components = *,OCE,* ]] && add=true ;;
+
+	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean | NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
+	    [[ $Components = *,ATM,* ]] && add=true ;;
+
 	ORCHIDEE)
-	    [[ $Components = *,SRF,* || $Components = *,OOL,* ]] && add=true && break ;;
-	NEMO_main,NEMO_zonmean,NEMO_depthlevels,ENSO)
-	     [[ $Components = *,OCE,* ]] && add=true && break ;;
-	*)
-	    # If there is a param file, assume this actually is a
-	    # customized comparison directory that must be activated
-	    find $comparison/$comp -name "params*py" >/dev/null 2>&1  && add=true ;;
+	    [[ $Components = *,SRF,* || $Components = *,OOL,* ]] && add=true ;;
+
+	NEMO_main | NEMO_zonmean | NEMO_depthlevels | ENSO)
+	     [[ $Components = *,OCE,* ]] && add=true ;;
     esac
     if [ $add = true ] ; then comps=$comps$comp","; fi
 done
