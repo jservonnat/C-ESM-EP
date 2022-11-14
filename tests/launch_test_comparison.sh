@@ -2,7 +2,7 @@
 set -e
 
 # Testing that an execution of a reference comparison provides the reference results
-# This script does launch the test comaprison; another one checks the results
+# This script does launch the test comparison; another one checks the results
 
 test=${1:-test_comparison}
 reference=${2:-reference_comparison}
