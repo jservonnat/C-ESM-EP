@@ -325,8 +325,10 @@ if onCiclad or onSpirit:
 
    # -- Url to use to access the page from the web
    #alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'thredds/ipsl')[1]+'/'+subdir
-   alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'thredds/ipsl')[1]
-   root_url = "https://vesg.ipsl.upmc.fr"
+   #alt_dir_name = "/thredds/fileServer/IPSLFS"+str.split(threddsdir,'thredds/ipsl')[1]
+   #root_url = "https://vesg.ipsl.upmc.fr"
+   alt_dir_name = threddsdir.replace('/thredds/ipsl','/thredds/fileServer/ipsl_thredds')
+   root_url = "https://thredds-su.ipsl.fr"
 
    # -- and return the url of the atlas
    # ----------------------------------------------------------------------------------------------
@@ -358,10 +360,10 @@ if atTGCC:
     print(cmd2)
     os.system(cmd2)
 
-print(' -- ')
-print(' -- ')
-print(' -- ')
-print('Index available at : ' + outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
+    print(' -- ')
+    print(' -- ')
+    print(' -- ')
+    print('Index available at : ' + outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
 
 if atTGCC:
     print("The atlas is ready as ", index_name.replace(atlas_dir, path_to_comparison_outdir_workdir_tgcc))
