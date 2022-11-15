@@ -93,13 +93,20 @@ for comp in $(cd $comparison ; ls ) ; do
 	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean | NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
 	    [[ $Components = *,ATM,* ]] && add=true ;;
 
-	ORCHIDEE)
+	ORCHIDEE )
 	    [[ $Components = *,SRF,* || $Components = *,OOL,* ]] && add=true ;;
 
 	NEMO_main | NEMO_zonmean | NEMO_depthlevels | ENSO)
 	     [[ $Components = *,OCE,* ]] && add=true ;;
     esac
-    if [ $add = true ] ; then comps=$comps$comp","; fi
+    if [ $add = true ] ; then
+	comps=$comps$comp",";
+    else
+	if [ $comp != __pycache__ ] ; then 
+	   # Keep the directory but tell C-ESM-EP not to use it
+	   chmod -r $comparison/$comp ;
+	fi
+    fi
 done
 # Discard leading and trailing comma in components list
 comps=${comps%,} ; comps=${comps#,}
