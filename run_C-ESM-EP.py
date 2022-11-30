@@ -416,7 +416,7 @@ for component in job_components:
                 ' component=' + component +\
                 ' cesmep_frontpage=' + frontpage_address +\
                 ' CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
-                ' PYTHONPATH=' + os.getenv("PYTHONPATH") +\
+                ' PYTHONPATH=' + os.getenv("PYTHONPATH","") +\
                 ' ; ccc_msub' + add_email +\
                 ' -r ' + name + ' -o ' + name + '_%I.out' + ' -e ' + name + '_%I.out' +\
                 ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
