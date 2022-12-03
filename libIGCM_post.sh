@@ -38,7 +38,7 @@ if [ $CesmepPeriod != 0 ] ; then
 
     if [ $compute_new_slice = false ] ; then
 	echo "Not enough data for computing a new atlas slice ">$out
-	echo "DateBegin=$DateBegin, CesmepPeriod=$CesmepPeriod, begin=$begin, end=$end " > $out
+	echo "DateBegin=$DateBegin, CesmepPeriod=$CesmepPeriod, begin=$begin, end=$end " >> $out
 	exit 0
     fi
 else

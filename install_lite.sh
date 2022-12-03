@@ -27,7 +27,10 @@ target=$(cd $target ; pwd)
 [ ! -d $target ] && \
     echo "$0 : Must provide an existing directory as first argument" && exit 1
 target=$target/cesmep_lite
-rm -fR $target
+if [ -d $target ] ; then
+    chmod -R 777 $target
+    rm -fR $target
+fi
 mkdir -p $target
 
 # Copy the comparison subdir

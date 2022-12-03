@@ -28,14 +28,17 @@ Principes:
 
    - lors du run, le script de post-traitement activé (ou la fonction IGCM_post_Submit pour une simu TEST) invoque le script C-ESM-EP libIGCM_post.sh (en lui indiquant la période traitée); ce dernier script complète le fichier libIGCM_fixed_settings.py pour créer le fichier libIGCM_settings.py, en y ajoutant ce qui concerne la période disponible, et invoque le script principal de C-ESM-EP, run_C-ESM-EP.py (dont l'output est envoyé dans cesmep_lite/libIGCM_post.out); le fonctionnement de la C-ESM-EP est standard : ce script lance des jobs d'atlas C-ESM-EP, ces atlas sont créés à l'emplacement habituel (piloté par locations.py), et les outputs dans les répertoires de composantes. Le script libIGCM_post.sh est modifiable par l'utilisateur
 
+   - pour le nettoyage des sorties de la C-ESM-EP, l'option est que purge_simuation.job et clean_Period.job suppriment tant les atlas (présents au TGCC sur workdir et espace thredds) que le cache CliMAF dédié; ceci sous le contrôle d'une vaidation (globale) par l'utilisateur de ces scripts de nettoyage. Supprimer le cache permet de traiter le cas où des sorties de modèle erronées ont été utilisées, puis rectifiées.
+
    - les ajouts aux sources C-ESM-EP sont :
         * install_lite.sh    : copie ou linke les sources C-ESM-EP de référence dans $SUBMIT_DIR (ou ailleurs)
         * libIGCM_install.sh : invoque install_lite.sh, crée le fichier libIGCM_settings.py et datasets_setup.py, décide des composantes
         * libIGCM_post.sh    : complète le fichier libIGCM_settings.py et lance run_C-ESM-EP.py
         * libIGCM_datasets.py: modèle de datasets_setup.py, qui importe libIGCM_settings.py
+	* libIGCM_clean.sh   : détruit les répertoires d'atlas et le cache CliMAF dédié
 
    - les fichiers de source python de la C-ESM-EP qui ne sont pas copiés (mais importés via PYTHONPATH) sont : locations.py, custom_obs_dict.py, custom_plot_params.py, cesmep_simu_finder.py, set_available_period_ts_clim.py ; pour utiliser une version modifiée, il faut la localiser dans le répertoire cesmep_lite.
 
-   - les sources libIGCM impliqués sont : AA_create_se, AA_create_ts, AA_pack_ouput, ins_job, libIGCM_config.ksh et libIGCM_post.ksh
+   - les sources libIGCM impliqués sont : AA_create_se, AA_create_ts, AA_pack_ouput, AA_purge_simulation, AA_clean_Period, ins_job, libIGCM_config.ksh et libIGCM_post.ksh
 
 

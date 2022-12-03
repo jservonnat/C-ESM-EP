@@ -18,7 +18,11 @@
 # --        -> comparison is the name of the comparison directory
 # --        -> component1,component2 is optional (denoted by the []); if the user provides them, the script
 # --           will submit jobs only for theses components (separated by commas in case of multiple components)
-# --           If you provide url instead of components, the script will only return the address of the frontpage
+# --           If you provide 'url' instead of components, the script will only print the url address of
+#                   the frontpage and the corresponding filename (which root usually differ)
+# --           If you provide 'clean' instead of components, the script will erase output directories and the
+#                   climaf cache (the one indicated by env variable CESMEP_CLIMAF_CACHE, if set, otherwise the
+#                   C-ESM-EP default one). At TGCC, outputs on thredds are included.
 # --    Examples:
 # --      > python run_C-ESM-EP.py comparison # runs all the components available in comparison
 # --      > python run_C-ESM-EP.py comparison comp1,comp2 # submit jobs for comp1 and comp2 in comparison
@@ -69,11 +73,13 @@ except:
 # -- Get email
 try :
     from settings import email
+    if email=="None" :
+        email=None
 except:
     email=None
     
 # -- Use specific location for CLIMAF_CACHE if set
-cesmep_climaf_cache=os.getenv("CESMEP_CLIMAF_CACHE",'')
+cesmep_climaf_cache=os.getenv("CESMEP_CLIMAF_CACHE",climaf_cache)
 
 # -- Def pysed
 def pysed(file, old_pattern, new_pattern):
@@ -152,7 +158,7 @@ else:
 # -----------------------------------------------------------------------------------------
 template = 'share/fp_template/C-ESM-EP_template.html'
 
-if argument.lower() not in ['url']:
+if argument.lower() not in ['url', 'clean']:
    do_print = True
 else:
    do_print = False
@@ -304,7 +310,7 @@ for component in components:
         job_components.append(component)
 
 # -- Loop on the components and edit the html file with pysed
-if argument.lower() not in ['url']:
+if argument.lower() not in ['url' , 'clean' ]:
     for component in available_components:
         if component not in metrics_components:
             atlas_url = comparison_url + component + '/atlas_' + component + '_' + comparison + '.html'
@@ -479,7 +485,8 @@ for component in job_components:
             ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
             ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
             ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
-        print("cmd=",cmd)
+        if do_print:
+            print("cmd=",cmd)
     #
     # -- Case onSpirit : use SBATCH
     if onSpirit:
@@ -606,47 +613,59 @@ for component in job_components:
 # -- 4/ Create the C-ESM-EP html front page for 'comparison' from the template
 # -----------------------------------------------------------------------------------------
 
-# -- Loop on the components and edit the html file with pysed
-for component in available_components:
-    prefix="/atlas_"
-    if component in metrics_components:
-        prefix="/"
-    url = comparison_url + component + prefix + component + '_' + comparison + '.html'
-    pysed(frontpage_html, '%%target_' + component + '%%', url)
+if argument.lower() not in ['url', 'clean']:
+    # -- Loop on the components and edit the html file with pysed
+    for component in available_components:
+        prefix="/atlas_"
+        if component in metrics_components:
+            prefix="/"
+        url = comparison_url + component + prefix + component + '_' + comparison + '.html'
+        pysed(frontpage_html, '%%target_' + component + '%%', url)
 
-# -- Edit the comparison name
-pysed(frontpage_html, 'target_comparison', comparison)
+    # -- Edit the comparison name
+    pysed(frontpage_html, 'target_comparison', comparison)
 
-# -- Copy the edited html front page
-if atTGCC:
-    cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
-    print(cmd1)
-    os.system(cmd1)
-    cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
-          + ' ; rm ' + frontpage_html
-
-if onCiclad or onSpirit or atCNRM or atCerfacs:
-    cmd = 'mv -f ' + frontpage_html + ' ' + path_to_comparison_on_web_server
-os.system(cmd)
-
-# -- Copy the top image
-if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
-    if atTGCC :
-        os.system('cp share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_outdir_workdir_tgcc)
-        cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
-              path_to_comparison_on_web_server
+    # -- Copy the edited html front page
+    if atTGCC:
+        cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
+        print(cmd1)
+        os.system(cmd1)
+        cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
+            + ' ; rm ' + frontpage_html
+    #
     if onCiclad or onSpirit or atCNRM or atCerfacs:
-        cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_on_web_server
+        cmd = 'mv -f ' + frontpage_html + ' ' + path_to_comparison_on_web_server
+    #    
+    os.system(cmd)
+
+    # -- Copy the top image
+    if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
+        if atTGCC :
+            os.system('cp share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_outdir_workdir_tgcc)
+            cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
+                path_to_comparison_on_web_server
+        if onCiclad or onSpirit or atCNRM or atCerfacs:
+            cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_on_web_server
     os.system(cmd)
 
 # -- Final: Print the final message with the address of the C-ESM-EP front page
 # -----------------------------------------------------------------------------------------
 
-print('')
-print('-- The CliMAF ESM Evaluation Platform atlas is available here: ')
-print('--')
-print('--   ' + frontpage_address)
-print('--')
-print('--')
-print('-- The html file is here: ')
-print('-- ' + path_to_comparison_on_web_server + frontpage_html)
+
+if argument.lower() in [ 'url' ] :
+    print('')
+    print('-- The CliMAF ESM Evaluation Platform atlas is available here: ')
+    print('--')
+    print('--   ' + frontpage_address)
+    print('--')
+    print('--')
+    print('-- The html file is here: ')
+    print('-- ' + path_to_comparison_on_web_server + frontpage_html)
+
+if argument.lower() in [ 'clean' ] : 
+   os.system("rm -fr "+ cesmep_climaf_cache)
+   os.system("rm -fr "+ path_to_comparison_on_web_server)
+   if atTGCC :
+        os.system("rm -fr "+ path_to_comparison_outdir_workdir_tgcc)
+   else:
+       os.system("rm -fr "+ path_to_comparison_outdir)
