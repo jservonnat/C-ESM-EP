@@ -96,7 +96,7 @@ which names are self-explanatory in C-ESM-EP and libIGCM contexts except these o
 
 The location for CliMAF cache is dedicated to the simulation and is $CCCSCRATCHDIR/cesmep_climaf_caches/${OUT}_${TagName}_${SpaceName}_${ExperimentName}_${JobName}
 
-You can receive an email for the completion of each component's job and each new atlas slice by setting 'CesmepMail=TRUE' in config.card 
+You can receive mails for the completion of each new atlas slice by setting 'CesmepMail=TRUE' in config.card. Depending on the content of file cesmep_lite/settings.py (see variabe `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
 
 
 

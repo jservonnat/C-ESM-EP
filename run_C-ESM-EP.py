@@ -14,7 +14,7 @@
 # --
 # --
 # -- We use it like this:
-# --    python run_C-ESM-EP.py comparison [component1,component2]
+# --    python run_C-ESM-EP.py comparison [component1,component2 [ run_label ]]
 # --        -> comparison is the name of the comparison directory
 # --        -> component1,component2 is optional (denoted by the []); if the user provides them, the script
 # --           will submit jobs only for theses components (separated by commas in case of multiple components)
@@ -23,6 +23,7 @@
 # --           If you provide 'clean' instead of components, the script will erase output directories and the
 #                   climaf cache (the one indicated by env variable CESMEP_CLIMAF_CACHE, if set, otherwise the
 #                   C-ESM-EP default one). At TGCC, outputs on thredds are included.
+#              Fourth optional argument run_label is used in reporting mails and defaults to "nolabel"
 # --    Examples:
 # --      > python run_C-ESM-EP.py comparison # runs all the components available in comparison
 # --      > python run_C-ESM-EP.py comparison comp1,comp2 # submit jobs for comp1 and comp2 in comparison
@@ -72,12 +73,13 @@ except:
     
 # -- Get email
 try :
-    from settings import email
+    from settings import email, one_mail_per_component
     if email=="None" :
         email=None
 except:
     email=None
-    
+    one_mail_per_component = False
+
 # -- Use specific location for CLIMAF_CACHE if set
 cesmep_climaf_cache=os.getenv("CESMEP_CLIMAF_CACHE",climaf_cache)
 
@@ -126,6 +128,7 @@ allcomponents = ['MainTimeSeries',
 # -- Component that runs the PCMDI Metrics Package (specific job script)
 metrics_components = ['ParallelCoordinates_Atmosphere', 'Seasonal_one_variable_parallel_coordinates']
 
+run_label = "nolabel"
 # -- Get the arguments passed to the script
 # --> If we do not specify the component(s), run all available components
 if len(args) == 1:
@@ -133,9 +136,9 @@ if len(args) == 1:
 else:
     comparison = args[1].replace('/', '')
     argument = 'None'
-    if len(args) == 3:
+    if len(args) >= 3:
         argument = args[2].replace('/', '')
-        if argument.lower() in ['url']:
+        if argument.lower() in ['url' , 'clean' ]:
             components = allcomponents
         elif argument == 'OA':
             components = ['Atmosphere_Surface', 'Atmosphere_zonmean', 'NEMO_main', 'NEMO_zonmean', 'NEMO_depthlevels',
@@ -150,6 +153,8 @@ else:
             components = ['NEMO_main', 'NEMO_zonmean', 'NEMO_depthlevels', 'NEMO_PISCES']
         else:
             components = argument.split(',')
+        if len(args) == 4 :
+            run_label = args[3]
     else:
         components = allcomponents
 
@@ -194,10 +199,13 @@ if components == allcomponents:
 cesmep_modules = []
 
 tested_available_components = []
+
+# -- Define a directory common to all components 
+comparison_dir = main_cesmep_path + '/' + comparison 
+
 for component in available_components:
     atlas_head_title = None
-    # paramfile = comparison+'/'+component+'/params_'+component+'.py'
-    submitdir = main_cesmep_path + '/' + comparison + '/' + component
+    submitdir = comparison_dir + '/' + component
     diag_filename = submitdir + '/diagnostics_' + component + '.py'
     params_filename = submitdir + '/params_' + component + '.py'
 
@@ -261,6 +269,8 @@ for new_html_line in new_html_lines:
 frontpage_html = 'C-ESM-EP_' + comparison + '.html'
 with open(frontpage_html, "w") as filout:
     filout.write(new_html)
+import subprocess
+#print(subprocess.check_output([ "ls", "-l ", frontpage_html], shell=True, text=True))
 
 # -- 2/ Set the paths (one per requested component) and url for the html pages
 # -----------------------------------------------------------------------------------------
@@ -343,6 +353,9 @@ if argument.lower() not in ['url' , 'clean' ]:
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
 
+# Create an empty file for accumulating launched jobs ids
+launched_jobs = comparison_dir + "/launched_jobs"
+os.system("cat /dev/null >"+ launched_jobs)
 
 # -- Submit the jobs
 for component in job_components:
@@ -350,7 +363,7 @@ for component in job_components:
         print()
         print('  -- component = ', component)
     # -- Define where the directory where the job is submitted
-    submitdir = main_cesmep_path + '/' + comparison + '/' + component
+    submitdir = comparison_dir + '/' + component
     #
     # -- Do we execute the code in parallel?
     # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
@@ -399,7 +412,7 @@ for component in job_components:
     # -- Case atTGCC
     if atTGCC:
         name = component + '_' + comparison + '_C-ESM-EP'
-        if email:
+        if email is not None and one_mail_per_component is True:
             add_email = ' -@ ' + email
         else:
             add_email = ''
@@ -421,7 +434,7 @@ for component in job_components:
                 ' -r ' + name + ' -o ' + name + '_%I.out' + ' -e ' + name + '_%I.out' +\
                 ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
                 ' -m store,work,scratch ' +\
-                '../job_C-ESM-EP.sh ; cd -'
+                '../job_C-ESM-EP.sh | cut -f 4 >> ' + launched_jobs 
     #
     # -- Case onCiclad
     if onCiclad:
@@ -495,7 +508,7 @@ for component in job_components:
         job_options = ''
         #
         # -- email
-        if email:
+        if email and one_mail_per_component:
             job_options += ' --mail-type=END --mail-user=' + email
         #
         # -- Set the partition
@@ -542,7 +555,7 @@ for component in job_components:
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'jobID=$(sbatch --job-name=' + jobname + ' ' + job_options + env_variables + ' ../' + job_script + \
             ' | awk "{print \$4}" ) ; \n'+\
-            '\n'+\
+            'echo $jobID > ' + launched_jobs + '\n'+\
             'sbatch --dependency=afternotok:$jobID '+ env_variables + \
             ',atlas_pathfilename=' + atlas_pathfilename + ' ' + \
             '--job-name=err_on_' + jobname + ' ../../share/fp_template/copy_html_error_page.sh ; \n\ncd -'
@@ -630,12 +643,15 @@ if argument.lower() not in ['url', 'clean']:
         cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
         print(cmd1)
         os.system(cmd1)
-        cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html + ' ' + path_to_comparison_on_web_server\
-            + ' ; rm ' + frontpage_html
+        cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html +\
+            ' ' + path_to_comparison_on_web_server + ' ; rm ' + frontpage_html
     #
     if onCiclad or onSpirit or atCNRM or atCerfacs:
-        cmd = 'mv -f ' + frontpage_html + ' ' + path_to_comparison_on_web_server
+        cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
+        #cmd = f'ls -l {frontpage_html} ; ls -al {path_to_comparison_on_web_server}'
     #    
+    #print(os.getcwd())
+    #print(cmd)
     os.system(cmd)
 
     # -- Copy the top image
@@ -648,11 +664,42 @@ if argument.lower() not in ['url', 'clean']:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + path_to_comparison_on_web_server
     os.system(cmd)
 
+    # -- Launch a job that sends a mail when all atlas jobs are completed
+    if one_mail_per_component is False and email is not None :
+        job_ids = ""
+        with open(launched_jobs) as lj :
+            for line in lj :
+                job_ids = job_ids + line.replace("\n",",")
+        if len(job_ids) > 0:
+            job_ids = job_ids.rstrip(",")
+            job_name = f"{run_label}_{comparison}"
+            job_content = f"#!/bin/bash\necho This is a job launched for a mail on completion "+\
+                f"of C-ESM-EP run for comparison {comparison} and label {run_label}."+\
+                f"\necho The atlas is available at {frontpage_address}"
+            with open(f"{comparison_dir}/mailjob","w") as mj:
+                mj.write(job_content)
+            cmd =""
+            if atTGCC :
+                cmd = f"cd {comparison_dir} ; "
+                cmd += f" ccc_msub  -@ {email} -r {job_name} "
+                cmd += f"-o completion.out -i completion.out -n 1 -T 10 -p skylake "
+                cmd += f"-A {account}  -a {job_ids} mailjob;"
+                cmd += f" rm -f mailjob {launched_jobs}"
+            if onSpirit:
+                job_ids=job_ids.replace(",",":")
+                out='completion.out'
+                cmd = f"cd {comparison_dir} ; "
+                cmd += f" sbatch --job-name={job_name} --dependency=afterany:{job_ids} "
+                cmd += f" --mail-type=BEGIN --mail-user={email} -o {out} -e {out} mailjob;"
+                cmd += f" rm -f mailjob {launched_jobs}"
+            os.system(cmd)
+    
+
 # -- Final: Print the final message with the address of the C-ESM-EP front page
 # -----------------------------------------------------------------------------------------
 
 
-if argument.lower() in [ 'url' ] :
+if argument.lower() not in [ 'clean' ] :
     print('')
     print('-- The CliMAF ESM Evaluation Platform atlas is available here: ')
     print('--')
