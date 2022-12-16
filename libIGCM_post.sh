@@ -3,7 +3,7 @@
 
 # Run time parameters are provided as arguments
 
-# Setup parameters are read from libIGMCM_post.param (as written by
+# Setup parameters are read from libIGCM_post.param (as written by
 # libIGCM_install.sh when called by libIGCM ins_job)
 #set -x
 
@@ -57,7 +57,8 @@ cat <<-EOF >> $settings
 export PYTHONPATH=$(pwd):$CesmepCode:$PYTHONPATH
 export CESMEP_CLIMAF_CACHE=$cache
 echo "Launching atlas for a period ending at $slice_end" > $out
-python run_C-ESM-EP.py $comparison $components >> $out 2>&1
+submit_dir=$(basename $(cd ..; pwd))
+python run_C-ESM-EP.py $comparison $components ${slice_end}_${submit_dir} >> $out 2>&1
 if [ $? -ne 0 ] ;then
     echo "Issue launching C-ESM-EP atlas - see $out"
     exit 1
