@@ -40,7 +40,7 @@ mkdir -p $target
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 
- for file in share clean_out_error.sh; do
+ for file in share clean_out_error.sh libIGCM_clean.sh; do
      ln -sf $o/$file $target
  done
 
