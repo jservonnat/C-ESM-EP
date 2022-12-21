@@ -434,7 +434,7 @@ for component in job_components:
                 ' -r ' + name + ' -o ' + name + '_%I.out' + ' -e ' + name + '_%I.out' +\
                 ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
                 ' -m store,work,scratch ' +\
-                '../job_C-ESM-EP.sh | cut -f 4 >> ' + launched_jobs 
+                '../job_C-ESM-EP.sh | cut -d " " -f 4 >> ' + launched_jobs 
     #
     # -- Case onCiclad
     if onCiclad:
@@ -673,25 +673,26 @@ if argument.lower() not in ['url', 'clean']:
         if len(job_ids) > 0:
             job_ids = job_ids.rstrip(",")
             job_name = f"{run_label}_{comparison}"
-            job_content = f"#!/bin/bash\necho This is a job launched for a mail on completion "+\
+            job_content = f"#!/bin/bash\necho This is a job launched for sending a mail on completion "+\
                 f"of C-ESM-EP run for comparison {comparison} and label {run_label}."+\
                 f"\necho The atlas is available at {frontpage_address}"
             with open(f"{comparison_dir}/mailjob","w") as mj:
                 mj.write(job_content)
             cmd =""
+            out='completion.out'
             if atTGCC :
                 cmd = f"cd {comparison_dir} ; "
-                cmd += f" ccc_msub  -@ {email} -r {job_name} "
-                cmd += f"-o completion.out -i completion.out -n 1 -T 10 -p skylake "
-                cmd += f"-A {account}  -a {job_ids} mailjob;"
-                cmd += f" rm -f mailjob {launched_jobs}"
+                cmd += f" ccc_msub  -@ {email} -r {job_name} -m store,work,scratch "
+                cmd += f"-o {out} -e {out} -n 1 -T 300 -q skylake "
+                cmd += f"-Q normal -A {account}  -a {job_ids} mailjob; "
+                cmd += f"rm -f mailjob {launched_jobs}"
             if onSpirit:
                 job_ids=job_ids.replace(",",":")
-                out='completion.out'
                 cmd = f"cd {comparison_dir} ; "
                 cmd += f" sbatch --job-name={job_name} --dependency=afterany:{job_ids} "
                 cmd += f" --mail-type=BEGIN --mail-user={email} -o {out} -e {out} mailjob;"
                 cmd += f" rm -f mailjob {launched_jobs}"
+            #print('mail cmd=',cmd)
             os.system(cmd)
     
 
