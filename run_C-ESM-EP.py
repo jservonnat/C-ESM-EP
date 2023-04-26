@@ -644,7 +644,8 @@ if argument.lower() not in ['url', 'clean']:
         print(cmd1)
         os.system(cmd1)
         cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html +\
-            ' ' + path_to_comparison_on_web_server + ' ; rm ' + frontpage_html
+            ' ' + path_to_comparison_on_web_server + ' ; rm ' + frontpage_html + \
+            '; chmod +r ' + path_to_comparison_on_web_server + '/' + frontpage_html
     #
     if onCiclad or onSpirit or atCNRM or atCerfacs:
         cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'

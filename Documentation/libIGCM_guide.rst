@@ -19,9 +19,11 @@ Basic use
 Init phase
 ----------
 
-Because C-ESM-EP requires a number of software packages, C-ESM-EP uses TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) and you must tell pcocc where to find a relevant environment, by interactively issuing this command :
+Because C-ESM-EP requires a number of software packages, C-ESM-EP uses TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) and you must tell pcocc where to find a relevant environment, by interactively issuing a command like:
 
-	pcocc image import docker-archive:/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/20221224_SS_fixes_on_V3.0_V3.e.tar cesmep_container
+	pcocc image import docker-archive:<file> cesmep_container
+
+where <file> is one of the files in /ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/, probably the newest one (ask your C-ESM-EP guru in case of trouble)
 
 This should be done only once by each user. The path above is correct at the time of writing and may change in the future. 
 	

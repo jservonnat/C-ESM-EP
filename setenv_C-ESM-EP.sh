@@ -74,18 +74,20 @@ fi
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     # container to use for setting the environment
     prerequisites_container=cesmep_container    
-    if ! pcocc image show $prerequisites_container > /dev/null 2>&1 ; then
+    if ! pcocc image show $prerequisites_container #> /dev/null 2>&1 ;
+    then
 	echo -e"\n\nBefore you firt run of C-ESM-EP at TGCC, you must tell pcocc which is the Docker "
 	echo "container that satisfies C-ESM-EP prerequisites, by issuing (only once) a command like"
 	echo -e "\n\t pcocc image import docker-archive:\$container_archive $prerequisites_container\n"
-	echo -e "where \$container_archive could possibly be :"
-	echo -e "\t~igcmg/Tools/climaf/climaf_spirit_a.tar"
-	echo -e "(if it seems wrong, ask your C-ESM-EP guru for the up-to-date location)"
+	echo -e "where \$container_archive is one of the files in :"
+	echo -e "\t/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
+	echo -e "(ask your C-ESM-EP guru for the up-to-date location and file)"
 	exit 1
     fi
     CLIMAF=/src/climaf  # This is Climaf location in container
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
+    my_append -ep PATH ~igcmg/Tools/irene
 fi
 
 # --> On Ciclad or Spirit
