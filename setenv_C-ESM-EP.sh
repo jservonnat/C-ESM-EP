@@ -73,7 +73,9 @@ fi
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     # container to use for setting the environment
-    prerequisites_container=cesmep_container    
+    prerequisites_container=cesmep_container
+    export LC_ALL=C.UTF-8  # Needed by pcocc (actually by Click in python 3.6)
+    export LANG=C.UTF-8    # Needed by pcocc (actually by Click in python 3.6)
     if ! pcocc image show $prerequisites_container #> /dev/null 2>&1 ;
     then
 	echo -e"\n\nBefore you firt run of C-ESM-EP at TGCC, you must tell pcocc which is the Docker "
