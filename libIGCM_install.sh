@@ -81,16 +81,19 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 cp $dir/libIGCM_datasets.py $comparison/datasets_setup.py
 
 # Compute CESMEP components list based on list of component
-# directories and on simulation components list
+# directories and on simulation components list ($Components)
 comps=","
 for comp in $(cd $comparison ; ls ) ; do
     ! [ -d $comparison/$comp ] && continue
+    # Work only on directories
     add=false
     case $comp in
 	MainTimeSeries | AtlasExplorer)
 	    [[ $Components = *,ATM,* || $Components = *,OCE,* ]] && add=true ;;
 
-	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean | NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
+	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean |\
+	NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | \
+	SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
 	    [[ $Components = *,ATM,* ]] && add=true ;;
 
 	ORCHIDEE )
@@ -103,8 +106,8 @@ for comp in $(cd $comparison ; ls ) ; do
 	comps=$comps$comp",";
     else
 	if [ $comp != __pycache__ ] ; then 
-	   # Keep the directory but tell C-ESM-EP not to use it
-	   chmod -r $comparison/$comp ;
+	   # Remove component directory 
+	   rm -fr $comparison/$comp ;
 	fi
     fi
 done
