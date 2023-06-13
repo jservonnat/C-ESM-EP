@@ -1,0 +1,84 @@
+
+Directory C-ESM-EP/tests
+S.Sénési - 06/2023
+
+Running and checking a reference comparison :
+---------------------------------------------
+  - check_ref_comparison.sh is the driver script, it launches 'test_comparison', a clone of a reference comparison (which name is provided as argument) and also launches a job for checking results
+  - compare_results.sh is the worker script : it checks test comparison outputs and compares it with reference results; it is launched by check_ref_comparison.sh in a job which starts when comparison jobs reach termination
+  - reference_results/ : includes the reference results for ../reference_comparison
+  - ref_results/ : includes the reference results for ../ref_comparison; this is a smaller comparison, useful for developping the scripts above
+
+
+Example of call:
+-------------------
+# Setup environment re. CliMAF 
+module load /home/ssenesi/js/modulefiles/climaf/env20221224_climafV3.e
+
+# Change the CliMAF used only if you really need to
+export CLIMAF=~/climaf_installs/climaf
+
+# Tell where is the C-ESM-EP to test (default is the parent dir of the executed script)
+CESMEP=$(pwd)/..
+
+# Tell CESMEP to use a dedicated CliMAF cache. This is instrumental because
+# you may otherwise skip re-computing results, and so actually re-use
+# reference comparison results, which would ruin the check
+# That directory is emptied before C-ESM-EP run
+export CESMEP_CLIMAF_CACHE=/scratchu/ssenesi/cesmep_climaf_caches/check
+
+# Possibly ask for execution traces in jobs output. This produces cluttered
+# outputs and is not recommended. Default value is 0
+export setx=1
+
+# Execute the check, as a clone of ref_comparison, which reference results are in tests/ref_results/
+$CESMEP/tests/check_ref_comparison.sh ref_comparison $CESMEP/tests/ref_results senesi@posteo.net
+
+
+
+Feedback / outcomes
+--------------------
+On execution, a comparison named test_comparison is launched (which is a clone of ref_comparison), and feedback will be :
+  - a printout which indicates useful locations, and the name and ID for the check job 
+  - a mail if any component job of test_comparison fails
+  - a mail upon completion of a job that analyze outputs, which exit value tells if the check is OK
+  - an output for that job, that indicates any issue in comparison run or any discrepancy in outputs, w.r.t. reference results; the location for that output is indicated by the script printouts; it is in the script execution dir, and the filename begins with "Check_C-ESM-EP_"
+
+
+
+Notes :
+--------
+ - you must have write permission on the C-ESM-EP directory
+ - the reference comparison must have 'safe_mode = True' in each params_<component>.py, in order to discover all issues in one go
+ - the main script can be executed from any directory: no need to clutter the C-ESM-EP dir with comparison job outptuts
+ - upon successful comparison, the test_comparison directory is erased, and so does the CESMEP_CLIMAF_CACHE
+
+
+
+Sample of the script execution printout
+-------------------------------------------
+Comparison test_comparison was launched. See launch output in /home/ssenesi/runtest/launch_test_comparison.out
+Check of C-ESM-EP run for comparison ref_comparison was launched as comparison test_comparison in
+     /home/ssenesi/environnements/C-ESM-EP/test_comparison
+Its outputs will be compared with reference results in 
+     /home/ssenesi/environnements/C-ESM-EP/tests/ref_results
+Test success will appear as exit status of job Check_C-ESM-EP_ref_comparison (jobid=390552), both through a mail and in file 
+     /home/ssenesi/runtest/Check_C-ESM-EP_ref_comparison-390552.out
+
+
+
+Sample of job output, for a case where some plot don't succeed.
+---------------------------------------------------------------
+#####################################################################################
+This is the analysis of a C-ESM-EP run for a comparison named test_comparison that 
+is a clone of comparison ref_comparison
+The C-ESM-EP instance used is /home/ssenesi/environnements/C-ESM-EP
+The results are at /thredds/ipsl/ssenesi/C-ESM-EP/test_comparison_ssenesi 
+They are compared with the reference results at /home/ssenesi/environnements/C-ESM-EP/tests/ref_results
+#####################################################################################
+
+
+!! Plotting failed  plot(minus(regrid(time_average(ds('IGCM_OUT%CM61-LR-hist...
+No data found for zonal mean for  ccdo(ccdo(ds('ref_climatos%refproduct%ua%fx%global%annual_cycle%ERAINT%*%Amon%*'),operator...
+...
+Issue for some plots or data in component(s)  AtlasExplorer Atmosphere_zonmean (see above)
