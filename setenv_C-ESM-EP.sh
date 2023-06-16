@@ -129,15 +129,16 @@ if [[ -d "/cnrm" ]] ; then
     unset PYTHONPATH
 
     # CDAT
-    CONDA=/cnrm/est/COMMON/conda2/
-    source $CONDA/etc/profile.d/conda.sh
-    working_conda=$CONDA/envs/cdat_env
-    conda activate ${working_conda}
-    my_append -bp LD_LIBRARY_PATH ${working_conda}/lib
-    my_append -bp PYTHONPATH ${working_conda}/lib/python2.7/site-packages
-    my_append -bp PATH $CONDA/bin
-    export HDF5_DISABLE_VERSION_CHECK=1
-    export UVCDAT_ANONYMOUS_LOG=False
+    # Remove CDAT dependency for now
+    # CONDA=/cnrm/est/COMMON/conda2/
+    # source $CONDA/etc/profile.d/conda.sh
+    # working_conda=$CONDA/envs/cdat_env
+    # conda activate ${working_conda}
+    # my_append -bp LD_LIBRARY_PATH ${working_conda}/lib
+    # my_append -bp PYTHONPATH ${working_conda}/lib/python2.7/site-packages
+    # my_append -bp PATH $CONDA/bin
+    # export HDF5_DISABLE_VERSION_CHECK=1
+    # export UVCDAT_ANONYMOUS_LOG=False
 
     # CliMAF
     export CLIMAF=/cnrm/est/COMMON/climaf/current
@@ -146,7 +147,9 @@ if [[ -d "/cnrm" ]] ; then
     my_append -bp PATH ${CLIMAF}/bin
 
     # -- CDFTools
-    my_append -bp PATH /cnrm/est/COMMON/CDFTOOLS_3.0/bin
+    # Also remove CDFTools
+    # my_append -bp PATH /cnrm/est/COMMON/CDFTOOLS_3.0/bin
+    
     echo "PATH ${PATH}"
     echo "PYTHONPATH ${PYTHONPATH}"
 fi
