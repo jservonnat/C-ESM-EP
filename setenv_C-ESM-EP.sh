@@ -142,6 +142,7 @@ if [[ -d "/cnrm" ]] ; then
 
     # CliMAF
     export CLIMAF=/cnrm/est/COMMON/climaf/current
+    my_append -bp PYTHONPATH /cnrm/est/COMMON/climaf/add_packages/lib/python3.10/site-packages/
     my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
     my_append -bp PATH ${CLIMAF}/bin
