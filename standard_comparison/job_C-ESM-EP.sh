@@ -82,18 +82,31 @@ echo ">>> CC= "$CLIMAF_CACHE
 # -------------------------------------------------------- >
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
-if [ ${prerequisites_container:-none} = none ] ; then
-    export TMPDIR=${CLIMAF_CACHE}
-    python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
-else
-    # Using pcocc for running a container (this implies we are at TGCC)
-    #
+
+if [ -n "$docker_container" ] ; then
+    # this implies we are at TGCC) -> using pcocc for running a container 
     env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH -e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
-    pcocc run -s $env -I $prerequisites_container --cwd $(pwd) <<-EOF
+    pcocc run -s $env -I $docker_container --cwd $(pwd) <<-EOF
 	set -x
 	umask 0022
 	PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene 	# For thredds_cp
 	python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
 	EOF
+elif [ -n "$singularity_container" ] ; then
+    # We are probably at IDRIS, and will use singularity
+    module purge
+    module load singularity
+    set -x
+    srun --mpi=pmix_v2 singularity shell \
+		--bind $SCRATCH:$SCRATCH,$WORK:$WORK \
+		--env PYTHONPATH=$PYTHONPATH,TMPDIR=${CLIMAF_CACHE} \
+		$SINGULARITY_ALLOWED_DIR/$singularity_container <<-EOG
+	set -x
+	python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+	EOG
+    
+else
+    export TMPDIR=${CLIMAF_CACHE}
+    python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
 fi
 
