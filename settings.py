@@ -5,6 +5,7 @@ email = None
 # Choose if you prefer one mail per C-ESM-EP run or one mail per C-ESM-EP component job
 one_mail_per_component = False
 
-# Which account / project will be charged for computing hours ? If
-# None, on TGCC, CCCHOME path will be used to deduce default accout
-account = None
+# Which account / project will be charged for computing hours ? 
+# If None, on TGCC, CCCHOME path will be used to deduce default account
+#account = None
+account = "psl@cpu"   # Example for IDRIS

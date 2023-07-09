@@ -49,10 +49,11 @@ from locations import path_to_cesmep_output_rootdir, \
 
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
-from locations import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs
+from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs
 
 # -- Working directory
 main_cesmep_path = os.getcwd()
+
 # Special case at CNRM for directory /cnrm, which is a link
 if atCNRM:
     main_cesmep_path = re.sub('^/mnt/nfs/d[0-9]*/', '/cnrm/', main_cesmep_path)
@@ -296,7 +297,7 @@ suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
 #  -> path_to_comparison_outdir = path to the comparison directory
 #     (containing the frontpage and all atlas subdirectories)
-path_to_comparison_outdir = path_to_cesmep_output_rootdir + '/' + suffix_to_comparison
+path_to_comparison_outdir = path_to_cesmep_output_rootdir + suffix_to_comparison
 
 # -- Path to the directories actually accessible from the web
 path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
@@ -308,11 +309,8 @@ comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
 # -- URL to C-ESM-EP frontpage
 frontpage_address = comparison_url + frontpage_html
 
-# USed at TGCC and IDRIS - actual complete path is a matter of user environment
-thredds_cp = "thredds_cp"
-
-if atTGCC:
-    # -- outworkdir = path to the work equivalent of the scratch
+if atTGCC or atIDRIS:
+    # -- outdir_workdir = path to the work equivalent of the scratch
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
         'scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
@@ -355,9 +353,13 @@ if argument.lower() not in ['url', 'clean']:
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
             if atIDRIS:
-                # 3. thredds_cp
-                os.system(thredds_cp + ' ' + atlas_pathfilename +
-                          ' ' + path_to_comparison_on_web_server + component)
+                # 3. First clean target, then thredds_cp
+                destdir = path_to_comparison_on_web_server + component
+                rmcmd = 'mfthredds -r ' + destdir + '/' + \
+                    atlas_pathfilename.split("/")[-1]
+                cmd = rmcmd + '; mfthredds -d ' + destdir + ' ' + atlas_pathfilename
+                #print("cmd=", cmd)
+                os.system(cmd)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
 
@@ -375,7 +377,7 @@ if argument.lower() not in ['url', 'clean']:
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 # 3. thredds_cp
-                os.system(thredds_cp + ' ' + atlas_pathfilename +
+                os.system('thredds_cp ' + atlas_pathfilename +
                           ' ' + path_to_comparison_on_web_server + component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
@@ -543,15 +545,18 @@ for component in job_components:
         if email and one_mail_per_component:
             job_options += ' --mail-type=END --mail-user=' + email
         #
-        # -- Set the partition
+        # -- Set the partition and account
         if not queue:
             if onSpirit:
                 queue = 'zen16'
             elif atIDRIS:
                 queue = 'cpu_p1'
-        job_options += ' --partition ' + queue.replace('\n', '')
-        if do_print:
-            print('    -> partition = ' + queue)
+        if atIDRIS:
+            account_options = " --hint=nomultithread"
+            account_options += " --account=" + account
+        else:
+            account_options = ""
+        account_options += ' --partition=' + queue.replace('\n', '')
         #
         # -- Specify the job script (only for Parallel coordinates)
         if component not in metrics_components:
@@ -582,19 +587,22 @@ for component in job_components:
             if do_print:
                 print('    -> Parallel execution: nprocs = ' + nprocs)
         #
+
         # -- Build the job command line
-        job_options += ' --time 480'
+        job_options += ' --time=480'
         jobname = component + '_' + comparison + '_C-ESM-EP'
-        env_variables = ' --export=component=' + component + ',comparison=' + comparison + \
+        env_variables = ' --export=ALL,component=' + component + ',comparison=' + comparison + \
             ',WD=${PWD},cesmep_frontpage=' + frontpage_address + \
             ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
-            'jobID=$(sbatch --job-name=' + jobname + ' ' + job_options + env_variables + ' ../' + job_script + \
+            'jobID=$(sbatch --job-name=' + jobname + ' ' + job_options + \
+            account_options + env_variables + ' ../' + job_script + \
             ' | awk "{print \$4}" ) ; \n' +\
             'echo $jobID > ' + launched_jobs + '\n' +\
             'sbatch --dependency=afternotok:$jobID ' + env_variables + \
             ',atlas_pathfilename=' + atlas_pathfilename + ' ' + \
             '--job-name=err_on_' + jobname + \
+            account_options +\
             ' ../../share/fp_template/copy_html_error_page.sh ; \n\ncd -'
     #
     if atCNRM:
@@ -679,11 +687,17 @@ if argument.lower() not in ['url', 'clean']:
     # -- Copy the edited html front page
     if atTGCC or atIDRIS:
         cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
-        print(cmd1)
+        print("First copying html front page to workdir: ", cmd1)
         os.system(cmd1)
-        cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + frontpage_html +\
-            ' ' + path_to_comparison_on_web_server + ' ; rm ' + frontpage_html + \
-            '; chmod +r ' + path_to_comparison_on_web_server + '/' + frontpage_html
+        html_file = path_to_comparison_outdir_workdir_tgcc + frontpage_html
+        if atTGCC:
+            cmd = 'thredds_cp ' + html_file + ' ' + path_to_comparison_on_web_server +\
+                'chmod +r ' + path_to_comparison_on_web_server + '/' + frontpage_html
+        if atIDRIS:
+            rmcmd = "mfthredds -r " + path_to_comparison_on_web_server + \
+                '/' + html_file.split("/")[-1]
+            cmd = rmcmd + ";mfthredds -d " + path_to_comparison_on_web_server + ' ' + html_file
+        cmd += ' ; rm ' + frontpage_html
     #
     if onCiclad or onSpirit or atCNRM or atCerfacs:
         cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
@@ -698,8 +712,14 @@ if argument.lower() not in ['url', 'clean']:
         if atTGCC or atIDRIS:
             os.system('cp share/fp_template/CESMEP_bandeau.png ' +
                       path_to_comparison_outdir_workdir_tgcc)
-            cmd = thredds_cp + ' ' + path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png ' + \
-                path_to_comparison_on_web_server
+            if atTGCC:
+                cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + \
+                    'CESMEP_bandeau.png ' + path_to_comparison_on_web_server
+            if atIDRIS:
+                rmcmd = 'mfthredds -r  ' + path_to_comparison_on_web_server + '/' + \
+                    'CESMEP_bandeau.png '
+                cmd = rmcmd + ';mfthredds -d  ' + path_to_comparison_on_web_server + ' ' + \
+                    path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png '
         if onCiclad or onSpirit or atCNRM or atCerfacs:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + \
                 path_to_comparison_on_web_server
@@ -749,7 +769,10 @@ if argument.lower() not in ['clean']:
     print('--')
     print('--')
     print('-- The html file is here: ')
-    print('-- ' + path_to_comparison_on_web_server + frontpage_html)
+    if not atIDRIS:
+        print('-- ' + path_to_comparison_on_web_server + frontpage_html)
+    else:
+        print('-- ' + html_file)
 
 if argument.lower() in ['clean']:
     os.system("rm -fr " + cesmep_climaf_cache)

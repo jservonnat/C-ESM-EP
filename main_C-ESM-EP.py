@@ -67,11 +67,11 @@ parser.add_option("--cesmep_frontpage",
 rootmainpath = os.getcwd()
 print('rootmainpath = ', rootmainpath)
 if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
-     main_cesmep_path = rootmainpath
+    main_cesmep_path = rootmainpath
 if os.path.isfile(rootmainpath+'/../main_C-ESM-EP.py'):
-     main_cesmep_path = rootmainpath+'/../'
+    main_cesmep_path = rootmainpath+'/../'
 if os.path.isfile(rootmainpath+'/../../main_C-ESM-EP.py'):
-      main_cesmep_path = rootmainpath+'/../../'
+    main_cesmep_path = rootmainpath+'/../../'
 
 
 # -- Get the default parameters from default_atlas_settings.py -> Priority = default
@@ -189,14 +189,14 @@ print('==> Against reference:')
 print('==> ----------------------------------- #')
 print('  ')
 if reference == 'default':
-   print('  reference = default')
-   print('  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
-   print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
+    print('  reference = default')
+    print('  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
+    print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
 else:
-   for key in reference:
+    for key in reference:
         print('  '+key+' = ', reference[key])
-   print('  --')
-   print('  --')
+    print('  --')
+    print('  --')
 
 
 # -----------------------------------------------------------------------------------
@@ -316,33 +316,34 @@ with open(outfile, "w") as filout:
 
 blabla = None
 if onCiclad or onSpirit:
-   # -- Copy on thredds...
-   # ----------------------------------------------------------------------------------------------
-   # -- thredds directory (web server)
-   threddsdir = str.replace(atlas_dir, 'scratchu', 'thredds/ipsl')
-   os.system('rm -rf '+threddsdir)
-   th_dir = str.replace(threddsdir, '/'+component, '')
-   if not os.path.isdir(th_dir):
+    # -- Copy on thredds...
+    # ----------------------------------------------------------------------------------------------
+    # -- thredds directory (web server)
+    threddsdir = str.replace(atlas_dir, 'scratchu', 'thredds/ipsl')
+    os.system('rm -rf '+threddsdir)
+    th_dir = str.replace(threddsdir, '/'+component, '')
+    if not os.path.isdir(th_dir):
         os.makedirs(th_dir)
-   os.system('cp -r '+atlas_dir+' '+th_dir)
-   print("index copied in : "+threddsdir)
+    os.system('cp -r '+atlas_dir+' '+th_dir)
+    print("index copied in : "+threddsdir)
 
-   alt_dir_name = threddsdir.replace(
-       '/thredds/ipsl', '/thredds/fileServer/ipsl_thredds')
-   root_url = "https://thredds-su.ipsl.fr"
+    alt_dir_name = threddsdir.replace(
+        '/thredds/ipsl', '/thredds/fileServer/ipsl_thredds')
+    root_url = "https://thredds-su.ipsl.fr"
 
-   # -- and return the url of the atlas
-   print("Available at this address "+root_url +
-         outfile.replace(atlas_dir, alt_dir_name))
+    # -- and return the url of the atlas
+    print("Available at this address "+root_url +
+          outfile.replace(atlas_dir, alt_dir_name))
 
 
 #
 
 #
 if atTGCC or atIDRIS:
+
     # -- Copie des résultats de scratch à work
-     path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-          'scratch', 'work')
+    path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
+        'scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_hpc):
         os.makedirs(path_to_comparison_outdir_workdir_hpc)
     else:
@@ -353,28 +354,33 @@ if atTGCC or atIDRIS:
     os.system(cmd1)
     #
     # -- thredds_cp des résultats de work à thredds (après un nettoyage de la cible)
-    if atTGCC: 
-         path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
-              '/C-ESM-EP/' + comparison + '_' + user_login
-         cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
-         print(cmd12)
-         os.system(cmd12)
+    if atTGCC:
+        path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
+            '/C-ESM-EP/' + comparison + '_' + user_login
+        cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
+        print(cmd12)
+        os.system(cmd12)
+        cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
+            ' '+path_to_comparison_on_web_server+'/'
     elif atIDRIS:
-         path_to_comparison_on_web_server = 'C-ESM-EP/' + comparison + '_' + user_login
-         cmd12 = 'thredds_rm '+path_to_comparison_on_web_server+'/'+component
-         print(cmd12)
-         os.system(cmd12)
-    cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc+' '+path_to_comparison_on_web_server+'/'
-    print(cmd2)
+        path_to_comparison_on_web_server = 'C-ESM-EP/' + comparison + '_' + user_login
+        cmd12 = 'thredds_rm '+ path_to_comparison_on_web_server+'/'+component
+        print(cmd12)
+        os.system(cmd12)
+        cmd2 = '(cd '+ path_to_comparison_outdir_workdir_hpc + '/..' +\
+            '; thredds_cp ' + component + ' ' + path_to_comparison_on_web_server + ')'
+    print("cmd2=",cmd2)
     os.system(cmd2)
 
     print(' -- ')
     print(' -- ')
     print(' -- ')
-    print('Index available at : ' + outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
+    print('Index available at : ' +
+          outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
 
 if atTGCC or atIDRIS:
-    print("The atlas is ready as ", index_name.replace(atlas_dir, path_to_comparison_outdir_workdir_hpc))
+    print("The atlas is ready as ", index_name.replace(
+        atlas_dir, path_to_comparison_outdir_workdir_hpc))
 else:
     print("The atlas is ready as ", index_name)
 
@@ -397,5 +403,3 @@ elif routine_cache_cleaning == 'figures_only':
 # -----------------------------------------------------------------------------------
 # -- End of the atlas
 # -----------------------------------------------------------------------------------
-
-

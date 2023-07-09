@@ -49,24 +49,17 @@ else
   fi
   env=$(cd ../..; pwd)/${env_script}
   main=$(cd ../..; pwd)/${atlas_file}
-  #datasets_setup_file=../datasets_setup.py
-  # -- Name of the parameter file
-  #param_file=params_${component}.py
-
 fi
 
 
 # -- Setup the environment...
 # -------------------------------------------------------- >
-echo '$CESMEP_CLIMAF_CACHE=' $CESMEP_CLIMAF_CACHE
+echo 'CESMEP_CLIMAF_CACHE=' $CESMEP_CLIMAF_CACHE
 source ${env}
-echo '$CLIMAF_CACHE=' $CLIMAF_CACHE
+echo 'CLIMAF_CACHE=' $CLIMAF_CACHE
 # Need to import from comparison directory :
 my_append -bp PYTHONPATH $(cd ..; pwd)
 
-# -- Provide a season
-# -------------------------------------------------------- >
-#season='ANM'
 
 # -- Set CliMAF cache in some special cases (default is to inherit it)
 # ------------------------------------------------------------------- >
@@ -82,31 +75,53 @@ echo ">>> CC= "$CLIMAF_CACHE
 # -------------------------------------------------------- >
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
+run_main="python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
 
 if [ -n "$docker_container" ] ; then
+    
     # this implies we are at TGCC) -> using pcocc for running a container 
-    env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH -e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
+    env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH "
+    env+="-e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
     pcocc run -s $env -I $docker_container --cwd $(pwd) <<-EOF
 	set -x
 	umask 0022
 	PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene 	# For thredds_cp
-	python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+	$run_main
 	EOF
+
 elif [ -n "$singularity_container" ] ; then
+    
     # We are probably at IDRIS, and will use singularity
-    module purge
     module load singularity
+    # File systems bindings
+    binds=$SCRATCH:$SCRATCH
+    # Must bind /gpfswork/rech and /gpfsstore/rech to access data in psl/commun
+    # and of other projects
+    binds+=,/gpfsstore/rech:/gpfsstore/rech,/gpfswork/rech:/gpfswork/rech
+    # Must bind /gpfsdswork/projects to mimic a system symbolic link for $WORK
+    binds+=,/gpfswork:/gpfsdswork/projects
+    # Must bind /gpfslocalsup/bin for accessing mfthredds and thredds_cp commands
+    binds+=,/gpfslocalsup/bin:/gpfslocalsup/bin
+    # Must bind /gpfsdsmnt/ipsl/dods/pub for executing thredds_cp
+    binds+=,/gpfsdsmnt/ipsl/dods/pub:/gpfsdsmnt/ipsl/dods/pub
+    #
+    env="CLIMAF=$WORK/climaf,PYTHONPATH=$WORK/climaf:$PYTHONPATH"
+    #env="PYTHONPATH=$PYTHONPATH"
+    env+=",TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
+    env+=",LOGNAME=$LOGNAME"
+    #
     set -x
-    srun --mpi=pmix_v2 singularity shell \
-		--bind $SCRATCH:$SCRATCH,$WORK:$WORK \
-		--env PYTHONPATH=$PYTHONPATH,TMPDIR=${CLIMAF_CACHE} \
-		$SINGULARITY_ALLOWED_DIR/$singularity_container <<-EOG
+    srun --mpi=pmix_v2 singularity shell --bind $binds --env $env \
+        $SINGULARITY_ALLOWED_DIR/$singularity_container <<-EOG
 	set -x
-	python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+	export PATH=/gpfslocalsup/bin:\$PATH
+	$runmain
 	EOG
     
 else
+    
     export TMPDIR=${CLIMAF_CACHE}
-    python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+    $run_main
+    
 fi
 

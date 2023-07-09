@@ -86,14 +86,18 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
 	echo -e "(ask your C-ESM-EP guru for the up-to-date location and file)"
 	exit 1
     fi
-    CLIMAF=/src/climaf  # This is Climaf location in container
-    my_append -bp PYTHONPATH ${CLIMAF}
+    #CLIMAF=/src/climaf  # This is Climaf location in container
+    #my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
-    my_append -ep PATH ~igcmg/Tools/irene
+    my_append -ep PATH /ccc/cont003/home/igcmg/igcmg/Tools/irene 
 fi
 
 # --> At IDRIS - Jean-Zay
-if [[ $(uname -s) == *jean-zay* ]]; then
+if [[ -d "/gpfsdswork" ]]; then
+    echo "loading module singularity"
+    set +x
+    module load singularity
+    set -x
     # container to use for setting the environment
     singularity_container=${singularity_container:-"20230611_atIPSL.sif"}
     #singularity_container="cesmep_prerequisites.sif"
@@ -104,10 +108,10 @@ if [[ $(uname -s) == *jean-zay* ]]; then
 	echo -e "\n\t module load singularity"
 	echo -e "\n\t idcontmgr cp docker-archive:/gpfswork/rech/psl/commun/Tools/$singularity_container\n"
 	echo -e "(ask your C-ESM-EP guru for the up-to-date source directory)"
-	exit 1
+	#exit 1
     fi
-    CLIMAF=/src/climaf  # This is Climaf location in container
-    my_append -bp PYTHONPATH ${CLIMAF}
+    # CLIMAF=/src/climaf  # This is Climaf location in container
+    # my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 

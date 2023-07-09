@@ -19,12 +19,12 @@ import os
 if os.path.exists('/ccc') and not(os.path.exists('/data')):
     atCNRM = onCiclad = onSpirit = atCerfacs = False
     atTGCC = atIPSL = True
-elif os.path.exists('/gpfs7kw'):
+elif os.path.exists('/gpfsdswork'):
     atCNRM = onCiclad = onSpirit = atCerfacs = atTGCC = False
     atIDRIS = atIPSL = True
 
 else:
-    from env.site_settings import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs
+    from env.site_settings import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs, atIDRIS
 
 username = getpass.getuser()
 
@@ -113,6 +113,7 @@ if atTGCC:
 if atIDRIS:
     scratch = os.getenv("SCRATCH")
     path_to_cesmep_output_rootdir = scratch
+    path_to_cesmep_output_rootdir_on_web_server = "."
     root_url_to_cesmep_outputs = 'https://thredds-su.ipsl.fr/thredds/catalog/' +\
         'idris_thredds/work/' + username
     climaf_cache = scratch + '/cache_atlas_explorer'
