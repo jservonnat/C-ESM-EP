@@ -5,13 +5,14 @@ C-ESM-EP user guide for the case of a libIGCM simulation
 S.Senesi - sept 2022
 Changes -
   feb 2023 : Spirit is managed
+  jul 2023 : Jean Zay is managed
 
 Pre-requisites :
-  - some basic knowledege of C-ESM-EP (i.e. organization of a C-ESM-EP home directory, concept of a 'comparison')
+  - some basic knowledege of C-ESM-EP (i.e. organization of a C-ESM-EP home directory, and concept of a 'comparison')
   - how to run a libIGCM simulation
 
 
-When running a simulation (yet only on irene, irene-rome and spirit) you can trigger the computation of a C-ESM-EP atlas based on one of the output types (Seasonal, TimeSeries, packed Output, or even Output on scratch for e.g. a TEST simulation). This works when using a libIGCM version from trunk with a release number >= xxx
+When running a simulation (yet only at TGCC on Irene and Irene-rome, at IDRIS on Jean-Zay and at ISPL mesocenter on Spirit) you can trigger the computation of a C-ESM-EP atlas based on one of the output types (Seasonal, TimeSeries, packed Output, or even Output on scratch for e.g. a TEST simulation). This works when using a libIGCM version from trunk with a release number >= xxx
 
 The atlas shows a series of the most recent time slices of the running simulation. Slices number and duration are tunable. 
 
@@ -21,15 +22,26 @@ Basic use
 Init phase
 ----------
 
-At TGCC, because C-ESM-EP requires a number of software packages, C-ESM-EP uses TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) and you must tell pcocc where to find a relevant environment, by interactively issuing this command :
+At TGCC ad IDRIS, because C-ESM-EP requires a number of software packages, C-ESM-EP uses either TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) or IDRIS installed software 'singularity', and you must tell this tool where to find a relevant environment, by interactively issuing a few commands:
 
-	pcocc image import docker-archive:<file> cesmep_container
+  - TGCC:
 
-where <file> is one of the files in /ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/, probably the newest one (ask your C-ESM-EP guru in case of trouble)
+    `pcocc image import docker-archive:<file> cesmep_container`
 
-This should be done only once by each user. The path above is correct at the time of writing and may change in the future.
+where <file> is the path for the most recent file in `/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/` (ask your C-ESM-EP guru in case of trouble)
 
-On Spirit, there is no need for such an init phase; however, you have to take care of the C-ESM-EP version yu use (see below, § 'How it works') 
+  - IDRIS:
+
+    `module load singularity`
+    `idrcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>`
+
+ where <file> is the most recent file there (ask your C-ESM-EP guru in case of trouble)
+
+This should be done only once by each user. The paths above are correct at the time of writing and may change in the future.
+
+You have also to make sure that you are allowed to use the Thredds. Please test it using commad thredds_cp.
+
+On Spirit, there is no need for such an init phase; however, you have to take care of the C-ESM-EP version you use (see below, § 'How it works') 
 	
 
 Settings:
@@ -44,7 +56,7 @@ Computing a C-ESM-EP atlas is triggered using parameter 'Cesmep' in section Post
 
 In section Post of the config.card parameter 'CesmepSlices' allows to set the number of time slices to show in atlas (it defaults to 8).
 
-Example of config.card minimal content on Irene (in section 'Post')::
+Example of config.card minimal content on Irene or Jean-Zay(in section 'Post')::
 
   #D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years or ...
   Cesmep=5Y
@@ -54,7 +66,7 @@ Example of config.card minimal content on Irene (in section 'Post')::
 How it works
 ------------
 
-The C-ESM-EP code (from a reference code version) is partially copied to $SUMBIT_DIR/cesemp_lite/, which becomes the root C-ESM-EP directory for that simulation. At TGCC, this reference C-ESM-EP code is located on ~igcmg/Tools. On spirit, for the time being, you must provide the location of yur own reference version.
+The C-ESM-EP code (from a reference code version) is partially copied to $SUMBIT_DIR/cesemp_lite/, which becomes the root C-ESM-EP directory for that simulation. At TGCC, this reference C-ESM-EP code is located on ~igcmg/Tools. At IDRIS, it is at /gpfswork/rech/psl/commun/Tools/cesmep. On spirit, for the time being, you must provide the location of your own reference version.
 
 The C-ESM-EP comparison that is ran is by default 'run_comparison' and, in directory cesmep_lite/, that comparison name is further prefixed by your JobName (this matters when looking for outputs, see below)
 
@@ -100,7 +112,7 @@ which names are self-explanatory in C-ESM-EP and libIGCM contexts except these o
   - DateBegin    : the simulation start date
   - CesmepPeriod : the duration of atlas time slices 
 
-The location for CliMAF cache is dedicated to the simulation and under a root path chosen by C-ESM-EP : $root/cesmep_climaf_caches/${OUT}_${TagName}_${SpaceName}_${ExperimentName}_${JobName}. On Irene, root=$CCCSCRATCHDIR. On Spirit, root=/scratchu/$user.
+The location for CliMAF cache is dedicated to the simulation and under a root path chosen by C-ESM-EP : $root/cesmep_climaf_caches/${OUT}_${TagName}_${SpaceName}_${ExperimentName}_${JobName}. On Irene, root=$CCCSCRATCHDIR. On Jean-Zay, root=$SCRATCH. On Spirit, root=/scratchu/$user.
 
 You can receive mails for the completion of each new atlas slice by setting 'CesmepMail=TRUE' in config.card. Depending on the content of file cesmep_lite/settings.py (see variabe `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
 
@@ -113,7 +125,7 @@ Example::
   #D- Activate C-ESM-EP atlas by setting Cesmep to TRUE, to a number of years,
   #D- or to SE, TS, Pack or AtEnd. This defines the atlas period. Defaults to FALSE
   Cesmep=10Y
-  #D- Name of C-ESM-EP 'comparison' to run (defaults to standard_comparison)
+  #D- Name of C-ESM-EP 'comparison' to run (defaults to run_comparison)
   CesmepComparison=run_comparison
   #D- Tell where is C-ESM-EP source code (yet mandatory on spirit)
   CesmepCode=/ccc/cont003/home/igcmg/igcmg/Tools/cesmep/

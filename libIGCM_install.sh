@@ -7,7 +7,7 @@
 # installs a (lite) C-ESM-EP directory in SUBMIT directory.
 # It then creates there :
 #    - a relevant datasets_setups.py file (by copying a fixed file)
-#    - a settings file imported by that datasets_setup.py file
+#    - a settings file (libIGCM_settings.py) imported by that datasets_setup.py file
 #    - libIGCM_post.sh : a script that will be called by libIGCM during simulation
 #    - a relevant entry for 'account' and for 'mail' in file settings.py
 
@@ -47,8 +47,8 @@ elif [[ $Center == spirit* ]] ; then
     root=/$(echo $R_SAVE | cut -d / -f 2)
     rest=$(echo $R_SAVE | cut -d / -f 3-)
 elif [ $Center = IDRIS ] ; then 
-    root=$(echo $R_SAVE | cut -d / -f 1-5)
-    rest=$(echo $R_SAVE | cut -d / -f 6-)
+    root=$(echo $R_SAVE | cut -d / -f 1-3)
+    rest=$(echo $R_SAVE | cut -d / -f 4-)
 else
     echo "Unkown Center $Center"
     exit 1

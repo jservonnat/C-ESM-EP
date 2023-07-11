@@ -115,7 +115,7 @@ elif [ -n "$singularity_container" ] ; then
         $SINGULARITY_ALLOWED_DIR/$singularity_container <<-EOG
 	set -x
 	export PATH=/gpfslocalsup/bin:\$PATH
-	$runmain
+	$run_main
 	EOG
     
 else

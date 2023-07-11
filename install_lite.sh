@@ -19,7 +19,7 @@
 
 #set -x
 
-$cesmep_dir=$(cd $(dirname $0) ; pwd)  # Dir of current code
+cesmep_dir=$(cd $(dirname $0) ; pwd)  # Dir of current code
 [ -h $cesmep_dir/share ] && echo "Cannot work from a lite install" && exit 1
 
 target=${1?} 
@@ -37,7 +37,7 @@ mkdir -p $target
 
 # Copy the comparison subdir
 if [ -d $cesmep_dir/$comparison ] ; then
-    comparison_dir=$cesemp_dir
+    comparison_dir=$cesmep_dir
 elif [ -d $comparison ] ; then
     comparison=$(realname $comparison)
     comparison_dir=$(dirname $comparison)
