@@ -95,6 +95,6 @@ source activate /data/jservon/PMP_nightly_backup_22062017/PMP_nightly
 export LD_LIBRARY_PATH=/data/jservon/PMP_nightly_backup_22062017/PMP_nightly/lib:/prodigfs/ipslfs/dods/jservon/anaconda2-5.1.0/lib:${LD_LIBRARY_PATH}
 
 
-python ${main} --datasets_setup ${datasets_setup_file} --comparison ${comparison} --params ${param_file}
+python3 ${main} --datasets_setup ${datasets_setup_file} --comparison ${comparison} --params ${param_file}
 
 

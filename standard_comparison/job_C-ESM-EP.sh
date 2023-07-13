@@ -84,7 +84,7 @@ echo "Running ${atlas_file} for season ${season} with parameter file ${param_fil
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 if [ ${prerequisites_container:-none} = none ] ; then
     export TMPDIR=${CLIMAF_CACHE}
-    python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
+    python3 ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage
 else
     # Using pcocc for running a container (this implies we are at TGCC)
     #
