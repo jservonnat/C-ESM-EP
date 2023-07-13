@@ -105,16 +105,21 @@ if atTGCC:
     project = str(work.split("/")[4])
     thredds = work.replace('/'+project+'/', '/thredds/')
     path_to_cesmep_output_rootdir_on_web_server = thredds
-    root_url_to_cesmep_outputs = 'https://thredds-su.ipsl.fr/thredds/fileServer/tgcc_thredds/work/' + username
+    root_url_to_cesmep_outputs = 'https://thredds-su.ipsl.fr/thredds/fileServer/' +\
+        'tgcc_thredds/work/' + username
 
     climaf_cache = scratch + '/cache_atlas_explorer'
 
 # -- IDRIS
 if atIDRIS:
+    # Components outputs will be temporarily on scratchdir, and
+    # ultimately copied on workdir, with a hard link on the thredds
+    # (using thredds_cp)
     scratch = os.getenv("SCRATCH")
     path_to_cesmep_output_rootdir = scratch
-    path_to_cesmep_output_rootdir_on_web_server = "."
-    root_url_to_cesmep_outputs = 'https://thredds-su.ipsl.fr/thredds/catalog/' +\
+    # thredds_cp requires relative target paths
+    path_to_cesmep_output_rootdir_on_web_server = "." 
+    root_url_to_cesmep_outputs = 'https://thredds-su.ipsl.fr/thredds/fileServer/' +\
         'idris_thredds/work/' + username
     climaf_cache = scratch + '/cache_atlas_explorer'
 

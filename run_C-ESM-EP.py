@@ -550,7 +550,7 @@ for component in job_components:
             if onSpirit:
                 queue = 'zen16'
             elif atIDRIS:
-                queue = 'cpu_p1'
+                queue = 'prepost'
         if atIDRIS:
             account_options = " --hint=nomultithread"
             account_options += " --account=" + account

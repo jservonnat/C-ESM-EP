@@ -47,8 +47,8 @@ elif [[ $Center == spirit* ]] ; then
     root=/$(echo $R_SAVE | cut -d / -f 2)
     rest=$(echo $R_SAVE | cut -d / -f 3-)
 elif [ $Center = IDRIS ] ; then 
-    root=$(echo $R_SAVE | cut -d / -f 1-3)
-    rest=$(echo $R_SAVE | cut -d / -f 4-)
+    root=$(echo $R_SAVE | cut -d / -f 1-4)
+    rest=$(echo $R_SAVE | cut -d / -f 5-)
 else
     echo "Unkown Center $Center"
     exit 1

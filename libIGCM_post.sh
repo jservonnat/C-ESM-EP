@@ -1,10 +1,14 @@
 #!/bin/bash
-# The script that libIGCM will call for executing the C-ESM-EP code
-
-# Run time parameters are provided as arguments
+# Script called by libIGCM for executing the C-ESM-EP code
 
 # Setup parameters are read from libIGCM_post.param (as written by
 # libIGCM_install.sh when called by libIGCM ins_job)
+
+# Run-time parameters are provided as arguments. They are date begin and end
+# for the time slice to process. In these dates, only years are used
+
+# Execution occurs in the directory of the script, which is a C-ESM-EP code directory
+
 #set -x
 
 begin=$1
@@ -13,13 +17,15 @@ end=$2
 cd $(dirname $0)
 out=$(pwd)/libIGCM_post.out
 
-# Read helper file
-read CesmepCode comparison DateBegin CesmepPeriod CesmepSlices cache components < libIGCM_post.param
+# Read helper filesetup parameters
+read CesmepCode comparison DateBegin CesmepPeriod CesmepSlices \
+     cache components < libIGCM_post.param
 
-# Analyze if last batch of simulation outputs allow to compute a new atlas slice
-# (where slices are aligned with DateBegin and have a duration of CesmepPeriod).
-# i.e. that it exists a slice ending in the provided data period, 
-# If there is multiple such slices, we use the last one
+# Analyze if last batch of simulation outputs allow to compute a new
+# atlas slice (where slices are aligned with DateBegin and have a
+# duration of CesmepPeriod).  i.e. that it exists a slice ending in
+# the provided data period, If there is multiple such slices, we use
+# the last one
 
 DateBegin=${DateBegin:0:4}
 begin=${begin:0:4}
