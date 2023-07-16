@@ -105,8 +105,8 @@ elif [ -n "$singularity_container" ] ; then
     # Must bind /gpfsdsmnt/ipsl/dods/pub for executing thredds_cp
     binds+=,/gpfsdsmnt/ipsl/dods/pub:/gpfsdsmnt/ipsl/dods/pub
     #
-    env="CLIMAF=$WORK/climaf,PYTHONPATH=$WORK/climaf:$PYTHONPATH"
-    #env="PYTHONPATH=$PYTHONPATH"
+    #env="CLIMAF=$WORK/climaf,PYTHONPATH=$WORK/climaf:$PYTHONPATH"
+    env="PYTHONPATH=$PYTHONPATH"
     env+=",TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
     env+=",LOGNAME=$LOGNAME"
     #
