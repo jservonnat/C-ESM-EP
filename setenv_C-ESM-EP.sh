@@ -98,20 +98,21 @@ if [[ -d "/gpfsdswork" ]]; then
     set +x
     module load singularity
     set -x
-    # container to use for setting the environment
-    singularity_container=${singularity_container:-"20230611_atIPSL.sif"}
-    #singularity_container="cesmep_prerequisites.sif"
-    if ! ( idrcontmgr ls | grep -q $singularity_container ) #> /dev/null 2>&1 ;
+    if [ -z $singularity_container ]
     then
-	echo -e"\n\nBefore you firt run of C-ESM-EP at IDRIS, you must declare the singularity "
-	echo -e "container that satisfies C-ESM-EP prerequisites, by issuing (only once) these commands"
-	echo -e "\n\t module load singularity"
-	echo -e "\n\t idcontmgr cp docker-archive:/gpfswork/rech/psl/commun/Tools/$singularity_container\n"
-	echo -e "(ask your C-ESM-EP guru for the up-to-date source directory)"
-	#exit 1
+	# identify newest container among those managed by idrcontmgr
+	singularity_container=$(idrcontmgr ls | /usr/bin/grep sif | tail -n -1)
     fi
-    # CLIMAF=/src/climaf  # This is Climaf location in container
-    # my_append -bp PYTHONPATH ${CLIMAF}
+    if [ -z $singularity_container ] 
+    then
+	echo -e"\n\nBefore you firt run of C-ESM-EP at IDRIS, you must "
+	echo -e "declare the singularity container that satisfies C-ESM-EP "
+	echo -e "prerequisites, by issuing (only once) these commands :"
+	echo -e "\n\t module load singularity"
+	echo -e "\t idcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>\n"
+	echo -e "\n where <file> is the newest '.sif' file in that Tools directory"
+	exit 1
+    fi
     my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 

@@ -29,6 +29,9 @@
 # --      > python run_C-ESM-EP.py comparison comp1,comp2 # submit jobs for comp1 and comp2 in comparison
 # --      > python run_C-ESM-EP.py comparison url # returns the url of the frontpage
 # --
+# -- Note : atIDRIS, we forward the value of env variable 'singularity_container' to launched jobs, in
+# --        order to allow full control on the container used, when needed
+# --
 # -- Author: Jerome Servonnat (LSCE-IPSL-CEA)
 # -- Contact: jerome.servonnat@lsce.ipsl.fr
 # --
@@ -591,9 +594,13 @@ for component in job_components:
         # -- Build the job command line
         job_options += ' --time=480'
         jobname = component + '_' + comparison + '_C-ESM-EP'
-        env_variables = ' --export=ALL,component=' + component + ',comparison=' + comparison + \
+        env_variables = ' --export=ALL,component=' + component + \
+            ',comparison=' + comparison + \
             ',WD=${PWD},cesmep_frontpage=' + frontpage_address + \
             ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache
+        if atIDRIS:
+            env_variables += ',singularity_container=' + \
+                os.getenv('singularity_container', '')
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'jobID=$(sbatch --job-name=' + jobname + ' ' + job_options + \
             account_options + env_variables + ' ../' + job_script + \
