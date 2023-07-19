@@ -17,7 +17,7 @@ end=$2
 cd $(dirname $0)
 out=$(pwd)/libIGCM_post.out
 
-# Read helper filesetup parameters
+# Read setup parameters
 read CesmepCode comparison DateBegin CesmepPeriod CesmepSlices \
      cache components < libIGCM_post.param
 

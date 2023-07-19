@@ -85,7 +85,8 @@ if [ -n "$docker_container" ] ; then
     pcocc run -s $env -I $docker_container --cwd $(pwd) <<-EOF
 	set -x
 	umask 0022
-	PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene 	# For thredds_cp
+	export PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene  # For thredds_cp
+	export PYTHONPATH=/src/climaf:$PYTHONPATH
 	$run_main
 	EOF
 
@@ -94,8 +95,8 @@ elif [ -n "$singularity_container" ] ; then
     # We are probably at IDRIS, and will use singularity
     module load singularity
     # File systems bindings
-    binds=$SCRATCH:$SCRATCH
-    # Must bind /gpfswork/rech and /gpfsstore/rech to access data in psl/commun
+    binds=$HOME:$HOME,$SCRATCH:$SCRATCH
+    # Must bind /gpfswork/rech and /gpfsstore/rech to access data in psl/common
     # and of other projects
     binds+=,/gpfsstore/rech:/gpfsstore/rech,/gpfswork/rech:/gpfswork/rech
     # Must bind /gpfsdswork/projects to mimic a system symbolic link for $WORK
@@ -105,9 +106,7 @@ elif [ -n "$singularity_container" ] ; then
     # Must bind /gpfsdsmnt/ipsl/dods/pub for executing thredds_cp
     binds+=,/gpfsdsmnt/ipsl/dods/pub:/gpfsdsmnt/ipsl/dods/pub
     #
-    env="CLIMAF=$WORK/climaf,PYTHONPATH=$WORK/climaf:$PYTHONPATH"
-    #env="PYTHONPATH=$PYTHONPATH"
-    env+=",TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
+    env="TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
     env+=",LOGNAME=$LOGNAME"
     #
     set -x
@@ -115,6 +114,9 @@ elif [ -n "$singularity_container" ] ; then
         $SINGULARITY_ALLOWED_DIR/$singularity_container <<-EOG
 	set -x
 	export PATH=/gpfslocalsup/bin:\$PATH
+	# CliMAF location may be tuned below. Container default is /src/climaf
+	export CLIMAF=/src/climaf
+	export PYTHONPATH=\$CLIMAF:$PYTHONPATH
 	$run_main
 	EOG
     
