@@ -37,13 +37,13 @@ IDRIS:
 
     `idrcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>`
 
-where <file> is the most recent file there (ask your C-ESM-EP guru in case of trouble)
+ where <file> is the most recent '.sif' file there (ask your C-ESM-EP guru in case of trouble)
 
 This should be done only once by each user. The paths above are correct at the time of writing and may change in the future.
 
 You have also to make sure that you are allowed to use the Thredds. Please test it using commad thredds_cp.
 
-On Spirit, there is no need for such an init phase; however, you have to take care of the C-ESM-EP version you use (see below, § 'How it works') 
+On Spirit, there is no need for such an init phase.
 	
 
 Settings:
@@ -68,7 +68,10 @@ Example of config.card minimal content on Irene or Jean-Zay(in section 'Post')::
 How it works
 ------------
 
-The C-ESM-EP code (from a reference code version) is partially copied to $SUMBIT_DIR/cesemp_lite/, which becomes the root C-ESM-EP directory for that simulation. At TGCC, this reference C-ESM-EP code is located on ~igcmg/Tools. At IDRIS, it is at /gpfswork/rech/psl/commun/Tools/cesmep. On spirit, for the time being, you must provide the location of your own reference version.
+The C-ESM-EP code (from a reference code version) is partially copied to $SUMBIT_DIR/cesemp_lite/, which becomes the root C-ESM-EP directory for that simulation. The source locations are:
+- at TGCC  : ~igcmg/Tools/cesmep
+- at IDRIS : /gpfswork/rech/psl/commun/Tools/cesmep
+- on spirit: /net/nfs/tools/Users/SU/jservon/cesmep_installs/cesmep_for_libIGCM
 
 The C-ESM-EP comparison that is ran is by default 'run_comparison' and, in directory cesmep_lite/, that comparison name is further prefixed by your JobName (this matters when looking for outputs, see below)
 
