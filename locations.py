@@ -17,7 +17,7 @@ import os
 # and we would like to avoid using this slightly heavy procedure
 # when executing this script
 if os.path.exists('/ccc') and not(os.path.exists('/data')):
-    atCNRM = onCiclad = onSpirit = atCerfacs = False
+    atCNRM = onCiclad = onSpirit = atCerfacs = atIDRIS = False
     atTGCC = atIPSL = True
 elif os.path.exists('/gpfsdswork'):
     atCNRM = onCiclad = onSpirit = atCerfacs = atTGCC = False

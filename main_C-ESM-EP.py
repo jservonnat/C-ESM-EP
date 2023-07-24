@@ -343,7 +343,7 @@ if atTGCC or atIDRIS:
 
     # -- Copie des résultats de scratch à work
     path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-        'scratch', 'work')
+        'scratch', 'workflash')
     if not os.path.isdir(path_to_comparison_outdir_workdir_hpc):
         os.makedirs(path_to_comparison_outdir_workdir_hpc)
     else:
@@ -364,12 +364,12 @@ if atTGCC or atIDRIS:
             ' '+path_to_comparison_on_web_server+'/'
     elif atIDRIS:
         path_to_comparison_on_web_server = 'C-ESM-EP/' + comparison + '_' + user_login
-        cmd12 = 'thredds_rm '+ path_to_comparison_on_web_server+'/'+component
+        cmd12 = 'thredds_rm ' + path_to_comparison_on_web_server+'/'+component
         print(cmd12)
         os.system(cmd12)
-        cmd2 = '(cd '+ path_to_comparison_outdir_workdir_hpc + '/..' +\
+        cmd2 = '(cd ' + path_to_comparison_outdir_workdir_hpc + '/..' +\
             '; thredds_cp ' + component + ' ' + path_to_comparison_on_web_server + ')'
-    print("cmd2=",cmd2)
+    print("cmd2=", cmd2)
     os.system(cmd2)
 
     print(' -- ')

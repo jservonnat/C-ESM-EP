@@ -128,10 +128,10 @@ if [ -z $comps ] ; then
     exit 1
 fi
 
-# Compute location for C-ESM-EP CliMAF cache
+# Compute location for C-ESM-EP CliMAF cache, and, at IDRIS, fix ProjectID 
 case $Center in
     TGCC) cacheroot=$CCCSCRATCHDIR ;;
-    IDRIS) cacheroot=$SCRATCH ;;
+    IDRIS) cacheroot=$SCRATCH ; ProjectID=$ProjectID"@cpu";; 
     spirit*) cacheroot=/scratchu/$USER ;;
 esac    
 cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
