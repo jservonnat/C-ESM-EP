@@ -41,6 +41,7 @@
 # -- Python 2 <-> 3 compatibility ---------------------------------------------------------
 from __future__ import unicode_literals, print_function, absolute_import, division
 import subprocess
+from subprocess import getouput
 
 # -- Import python modules ----------------------------------------------------------------
 import os
@@ -556,7 +557,11 @@ for component in job_components:
                 queue = 'prepost'
         if atIDRIS:
             account_options = " --hint=nomultithread"
-            account_options += " --account=" + account
+            if account is None:
+                # Use default account
+                account = getoutput("idrproj | grep default | cut -d ' ' -f 3") \
+                    + "@cpu"
+            account_options += f" --account={account}"
         else:
             account_options = ""
         account_options += ' --partition=' + queue.replace('\n', '')

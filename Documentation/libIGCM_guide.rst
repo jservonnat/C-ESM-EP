@@ -25,17 +25,16 @@ Init phase
 
 At TGCC ad IDRIS, because C-ESM-EP requires a number of software packages, C-ESM-EP uses either TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) or IDRIS installed software 'singularity', and you must tell this tool where to find a relevant environment, by interactively issuing a few commands:
 
-TGCC:
+TGCC::
 
-    `pcocc image import docker-archive:<file> cesmep_container`
+  pcocc image import docker-archive:<file> cesmep_container
 
-where <file> is the path for the most recent file in `/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/` (ask your C-ESM-EP guru in case of trouble)
+where <file> is the path for the most recent file in `/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/` (ask your C-ESM-EP guru in case of trouble). Execution of the above command can be VERY long (over 30 min).
 
-IDRIS:
+IDRIS::
 
-    `module load singularity`
-
-    `idrcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>`
+    module load singularity
+    idrcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>
 
  where <file> is the most recent '.sif' file there (ask your C-ESM-EP guru in case of trouble)
 
@@ -56,26 +55,27 @@ Computing a C-ESM-EP atlas is triggered using parameter 'Cesmep' in section Post
 - AtEnd for running the atlas only at simulation end, from Output type data (this works for TEST simulations with output on scratch)
 - FALSE for deactivating any C-ESM-EP atlas (which is the default)
 
-In section Post of the config.card parameter 'CesmepSlices' allows to set the number of time slices to show in atlas (it defaults to 8).
+In same section, parameter 'CesmepSlices' allows to set the number of time slices to show in atlas (it defaults to 8).
 
-Example of config.card minimal content on Irene or Jean-Zay(in section 'Post')::
+Example of config.card minimal content (in section 'Post')::
 
   #D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years or ...
   Cesmep=5Y
 
 
-
 How it works
 ------------
 
-The C-ESM-EP code (from a reference code version) is partially copied to $SUMBIT_DIR/cesemp_lite/, which becomes the root C-ESM-EP directory for that simulation. The source locations are:
+When installing a simulation using `ins_job`, the C-ESM-EP code (from a reference code version) is partially copied to `$SUMBIT_DIR/cesemp_lite/`, which becomes the root C-ESM-EP directory for that simulation. The source locations are :
 - at TGCC  : ~igcmg/Tools/cesmep
 - at IDRIS : /gpfswork/rech/psl/commun/Tools/cesmep
 - on spirit: /net/nfs/tools/Users/SU/jservon/cesmep_installs/cesmep_for_libIGCM
 
-The C-ESM-EP comparison that is ran is by default 'run_comparison' and, in directory cesmep_lite/, that comparison name is further prefixed by your JobName (this matters when looking for outputs, see below)
+The C-ESM-EP comparison that is ran is by default is 'run_comparison' and, in directory cesmep_lite/, that comparison name is further prefixed by your JobName (this matters when looking for outputs, see below)
 
 Except for case AtEnd , the atlas is computed each time a batch of output is available for the selected type, provided it allows to process a new time slice. Time slicing is aligned with simulation start date and complies with values for parameters CesmepSlices and CesmepPeriod.
+
+The account used for C-ESM-EP jobs is the same as used by libIGCM for the simulation
 
 
 
@@ -84,7 +84,7 @@ Outputs
 
 The standard output of last C-ESM-EP launch is availabe in $SUMBIT_DIR/cesemp_lite/libIGCM_post.out, and the output for each component is located, as for all C-ESM-EP runs, in the component directory
 
-The atlas main page is available on thredds/work like for other C-ESM-EP simulation e.g., if JobName is 'myFG2' on Irene, atlas main index can be found at
+The atlas main page is available on thredds/work like for other C-ESM-EP simulation e.g., if JobName is 'myFG2' on Irene, atlas main index can be found at:
 
    https://thredds-su.ipsl.fr/thredds/fileServer/tgcc_thredds/work/senesis/C-ESM-EP/myFG2_mycomparison_senesis/C-ESM-EP_myFG2_mycomparison.html
 
@@ -94,11 +94,11 @@ The actual value for your simulation can be found in the file quoted above, $SUM
 Advanced use
 ============
 
-On Irene, the version of C-ESM-EP code used is located by default at ~igcmg/Tools/cesmep; this can be changed, and this must be set on Spirit, using config.card's Post section's parameter 'CesmepCode'; 
+By default, the C-ESM-EP code used is a shared one (see above for location on various systems); this can be changed using config.card's Post section's parameter `CesmepCode`. 
 
-The C-ESM-EP comparison used can be chosen using config.card's Post parameter 'CesmepComparison'.
+The C-ESM-EP comparison used can be chosen using config.card's Post parameter `CesmepComparison`.
 
-The comparison 'components' are activated based on the simulation physical components; their list can be changed manually after running ins_job (in $SUMBIT_DIR/cesemp_lite/libIGCM_post.param, which fields are Cesmep code location, comparison name, simulation start date, cache location, components list)
+The comparison 'components' are activated based on the simulation physical components; their list can be changed manually after running `ins_job` by editing file $SUMBIT_DIR/cesemp_lite/libIGCM_post.param (which fields are: Cesmep code location, comparison name, simulation start date, cache location, components list)
 
 At that stage, you may also change component parameters in component directories in $SUMBIT_DIR/cesemp_lite/. You may also make changes to the datasets_setup.py source for customizing the datasets to use; for that, you can make use of the variables available in comparison's directory file libIGCM_fixed_settings.py, as e.g. :: 
 
@@ -119,9 +119,17 @@ which names are self-explanatory in C-ESM-EP and libIGCM contexts except these o
 - DateBegin    : the simulation start date
 - CesmepPeriod : the duration of atlas time slices 
 
-The location for CliMAF cache is dedicated to the simulation and under a root path chosen by C-ESM-EP : ${root}/cesmep\_climaf\_caches/${OUT}_${TagName}_${SpaceName}_${ExperimentName}_${JobName}. On Irene, root=${CCCSCRATCHDIR}. On Jean-Zay, root=$SCRATCH. On Spirit, root=/scratchu/$user.
+The location for CliMAF cache is dedicated to the simulation and under a root path chosen by C-ESM-EP ::
+    ${root}/cesmep\_climaf\_caches/${OUT}_${TagName}_${SpaceName}_${ExperimentName}_${JobName}.
 
-You can receive mails for the completion of each new atlas slice by setting 'CesmepMail=TRUE' in config.card. Depending on the content of file cesmep_lite/settings.py (see variabe `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
+With:
+  - on Irene, root=${CCCSCRATCHDIR}
+  - on Jean-Zay, root=$SCRATCH.
+  - on Spirit, root=/scratchu/$user.
+
+You can receive mails for the completion of each new atlas slice by setting ::
+  CesmepMail=TRUE
+in config.card. Depending on the content of file cesmep_lite/settings.py (see variable `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
 
 
 
@@ -145,6 +153,6 @@ Example::
 For power users
 ----------------
 
-Directory cesmep_lite/ does not include all files of a standard C-ESM-EP root directory, in order to save inodes (and this is achieved thanks to the PYTHONPATH set by libIGCM for running C-ESM-EP, and by symbolic links for some other files). If you wish to be able to modify such files for further customizing your run, just copy them in cesmep_lite/ and change them the way you like. This should occur after ins_job call and before submiting the simulation job.
+Directory `cesmep_lite/` does not include all files of a standard C-ESM-EP root directory, in order to save inodes (and this is achieved thanks to the PYTHONPATH set by libIGCM for running C-ESM-EP, and by symbolic links for some other files). If you wish to be able to modify such files for further customizing your run, just copy them in cesmep_lite/ and change them the way you like. This should occur after ins_job call and before submiting the simulation job.
 
 
