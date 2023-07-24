@@ -313,10 +313,14 @@ comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
 # -- URL to C-ESM-EP frontpage
 frontpage_address = comparison_url + frontpage_html
 
-if atTGCC or atIDRIS:
-    # -- outdir_workdir = path to the work equivalent of the scratch
+# -- outdir_workdir = path to the work equivalent of the scratch
+if atTGCC:
+    path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
+        'scratch', 'workflash')
+if atIDRIS:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
         'scratch', 'work')
+if atTGCC or atIDRIS:
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
 
@@ -472,6 +476,7 @@ for component in job_components:
                 ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
                 ' -m store,work,scratch ' +\
                 '../job_C-ESM-EP.sh | cut -d " " -f 4 >> ' + launched_jobs
+
     #
     # -- Case onCiclad
     if onCiclad:
@@ -763,6 +768,8 @@ if argument.lower() not in ['url', 'clean']:
                 job_ids = job_ids.replace(",", ":")
                 cmd = f"cd {comparison_dir} ; "
                 cmd += f" sbatch --job-name={job_name} --dependency=afterany:{job_ids} "
+                if atIDRIS:
+                    cmd += f" --account={account}"
                 cmd += f" --mail-type=BEGIN --mail-user={email} -o {out} -e {out} mailjob;"
                 cmd += f" rm -f mailjob {launched_jobs}"
             #print('mail cmd=',cmd)

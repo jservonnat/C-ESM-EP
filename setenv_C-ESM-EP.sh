@@ -76,7 +76,7 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
     docker_container=cesmep_container
     export LC_ALL=C.UTF-8  # Needed by pcocc (actually by Click in python 3.6)
     export LANG=C.UTF-8    # Needed by pcocc (actually by Click in python 3.6)
-    if ! pcocc image show $prerequisites_container #> /dev/null 2>&1 ;
+    if ! pcocc image show $docker_container #> /dev/null 2>&1 ;
     then
 	echo -e"\n\nBefore you firt run of C-ESM-EP at TGCC, you must tell pcocc which is the Docker "
 	echo "container that satisfies C-ESM-EP prerequisites, by issuing (only once) a command like"
