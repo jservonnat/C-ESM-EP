@@ -342,8 +342,12 @@ if onCiclad or onSpirit:
 if atTGCC or atIDRIS:
 
     # -- Copie des résultats de scratch à work
-    path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-        'scratch', 'workflash')
+    if atTGCC:
+        path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
+            'scratch', 'workflash')
+    elif atIDRIS:
+        path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
+            'scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_hpc):
         os.makedirs(path_to_comparison_outdir_workdir_hpc)
     else:

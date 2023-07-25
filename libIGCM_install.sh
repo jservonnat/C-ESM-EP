@@ -128,10 +128,10 @@ if [ -z $comps ] ; then
     exit 1
 fi
 
-# Compute location for C-ESM-EP CliMAF cache, and, at IDRIS, fix ProjectID 
+# Compute location for C-ESM-EP CliMAF cache, 
 case $Center in
     TGCC) cacheroot=$CCCSCRATCHDIR ;;
-    IDRIS) cacheroot=$SCRATCH ; ProjectID=$ProjectID"@cpu";; 
+    IDRIS) cacheroot=$SCRATCH ;;
     spirit*) cacheroot=/scratchu/$USER ;;
 esac    
 cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
@@ -140,6 +140,7 @@ cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${
 echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $cache $comps " > libIGCM_post.param
 
 # Set account/project to charge, and mail to use, in relevant file
+[ $Center = IDRIS ] && ProjectId=$ProjectId"@cpu"
 sed -i \
     -e "s/account *=.*/account = \"$ProjectId\"/" \
     -e "s/mail *=.*/mail = \"${MailAdress}\"/" \
