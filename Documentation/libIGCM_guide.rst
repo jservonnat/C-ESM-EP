@@ -62,20 +62,18 @@ Example of config.card minimal content (in section 'Post')::
   #D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years or ...
   Cesmep=5Y
 
+For receiving mails 
 
 How it works
 ------------
 
-When installing a simulation using `ins_job`, the C-ESM-EP code (from a reference code version) is partially copied to `$SUMBIT_DIR/cesemp_lite/`, which becomes the root C-ESM-EP directory for that simulation. The source locations are :
-- at TGCC  : ~igcmg/Tools/cesmep
-- at IDRIS : /gpfswork/rech/psl/commun/Tools/cesmep
-- on spirit: /net/nfs/tools/Users/SU/jservon/cesmep_installs/cesmep_for_libIGCM
+When installing a simulation using `ins_job`, the C-ESM-EP code (from a reference code version) is partially copied to `$SUMBIT_DIR/cesemp_lite/`, which becomes the root C-ESM-EP directory for that simulation.
 
-The C-ESM-EP comparison that is ran is by default is 'run_comparison' and, in directory cesmep_lite/, that comparison name is further prefixed by your JobName (this matters when looking for outputs, see below)
+The C-ESM-EP comparison that is ran by default is `run_comparison` and, in directory cesmep_lite/, that comparison name is further prefixed by your JobName (this matters when looking for outputs, see below)
 
-Except for case AtEnd , the atlas is computed each time a batch of output is available for the selected type, provided it allows to process a new time slice. Time slicing is aligned with simulation start date and complies with values for parameters CesmepSlices and CesmepPeriod.
+Except for case `AtEnd`, the atlas is computed each time a batch of output is available for the selected type, provided it allows to process a new time slice. Time slicing is aligned with simulation start date and complies with values for parameters CesmepSlices and CesmepPeriod.
 
-The account used for C-ESM-EP jobs is the same as used by libIGCM for the simulation
+The account used for C-ESM-EP jobs is the one used by libIGCM for the simulation. If you wish to change it, please edit file `cesmep_lite/settings.py` accordingly, after execution of `ins_job` and before the end of first simulation period.
 
 
 
@@ -88,15 +86,22 @@ The atlas main page is available on thredds/work like for other C-ESM-EP simulat
 
    https://thredds-su.ipsl.fr/thredds/fileServer/tgcc_thredds/work/senesis/C-ESM-EP/myFG2_mycomparison_senesis/C-ESM-EP_myFG2_mycomparison.html
 
-The actual value for your simulation can be found in the file quoted above, $SUMBIT_DIR/cesemp_lite/libIGCM_post.out 
+The actual value for your simulation can be found in the file quoted above, $SUMBIT_DIR/cesemp_lite/libIGCM_post.out
+
+
 
 
 Advanced use
 ============
 
-By default, the C-ESM-EP code used is a shared one (see above for location on various systems); this can be changed using config.card's Post section's parameter `CesmepCode`. 
+By default, the C-ESM-EP code used is a shared one (which location shows below); this can be changed using config.card's Post section's parameter `CesmepCode`.
 
-The C-ESM-EP comparison used can be chosen using config.card's Post parameter `CesmepComparison`.
+The reference C-ESM-EP code locations are :
+- at TGCC  : ~igcmg/Tools/cesmep
+- at IDRIS : /gpfswork/rech/psl/commun/Tools/cesmep
+- on spirit: /net/nfs/tools/Users/SU/jservon/cesmep_installs/cesmep_for_libIGCM
+
+The C-ESM-EP 'comparison' can be chosen using config.card's Post parameter `CesmepComparison`.
 
 The comparison 'components' are activated based on the simulation physical components; their list can be changed manually after running `ins_job` by editing file $SUMBIT_DIR/cesemp_lite/libIGCM_post.param (which fields are: Cesmep code location, comparison name, simulation start date, cache location, components list)
 
@@ -129,7 +134,7 @@ With:
 
 You can receive mails for the completion of each new atlas slice by setting ::
   CesmepMail=TRUE
-in config.card. Depending on the content of file cesmep_lite/settings.py (see variable `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
+in config.card, and by providing your email adress either in the simulation config.card (parameter MailName in section UserChoices, defaults to content of ~/.forward. Depending on the content of file `cesmep_lite/settings.py` (see variable `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
 
 
 
