@@ -41,7 +41,7 @@
 # -- Python 2 <-> 3 compatibility ---------------------------------------------------------
 from __future__ import unicode_literals, print_function, absolute_import, division
 import subprocess
-from subprocess import getouput
+from subprocess import getoutput
 
 # -- Import python modules ----------------------------------------------------------------
 import os

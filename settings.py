@@ -6,7 +6,8 @@ email = None
 one_mail_per_component = False
 
 # Which account / project will be charged for computing hours ?
-# If None,
+# When C-ESM-EP is called by libIGCM, the account is set automatically
+# Otherwise, if account is None,
 #   - at TGCC, CCCHOME path will be used to deduce default account
 #   - at IDRIS, default account is provided by command idrproj
 account = None
