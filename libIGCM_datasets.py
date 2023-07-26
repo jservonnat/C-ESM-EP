@@ -7,6 +7,8 @@ from libIGCM_settings import root, Login, TagName, SpaceName, \
     ExpType, ExperimentName, frequency, OUT, DateBegin, \
     CesmepSlices, CesmepPeriod, end, data_end
 
+from env.site_settings import atIDRIS, atTGCC, onSpirit
+
 #from CM_atlas.time_manager import find_common_period
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
@@ -47,8 +49,16 @@ else:
 #
 # -- Provide a set of common keys to the elements of models
 # ---------------------------------------------------------------------------- >
-root = '/ccc/store/cont003/gencmip6'
-gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+if atTGCC:
+    root = '/ccc/store/cont003/gencmip6'
+    gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+elif atIDRIS:
+    root = '/gpfsstore/rech/psl'
+    gridpath = '/gpfswork/rech/psl/commun/database/grids'
+elif onSpirit:
+    root = 'please_set_default_root_for_spirit_in_libIGCM_datasets.py'
+    gridpath = 'please_set_gridpath_for_spirit_in_libIGCM_datasets.py'
+    
 IGCM_common_keys = dict(
     root=root,
     login='*',

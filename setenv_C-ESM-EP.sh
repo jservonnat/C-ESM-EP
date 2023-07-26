@@ -72,31 +72,55 @@ fi
 
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
-    # container to use for setting the environment
-    prerequisites_container=cesmep_container
+    # pcocc name for the container to use for setting the environment
+    docker_container=cesmep_container
     export LC_ALL=C.UTF-8  # Needed by pcocc (actually by Click in python 3.6)
     export LANG=C.UTF-8    # Needed by pcocc (actually by Click in python 3.6)
-    if ! pcocc image show $prerequisites_container #> /dev/null 2>&1 ;
+    if ! pcocc image show $docker_container #> /dev/null 2>&1 ;
     then
 	echo -e"\n\nBefore you firt run of C-ESM-EP at TGCC, you must tell pcocc which is the Docker "
 	echo "container that satisfies C-ESM-EP prerequisites, by issuing (only once) a command like"
-	echo -e "\n\t pcocc image import docker-archive:\$container_archive $prerequisites_container\n"
+	echo -e "\n\t pcocc image import docker-archive:\$container_archive $docker_container\n"
 	echo -e "where \$container_archive is one of the files in :"
 	echo -e "\t/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
 	echo -e "(ask your C-ESM-EP guru for the up-to-date location and file)"
 	exit 1
     fi
-    CLIMAF=/src/climaf  # This is Climaf location in container
-    my_append -bp PYTHONPATH ${CLIMAF}
+    #CLIMAF=/src/climaf  # This is Climaf location in container
+    #my_append -bp PYTHONPATH ${CLIMAF}
     my_append -bp PYTHONPATH ${cesmep_modules}
-    my_append -ep PATH ~igcmg/Tools/irene
+    my_append -ep PATH /ccc/cont003/home/igcmg/igcmg/Tools/irene 
+fi
+
+# --> At IDRIS - Jean-Zay
+if [[ -d "/gpfsdswork" ]]; then
+    echo "loading module singularity"
+    set +x
+    module load singularity
+    set -x
+    if [ -z $singularity_container ]
+    then
+	# identify newest container among those managed by idrcontmgr
+	singularity_container=$(idrcontmgr ls | /usr/bin/grep sif | tail -n -1)
+    fi
+    if [ -z $singularity_container ] 
+    then
+	echo -e"\n\nBefore you firt run of C-ESM-EP at IDRIS, you must "
+	echo -e "declare the singularity container that satisfies C-ESM-EP "
+	echo -e "prerequisites, by issuing (only once) these commands :"
+	echo -e "\n\t module load singularity"
+	echo -e "\t idcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>\n"
+	echo -e "\n where <file> is the newest '.sif' file in that Tools directory"
+	exit 1
+    fi
+    my_append -bp PYTHONPATH ${cesmep_modules}
 fi
 
 # --> On Ciclad or Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
 	# --> On Spirit
-	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/spirit_0
+	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20230611_climafV3.0_IPSL1
 	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
 	module purge

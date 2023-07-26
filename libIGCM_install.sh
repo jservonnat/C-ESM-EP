@@ -1,12 +1,13 @@
 #!/bin/bash
 
-# Helper script for preparing C-ESM-EP runs to be launched by libIGCM during a simulation
+# Helper script for preparing C-ESM-EP runs on IPSL-CM outputs,
+# to be launched by libIGCM during a simulation
 
 # It is called by libIGCM at the stage of simulation preparation (ins_job), and
 # installs a (lite) C-ESM-EP directory in SUBMIT directory.
 # It then creates there :
 #    - a relevant datasets_setups.py file (by copying a fixed file)
-#    - a settings file imported by that datasets_setup.py file
+#    - a settings file (libIGCM_settings.py) imported by that datasets_setup.py file
 #    - libIGCM_post.sh : a script that will be called by libIGCM during simulation
 #    - a relevant entry for 'account' and for 'mail' in file settings.py
 
@@ -20,21 +21,14 @@ target=$1            # Directory where C-ESM-EP  should be installed
 comparison=$2        # Which C-ESM-EP 'comparison' will be run
 jobname=$3           # Used as a prefix for comparison's name
 R_SAVE=$4            # Directory holding simulation outputs
-ProjectId=$5         # Which project ressource allocation should be charged
+ProjectId=${5:-None} # Which project ressource allocation should be charged
 MailAdress=$6        # Mail adress as in libIGCM
 DateBegin=$7         # Start date for the simulation
 ConfigCesmep=$8      # Value of config.card Post section variable Cesmep
 CesmepPeriod=$9      # Duration of atlas time slices
 CesmepSlices=${10}   # Number of atlas time slices
 Components=${11}     # List of activated components
-
-if [[ ! -d "/ccc" ||  -d "/data" ]] ; then
-    # Computing centers other than TGCC
-    echo "echo No C-ESM-EP available on this center ($(uname -n))" 
-    exit 1
-fi
-
-# We are at TGCC
+Center=${12:-TGCC}   # Which computing center are we running on
 
 # This script can be called from anywhere
 dir=$(cd $(dirname $0); pwd)
@@ -46,12 +40,25 @@ mv $comparison ${jobname}_${comparison}
 comparison=${jobname}_${comparison}
 
 # Derive a set of parameters from output's path
-root=$(echo $R_SAVE | cut -d / -f 1-5)
-Login=$(echo $R_SAVE | cut -d / -f 6)
-TagName=$(echo $R_SAVE | cut -d / -f 8)
-SpaceName=$(echo $R_SAVE | cut -d / -f 9)
-ExpType=$(echo $R_SAVE | cut -d / -f 10)
-ExperimentName=$(echo $R_SAVE | cut -d / -f 11)
+if [ $Center = TGCC ] ; then 
+    root=$(echo $R_SAVE | cut -d / -f 1-5)
+    rest=$(echo $R_SAVE | cut -d / -f 6-)
+elif [[ $Center == spirit* ]] ; then 
+    root=/$(echo $R_SAVE | cut -d / -f 2)
+    rest=$(echo $R_SAVE | cut -d / -f 3-)
+elif [ $Center = IDRIS ] ; then 
+    root=$(echo $R_SAVE | cut -d / -f 1-4)
+    rest=$(echo $R_SAVE | cut -d / -f 5-)
+else
+    echo "Unkown Center $Center"
+    exit 1
+fi
+Login=$(echo $rest | cut -d / -f 1)
+TagName=$(echo $rest | cut -d / -f 3)
+[[ $Center == spirit* ]] && TagName="IGCM_OUT"/$TagName
+SpaceName=$(echo $rest | cut -d / -f 4)
+ExpType=$(echo $rest | cut -d / -f 5)
+ExperimentName=$(echo $rest | cut -d / -f 6)
 
 # Derive more parameters
 OUT='Analyse'
@@ -81,16 +88,19 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 cp $dir/libIGCM_datasets.py $comparison/datasets_setup.py
 
 # Compute CESMEP components list based on list of component
-# directories and on simulation components list
+# directories and on simulation components list ($Components)
 comps=","
 for comp in $(cd $comparison ; ls ) ; do
     ! [ -d $comparison/$comp ] && continue
+    # Work only on directories
     add=false
     case $comp in
 	MainTimeSeries | AtlasExplorer)
 	    [[ $Components = *,ATM,* || $Components = *,OCE,* ]] && add=true ;;
 
-	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean | NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
+	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean |\
+	NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | \
+	SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
 	    [[ $Components = *,ATM,* ]] && add=true ;;
 
 	ORCHIDEE )
@@ -103,19 +113,34 @@ for comp in $(cd $comparison ; ls ) ; do
 	comps=$comps$comp",";
     else
 	if [ $comp != __pycache__ ] ; then 
-	   # Keep the directory but tell C-ESM-EP not to use it
-	   chmod -r $comparison/$comp ;
+	   # Remove component directory 
+	   rm -fr $comparison/$comp ;
 	fi
     fi
 done
 # Discard leading and trailing comma in components list
 comps=${comps%,} ; comps=${comps#,}
 
+if [ -z $comps ] ; then
+    echo "ERROR : the list of simulation components: "
+    echo -e "\t $Components"
+    echo "cannot trigger any C-ESM-EP component for comparison $(pwd)/$comparison" >2
+    exit 1
+fi
+
+# Compute location for C-ESM-EP CliMAF cache, 
+case $Center in
+    TGCC) cacheroot=$CCCSCRATCHDIR ;;
+    IDRIS) cacheroot=$SCRATCH ;;
+    spirit*) cacheroot=/scratchu/$USER ;;
+esac    
+cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
+
 # Write down a few parameters in a file used by libIGCM_post.sh
-cache=$CCCSCRATCHDIR/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
 echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $cache $comps " > libIGCM_post.param
 
 # Set account/project to charge, and mail to use, in relevant file
+[ $Center = IDRIS ] && ProjectId=$ProjectId"@cpu"
 sed -i \
     -e "s/account *=.*/account = \"$ProjectId\"/" \
     -e "s/mail *=.*/mail = \"${MailAdress}\"/" \

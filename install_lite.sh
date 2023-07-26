@@ -8,17 +8,19 @@
 #         called cesmep_lite)
 #   - Second argument is the single comparison to install
 
-#   - The corresponding comparison sub-directory is copied (and not the other ones)
-#   - Sub-directories 'Documentation', 'tests', '.git' and file README.md  are not installed
+#   - The C-ESM-EP code is aasumed to be located in this script's directory
+#   - The comparison directory can be a subdir of this script dir or located
+#       somewhere else; it is copied
+#   - Sub-directories 'Documentation', 'tests', '.git' and file README.md
+#       are not installed
 #   - Sub-directory 'share' is symbolically linked (this saves a lot of i-nodes)
 #   - a few other files are also symbolically linked,
-#   - make sure you add the current source code dir to PYTHONPATH when using
-#       the target CESMEP light install
+#   - file setenv.sh is modified so that PYTHONPATH includes the dir of current code
 
 #set -x
 
-o=$(cd $(dirname $0) ; pwd)  # Dir of current code
-[ -h $o/share ] && echo "Cannot work from a lite install" && exit 1
+cesmep_dir=$(cd $(dirname $0) ; pwd)  # Dir of current code
+[ -h $cesmep_dir/share ] && echo "Cannot work from a lite install" && exit 1
 
 target=${1?} 
 comparison=$2
@@ -34,20 +36,31 @@ fi
 mkdir -p $target
 
 # Copy the comparison subdir
-[ ! -d $o/$comparison ] && echo "No access to $o/$comparison" && exit 1
-(cd $o ; tar -chf - --exclude=*.out --exclude=*~ --exclude=climaf.log \
+if [ -d $cesmep_dir/$comparison ] ; then
+    comparison_dir=$cesmep_dir
+elif [ -d $comparison ] ; then
+    comparison=$(realname $comparison)
+    comparison_dir=$(dirname $comparison)
+    comparison=$(basename $comparison)
+else
+    echo "No access to C-ESM-EP comparison $comparison"
+    exit 1
+fi
+(cd $comparison_dir ; tar -chf - --exclude=*.out --exclude=*~ --exclude=climaf.log \
      --exclude=job.in  --exclude=cesmep_atlas_style_css $comparison) | \
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 
- for file in share clean_out_error.sh libIGCM_clean.sh; do
-     ln -sf $o/$file $target
+for file in share clean_out_error.sh libIGCM_clean.sh run_C-ESM-EP.py \
+	    main_C-ESM-EP.py libIGCM_post.sh locations.py; do
+     ln -sf $cesmep_dir/$file $target
  done
 
- # Copy only strictly necessary files (PYTHONPATH will help for the other ones)
- for fic in run_C-ESM-EP.py  setenv_C-ESM-EP.sh  settings.py \
- 	    main_C-ESM-EP.py libIGCM_post.sh ; do    # pas PMP....
-     cp -f $o/$fic $target
+ # Copy only files that will or could be changed
+ for fic in setenv_C-ESM-EP.sh  settings.py ; do 
+     cp -f $cesmep_dir/$fic $target
  done
 
-
+ # Add directory of current source in PYTHONPATH set by setenv.sh
+ echo "export PYTHONPATH=\$PYTHONPATH:$cesmep_dir" >> $target/setenv_C-ESM-EP.sh
+ echo "echo PYTHONPATH=\$PYTHONPATH" >> $target/setenv_C-ESM-EP.sh
