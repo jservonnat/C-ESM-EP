@@ -75,6 +75,7 @@ echo ">>> CC= "$CLIMAF_CACHE
 # -------------------------------------------------------- >
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
+
 run_main="python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
 
 if [ -n "$docker_container" ] ; then
@@ -83,6 +84,7 @@ if [ -n "$docker_container" ] ; then
     env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH "
     env+="-e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
     pcocc run -s $env -I $docker_container --cwd $(pwd) <<-EOF
+
 	set -x
 	umask 0022
 	export PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene  # For thredds_cp

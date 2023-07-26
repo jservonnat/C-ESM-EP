@@ -255,6 +255,9 @@ for component in available_components:
 
 available_components = tested_available_components
 
+# Skip some standard comparison at CNRM (not available)
+if atCNRM and "ORCHIDEE" in available_components:
+    available_components.remove("ORCHIDEE")
 
 # -> Adding the links to the html lines
 #new_html_lines = html.splitlines()
