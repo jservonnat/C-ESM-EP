@@ -34,7 +34,7 @@ Center=${12:-TGCC}   # Which computing center are we running on
 dir=$(cd $(dirname $0); pwd)
 
 # First install a light copy of C-ESM-EP and cd to there
-$dir/install_lite.sh $target $comparison 
+$dir/install_lite.sh $target $comparison with_libIGCM
 cd $target/cesmep_lite
 mv $comparison ${jobname}_${comparison}
 comparison=${jobname}_${comparison}

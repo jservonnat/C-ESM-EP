@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# The script that libIGCM will call for house-keeping on C-ESM-EP outputs
+# The script that libIGCM calls for house-keeping on C-ESM-EP outputs
 
 # It also erases the climaf_cache, which location is read from
 # libIGMCM_post.param

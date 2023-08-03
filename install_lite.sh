@@ -1,21 +1,21 @@
 #!/bin/bash
 
 # Proceed with a light install of C-ESM-EP, that saves on i-nodes, and
-# on disk usage, by refering (through symbolic links and PYTHONPATH)
-# to the code in current dir
+# on disk usage, by refering (through symbolic links, PATH and
+# PYTHONPATH) to the C-ESM-EP code in a reference dir
 
-#   - First argument: the directory that will host C-ESM-EP (in a subdir
-#         called cesmep_lite)
+#   - First argument: the directory that will host the light C-ESM-EP 
+#         (in a subdir called cesmep_lite)
 #   - Second argument is the single comparison to install
 
-#   - The C-ESM-EP code is aasumed to be located in this script's directory
+#   - The C-ESM-EP code is assumed to be located in *this* script's directory
 #   - The comparison directory can be a subdir of this script dir or located
 #       somewhere else; it is copied
 #   - Sub-directories 'Documentation', 'tests', '.git' and file README.md
 #       are not installed
-#   - Sub-directory 'share' is symbolically linked (this saves a lot of i-nodes)
-#   - a few other files are also symbolically linked,
-#   - file setenv.sh is modified so that PYTHONPATH includes the dir of current code
+#   - a few files are also symbolically linked,
+#   - installed file setenv_C-ESM-EP.sh is modified so that PATH and PYTHONPATH 
+#     includes the dir of current code, and PYTHONPATH includes share/cesmep_modules
 
 #set -x
 
@@ -23,7 +23,8 @@ cesmep_dir=$(cd $(dirname $0) ; pwd)  # Dir of current code
 [ -h $cesmep_dir/share ] && echo "Cannot work from a lite install" && exit 1
 
 target=${1?} 
-comparison=$2
+comparison=${2?}
+with_libIGCM=${3:-no}  # If arg #3 is set, also link scripts used by libIGCM
 
 target=$(cd $target ; pwd)
 [ ! -d $target ] && \
@@ -51,16 +52,15 @@ fi
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 
-for file in share clean_out_error.sh libIGCM_clean.sh run_C-ESM-EP.py \
-	    main_C-ESM-EP.py libIGCM_post.sh locations.py; do
+links="run_C-ESM-EP.py main_C-ESM-EP.py share"
+[ $with_libIGCM != no ] && links+=" libIGCM_clean.sh libIGCM_post.sh"
+for file in $links; do
      ln -sf $cesmep_dir/$file $target
- done
+done
 
- # Copy only files that will or could be changed
- for fic in setenv_C-ESM-EP.sh  settings.py ; do 
-     cp -f $cesmep_dir/$fic $target
- done
+# Copy only files that will or could be changed
+cp -f $cesmep_dir/settings.py $target
 
- # Add directory of current source in PYTHONPATH set by setenv.sh
- echo "export PYTHONPATH=\$PYTHONPATH:$cesmep_dir" >> $target/setenv_C-ESM-EP.sh
- echo "echo PYTHONPATH=\$PYTHONPATH" >> $target/setenv_C-ESM-EP.sh
+# Set root directory in setenv_C-ESM-EP.sh
+sed -e "s!#root=.*# *HERE!root=$cesmep_dir!g" $cesmep_dir/setenv_C-ESM-EP.sh \
+    > $target/setenv_C-ESM-EP.sh

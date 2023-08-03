@@ -7,7 +7,8 @@
 # Run-time parameters are provided as arguments. They are date begin and end
 # for the time slice to process. In these dates, only years are used
 
-# Execution occurs in the directory of the script, which is a C-ESM-EP code directory
+# Execution occurs in the directory of the script, which is a C-ESM-EP code
+# 'lite' directory
 
 #set -x
 
