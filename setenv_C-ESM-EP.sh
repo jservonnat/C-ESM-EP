@@ -20,7 +20,7 @@ date
 #root=                             #HERE
 root=${root:-$(cd $(dirname $BASH_ARGV); pwd)}
 
-# -- Source useful functions
+# -- Source useful functions (my_append..)
 source $root/utils.sh
 
 # -- Setup the environment...

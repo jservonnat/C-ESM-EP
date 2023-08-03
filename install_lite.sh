@@ -52,7 +52,7 @@ fi
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 
-links="run_C-ESM-EP.py main_C-ESM-EP.py share"
+links="run_C-ESM-EP.py main_C-ESM-EP.py share job_C-ESM-EP.sh job_PMP_C-ESM-EP.sh"
 [ $with_libIGCM != no ] && links+=" libIGCM_clean.sh libIGCM_post.sh"
 for file in $links; do
      ln -sf $cesmep_dir/$file $target
