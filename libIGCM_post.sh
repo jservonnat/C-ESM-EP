@@ -65,7 +65,7 @@ export PYTHONPATH=$(pwd):$CesmepCode:$PYTHONPATH
 export CESMEP_CLIMAF_CACHE=$cache
 echo "Launching atlas for a period ending at $slice_end" > $out
 submit_dir=$(basename $(cd ..; pwd))
-python run_C-ESM-EP.py $comparison $components ${slice_end}_${submit_dir} >> $out 2>&1
+python3 run_C-ESM-EP.py $comparison $components ${slice_end}_${submit_dir} >> $out 2>&1
 if [ $? -ne 0 ] ;then
     echo "Issue launching C-ESM-EP atlas - see $out"
     exit 1
