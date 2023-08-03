@@ -14,7 +14,7 @@ from __future__ import unicode_literals, print_function, division
 from climaf.api import *
 from climaf.chtml import *
 from CM_atlas import *
-from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atIDRIS
+from env.site_settings import onSpirit, atTGCC, atCNRM, atIDRIS
 from getpass import getuser
 from climaf import __path__ as cpath
 import json
@@ -154,7 +154,7 @@ atlas_url = atlas_dir.replace(
 
 # -- We create the atlas directory if it doesn't exist, or remove the figures
 # -----------------------------------------------------------------------------------
-if atCNRM or atTGCC or onCiclad or onSpirit or atIDRIS:
+if atCNRM or atTGCC or onSpirit or atIDRIS:
     if not os.path.isdir(atlas_dir):
         os.makedirs(atlas_dir)
     else:
@@ -315,7 +315,7 @@ with open(outfile, "w") as filout:
     filout.write(index)
 
 blabla = None
-if onCiclad or onSpirit:
+if onSpirit:
     # -- Copy on thredds...
     # ----------------------------------------------------------------------------------------------
     # -- thredds directory (web server)

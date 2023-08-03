@@ -12,10 +12,10 @@
 # -------------------------------------------------------- >
 date
 
-# Here, script install_lite.sh may set a value for 'root', to a directory
-# hosting the full C-ESM-EP code. This allow to have light installs
-# Otherwise, 'root' will be set to the directory of current script, which
-# is fine if it hosts a full code set
+# Here, script install_lite.sh may set (or have set) a value for
+# 'root', to a directory hosting the full C-ESM-EP code. This allow to
+# have light installs. Otherwise, 'root' will be set to the directory
+# of current script, which is fine if it hosts a full code set
 
 #root=                             #HERE
 root=${root:-$(cd $(dirname $BASH_ARGV); pwd)}

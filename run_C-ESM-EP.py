@@ -65,6 +65,10 @@ from locations import path_to_cesmep_output_rootdir, \
 # -----------------------------------------------------------------------------------------
 from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs
 
+if onCiclad:
+    print("Ciclad is nor more supported")
+    sys.exit(1)
+
 # -- Working directory
 main_cesmep_path = os.getcwd()
 
@@ -366,7 +370,7 @@ if argument.lower() not in ['url', 'clean']:
         else:
             atlas_url = comparison_url + component + '/' + \
                 component + '_' + comparison + '.html'
-        if onCiclad or onSpirit or atCNRM or atIDRIS:
+        if onSpirit or atCNRM or atIDRIS:
             if component in job_components:
                 atlas_pathfilename = atlas_url.replace(
                     comparison_url, path_to_comparison_outdir)
@@ -497,74 +501,6 @@ for component in job_components:
                 ' -m store,work,scratch ' +\
                 '../../job_C-ESM-EP.sh | cut -d " " -f 4 >> ' + launched_jobs
 
-    #
-    # -- Case onCiclad
-    if onCiclad:
-        # -- Start the job_options variables: a string that will
-        #    contain all the job options to be passed to qsub
-        job_options = ''
-        #
-        # -- For all the components but for the parallel coordinates, we do this...
-        if email:
-            add_email = ' -m e -M ' + email
-            # -- add it to job_options
-            job_options += add_email
-        #
-        # -- Set the queue
-        if not queue:
-            queue = 'h12'
-        # -- add it to job_options
-        job_options += ' -q ' + queue.replace('\n', '')
-        if do_print:
-            print('    -> queue = ' + queue)
-        #
-        # -- Specify the job script (only for Parallel coordinates)
-        if component not in metrics_components:
-            job_script = 'job_C-ESM-EP.sh'
-        else:
-            job_script = 'job_PMP_C-ESM-EP.sh'
-        #
-        # -- Set the memory (if provided by the user)
-        # -- If memory is not set, we set one by default for NEMO atlases
-        if not memory:
-            if 'NEMO' in component or 'Turbulent' in component:
-                memory = '30'
-                vmemory = '32'
-        if memory:
-            # -- Set virtual memory = memory + 2
-            vmemory = str(int(memory) + 2)
-            memory = str(int(memory))
-            # -- Set total memory instructions
-            memory_instructions = ' -l mem=' + memory + 'gb -l vmem=' + vmemory + 'gb'
-            # -- add it to job_options
-            job_options += memory_instructions
-            if do_print:
-                print('    -> Memory (mem) = ' + memory +
-                      ' ; Virtual Memory (vmem) = ' + vmemory)
-        #
-        # -- If the user specified do_parallel=True in parameter file,
-        # -- we ask for one node and 32 cores
-        if do_parallel:
-            nprocs = str(nprocs).replace('\n', '')
-            parallel_instructions = ' -l nodes=1:ppn=' + nprocs
-            # -- add it to job_options
-            job_options += parallel_instructions
-            if do_print:
-                print('    -> Parallel execution: nprocs = ' + nprocs)
-        #
-        # -- Build the job command line
-        cmd = 'cd ' + submitdir + ' ; jobID=$(qsub ' + job_options + ' -j eo ' +\
-            '-v component=' + component + ',comparison=' +\
-            comparison + ',WD=${PWD},cesmep_frontpage='+frontpage_address +\
-            ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
-            ' -N ' + component + '_' + comparison + '_C-ESM-EP ../../' + job_script +\
-            ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + \
-            atlas_pathfilename +\
-            ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
-            ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
-            ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
-        if do_print:
-            print("cmd=", cmd)
     #
     # -- Case onSpirit and atIDRIS : use SBATCH
     if onSpirit or atIDRIS:
@@ -740,7 +676,7 @@ if argument.lower() not in ['url', 'clean']:
             cmd = rmcmd + ";mfthredds -d " + path_to_comparison_on_web_server + ' ' + html_file
         cmd += ' ; rm ' + frontpage_html
     #
-    if onCiclad or onSpirit or atCNRM or atCerfacs:
+    if onSpirit or atCNRM or atCerfacs:
         cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
         #cmd = f'ls -l {frontpage_html} ; ls -al {path_to_comparison_on_web_server}'
     #
@@ -761,7 +697,7 @@ if argument.lower() not in ['url', 'clean']:
                     'CESMEP_bandeau.png '
                 cmd = rmcmd + ';mfthredds -d  ' + path_to_comparison_on_web_server + ' ' + \
                     path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png '
-        if onCiclad or onSpirit or atCNRM or atCerfacs:
+        if onSpirit or atCNRM or atCerfacs:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + \
                 path_to_comparison_on_web_server
     os.system(cmd)
