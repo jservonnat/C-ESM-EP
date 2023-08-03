@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # ---------------------------------------------------------------------------------------------------------------------
-# -- This script run_C-ESM-EP.py runs the C-ESM-EP and builds the C-ESM-EP html frontpage for the comparison.
+# -- This script run_C-ESM-EP.py runs the C-ESM-EP and builds the C-ESM-EP html
+#    frontpage for the comparison.
 # -- It will:
 # --     - prepare the frontpage for the comparison and copy it on a web server (provided by user)
 # --     - and submit one job per component
 # --     - indicate the status of the jobs to the user from the frontpage:
-# --         * jobs are running: the user finds a 'Atlas is running' message in place of the atlas html page
-# --           (copy of an html page for each component just before job submission)
+# --         * jobs are running: the user finds a 'Atlas is running' message in place
+#              of the atlas html page (copy of an html page for each component just before
+#              job submission)
 # --         * job is successful: the atlas is available when following the link
 # --         * job failed: the user finds an 'Error' page in place of the atlas html page
 # --           (copy of an 'error' html page in place of the atlas html page if the job fails)
@@ -16,27 +18,35 @@
 # -- We use it like this:
 # --    python run_C-ESM-EP.py comparison [component1,component2 [ run_label ]]
 # --        -> comparison is the name of the comparison directory
-# --        -> component1,component2 is optional (denoted by the []); if the user provides them, the script
-# --           will submit jobs only for theses components (separated by commas in case of multiple components)
-# --           If you provide 'url' instead of components, the script will only print the url address of
-#                   the frontpage and the corresponding filename (which root usually differ)
-# --           If you provide 'clean' instead of components, the script will erase output directories and the
-#                   climaf cache (the one indicated by env variable CESMEP_CLIMAF_CACHE, if set, otherwise the
-#                   C-ESM-EP default one). At TGCC, outputs on thredds are included.
-#              Fourth optional argument run_label is used in reporting mails and defaults to "nolabel"
+#
+# --        -> component1,component2 is optional (denoted by the []); if the user provides
+#              them, the script will submit jobs only for theses components (separated by
+#              commas in case of multiple components)
+#
+# --           If you provide 'url' instead of components, the script will only print
+#                   the url address of the frontpage and the corresponding filename (which
+#                   root usually differ)
+#
+# --           If you provide 'clean' instead of components, the script will erase output
+#                   directories and the climaf cache (the one indicated by env variable
+#                   CESMEP_CLIMAF_CACHE, if set, otherwise the C-ESM-EP default one).
+#                   At TGCC and IDRIS , outputs on thredds are included.
+#              Fourth optional argument run_label is used in reporting mails and defaults
+#                   to "nolabel"
+#
 # --    Examples:
 # --      > python run_C-ESM-EP.py comparison # runs all the components available in comparison
 # --      > python run_C-ESM-EP.py comparison comp1,comp2 # submit jobs for comp1 and comp2 in comparison
 # --      > python run_C-ESM-EP.py comparison url # returns the url of the frontpage
 # --
-# -- Note : atIDRIS, we forward the value of env variable 'singularity_container' to launched jobs, in
-# --        order to allow full control on the container used, when needed
+# -- Note : atIDRIS, we forward the value of env variable 'singularity_container'
+#           to launched jobs, in order to allow full control on the container used
 # --
 # -- Author: Jerome Servonnat (LSCE-IPSL-CEA)
 # -- Contact: jerome.servonnat@lsce.ipsl.fr
 # --
 # --
-# -------------------------------------------------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------------------- #
 
 # -- Python 2 <-> 3 compatibility ---------------------------------------------------------
 from __future__ import unicode_literals, print_function, absolute_import, division
@@ -150,7 +160,8 @@ else:
         if argument.lower() in ['url', 'clean']:
             components = allcomponents
         elif argument == 'OA':
-            components = ['Atmosphere_Surface', 'Atmosphere_zonmean', 'NEMO_main', 'NEMO_zonmean', 'NEMO_depthlevels',
+            components = ['Atmosphere_Surface', 'Atmosphere_zonmean',
+                          'NEMO_main', 'NEMO_zonmean', 'NEMO_depthlevels',
                           'Atlantic_Atmosphere_Surface', 'ENSO', 'NEMO_PISCES']
         elif argument == 'LMDZ':
             components = ['Atmosphere_Surface', 'Atmosphere_zonmean', 'Atmosphere_StdPressLev',
@@ -182,13 +193,17 @@ else:
 # -- Get the subdirectories available in the comparison directory
 # --> we will extract the available components from this list
 subdirs = next(os.walk(comparison))[1]
-# -> We loop on all the potentially available and check whether they are available in the comparison directory or not
-# -> The goal of this step is essentially to keep the same order of appearance of the links on front page
+# -> We loop on all the potentially available and check whether they
+# -> are available in the comparison directory or not. The goal of this
+# -> step is essentially to keep the same order of appearance of the
+# -> links on front page
 available_components = []
-# -> First, we work on the known components listed in allcomponents. If they are in readable subdirs, we add them to
+# -> First, we work on the known components listed in
+# -> allcomponents. If they are in readable subdirs, we add them to
 for component in allcomponents:
     if component in subdirs:
-        # if 'ParallelCoordinates_Atmosphere' in component or os.access(comparison + "/" + component, os.R_OK):
+        # if 'ParallelCoordinates_Atmosphere' in component or
+        # os.access(comparison + "/" + component, os.R_OK):
         if os.access(comparison + "/" + component, os.R_OK):
             available_components.append(component)
         else:
@@ -207,7 +222,8 @@ for subdir in subdirs:
 if components == allcomponents:
     components = available_components
 
-# -- We get the atlas_head_title variable in the params_component.py file to have a more explicit string for the links
+# -- We get the atlas_head_title variable in the params_component.py
+# -- file to have a more explicit string for the links
 cesmep_modules = []
 
 tested_available_components = []
@@ -405,8 +421,9 @@ for component in job_components:
     # -- Define where the directory where the job is submitted
     submitdir = comparison_dir + '/' + component
     #
-    # -- Do we execute the code in parallel?
-    # -- We execute the params_${component}.py file to get the do_parallel variable if set to True
+    # -- Do we execute the code in parallel?  We execute the
+    # -- params_${component}.py file to get the do_parallel variable
+    # -- if set to True
     do_parallel = False
     nprocs = '32'
     memory = None
@@ -478,13 +495,13 @@ for component in job_components:
                 ' -r ' + name + ' -o ' + name + '_%I.out' + ' -e ' + name + '_%I.out' +\
                 ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
                 ' -m store,work,scratch ' +\
-                '../job_C-ESM-EP.sh | cut -d " " -f 4 >> ' + launched_jobs
+                '../../job_C-ESM-EP.sh | cut -d " " -f 4 >> ' + launched_jobs
 
     #
     # -- Case onCiclad
     if onCiclad:
-        # -- Start the job_options variables: a string that will contain all the job options
-        #    to be passed to qsub
+        # -- Start the job_options variables: a string that will
+        #    contain all the job options to be passed to qsub
         job_options = ''
         #
         # -- For all the components but for the parallel coordinates, we do this...
@@ -525,7 +542,8 @@ for component in job_components:
                 print('    -> Memory (mem) = ' + memory +
                       ' ; Virtual Memory (vmem) = ' + vmemory)
         #
-        # -- If the user specified do_parallel=True in parameter file, we ask for one node and 32 cores
+        # -- If the user specified do_parallel=True in parameter file,
+        # -- we ask for one node and 32 cores
         if do_parallel:
             nprocs = str(nprocs).replace('\n', '')
             parallel_instructions = ' -l nodes=1:ppn=' + nprocs
@@ -539,8 +557,9 @@ for component in job_components:
             '-v component=' + component + ',comparison=' +\
             comparison + ',WD=${PWD},cesmep_frontpage='+frontpage_address +\
             ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
-            ' -N ' + component + '_' + comparison + '_C-ESM-EP ../' + job_script +\
-            ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + atlas_pathfilename +\
+            ' -N ' + component + '_' + comparison + '_C-ESM-EP ../../' + job_script +\
+            ') ; qsub -j eo -W "depend=afternotok:$jobID" -v atlas_pathfilename=' + \
+            atlas_pathfilename +\
             ',WD=${PWD},component=' + component + ',comparison=' + comparison +\
             ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
             ' ../../share/fp_template/copy_html_error_page.sh ; cd -'
@@ -549,8 +568,8 @@ for component in job_components:
     #
     # -- Case onSpirit and atIDRIS : use SBATCH
     if onSpirit or atIDRIS:
-        # -- Start the job_options variables: a string that will contain all the job options
-        #    to be passed to qsub
+        # -- Start the job_options variables: a string that will
+        #    contain all the job options to be passed to qsub
         job_options = ''
         #
         # -- email
@@ -594,7 +613,8 @@ for component in job_components:
             if do_print:
                 print('    -> Memory (mem) = ' + memory)
         #
-        # -- If the user specified do_parallel=True in parameter file, we ask for a given numvber of cores
+        # -- If the user specified do_parallel=True in parameter file,
+        # -- we ask for a given numvber of cores
         if do_parallel:
             nprocs = str(nprocs).replace('\n', '')
             parallel_instructions = ' --ntasks=' + nprocs
@@ -616,7 +636,7 @@ for component in job_components:
                 os.getenv('singularity_container', '')
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'jobID=$(sbatch --job-name=' + jobname + ' ' + job_options + \
-            account_options + env_variables + ' ../' + job_script + \
+            account_options + env_variables + ' ../../' + job_script + \
             ' | awk "{print \$4}" ) ; \n' +\
             'echo $jobID > ' + launched_jobs + '\n' +\
             'sbatch --dependency=afternotok:$jobID ' + env_variables + \
@@ -646,13 +666,13 @@ for component in job_components:
         cmd = '( \n\t cd ' + submitdir + ' ; \n\n' + \
               '\t sqsub \\\n\t\t-e \"' + variables + '\"' + \
               ' \\\n\t\t-b "--partition=P8HOST --job-name=' + jobname + \
-              ' --time=03:00:00 --nodes=1' + mail + ' " \\\n\t\t../' + job_script + \
+              ' --time=03:00:00 --nodes=1' + mail + ' " \\\n\t\t../../' + job_script + \
               ' > jobname.tmp  2>&1; \n\n' + \
- \
+              \
               ' \tjobId=$(cat jobname.tmp | cut -d \" \" -f 4 jobname.tmp); rm jobname.tmp  ; \n' + \
- \
+              \
               '\t echo -n Job submitted : $jobId\n\n' + \
- \
+              \
               ' \t sqsub -b \"--partition=P8HOST -d afternotok:$jobID\" ' + \
               '-e \"atlas_pathfilename=' + atlas_pathfilename + ',' + variables + '\"' + \
               ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n)\n'
@@ -669,17 +689,18 @@ for component in job_components:
             print(component)
             print(comparison)
             cmd = 'set -x ; cd ' + submitdir + ' ; export comparison=' + comparison + \
-                ' ; export component=' + component + ' ; export cesmep_frontpage=' + frontpage_address +\
+                ' ; export component=' + component + \
+                ' ; export cesmep_frontpage=' + frontpage_address +\
                 ' ; export CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache + \
                 ' ; sbatch --job-name=CESMEP --partition=prod --nodes=1 --ntasks-per-node=1 ' + \
-                ' --output=cesmep.o --error=cesmep.e -w gsa4 ../' + job_script
+                ' --output=cesmep.o --error=cesmep.e -w gsa4 ../../' + job_script
             print(cmd)
 
     #
-    # -- If the user provides URL or url as an argument (instead of components), the script only returns the URL of the
-    # frontpage
-    # -- Otherwise it submits the jobs
-    # ------------------------------------------------------------------------------------------------------------------
+    # -- If the user provides URL or url as an argument (instead of
+    # components), the script only returns the URL of the frontpage --
+    # Otherwise it submits the jobs
+    # --------------------------------------------------------------------------------------
     if do_print:
         # print("cmd=",cmd)
         os.system(cmd)
@@ -689,7 +710,7 @@ for component in job_components:
         print("-- See job in ", jobfile)
 #
 # -- 4/ Create the C-ESM-EP html front page for 'comparison' from the template
-# -----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 if argument.lower() not in ['url', 'clean']:
     # -- Loop on the components and edit the html file with pysed
@@ -754,7 +775,8 @@ if argument.lower() not in ['url', 'clean']:
         if len(job_ids) > 0:
             job_ids = job_ids.rstrip(",")
             job_name = f"{run_label}_{comparison}"
-            job_content = f"#!/bin/bash\necho This is a job launched for sending a mail on completion " +\
+            job_content = f"#!/bin/bash" +\
+                "\necho This is a job launched for sending a mail on completion " +\
                 f"of C-ESM-EP run for comparison {comparison} and label {run_label}." +\
                 f"\necho The atlas is available at {frontpage_address}"
             with open(f"{comparison_dir}/mailjob", "w") as mj:
@@ -780,7 +802,7 @@ if argument.lower() not in ['url', 'clean']:
 
 
 # -- Final: Print the final message with the address of the C-ESM-EP front page
-# -----------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------
 
 
 if argument.lower() not in ['clean']:
