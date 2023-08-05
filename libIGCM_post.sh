@@ -35,11 +35,17 @@ end=${end:0:4}
 if [ $CesmepPeriod != 0 ] ; then 
     compute_new_slice=false
     slice_end=$(( DateBegin + CesmepPeriod -1 ))
+    nb=0
     while [ $slice_end -le $end ]; do
 	if [ $slice_end -ge $begin -a $slice_end -le $end ] ; then
 	    compute_new_slice=true
 	fi
-	slice_end=$(( slice_end + CesmepPeriod ))
+	new_end=$(( slice_end + CesmepPeriod ))
+	if [ $new_end -le $slice_end ] ; then 
+	    echo "Issue: cannot increment with CesmepPeriod=$CesmepPeriod "
+	    exit 1
+	fi
+	slice_end=$new_end
     done
     slice_end=$(( slice_end - CesmepPeriod ))
 
@@ -61,7 +67,6 @@ cat <<-EOF >> $settings
 	data_end       = $end
 	EOF
 
-export PYTHONPATH=$(pwd):$CesmepCode:$PYTHONPATH
 export CESMEP_CLIMAF_CACHE=$cache
 echo "Launching atlas for a period ending at $slice_end" > $out
 submit_dir=$(basename $(cd ..; pwd))

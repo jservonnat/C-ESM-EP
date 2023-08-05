@@ -721,7 +721,7 @@ if argument.lower() not in ['url', 'clean']:
                 job_ids = job_ids + line.replace("\n", ",")
         if len(job_ids) > 0:
             job_ids = job_ids.rstrip(",")
-            job_name = f"{run_label}_{comparison}"
+            job_name = run_label
             job_content = f"#!/bin/bash" +\
                 "\necho This is a job launched for sending a mail on completion " +\
                 f"of C-ESM-EP run for comparison {comparison} and label {run_label}." +\
@@ -742,9 +742,9 @@ if argument.lower() not in ['url', 'clean']:
                 cmd += f" sbatch --job-name={job_name} --dependency=afterany:{job_ids} "
                 if atIDRIS:
                     cmd += f" --account={account}"
-                cmd += f" --mail-type=BEGIN --mail-user={email} -o {out} -e {out} mailjob;"
+                cmd += f" --mail-type=END --mail-user={email} -o {out} -e {out} mailjob;"
                 cmd += f" rm -f mailjob {launched_jobs}"
-            #print('mail cmd=',cmd)
+            #print('mail cmd=', cmd)
             os.system(cmd)
 
 

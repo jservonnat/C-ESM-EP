@@ -11,14 +11,15 @@
 # --
 # -------------------------------------------------------- >
 date
+directory_of_this_script=$(cd $(dirname $BASH_ARGV); pwd)
 
 # Here, script install_lite.sh may set (or have set) a value for
 # 'root', to a directory hosting the full C-ESM-EP code. This allow to
-# have light installs. Otherwise, 'root' will be set to the directory
+# have light installs. Otherwise, 'root' is set to the directory
 # of current script, which is fine if it hosts a full code set
 
 #root=                             #HERE
-root=${root:-$(cd $(dirname $BASH_ARGV); pwd)}
+root=${root:-$directory_of_this_script}
 
 # -- Source useful functions (my_append..)
 source $root/utils.sh
@@ -34,9 +35,9 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
     export LANG=C.UTF-8    # Needed by pcocc (actually by Click in python 3.6)
     if ! pcocc image show $docker_container #> /dev/null 2>&1 ;
     then
-	echo -e"\n\nBefore you firt run of C-ESM-EP at TGCC, you must tell pcocc "
-	echo "which is the Docker container that satisfies C-ESM-EP prerequisites, "
-	echo "by issuing (only once) a command like: "
+	echo -e"\n\nBefore your first run of C-ESM-EP at TGCC, you must tell pcocc  "
+	echo -e "which is the Docker container that satisfies C-ESM-EP prerequisites,"
+	echo -e "by issuing (only once) a command like"
 	echo -e "\n\t pcocc image import docker-archive:\$container_archive $docker_container\n"
 	echo -e "where \$container_archive is one of the files in :"
 	echo -e "\t/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
@@ -85,8 +86,7 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 fi
 
 # --> At CNRM
-if [[ -d "/cnrm" ]] ; then
-   
+if [[ -d "/cnrm" ]] ; then   
     unset PYTHONPATH
 
     # CliMAF
@@ -100,7 +100,6 @@ fi
 # --> At Cerfacs on Scylla
 if [[ -d "/data/scratch/globc/dcom/CMIP6_TOOLS/C-ESM-EP" ]] ; then
         echo "We work at Cerfacs on Scylla"
-
     unset PYTHONPATH
 
     # CDAT
@@ -119,7 +118,6 @@ fi
 # --> At Cerfacs on kraken
 if [[ -d "/scratch/globc/coquart/C-ESM-EP" ]] ; then
         echo "We work at Cerfacs on Kraken"
-
     unset PYTHONPATH
     module load tools/cdo/1.9.5
     module load tools/nco/4.7.6
@@ -143,6 +141,8 @@ fi
 # Complement PYTHONPATH and PATH
 my_append -bp PYTHONPATH ${root}/share/cesmep_modules
 my_append -bp PYTHONPATH ${root}
+my_append -bp PYTHONPATH ${directory_of_this_script}
+
 my_append -bp PATH ${root}
 
 # Set CliMAF cache

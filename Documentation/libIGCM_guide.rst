@@ -62,7 +62,6 @@ Example of config.card minimal content (in section 'Post')::
   #D- Activate C-ESM-EP atlas by setting Cesmep to TRUE or to a number of years or ...
   Cesmep=5Y
 
-For receiving mails 
 
 How it works
 ------------
@@ -134,7 +133,7 @@ With:
 
 You can receive mails for the completion of each new atlas slice by setting ::
   CesmepMail=TRUE
-in config.card, and by providing your email adress either in the simulation config.card (parameter MailName in section UserChoices, defaults to content of ~/.forward. Depending on the content of file `cesmep_lite/settings.py` (see variable `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
+in config.card, and by providing your email adress in config.card (parameter MailName in section UserChoices, which defaults to content of ~/.forward. Depending on the content of file `cesmep_lite/settings.py` (see there variable `one_mail_per_component`), you will get a mail for each component's job, or a mail for the set of jobs.
 
 
 
