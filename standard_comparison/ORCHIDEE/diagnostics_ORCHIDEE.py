@@ -7,7 +7,7 @@
 # --      diagnostics_${component}.py                                                                     - |
 # --        ==> add html code to 'index' (initialized with 'header')                                      - |
 # --            using the CliMAF html toolbox (start_line, cell, close_table... )                         - |
-# --            to create your own atlas page                                                             - | 
+# --            to create your own atlas page                                                             - |
 # --                                                                                                      - |
 # --      Developed within the ANR Convergence Project                                                    - |
 # --      CNRM GAME, IPSL, CERFACS                                                                        - |
@@ -352,7 +352,7 @@ if do_ORCHIDEE_Water_Budget_climatology_maps:
     # -- Work on SBG file (for IGCM_OUT)
     for model in Wmodels:
         if model['project'] in ['IGCM_OUT']:
-            model.update(dict(DIR='SBG'))
+            model.update(dict(DIR='SRF'))
     index += section_climato_2D_maps(Wmodels, None, proj, season, variables_water_budget,
                                      'ORCHIDEE Water Budget, climatologies', domain=domain,
                                      custom_plot_params=custom_plot_params, add_product_in_title=add_product_in_title,
@@ -553,37 +553,6 @@ if do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps:
                              shade_missing=True, safe_mode=safe_mode, alternative_dir=alternative_dir)
 
 
-if do_ORCHIDEE_Water_Budget_climatology_maps:
-    print('------------------------------------------------------------------------')
-    print('-- Processing ORCHIDEE Carbon Budget Variables                        --')
-    print('-- do_ORCHIDEE_Water_Budget_climatology_maps = True                  --')
-    print('-- variables_water_budget =                                          --')
-    print('-> ', variables_water_budget)
-    print('--                                                                    --')
-    # -- Period Manager
-    if not use_available_period_set:
-        Wmodels = period_for_diag_manager(models, diag='ORCHIDEE_2D_maps')
-    else:
-        Wmodels = copy.deepcopy(Wmodels_clim)
-    # -- Add table
-    for model in Wmodels:
-        model.update(dict(table='Lmon'))
-    # -- Garde fou to avoid missing the first simulation
-    WWmodels = copy.deepcopy(Wmodels)
-    for model in WWmodels:
-        if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
-            Wmodels.remove(model)
-    # -- Work on SBG file (for IGCM_OUT)
-    for model in Wmodels:
-        if model['project'] in ['IGCM_OUT']:
-            model.update(dict(DIR='SBG'))
-    index += section_climato_2D_maps(Wmodels, None, proj, season, variables_water_budget,
-                                     'ORCHIDEE Water Budget, climatologies', domain=domain,
-                                     custom_plot_params=custom_plot_params, add_product_in_title=add_product_in_title,
-                                     safe_mode=safe_mode, alternative_dir=alternative_dir,
-                                     custom_obs_dict=custom_obs_dict, thumbnail_size=thumbnail_size)
-
-
 # ---------------------------------------------------------------------------------------- #
 # -- ORCHIDEE Carbon Budget                                                             -- #
 if do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps:
@@ -775,5 +744,3 @@ if do_ORCHIDEE_Carbon_Budget_climatology_maps:
 # --                                                                                                   - /
 # --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
-
-

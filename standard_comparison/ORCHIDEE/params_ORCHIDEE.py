@@ -44,7 +44,7 @@ do_parallel = False
 # queue = 'zen4' # onCiclad: h12, days3
 
 
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -83,7 +83,8 @@ variables_energy_budget = []
 for variable in tmp_variables_energy_budget:
     variables_energy_budget.append(dict(variable=variable, focus='land', mpCenterLonF=0,
                                         project_specs=dict(CMIP6=dict(table='Amon'),
-                                                           IGCM_OUT=dict(DIR='SRF')
+                                                           IGCM_OUT=dict(
+                                                               DIR='SRF')
                                                            )
                                         )
                                    )
@@ -98,12 +99,19 @@ calias("IGCM_OUT", 'tas', 'tair', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rsds', 'swdown', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rlds', 'lwdown', filenameVar='sechiba_history')
 
+calias('IGCM_OUT', 'hfls', 'fluxlat')
+calias('IGCM_OUT', 'hfss', 'fluxsens')
+calias('IGCM_OUT', 'et', 'evspsblveg')
+calias('IGCM_OUT', 'snw', 'frac_snow')
+
 calias('ref_climatos', 'hfls', 'fluxlat')
 calias('ref_climatos', 'hfss', 'fluxsens')
 
 custom_obs_dict = dict(
-    hfls=dict(project='ref_climatos', product='EnsembleLEcor', frequency='annual_cycle'),
-    hfss=dict(project='ref_climatos', product='EnsembleHcor', frequency='annual_cycle'),
+    hfls=dict(project='ref_climatos', product='EnsembleLEcor',
+              frequency='annual_cycle'),
+    hfss=dict(project='ref_climatos', product='EnsembleHcor',
+              frequency='annual_cycle'),
 )
 
 # ---------------------------------------------------------------------------- >
@@ -121,13 +129,17 @@ variables_water_budget = ['es', 'et', 'mrros', 'mrrob', 'snw']
 tmp_vars = []
 for var in variables_water_budget:
     if var in ['snw']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='LImon'))
+        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+                        focus='land', table='LImon'))
     elif var in ['mrrob', 'es']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='*mon'))
+        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+                        focus='land', table='*mon'))
     elif var in ['et']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Nonemon'))
+        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+                        focus='land', table='Nonemon'))
     else:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Lmon'))
+        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+                        focus='land', table='Lmon'))
 variables_water_budget = tmp_vars
 # -> climato + bias map + difference with the first simulation
 # do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
@@ -148,14 +160,16 @@ do_ORCHIDEE_Water_Budget_climatology_maps = True  # -> [ORCHIDEE Atlas
 # variables_carbon_budget = ['gpptot', 'lai', 'GPP_treeFracPrimDec', 'GPP_treeFracPrimEver', 'GPP_c3PftFrac',
 #                            'GPP_c4PftFrac', 'total_soil_carb_PFT_tot',
 #                            'maint_resp_PFT_2','growth_resp_PFT_2','hetero_resp_PFT_2','auto_resp_PFT_2']
-variables_carbon_budget = ['cLitter', 'cSoil', 'cVeg', 'lai', 'gpp', 'nbp']
+variables_carbon_budget = ['cLitter', 'cSoil', 'cVeg', 'lai', 'gpp', 'npp']
 # variables_carbon_budget = [ 'cSoil', 'cVeg', 'nbp']
 tmp_vars = []
 for var in variables_carbon_budget:
     if var in ['cSoil']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Emon'))
+        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+                        focus='land', table='Emon'))
     else:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0, focus='land', table='Lmon'))
+        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+                        focus='land', table='Lmon'))
 variables_carbon_budget = tmp_vars
 
 # calias('CMIP6', 'gpptot')
@@ -168,7 +182,7 @@ variables_carbon_budget = tmp_vars
 # do_ORCHIDEE_Carbon_Budget_climobs_bias_maps   = True     # -> [ORCHIDEE Atlas
 # -> climato ref simu (first) + differences with the first simulation
 # do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps   = True     # -> [ORCHIDEE Atlas
-# -> climatotologies simulations 
+# -> climatotologies simulations
 do_ORCHIDEE_Carbon_Budget_climatology_maps = True  # -> [ORCHIDEE Atlas
 # ---------------------------------------------------------------------------- >
 
@@ -197,25 +211,32 @@ calias("IGCM_OUT", 'maxvegetfrac', filenameVar='sechiba_history')
 
 # GPP * maxvegetfrac * Contfrac
 derive("IGCM_OUT", 'GPPmaxvegetfrac', 'multiply', 'GPP', 'maxvegetfrac')
-derive("IGCM_OUT", 'GPPmaxvegetfracContfrac', 'multiply', 'GPPmaxvegetfrac', 'Contfrac')
+derive("IGCM_OUT", 'GPPmaxvegetfracContfrac',
+       'multiply', 'GPPmaxvegetfrac', 'Contfrac')
 
 # GPP treeFracPrimDec
 derive('IGCM_OUT', 'GPP3689', 'select_veget_types', 'GPPmaxvegetfracContfrac',
        selection='-d veget,2 -d veget,5 -d veget,7 -d veget,8')
-derive("IGCM_OUT", 'GPP_treeFracPrimDec', 'ccdo', 'GPP3689', operator='vertsum -selname,GPP3689')
+derive("IGCM_OUT", 'GPP_treeFracPrimDec', 'ccdo',
+       'GPP3689', operator='vertsum -selname,GPP3689')
 
 # GPP treeFracPrimEver
 derive('IGCM_OUT', 'GPP2457', 'select_veget_types', 'GPPmaxvegetfracContfrac',
        selection='-d veget,1 -d veget,3 -d veget,4 -d veget,6')
-derive("IGCM_OUT", 'GPP_treeFracPrimEver', 'ccdo', 'GPP2457', operator='vertsum -selname,GPP2457')
+derive("IGCM_OUT", 'GPP_treeFracPrimEver', 'ccdo',
+       'GPP2457', operator='vertsum -selname,GPP2457')
 
 # GPP c3PftFrac
-derive('IGCM_OUT', 'GPP1012', 'select_veget_types', 'GPPmaxvegetfracContfrac', selection='-d veget,9 -d veget,11')
-derive("IGCM_OUT", 'GPP_c3PftFrac', 'ccdo', 'GPP1012', operator='vertsum -selname,GPP1012')
+derive('IGCM_OUT', 'GPP1012', 'select_veget_types',
+       'GPPmaxvegetfracContfrac', selection='-d veget,9 -d veget,11')
+derive("IGCM_OUT", 'GPP_c3PftFrac', 'ccdo',
+       'GPP1012', operator='vertsum -selname,GPP1012')
 
 # GPP c4PftFrac" (PFTs 11, 13)
-derive('IGCM_OUT', 'GPP1113', 'select_veget_types', 'GPPmaxvegetfracContfrac', selection='-d veget,10 -d veget,12')
-derive("IGCM_OUT", 'GPP_c4PftFrac', 'ccdo', 'GPP1113', operator='vertsum -selname,GPP1113')
+derive('IGCM_OUT', 'GPP1113', 'select_veget_types',
+       'GPPmaxvegetfracContfrac', selection='-d veget,10 -d veget,12')
+derive("IGCM_OUT", 'GPP_c4PftFrac', 'ccdo',
+       'GPP1113', operator='vertsum -selname,GPP1113')
 
 thumbnail_size = '300*175'
 # ---------------------------------------------------------------------------- >
