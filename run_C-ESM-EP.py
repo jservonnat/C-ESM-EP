@@ -510,7 +510,7 @@ for component in job_components:
             if exitcode == 0:
                 jobid = output.split(' ')[3]
                 with open(launched_jobs, "a") as lj:
-                    lj.write(jobid)
+                    lj.write(jobid+"\n")
             else:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
@@ -590,9 +590,10 @@ for component in job_components:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
             else:
-                jobid = output.split(' ')[3]
+                # JobId is last string of last line od output
+                jobid = output.split("\n")[-1].split(' ')[-1]
                 with open(launched_jobs, "a") as lj:
-                    lj.write(jobid)
+                    lj.write(jobid+"\n")
                 error_job = f'cd {submitdir} ; sbatch --dependency=afternotok:{jobid} ' + \
                     env_variables + f',atlas_pathfilename={atlas_pathfilename}  ' + \
                     f'--job-name=err_on_{jobname}' + account_options +\
@@ -625,7 +626,7 @@ for component in job_components:
             else:
                 jobid = output.split(' ')[3]
                 with open(launched_jobs, "a") as lj:
-                    lj.write(jobid)
+                    lj.write(jobid+"\n")
                 error_job = f' cd {submitdir}; ' + \
                     f'sqsub -b \"--partition=P8HOST -d afternotok:{jobid}\" ' + \
                     f'-e \"atlas_pathfilename={atlas_pathfilename},' + variables + '\"' + \
