@@ -3,9 +3,9 @@
 # Testing that an execution of a reference comparison's clone do plot
 # all graphics and provides the reference results
 
-# Another script must launch the test comparison; the present script
-# checks the results and must be executed once batch jobs launched by
-# the first one are completed
+# Another script must launch the test comparison, upstream; the
+# present script checks the results and must be executed once batch
+# jobs launched by the first one are completed
 
 # ENVIRONMENT VARIABLES
 ##########################
@@ -15,6 +15,10 @@
 # Should we activate tracing :
 setx=${setx:-0}
 [ $setx = 1 ] && set -x
+
+# Should we stop checking results as soon as a component or some plots
+# are missing in the test comaprison
+strict=${strict:-1} 
 
 # 'rootdir' is the directory of the C-ESM-EP instance used for running the test comparison
 # If rootdir is not set, we assume that this script is in a subdir of that dir
@@ -81,11 +85,12 @@ for dir in $dirs; do
     fi
 done
 
-# Exit if there are issues and   $strict != 0
-if [ $nok -ne 0 ] && [ ${strict:-1} -eq 1 ]  ; then
+# Exit if there are issues and   $strict == 1
+if [ $nok -ne 0 ] && [ $strict -eq 1 ]  ; then
     echo -e "\n\n\n#########################################################"
     [ "$missing_components" ] && echo -e "Issue : missing components $missing_components (see above)"
-    [ "$issue_components" ] && echo -e "Issue for some plots or data in component(s) $issue_components (see above)" 
+    [ "$issue_components" ] && echo -e "Issue for some plots or data in component(s) $issue_components (see above)"
+    echo -e "Stoping checks."
     echo -e "#########################################################\n\n\n"
     exit $nok
 fi
@@ -95,7 +100,7 @@ fi
 # CliMAF test utility
 
 # A CliMAF version if needed
-[ -z $CLIMAF ] && module load ${climaf_module:?Please set variable climaf_module or load such a module}
+[ -z $CLIMAF ] && module load ${climaf_module:?Please set variable climaf_module or load a CLiMAF module}
 
 export PYTHONPATH=$CLIMAF:$CLIMAF/tests:$PYTHONPATH
 
@@ -121,10 +126,11 @@ cat <<-EOF >tmp.py
 	   bn=os.path.basename(file_ref)
 	   try:
 	       compare_html_files(file_test, bn, dn, display_error=False,\
-	            replace="$ref_name", by="$testcomp", allow_url_change=True)
+	            replace="$ref_name", by="$testcomp", allow_url_change=True,\
+	            generate_diffs_html=True)
 	   except (ValueError, OSError) as err:
 	       NOK=1
-	       print(f"Error for component {component} and file {file} : {err}")
+	       print(f"Error for component {component} and file {file_test} : {err}")
 	print()
 	exit(NOK)
 	EOF
@@ -141,5 +147,10 @@ if [ $status -eq 0 ] ; then
 	rm -fR $rootdir/$testcomp $test_outputs
 	[ ! -z $CESMEP_CLIMAF_CACHE ] && rm -fR $CESMEP_CLIMAF_CACHE
     fi
+else
+    echo "Check was not successful, and no house-keeping occurred"
+    echo "Don't forget to later clean CESMEP_CLIMAF_CACHE at :\n\t$CESMEP_CLIMAF_CACHE"
+    echo "and test comparison dir at: \n\t$rootdir/$testcomp "
+    echo "and its outputs at: \n\t$test_outputs
 fi
 exit $status
