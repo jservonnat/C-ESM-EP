@@ -23,7 +23,7 @@ Basic use
 Init phase
 ----------
 
-At TGCC ad IDRIS, because C-ESM-EP requires a number of software packages, C-ESM-EP uses either TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) or IDRIS installed software 'singularity', and you must tell this tool where to find a relevant environment, by interactively issuing a few commands:
+At TGCC ad IDRIS, because C-ESM-EP requires a number of software packages, C-ESM-EP uses either TGCC's tool 'pcocc-rs' (see https://pcocc.readthedocs.io/) or IDRIS installed software 'singularity', and you must tell this tool where to find a relevant environment, by interactively issuing a few commands:
 
 TGCC::
 

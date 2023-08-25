@@ -33,12 +33,12 @@ if [[ -d "/ccc" && ! -d "/data" ]] ; then
     docker_container=cesmep_container
     export LC_ALL=C.UTF-8  # Needed by pcocc (actually by Click in python 3.6)
     export LANG=C.UTF-8    # Needed by pcocc (actually by Click in python 3.6)
-    if ! pcocc image show $docker_container #> /dev/null 2>&1 ;
+    if ! (pcocc-rs image list | grep -q $docker_container) 
     then
 	echo -e"\n\nBefore your first run of C-ESM-EP at TGCC, you must tell pcocc  "
 	echo -e "which is the Docker container that satisfies C-ESM-EP prerequisites,"
 	echo -e "by issuing (only once) a command like"
-	echo -e "\n\t pcocc image import docker-archive:\$container_archive $docker_container\n"
+	echo -e "\n\t pcocc-rs image import docker-archive:\$container_archive $docker_container\n"
 	echo -e "where \$container_archive is one of the files in :"
 	echo -e "\t/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
 	echo -e "(ask your C-ESM-EP guru for the up-to-date location and file)"
