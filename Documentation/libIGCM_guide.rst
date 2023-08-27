@@ -149,9 +149,10 @@ The **location for CliMAF cache** is dedicated to the simulation and under a roo
 
 
 With :
-  - on Irene, root=${CCCSCRATCHDIR}
-  - on Jean-Zay, root=$SCRATCH
-  - on Spirit, root=/scratchu/$user
+
+- on Irene : ``root=${CCCSCRATCHDIR}``
+- on Jean-Zay: ``root=$SCRATCH``
+- on Spirit: ``root=/scratchu/$user``
 
 
 
