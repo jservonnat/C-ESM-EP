@@ -5,6 +5,7 @@ C-ESM-EP user guide for the case of a libIGCM simulation
 S.Sénési - sept 2022
 
 Changes :
+
    - feb 2023 : Spirit is managed
    - jul 2023 : Jean Zay is managed
 
