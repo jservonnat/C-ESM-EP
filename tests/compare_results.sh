@@ -21,7 +21,7 @@ setx=${setx:-0}
 strict=${strict:-1} 
 
 # CESMEP indicates the location for C-ESM-EP code under testing
-CESMEP=${CESMEP?Please indciate location for C-ESM-EP code}
+CESMEP=${CESMEP?Please indicate location for C-ESM-EP code in \$CESMEP}
 
 # ARGUMENTS
 ##################
@@ -123,13 +123,9 @@ cat <<-EOF >tmp.py
 	   #print(file_test)
 	   dn=os.path.dirname(file_ref)
 	   bn=os.path.basename(file_ref)
-	   try:
-	       compare_html_files(file_test, bn, dn, display_error=False,\
+	   NOK+=compare_html_files(file_test, bn, dn, display_error=False,\
 	            replace="$ref_name", by="$testcomp", allow_url_change=True,\
 	            generate_diffs_html=True)
-	   except (ValueError, OSError) as err:
-	       NOK=1
-	       print(f"Error for component {component} and file {file_test} : {err}")
 	print()
 	exit(NOK)
 	EOF
@@ -147,9 +143,9 @@ if [ $status -eq 0 ] ; then
 	[ ! -z $CESMEP_CLIMAF_CACHE ] && rm -fR $CESMEP_CLIMAF_CACHE
     fi
 else
-    echo "Check was not successful, and no house-keeping occurred"
-    echo "Don't forget to later clean CESMEP_CLIMAF_CACHE at :\n\t$CESMEP_CLIMAF_CACHE"
-    echo "and test comparison dir at: \n\t$CESMEP/$testcomp "
-    echo "and its outputs at: \n\t$test_outputs"
+    echo -e "Check was not successful, and no house-keeping occurred"
+    echo -e "Don't forget to later clean CESMEP_CLIMAF_CACHE at :\n\t$CESMEP_CLIMAF_CACHE"
+    echo -e "and test comparison dir at: \n\t$CESMEP/$testcomp "
+    echo -e "and its outputs at: \n\t$test_outputs"
 fi
 exit $status
