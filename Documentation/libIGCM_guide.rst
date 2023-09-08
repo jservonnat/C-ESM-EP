@@ -23,22 +23,22 @@ Basic use
 Init phase
 ----------
 
-At TGCC ad IDRIS, because C-ESM-EP requires a number of software packages, C-ESM-EP uses either TGCC's tool 'pcocc' (see https://pcocc.readthedocs.io/) or IDRIS installed software 'singularity', and you must tell this tool where to find a relevant environment, by interactively issuing a few commands:
+At TGCC ad IDRIS, because C-ESM-EP requires a number of software packages, C-ESM-EP uses either TGCC's tool 'pcocc-rs' (see https://pcocc.readthedocs.io/) or IDRIS installed software 'singularity', and you must tell this tool where to find a relevant environment, by interactively issuing a few commands:
 
 TGCC::
 
-  pcocc image import docker-archive:<file> cesmep_container
+  pcocc-rs image import docker-archive:<file> cesmep_container
 
-where <file> is the path for the most recent file in `/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/` (ask your C-ESM-EP guru in case of trouble). Execution of the above command can be VERY long (over 30 min).
+where <file> is the path for the most recent file in `/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/` (ask your C-ESM-EP guru in case of trouble). If you already executed that command before (for importing another file), you have to first discard that file `pcocc-rs image delete cesmep_container` 
 
 IDRIS::
 
     module load singularity
     idrcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>
 
- where <file> is the most recent '.sif' file there (ask your C-ESM-EP guru in case of trouble)
+ where <file> is the most recent '.sif' file there (ask your C-ESM-EP guru in case of trouble). You must check using `idrcontmgr ls` that you have only one registered file; use `idrcontmgr rm ...` to discard any other file.
 
-This should be done only once by each user. The paths above are correct at the time of writing and may change in the future.
+This init pahse should be done only once by each user. The paths above are correct at the time of writing and may change in the future.
 
 You have also to make sure that you are allowed to use the Thredds. Please test it using commad thredds_cp.
 

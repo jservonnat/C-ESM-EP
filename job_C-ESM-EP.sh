@@ -17,7 +17,8 @@ set -x
 # -------------------------------------------------------- >
 date
 
-# -> # -- On doit pouvoir le soumettre en batch, ou le soumettre en interactif dans le repertoire de la composante
+# -> # -- On doit pouvoir le soumettre en batch, ou le soumettre en interactif
+#         dans le repertoire de la composante
 
 # -- Specify the atlas script
 # -------------------------------------------------------- >
@@ -81,13 +82,21 @@ run_main="python ${main} --comparison ${comparison} --component ${component} --c
 if [ -n "$docker_container" ] ; then
     
     # this implies we are at TGCC) -> using pcocc for running a container 
-    env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH "
-    env+="-e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
-    pcocc run -s $env -I $docker_container --cwd $(pwd) <<-EOF
+    irene_tools=/ccc/cont003/home/igcmg/igcmg/Tools/irene
+
+    # Syntax using pcocc, which is for now buggy 
+    #env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH "
+    #env+="-e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
+    #pcocc run -s $env -I $docker_container --cwd $(pwd) <<-EOF
+
+    # Syntax using pcocc-rs
+    env="--env re(CCC.*DIR) --env re(CLIMAF.*) --env PYTHONPATH "
+    env+="--env TMPDIR=${CLIMAF_CACHE} --env LOGNAME "
+    pcocc-rs run $env $docker_container  <<-EOF
 
 	set -x
 	umask 0022
-	export PATH=\$PATH:/ccc/cont003/home/igcmg/igcmg/Tools/irene  # For thredds_cp
+	export PATH=\$PATH:$irene_tools  # For thredds_cp
 	export PYTHONPATH=/src/climaf:$PYTHONPATH
 	$run_main
 	EOF
