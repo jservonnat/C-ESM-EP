@@ -20,22 +20,21 @@ setx=${setx:-0}
 # are missing in the test comaprison
 strict=${strict:-1} 
 
-# 'rootdir' is the directory of the C-ESM-EP instance used for running the test comparison
-# If rootdir is not set, we assume that this script is in a subdir of that dir
-[ -z $rootdir ] && rootdir=$(cd $(dirname $0); pwd)/..
+# CESMEP indicates the location for C-ESM-EP code under testing
+CESMEP=${CESMEP?Please indciate location for C-ESM-EP code}
 
 # ARGUMENTS
 ##################
 # Name of the comparison that produced the reference results
 ref_name=${1:-reference_comparison}
 # Location for reference results. Can be a relative path
-ref_outputs=${2:-$rootdir/tests/reference_results}
+ref_outputs=${2:-$CESMEP/tests/reference_results}
 # Name of the comparison that tried to reproduce reference results
 testcomp=${3:-test_comparison}
 ##################
 
 ref_outputs=$(cd $ref_outputs ; pwd)
-cd $rootdir
+cd $CESMEP
 
 # Get outputs directory for test comparison
 test_outputs=$(python run_C-ESM-EP.py $testcomp url | tail -n 1 | cut -c 4-)
@@ -44,7 +43,7 @@ test_outputs=$(dirname $test_outputs)
 echo "#####################################################################################"
 echo "This is the analysis of a C-ESM-EP run for a comparison named $testcomp that "
 echo "is a clone of comparison $ref_name"
-echo "The C-ESM-EP instance used is $rootdir"
+echo "The C-ESM-EP instance used is $CESMEP"
 echo "The results are at $test_outputs "
 echo "They are compared with the reference results at $ref_outputs"
 echo "#####################################################################################"
@@ -74,10 +73,10 @@ for dir in $dirs; do
 	nok=$(( nok + 1 ))
     else
 	# Analyze component job outputs for plot failure messages
-	cissues=$(grep -h "!! Plotting failed" $rootdir/$testcomp/$component/*.out)
-	[ "$cissues" ] && grep -h "!! Plotting failed" $rootdir/$testcomp/$component/*.out
-	dissues=$(grep -h "No data found"      $rootdir/$testcomp/$component/*.out)
-	[ "$dissues" ] && grep -h "No data found"      $rootdir/$testcomp/$component/*.out
+	cissues=$(grep -h "!! Plotting failed" $CESMEP/$testcomp/$component/*.out)
+	[ "$cissues" ] && grep -h "!! Plotting failed" $CESMEP/$testcomp/$component/*.out
+	dissues=$(grep -h "No data found"      $CESMEP/$testcomp/$component/*.out)
+	[ "$dissues" ] && grep -h "No data found"      $CESMEP/$testcomp/$component/*.out
 	if [ "$cissues" -o "$dissues" ] ; then
 	    issue_components+=" $component"
 	    nok=$(( nok + 1 ))
@@ -144,13 +143,13 @@ if [ $status -eq 0 ] ; then
     if [ $setx != 1 ] ; then
 	# House-keeping in case of check success
 	rm tmp.py
-	rm -fR $rootdir/$testcomp $test_outputs
+	rm -fR $CESMEP/$testcomp $test_outputs
 	[ ! -z $CESMEP_CLIMAF_CACHE ] && rm -fR $CESMEP_CLIMAF_CACHE
     fi
 else
     echo "Check was not successful, and no house-keeping occurred"
     echo "Don't forget to later clean CESMEP_CLIMAF_CACHE at :\n\t$CESMEP_CLIMAF_CACHE"
-    echo "and test comparison dir at: \n\t$rootdir/$testcomp "
-    echo "and its outputs at: \n\t$test_outputs
+    echo "and test comparison dir at: \n\t$CESMEP/$testcomp "
+    echo "and its outputs at: \n\t$test_outputs"
 fi
 exit $status
