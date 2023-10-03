@@ -73,7 +73,7 @@ fi
 # --> On Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
-	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20230611_climafV3.0_IPSL1
+	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20230611_climafV3.0_IPSL9
 	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
 	module purge
