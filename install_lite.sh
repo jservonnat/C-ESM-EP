@@ -58,14 +58,13 @@ for file in $links; do
      ln -sf $cesmep_dir/$file $target
 done
 
-# Copy some pyhton files (cannot link because of side effect in PYTHONPATH)
+# Copy some python files (cannot link because of side effect in PYTHONPATH)
 copies="run_C-ESM-EP.py main_C-ESM-EP.py"
 for file in $copies; do
      cp -f $cesmep_dir/$file $target
 done
 
-
-# Copy only files that will or could be changed
+# Copy also files that will or could be changed
 cp -f $cesmep_dir/settings.py $target
 
 # Set root directory in setenv_C-ESM-EP.sh

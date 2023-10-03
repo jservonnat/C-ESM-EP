@@ -41,7 +41,7 @@ routine_cache_cleaning = [dict(age='+20')]
 do_parallel = True
 nprocs = 16
 memory = 30  # in gb; 30 for ocean atlasas
-queue = 'zen4'  # onCiclad: h12, days3 , onSpirit : zen4
+# queue = 'zen4'  # onCiclad: h12, days3 , onSpirit : zen4
 
 # -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
@@ -57,7 +57,6 @@ queue = 'zen4'  # onCiclad: h12, days3 , onSpirit : zen4
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "NEMO zonal means"
-
 
 
 # -- Set the overall season, region and geographical domain
@@ -83,7 +82,8 @@ do_ATLAS_ZONALMEAN_SLICES = True
 zonmean_slices_seas = ["ANN"]  # ,"MAM","JJA","SON"]
 zonmean_slices_variables = ["thetao", "so"]
 zonmean_slices_basins = ["GLO", "ATL", "PAC", "IND"]
-y = 'lin'  # -> The vertical axis; choose between 'lin' (linear) or 'index' (model index levels)
+# -> The vertical axis; choose between 'lin' (linear) or 'index' (model index levels)
+y = 'lin'
 period_manager_test_variable = 'thetao'
 
 # ---------------------------------------------------------------------------- >

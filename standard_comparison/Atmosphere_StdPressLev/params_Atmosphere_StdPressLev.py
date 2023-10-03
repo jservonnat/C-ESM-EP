@@ -39,7 +39,7 @@ routine_cache_cleaning = [dict(age='+20')]
 do_parallel = False
 nprocs = 32
 # memory = 20 # in gb
-queue = 'zen4'
+# queue = 'zen4'
 
 
 # -- Set the reference against which we plot the diagnostics
@@ -78,12 +78,12 @@ domain = {}
 # ---------------------------------------------------------------------------- >
 my_seasons = ['ANM', 'DJF', 'JJA']
 atlas_explorer_variables_list = [
-                   'ua850', 'ua500', 'ua200',
-                   'va850', 'va500', 'va200',
-                   'ta850', 'ta500', 'ta200',
-                   'hur850', 'hur500', 'hur200',
-                   'hus850', 'hus500', 'hus200',
-                   'zg500']
+    'ua850', 'ua500', 'ua200',
+    'va850', 'va500', 'va200',
+    'ta850', 'ta500', 'ta200',
+    'hur850', 'hur500', 'hur200',
+    'hus850', 'hus500', 'hus200',
+    'zg500']
 
 atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
@@ -94,7 +94,7 @@ for var in atlas_explorer_variables_list:
                                              ),
                                              ))
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
-regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
 
 # -- Activate the parallel execution of the plots
@@ -136,4 +136,3 @@ index_name = None
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

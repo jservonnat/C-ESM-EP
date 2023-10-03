@@ -35,15 +35,16 @@ safe_mode = True
 clean_cache = False
 # -- routine_cache_cleaning is a dictionary or list of dictionaries provided
 #    to crm() at the end of the atlas (for a routine cache management)
-routine_cache_cleaning = [dict(access='+20'), dict(access='+10', pattern='oneVar')]
+routine_cache_cleaning = [
+    dict(access='+20'), dict(access='+10', pattern='oneVar')]
 # -- Parallel and memory instructions
 do_parallel = True
 nprocs = 16
 memory = 30  # in gb; 30 for ocean atlasas
-queue = 'zen4'  # onCiclad: h12, days3, onSPirit : zen4
+# queue = 'zen4'  # onCiclad: h12, days3, onSPirit : zen4
 
 
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -78,7 +79,8 @@ domain = {}
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
 # -- 2D Maps
-do_ocean_2D_maps = True    # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
+# -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
+do_ocean_2D_maps = True
 atlas_explorer_variables = []
 for var in ['to200', 'to1000', 'so200', 'so1000']:
     atlas_explorer_variables.append(dict(variable=var, season='ANM', table='Omon', grid='gn',
@@ -89,7 +91,7 @@ for var in ['to200', 'to1000', 'so200', 'so1000']:
 remapping = True
 
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
-regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
 
 # -- Display full climatology maps =
