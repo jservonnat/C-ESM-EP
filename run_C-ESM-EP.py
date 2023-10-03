@@ -567,6 +567,8 @@ for component in job_components:
             job_options += parallel_instructions
             if do_print:
                 print('    -> Parallel execution: nprocs = ' + nprocs)
+        else:
+            parallel_instructions = ' --ntasks=1'
         #
 
         # -- Build the job command line
@@ -576,12 +578,10 @@ for component in job_components:
             ',comparison=' + comparison + \
             ',WD=${PWD},cesmep_frontpage=' + frontpage_address + \
             ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache
-        if atIDRIS:
-            env_variables += ',singularity_container=' + \
-                os.getenv('singularity_container', '')
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'sbatch --job-name=' + jobname + ' ' + job_options + \
-            account_options + env_variables + ' ../../' + job_script
+            account_options + env_variables + parallel_instructions + \
+            ' ../../' + job_script
 
         # -- Submit job
         if do_print:

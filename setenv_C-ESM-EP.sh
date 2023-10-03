@@ -55,8 +55,8 @@ if [[ -d "/gpfsdswork" ]]; then
     set -x
     if [ -z $singularity_container ]
     then
-	# identify newest container among those managed by idrcontmgr
-	singularity_container=$(idrcontmgr ls | /usr/bin/grep sif | tail -n -1)
+	# identify one container among those managed by idrcontmgr
+	export singularity_container=$(idrcontmgr ls | /usr/bin/grep sif | tail -n -1)
     fi
     if [ -z $singularity_container ] 
     then
