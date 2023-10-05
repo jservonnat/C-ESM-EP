@@ -339,14 +339,13 @@ frontpage_address = comparison_url + frontpage_html
 # -- outdir_workdir = path to the work equivalent of the scratch
 if atTGCC:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
-        'scratch', 'workflash')
+        'scratch', 'work')
 if atIDRIS:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
         'scratch', 'work')
 if atTGCC or atIDRIS:
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
-
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
     os.makedirs(path_to_comparison_on_web_server)

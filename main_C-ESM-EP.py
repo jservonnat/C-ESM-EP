@@ -344,7 +344,7 @@ if atTGCC or atIDRIS:
     # -- Copie des résultats de scratch à work
     if atTGCC:
         path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-            'scratch', 'workflash')
+            'scratch', 'work')
     elif atIDRIS:
         path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
             'scratch', 'work')
