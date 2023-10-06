@@ -9,3 +9,4 @@
 /reference_comparison/AtlasExplorer/AtlasExplorer_reference_comparison_C-ESM-EP.e921695
 /reference_comparison/AtlasExplorer/copy_html_error_page.sh.e921696
 slurm-*.out
+/test_comparison/
