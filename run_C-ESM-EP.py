@@ -52,7 +52,7 @@
 # -- Python 2 <-> 3 compatibility ---------------------------------------------------------
 from __future__ import unicode_literals, print_function, absolute_import, division
 import subprocess
-from subprocess import getoutput, getstatusoutput
+from subprocess import getoutput, getstatusoutput, check_output
 
 # -- Import python modules ----------------------------------------------------------------
 import os
@@ -339,14 +339,13 @@ frontpage_address = comparison_url + frontpage_html
 # -- outdir_workdir = path to the work equivalent of the scratch
 if atTGCC:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
-        'scratch', 'workflash')
+        'scratch', 'work')
 if atIDRIS:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
         'scratch', 'work')
 if atTGCC or atIDRIS:
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
-
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
     os.makedirs(path_to_comparison_on_web_server)
@@ -378,8 +377,8 @@ if argument.lower() not in ['url', 'clean']:
                     os.makedirs(os.path.dirname(atlas_pathfilename))
                 # -- Copy an html template to say that the atlas is not yet available
                 # 1. copy the template to the target html page
-                os.system(
-                    'cp -f share/fp_template/Running_template.html ' + atlas_pathfilename)
+                check_output(
+                    'cp -f share/fp_template/Running_template.html ' + atlas_pathfilename, shell=True)
                 # 2. Edit target_component and target_comparison
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
@@ -390,7 +389,7 @@ if argument.lower() not in ['url', 'clean']:
                         atlas_pathfilename.split("/")[-1]
                     cmd = rmcmd + '; mfthredds -d ' + destdir + ' ' + atlas_pathfilename
                     #print("cmd=", cmd)
-                    os.system(cmd)
+                    check_output(cmd, shell=True)
 
         if atTGCC:
             if component in job_components:
@@ -400,14 +399,14 @@ if argument.lower() not in ['url', 'clean']:
                     os.makedirs(os.path.dirname(atlas_pathfilename))
                 # -- Copy an html template to say that the atlas is not yet available
                 # 1. copy the template to the target html page
-                os.system(
-                    'cp share/fp_template/Running_template.html ' + atlas_pathfilename)
+                check_output(
+                    'cp share/fp_template/Running_template.html ' + atlas_pathfilename, shell=True)
                 # 2. Edit target_component and target_comparison
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 # 3. thredds_cp
-                os.system('thredds_cp ' + atlas_pathfilename +
-                          ' ' + path_to_comparison_on_web_server + component)
+                check_output('thredds_cp ' + atlas_pathfilename +
+                             ' ' + path_to_comparison_on_web_server + component, shell=True)
 
     # Create an empty file for accumulating launched jobs ids
     launched_jobs = comparison_dir + "/launched_jobs"
@@ -598,7 +597,7 @@ for component in job_components:
                     env_variables + f',atlas_pathfilename={atlas_pathfilename}  ' + \
                     f'--job-name=err_on_{jobname}' + account_options +\
                     ' ../../share/fp_template/copy_html_error_page.sh'
-                os.system(error_job)
+                check_output(error_job, shell=True)
 
     #
     if atCNRM:
@@ -631,7 +630,7 @@ for component in job_components:
                     f'sqsub -b \"--partition=P8HOST -d afternotok:{jobid}\" ' + \
                     f'-e \"atlas_pathfilename={atlas_pathfilename},' + variables + '\"' + \
                     ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n'
-                os.system(error_job)
+                check_output(error_job, shell=True)
 
     if atCerfacs:
         #
@@ -645,7 +644,7 @@ for component in job_components:
                 ' ; sbatch --job-name=CESMEP --partition=prod --nodes=1 --ntasks-per-node=1 ' + \
                 ' --output=cesmep.o --error=cesmep.e -w gsa4 ../../' + job_script
             print(cmd)
-            os.system(cmd)
+            check_output(cmd, shell=True)
 
     #
     # -- Provide a copy of job submission command
@@ -678,7 +677,7 @@ if argument.lower() not in ['url', 'clean']:
         cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
         if do_print:
             print("First copying html front page to workdir: ", cmd1)
-        os.system(cmd1)
+        check_output(cmd1, shell=True)
         html_file = path_to_comparison_outdir_workdir_tgcc + frontpage_html
         if atTGCC:
             cmd = 'thredds_cp ' + html_file + ' ' + path_to_comparison_on_web_server +\
@@ -692,9 +691,7 @@ if argument.lower() not in ['url', 'clean']:
     if onSpirit or atCNRM or atCerfacs:
         cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
     #
-    # print(os.getcwd())
-    # print(cmd)
-    os.system(cmd)
+    check_output(cmd, shell=True)
 
     # -- Copy the top image
     if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
@@ -712,7 +709,7 @@ if argument.lower() not in ['url', 'clean']:
         if onSpirit or atCNRM or atCerfacs:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + \
                 path_to_comparison_on_web_server
-    os.system(cmd)
+        check_output(cmd, shell=True)
 
     # -- Launch a job that sends a mail when all atlas jobs are completed
     if one_mail_per_component is False and email is not None:
@@ -746,7 +743,7 @@ if argument.lower() not in ['url', 'clean']:
                 cmd += f" --mail-type=END --mail-user={email} -o {out} -e {out} mailjob;"
                 cmd += f" rm -f mailjob {launched_jobs}"
             #print('mail cmd=', cmd)
-            os.system(cmd)
+            check_output(cmd, shell=True)
 
 
 # -- Final: Print the final message with the address of the C-ESM-EP front page

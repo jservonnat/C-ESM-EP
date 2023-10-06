@@ -16,7 +16,7 @@ routine_cache_cleaning = [dict(age='+20')]
 
 models = []
 common = dict(project='IGCM_OUT',
-              root = root,
+              root=root,
               login=Login,
               model=TagName,
               status=SpaceName,
@@ -25,27 +25,27 @@ common = dict(project='IGCM_OUT',
               frequency=frequency,
               OUT=OUT,
               ts_period='full'
-)
+              )
 
 YearBegin = int(DateBegin[0:4])
-if CesmepPeriod != 0 :
-    begin = end - CesmepPeriod +1
-    count=0
-    while begin >= YearBegin and count <= CesmepSlices :
+if CesmepPeriod != 0:
+    begin = end - CesmepPeriod + 1
+    count = 0
+    while begin >= YearBegin and count <= CesmepSlices:
         current_slice = common.copy()
-        clim_period = "%d-%d"%(begin,end)
-        current_slice.update(clim_period = clim_period,
-                             customname = ExperimentName + ' ' + clim_period)
-        models.insert(0,current_slice)
+        clim_period = "%d_%d" % (begin, end)
+        current_slice.update(clim_period=clim_period,
+                             customname=ExperimentName + ' ' + clim_period)
+        models.insert(0, current_slice)
         begin -= CesmepPeriod
-        end   -= CesmepPeriod
+        end -= CesmepPeriod
         count += 1
 else:
-    clim_period = "%d-%d"%(YearBegin,data_end)
-    common.update(clim_period = clim_period,
-                         customname = ExperimentName + ' ' + clim_period)
+    clim_period = "%d_%d" % (YearBegin, data_end)
+    common.update(clim_period=clim_period,
+                  customname=ExperimentName + ' ' + clim_period)
     models.append(common)
-    
+
 #
 # -- Provide a set of common keys to the elements of models
 # ---------------------------------------------------------------------------- >
@@ -58,7 +58,7 @@ elif atIDRIS:
 elif onSpirit:
     root = 'please_set_default_root_for_spirit_in_libIGCM_datasets.py'
     gridpath = 'please_set_gridpath_for_spirit_in_libIGCM_datasets.py'
-    
+
 IGCM_common_keys = dict(
     root=root,
     login='*',
@@ -77,9 +77,9 @@ for model in models:
             if key not in model:
                 model.update({key: IGCM_common_keys[key]})
     if model['model'] == 'IPSL-CM6A-LR':
-        model['gridfile'] = gridpath+ 'eORCA1.2_mesh_mask_glo.nc'
+        model['gridfile'] = gridpath + 'eORCA1.2_mesh_mask_glo.nc'
         model['mesh_hgr'] = gridpath + 'eORCA1.1_grid.nc'
-    
+
 
 # -- Find the last available common period to all the datasets
 # -- with clim_period = 'common_clim_period'
@@ -107,4 +107,3 @@ reference = 'default'
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-
