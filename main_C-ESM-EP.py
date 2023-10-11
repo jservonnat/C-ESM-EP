@@ -166,12 +166,6 @@ if atCNRM or atTGCC or onSpirit or atIDRIS:
 alternative_dir = {'dirname': atlas_dir}
 
 
-# -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug',
-# -- intermediate -> 'warning')
-# -----------------------------------------------------------------------------------
-clog(verbose)
-
-
 # -- Print the models
 # -----------------------------------------------------------------------------------
 print('==> ----------------------------------- #')
@@ -240,6 +234,11 @@ if os.path.isfile(param_file):
 if not index_name:
     index_name = 'atlas_'+component+'_'+comparison+'.html'
 
+
+# -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug',
+# -- intermediate -> 'warning')
+# -----------------------------------------------------------------------------------
+clog(verbose)
 
 # -- Automatically zoom on the plot when the mouse is on it
 # ---------------------------------------------------------------------------- >
