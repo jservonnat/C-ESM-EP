@@ -22,8 +22,8 @@
 cesmep_dir=$(cd $(dirname $0) ; pwd)  # Dir of current code
 [ -h $cesmep_dir/share ] && echo "Cannot work from a lite install" && exit 1
 
-target=${1?} 
-comparison=${2?}
+target=${1?"Provide target directory as first argument"} 
+comparison=${2?"Provide comparison name as second argument"}
 with_libIGCM=${3:-no}  # If arg #3 is set, also link scripts used by libIGCM
 
 target=$(cd $target ; pwd)
@@ -31,6 +31,18 @@ target=$(cd $target ; pwd)
     echo "$0 : Must provide an existing directory as first argument" && exit 1
 target=$target/cesmep_lite
 if [ -d $target ] ; then
+    echo -e "\033[1;32mThere's already a C-ESM-EP lite install at $target."
+    echo -n -e " Do you want to supersede it (y/N) ? : \033[m"
+    read reponse
+    case ${reponse} in
+	oui|OUI|o|y|yes|YES)
+	    echo "OK"
+	    ;;
+	non|NON|n|no|NO|*)
+	    echo "No C-ESM-EP install !"
+	    exit 9
+	    ;;
+    esac
     chmod -R 777 $target
     rm -fR $target
 fi

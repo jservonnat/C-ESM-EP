@@ -14,7 +14,6 @@
 # The created script activates a set of components which matches the type of experiment
 
 #set -x
-set -e
 
 # LibIGCM provided parameters
 target=$1            # Directory where C-ESM-EP  should be installed
@@ -35,6 +34,11 @@ dir=$(cd $(dirname $0); pwd)
 
 # First install a light copy of C-ESM-EP and cd to there
 $dir/install_lite.sh $target $comparison with_libIGCM
+if [ $? -eq 9 ]; then
+    # The target install already exist and the user wants to keep it
+    exit 0
+fi
+set -e
 cd $target/cesmep_lite
 mv $comparison ${jobname}_${comparison}
 comparison=${jobname}_${comparison}
