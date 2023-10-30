@@ -150,5 +150,5 @@ sed -i \
     -e "s/mail *=.*/mail = \"${MailAdress}\"/" \
     settings.py
 
-
-
+# Create a link to simulation outputs (for easing debug)
+ln -sf $R_SAVE simulation_outputs
