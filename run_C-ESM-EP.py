@@ -589,12 +589,15 @@ for component in job_components:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
             else:
-                # JobId is last string of last line od output
+                # JobId is last string of last line of output
                 jobid = output.split("\n")[-1].split(' ')[-1]
                 with open(launched_jobs, "a") as lj:
                     lj.write(jobid+"\n")
-                error_job = f'cd {submitdir} ; sbatch --dependency=afternotok:{jobid} ' + \
-                    env_variables + f',atlas_pathfilename={atlas_pathfilename}  ' + \
+                error_job = f'cd {submitdir} ; sbatch --dependency=afternotok:{jobid} '
+                if atIDRIS:
+                    error_job += "--kill-on-invalid-dep=yes "
+                error_job += env_variables + \
+                    f',atlas_pathfilename={atlas_pathfilename}  ' + \
                     f'--job-name=err_on_{jobname}' + account_options +\
                     ' ../../share/fp_template/copy_html_error_page.sh'
                 check_output(error_job, shell=True)
