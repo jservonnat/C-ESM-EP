@@ -684,7 +684,7 @@ if argument.lower() not in ['url', 'clean']:
         html_file = path_to_comparison_outdir_workdir_tgcc + frontpage_html
         if atTGCC:
             cmd = 'thredds_cp ' + html_file + ' ' + path_to_comparison_on_web_server +\
-                '; chmod +r ' + path_to_comparison_on_web_server + '/' + frontpage_html
+                '; chmod +r ' + path_to_comparison_on_web_server + frontpage_html
         if atIDRIS:
             rmcmd = "mfthredds -r " + path_to_comparison_on_web_server + \
                 '/' + html_file.split("/")[-1]
@@ -704,6 +704,7 @@ if argument.lower() not in ['url', 'clean']:
             if atTGCC:
                 cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + \
                     'CESMEP_bandeau.png ' + path_to_comparison_on_web_server
+                cmd += "; chmod +r " + path_to_comparison_on_web_server + "/CESMEP_bandeau.png"
             if atIDRIS:
                 rmcmd = 'mfthredds -r  ' + path_to_comparison_on_web_server + '/' + \
                     'CESMEP_bandeau.png '
