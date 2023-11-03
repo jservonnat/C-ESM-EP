@@ -128,7 +128,7 @@ comps=${comps%,} ; comps=${comps#,}
 if [ -z $comps ] ; then
     echo "ERROR : the list of simulation components: "
     echo -e "\t $Components"
-    echo "cannot trigger any C-ESM-EP component for comparison $(pwd)/$comparison" >2
+    echo "cannot trigger any C-ESM-EP component for comparison $(pwd)/$comparison" 
     exit 1
 fi
 
