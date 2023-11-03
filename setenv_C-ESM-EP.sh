@@ -148,6 +148,9 @@ my_append -bp PATH ${root}
 # Set CliMAF cache
 export CLIMAF_CACHE=$(python3 -c 'from locations import climaf_cache; print(climaf_cache)')
 
+echo
+echo "Environment settings for C-ESM-EP"
+echo "---------------------------------"
 echo CLIMAF_CACHE        = $CLIMAF_CACHE
 echo CESMEP_CLIMAF_CACHE = $CESMEP_CLIMAF_CACHE
 echo PATH                = $PATH
