@@ -112,6 +112,8 @@ elif [ -n "$singularity_container" ] ; then
     binds+=,/gpfsstore/rech:/gpfsstore/rech,/gpfswork/rech:/gpfswork/rech
     # Must bind /gpfsdswork/projects to mimic a system symbolic link for $WORK
     binds+=,/gpfswork:/gpfsdswork/projects
+    # Same for $SCRATCH
+    binds+=,/gpfsscratch:/gpfsssd/scratch
     # Must bind /gpfslocalsup/bin for accessing mfthredds and thredds_cp commands
     binds+=,/gpfslocalsup/bin:/gpfslocalsup/bin
     # Must bind /gpfsdsmnt/ipsl/dods/pub for executing thredds_cp
