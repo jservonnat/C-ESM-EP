@@ -68,7 +68,8 @@ cat <<-EOF >> $settings
 	EOF
 
 export CESMEP_CLIMAF_CACHE=$cache
-. setenv_C-ESM-EP.sh
+source $(pwd)/setenv_C-ESM-EP.sh
+
 echo "Launching atlas for a period ending at $slice_end" > $out
 submit_dir=$(basename $(cd ..; pwd))
 python3 run_C-ESM-EP.py $comparison $components ${slice_end}_${submit_dir} >> $out 2>&1

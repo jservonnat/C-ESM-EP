@@ -52,7 +52,6 @@ if [[ -d "/gpfsdswork" ]]; then
     echo "loading module singularity"
     set +x
     module load singularity
-    set -x
     if [ -z $singularity_container ]
     then
 	# identify one container among those managed by idrcontmgr

@@ -121,7 +121,7 @@ elif [ -n "$singularity_container" ] ; then
     env+=",LOGNAME=$LOGNAME"
     #
     set -x
-    srun --mpi=pmix_v2 singularity shell --bind $binds --env $env \
+    srun singularity shell --bind $binds --env $env \
         $SINGULARITY_ALLOWED_DIR/$singularity_container <<-EOG
 	set -x
 	export PATH=/gpfslocalsup/bin:\$PATH
