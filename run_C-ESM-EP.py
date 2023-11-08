@@ -492,6 +492,10 @@ for component in job_components:
             partition = '-q skylake'
         else:
             partition = '-q xlarge'
+        if do_parallel:
+            nprocs = str(nprocs).replace('\n', '')
+        else:
+            nprocs = '1'
         cmd = 'cd ' + submitdir + ' ; export ' +\
             ' comparison=' + comparison +\
             ' component=' + component +\
@@ -500,10 +504,10 @@ for component in job_components:
             ' PYTHONPATH=' + os.getenv("PYTHONPATH", "") +\
             ' ; ccc_msub' + add_email +\
             ' -r ' + jobname + ' -o ' + jobname + '_%I.out' + ' -e ' + jobname + '_%I.out' +\
-            ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
+            ' -n ' + nprocs + ' -T 36000 ' + partition + ' -Q normal -A ' + account +\
             ' -m store,work,scratch ' +\
             '../../job_C-ESM-EP.sh'
-        # -- Submit job
+        # -- Submit job and record jobid in a file
         if do_print:
             exitcode, output = getstatusoutput(cmd)
             if exitcode == 0:
