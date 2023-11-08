@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 # -------------------------------------------------------- >
 # --
 # -- Script to run a CliMAF atlas on Ciclad, TGCC, CNRM, Spirit....
@@ -30,36 +30,32 @@ if [[ $1 != '' ]]; then
 
   component=${1%/}
   comparison=$(basename $PWD)
-  #comparison=$(basename $(dirname $0) | sed 's=/==g')
-  env=$(cd ../; pwd)/${env_script}
-  main=$(cd ../; pwd)/${atlas_file}
-  #datasets_setup_file=datasets_setup.py
-  # -- Name of the parameter file
-  #param_file=${component}/params_${component}.py
+  cesmep_frontpage=${2:-null}
+  comparison_dir=$(pwd)
 
 else
 
-  # -- comparison, component, WD ... sont les variables passees avec qsub -v
+  # -- Cas batch depuis le répertoire de la composante 
+  # -- comparison, component, WD ... sont passees dans l'environnement
   component=${component%/}
   echo '$comparison=' $comparison
   echo '$component=' $component
-  echo '$WD=' $WD
   echo '$cesmep_frontpage=' $cesmep_frontpage
+  comparison_dir=$(cd ..;pwd)
+  echo '$WD=' $WD
   if [[ -n ${WD} ]]; then
      cd $WD
   fi
-  env=$(cd ../..; pwd)/${env_script}
-  main=$(cd ../..; pwd)/${atlas_file}
 fi
 
+env=$comparison_dir/../setenv_C-ESM-EP.sh
+atlas_script=$comparison_dir/../main_C-ESM-EP.py
 
 # -- Setup the environment...
 # -------------------------------------------------------- >
-echo 'CESMEP_CLIMAF_CACHE=' $CESMEP_CLIMAF_CACHE
 source ${env}
-echo 'CLIMAF_CACHE=' $CLIMAF_CACHE
 # Need to import from comparison directory :
-my_append -bp PYTHONPATH $(cd ..; pwd)
+my_append -bp PYTHONPATH $comparison_dir
 
 
 # -- Set CliMAF cache in some special cases (default is to inherit it)
@@ -74,7 +70,7 @@ echo ">>> CC= "$CLIMAF_CACHE
 
 # -- Run the atlas...
 # -------------------------------------------------------- >
-echo "Running ${atlas_file} for season ${season} with parameter file ${param_file}"
+echo "Running ${atlas_file} for season ${season} with parameter file ${param_file} in $(pwd)"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 
 run_main="python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
