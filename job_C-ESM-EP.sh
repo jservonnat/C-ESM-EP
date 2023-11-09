@@ -73,7 +73,7 @@ echo ">>> CC= "$CLIMAF_CACHE
 echo "Running ${atlas_file} for season ${season} with parameter file ${param_file} in $(pwd)"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 
-run_main="python ${main} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
+run_main="python ${atlas_script} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
 
 if [ -n "$docker_container" ] ; then
     
