@@ -75,20 +75,13 @@ echo "Running ${atlas_file} for season ${season} with parameter file ${param_fil
 
 run_main="python ${atlas_script} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
 
-if [ -n "$docker_container" ] ; then
+if [ ${atTGCC:-0} -eq 1 ] ; then
     
-    # this implies we are at TGCC) -> using pcocc for running a container 
-    irene_tools=/ccc/cont003/home/igcmg/igcmg/Tools/irene
-
-    # Syntax using pcocc, which is for now buggy 
-    #env="-e re(CCC.*DIR) -e re(CLIMAF.*) -e PYTHONPATH "
-    #env+="-e TMPDIR=${CLIMAF_CACHE} -e LOGNAME "
-    #pcocc run -s $env -I $docker_container --cwd $(pwd) <<-EOF
-
-    # Syntax using pcocc-rs
+    export irene_tools=/ccc/cont003/home/igcmg/igcmg/Tools/irene
+    export PCOCC_CONFIG_PATH=/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/.config/pcocc
     env="--env re(CCC.*DIR) --env re(CLIMAF.*) --env PYTHONPATH "
     env+="--env TMPDIR=${CLIMAF_CACHE} --env LOGNAME "
-    pcocc-rs run $env $docker_container  <<-EOF
+    pcocc-rs run $env ipsl:cesmep_container  <<-EOF
 
 	set -x
 	umask 0022
