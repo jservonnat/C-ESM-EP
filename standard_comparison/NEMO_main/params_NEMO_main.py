@@ -29,7 +29,7 @@ from os import getcwd
 from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'debug'
+verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -77,7 +77,8 @@ domain = {}
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
 # -- 2D Maps
-do_ocean_2D_maps = True  # -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
+# -> [NEMO Atlas] builds a section with a list of standard oceanic variables (2D maps only)
+do_ocean_2D_maps = True
 liste_seasons = ['ANM', 'DJF', 'JJA']
 ocean_2D_variables = []
 for var in ['tos', 'wfo', 'sos']:
@@ -134,14 +135,16 @@ MOC_basins = ["GLO", "ATL", "PAC"]
 zonmean_slices_seas = ["ANN"]  # ,"MAM","JJA","SON"]
 zonmean_slices_variables = ["thetao", "so"]
 zonmean_slices_basins = ["GLO", "ATL", "PAC", "IND"]
-y = 'lin'  # -> The vertical axis; choose between 'lin' (linear) or 'index' (model index levels)
+# -> The vertical axis; choose between 'lin' (linear) or 'index' (model index levels)
+y = 'lin'
 # ---------------------------------------------------------------------------- >
 
 
 # ---------------------------------------------------------------------------- >
 # -- White Ocean : Sea Ice diagnostics
 # ---------------------------------------------------------------------------- >
-do_seaice_maps = True  # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
+# -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
+do_seaice_maps = True
 # do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
 # ---------------------------------------------------------------------------- >
 

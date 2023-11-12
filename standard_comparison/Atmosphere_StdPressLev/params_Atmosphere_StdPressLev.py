@@ -23,12 +23,13 @@
 # --------------------------------------------------------------------------------------------- /
 
 from custom_plot_params import dict_plot_params as custom_plot_params
+from climaf.utils import ranges_to_string
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'debug'
+verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -132,6 +133,24 @@ index_name = None
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
 
+# Fix errors of igcm_out.py re. 3D Variables
+calias("IGCM_OUT", 'ua', 'vitu', filenameVar='histmth')
+calias("IGCM_OUT", 'va', 'vitv', filenameVar='histmth')
+calias("IGCM_OUT", 'ta', 'temp', filenameVar='histmth')
+calias("IGCM_OUT", 'hur', 'rhum', filenameVar='histmth')
+calias("IGCM_OUT", 'zg', 'geoph', filenameVar='histmth')
+#calias("IGCM_OUT", 'hus', filenameVar='histmth')
+
+# custom_plot_params['ta700']: {
+#     'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
+#     'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
+#     'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
+#     'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}}
+# custom_plot_params['ta500']: {
+#     'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
+#     'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
+#     'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
+#     'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}}
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
