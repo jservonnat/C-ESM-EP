@@ -5,7 +5,8 @@
 
 from libIGCM_settings import root, Login, TagName, SpaceName, \
     ExpType, ExperimentName, frequency, OUT, DateBegin, \
-    CesmepSlices, CesmepPeriod, end, data_end
+    CesmepSlices, CesmepPeriod, CesmepSlices, CesmepSlicesDuration, \
+    end, data_end
 
 from env.site_settings import atIDRIS, atTGCC, onSpirit
 
@@ -29,9 +30,9 @@ common = dict(project='IGCM_OUT',
 
 YearBegin = int(DateBegin[0:4])
 if CesmepPeriod != 0:
-    begin = end - CesmepPeriod + 1
+    begin = end - CesmepSlicesDuration + 1
     count = 0
-    while begin >= YearBegin and count <= CesmepSlices:
+    while begin >= YearBegin and count < CesmepSlices:
         current_slice = common.copy()
         clim_period = "%d_%d" % (begin, end)
         current_slice.update(clim_period=clim_period,

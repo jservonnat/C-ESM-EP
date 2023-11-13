@@ -24,10 +24,11 @@ ProjectId=${5:-None} # Which project ressource allocation should be charged
 MailAdress=$6        # Mail adress as in libIGCM
 DateBegin=$7         # Start date for the simulation
 ConfigCesmep=$8      # Value of config.card Post section variable Cesmep
-CesmepPeriod=$9      # Duration of atlas time slices
+CesmepPeriod=$9      # Period for atlas time slices
 CesmepSlices=${10}   # Number of atlas time slices
 Components=${11}     # List of activated components
 Center=${12:-TGCC}   # Which computing center are we running on
+CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice
 
 # This script can be called from anywhere
 dir=$(cd $(dirname $0); pwd)
@@ -85,6 +86,7 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	frequency      = '$frequency'
 	DateBegin      = '${DateBegin//-/}'
 	CesmepSlices   = $CesmepSlices
+	CesmepSlicesDuration = $CesmepSlicesDuration
 	CesmepPeriod   = $CesmepPeriod
 	EOF
 
@@ -141,7 +143,7 @@ esac
 cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
 
 # Write down a few parameters in a file used by libIGCM_post.sh
-echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $cache $comps " > libIGCM_post.param
+echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $CesmepSlicesDuration $cache $comps " > libIGCM_post.param
 
 # Set account/project to charge, and mail to use, in relevant file
 [ $Center = IDRIS ] && ProjectId=$ProjectId"@cpu"
