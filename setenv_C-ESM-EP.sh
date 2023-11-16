@@ -65,7 +65,6 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	set +x
 	module purge
 	module load $emodule
-	set -x
     else
 	echo "C-ESM-EP is not maintained on system $(uname -n)"
 	exit 1

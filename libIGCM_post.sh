@@ -72,16 +72,17 @@ fi
 fixed_settings=$comparison/libIGCM_fixed_settings.py
 settings=$comparison/libIGCM_settings.py
 cat $fixed_settings > $settings
-cat <<-EOF #>> $settings
+cat <<-EOF >> $settings
 	end            = $slice_end
 	data_end       = $end
 	EOF
 
+echo "Launching atlas for a period ending at $slice_end" > $out
 export CESMEP_CLIMAF_CACHE=$cache
 source $(pwd)/setenv_C-ESM-EP.sh
-echo "Launching atlas for a period ending at $slice_end" > $out
+export PYTHONPATH=$PYTHONPATH:$(pwd)/$comparison
 submit_dir=$(basename $(cd ..; pwd))
-python3 run_C-ESM-EP.py $comparison ${component:-$components} ${slice_end}_${submit_dir} #>> $out 2>&1
+python3 run_C-ESM-EP.py $comparison ${component:-$components} ${slice_end}_${submit_dir} >> $out 2>&1
 if [ $? -ne 0 ] ;then
     echo "Issue launching C-ESM-EP atlas - see $out"
     exit 1

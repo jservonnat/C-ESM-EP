@@ -125,6 +125,7 @@ elif [ -n "$singularity_container" ] ; then
 else
     
     export TMPDIR=${CLIMAF_CACHE}
+    export PYTHONPATH
     $run_main
     
 fi
