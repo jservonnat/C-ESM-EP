@@ -41,6 +41,8 @@ do_parallel = False
 # nprocs = 32
 # memory = 30 # in gb; 30 for ocean atlasas
 # queue = 'zen4' # onCiclad: h12, days3 , onSPirit : zen4
+# time = 480 # minutes
+# QOS = 'test'
 
 
 # -- Set the reference against which we plot the diagnostics

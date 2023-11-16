@@ -43,9 +43,11 @@ do_parallel = False
 nprocs = 32
 # memory = 20 # in gb
 # queue = 'days3'
+# time = 480 # minutes
+# QOS = 'test'
 
 
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -92,7 +94,7 @@ for var in atlas_explorer_variables_list:
                                              ))
 
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
-regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
 # -- Display full climatology maps =
 # -- Use this variable as atlas_explorer_variables to activate the climatology maps
@@ -133,4 +135,3 @@ index_name = None
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

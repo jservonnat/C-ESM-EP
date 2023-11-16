@@ -14,6 +14,7 @@
 
 begin=${1?Please provide begin year of the period to process}
 end=${2??Please provide end year of the period to process}
+component=$3 # For tests purpose only
 
 cd $(dirname $0)
 out=$(pwd)/libIGCM_post.out
@@ -71,7 +72,7 @@ fi
 fixed_settings=$comparison/libIGCM_fixed_settings.py
 settings=$comparison/libIGCM_settings.py
 cat $fixed_settings > $settings
-cat <<-EOF #>> $settings
+cat <<-EOF >> $settings
 	end            = $slice_end
 	data_end       = $end
 	EOF
@@ -80,7 +81,7 @@ export CESMEP_CLIMAF_CACHE=$cache
 source $(pwd)/setenv_C-ESM-EP.sh
 echo "Launching atlas for a period ending at $slice_end" > $out
 submit_dir=$(basename $(cd ..; pwd))
-python3 run_C-ESM-EP.py $comparison $components ${slice_end}_${submit_dir} >> $out 2>&1
+python3 run_C-ESM-EP.py $comparison ${component:-$components} ${slice_end}_${submit_dir} #>> $out 2>&1
 if [ $? -ne 0 ] ;then
     echo "Issue launching C-ESM-EP atlas - see $out"
     exit 1

@@ -41,9 +41,11 @@ do_parallel = False
 # nprocs = 32
 # memory = 30 # in gb; 30 for ocean atlasas
 # queue = 'days3' # onCiclad: h12, days3
+# time = 480 # minutes
+# QOS = 'test'
 
 
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -92,7 +94,7 @@ for var in atlas_explorer_variables_list:
                                              ))
 
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
-regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
 
 # -- Activate the parallel execution of the plots

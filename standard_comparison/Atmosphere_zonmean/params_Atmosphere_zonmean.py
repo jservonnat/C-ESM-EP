@@ -40,6 +40,8 @@ do_parallel = False
 nprocs = 32
 # memory = 20 # in gb
 # queue = 'days3'
+# time = 480 # minutes
+# QOS = 'test'
 
 
 # -- Set the reference against which we plot the diagnostics
@@ -86,11 +88,16 @@ atlas_explorer_variables_list = [
     dict(variable='ua', y='log'), dict(variable='va', y='log'),
     dict(variable='ta', y='log'), dict(variable='hus', y='log'),
     dict(variable='hur', y='log'),
-    dict(variable='ua', y='log', season='DJF'), dict(variable='va', y='log', season='DJF'),
-    dict(variable='ta', y='log', season='DJF'), dict(variable='hus', y='log', season='DJF'),
-    dict(variable='hur', y='log', season='DJF'), dict(variable='ua', y='log', season='JJA'),
-    dict(variable='va', y='log', season='JJA'), dict(variable='ta', y='log', season='JJA'),
-    dict(variable='hus', y='log', season='JJA'), dict(variable='hur', y='log', season='JJA'),
+    dict(variable='ua', y='log', season='DJF'), dict(
+        variable='va', y='log', season='DJF'),
+    dict(variable='ta', y='log', season='DJF'), dict(
+        variable='hus', y='log', season='DJF'),
+    dict(variable='hur', y='log', season='DJF'), dict(
+        variable='ua', y='log', season='JJA'),
+    dict(variable='va', y='log', season='JJA'), dict(
+        variable='ta', y='log', season='JJA'),
+    dict(variable='hus', y='log', season='JJA'), dict(
+        variable='hur', y='log', season='JJA'),
 ]
 atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
@@ -99,7 +106,8 @@ for var in atlas_explorer_variables_list:
         tmpvar.update(dict(add_climato_contours=True))
         atlas_explorer_variables.append(tmpvar)
     else:
-        atlas_explorer_variables.append(dict(variable=var, add_climato_contours=True))
+        atlas_explorer_variables.append(
+            dict(variable=var, add_climato_contours=True))
 
 # -- Project Specs
 for var in atlas_explorer_variables:
@@ -153,4 +161,3 @@ index_name = None
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

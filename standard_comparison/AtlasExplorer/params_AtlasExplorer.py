@@ -47,6 +47,8 @@ do_parallel = False
 # nprocs = 32
 # memory = 20 # in gb
 # queue = 'days3'
+# time = 480 # minutes
+# QOS = 'test'
 
 
 # -- Set the reference against which we plot the diagnostics
@@ -106,7 +108,7 @@ atlas_explorer_variables = [dict(variable='tas',
                             ]
 
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
-regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
 # atlas_explorer_variables = ['tas','pr',
 #                            'tos','sos',
@@ -155,4 +157,3 @@ index_name = None
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

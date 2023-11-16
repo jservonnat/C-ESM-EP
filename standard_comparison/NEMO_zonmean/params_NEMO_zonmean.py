@@ -41,7 +41,13 @@ routine_cache_cleaning = [dict(age='+20')]
 do_parallel = True
 nprocs = 16
 memory = 30  # in gb; 30 for ocean atlasas
+time = 480  # minutes
+if atTGCC:
+    queue = "xlarge"
 # queue = 'zen4'  # onCiclad: h12, days3 , onSpirit : zen4
+# time = 480 # minutes
+# QOS = 'test'
+
 
 # -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >

@@ -215,8 +215,9 @@ for component in allcomponents:
             available_components.append(component)
         else:
             if do_print:
-                print("Skipping component", component,
-                      "which dir is not readable")
+                pass
+                # print("Skipping component", component,
+                #      "which dir is not readable")
 
 # -> Then, we check whether there are some components not listed in allcomponents;
 # if yes, they will be added at the end of the list
@@ -319,7 +320,12 @@ if not path_to_cesmep_output_rootdir_on_web_server:
     path_to_cesmep_output_rootdir_on_web_server = path_to_cesmep_output_rootdir
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
-suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
+try:
+    from libIGCM_fixed_settings import TagName, SpaceName, ExpType, ExperimentName, OUT
+except:
+    suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
+else:
+    suffix_to_comparison = f'/C-ESM-EP/{TagName}/{SpaceName}/{ExpType}/{ExperimentName}/{OUT}/{comparison}/'
 
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
 #  -> path_to_comparison_outdir = path to the comparison directory
@@ -429,6 +435,8 @@ for component in job_components:
     nprocs = '32'
     memory = None
     queue = None
+    QOS = None
+    time = None
     param_lines = []
     if os.path.isfile(submitdir + '/params_' + component + '.py'):
         param_filename = open(submitdir + '/params_' + component + '.py')
@@ -456,8 +464,17 @@ for component in job_components:
             memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
             queue = param_line.replace(' ', '').split('=')[1].split('#')[0]
+            queue = eval(queue)
+        if 'QOS' in param_line and param_line[0] != '#':
+            QOS = param_line.replace(' ', '').split('=')[1].split('#')[0]
+            QOS = eval(queue)
+        if re.match('time *=', param_line) and param_line[0] != '#':
+            time = param_line.replace(' ', '').split('=')[1].split('#')[0]
+            time = int(time)
 
     #
+    if time is None:
+        time = 480  # minutes
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
         atlas_url = comparison_url + component + '/atlas_' + \
@@ -486,12 +503,12 @@ for component in job_components:
         if account is None:
             # Deduce account from CCCHOME
             account = os.getenv("CCCHOME").split("/")[4]
+        if not queue:
+            queue = 'skylake'
+        if QOS is None:
+            QOS = 'normal'
         if component in metrics_components:
             continue  # metrics_components are not tested at TGCC
-        if component != 'NEMO_zonmean':
-            partition = '-q skylake'
-        else:
-            partition = '-q xlarge'
         if do_parallel:
             nprocs = str(nprocs).replace('\n', '')
         else:
@@ -504,9 +521,9 @@ for component in job_components:
             ' PYTHONPATH=' + os.getenv("PYTHONPATH", "") +\
             ' ; ccc_msub' + add_email +\
             ' -r ' + jobname + ' -o ' + jobname + '_%I.out' + ' -e ' + jobname + '_%I.out' +\
-            ' -n ' + nprocs + ' -T 36000 ' + partition + ' -Q normal -A ' + account +\
-            ' -m store,work,scratch ' +\
-            '../../job_C-ESM-EP.sh'
+            ' -n ' + nprocs + f' -Q {QOS} -A ' + account +\
+            ' -m store,work,scratch ' + ' -q ' + queue + ' -T ' + f'{time*60}' +\
+            ' ../../' + job_script
         # -- Submit job and record jobid in a file
         if do_print:
             exitcode, output = getstatusoutput(cmd)
@@ -517,7 +534,6 @@ for component in job_components:
             else:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
-
     #
     # -- Case onSpirit and atIDRIS : use SBATCH
     if onSpirit or atIDRIS:
@@ -575,7 +591,7 @@ for component in job_components:
         #
 
         # -- Build the job command line
-        job_options += ' --time=480'
+        job_options += f' --time={time}'
         env_variables = ' --export=ALL' + \
             ',component=' + component + \
             ',comparison=' + comparison + \
