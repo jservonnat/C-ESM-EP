@@ -47,6 +47,8 @@ do_parallel = False
 # nprocs = 32
 # memory = 20 # in gb
 # queue = 'days3'
+# time = 480 # minutes
+# QOS = 'test'
 
 
 # -- Set the reference against which we plot the diagnostics
