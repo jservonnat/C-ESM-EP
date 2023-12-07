@@ -2,12 +2,14 @@
 # Created : S.Sénési - nov 2015
 # Adapter : J.Servonnat - april 2016
 
+from climaf.utils import ranges_to_string
+
 dict_plot_params = {
     'evap': {
-        'default': {'color': 'precip3_16lev', 'units': '', 'scale':86400},
+        'default': {'color': 'precip3_16lev', 'units': '', 'scale': 86400},
         'full_field': {'colors': '0 0.1 0.5 1 2 3 4 5 6 7 8 9 10'},
-        'bias': {'min':-1,'max':1,'delta':0.01, 'color': 'BlueWhiteOrangeRed'},
-        'model_model': {'min':-0.7,'max':0.7,'delta':0.05, 'color': 'BlueWhiteOrangeRed'},
+        'bias': {'min': -1, 'max': 1, 'delta': 0.01, 'color': 'BlueWhiteOrangeRed'},
+        'model_model': {'min': -0.7, 'max': 0.7, 'delta': 0.05, 'color': 'BlueWhiteOrangeRed'},
 
     },
     'pr': {
@@ -57,9 +59,20 @@ dict_plot_params = {
     # 'mrro': {'full_field': dict(colors='0 0.1 0.25 0.5 0.75 1 2 5')},
     # 'mrros': {'full_field': dict(colors='0 0.1 0.25 0.5 0.75 1 2 5')},
 
+    # Next two entries in order to fix a typo in CLiMAF V3.0, for the 'full_field' entries
+    'ta700': {
+        'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
+        'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
+        'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
+        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}}
+    'ta500': {
+        'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
+        'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
+        'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
+        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}}
+
 
 
 
 
 }
-
