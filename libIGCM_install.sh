@@ -19,7 +19,7 @@
 target=$1            # Directory where C-ESM-EP  should be installed
 comparison=$2        # Which C-ESM-EP 'comparison' will be run
 jobname=$3           # Used as a prefix for comparison's name
-R_SAVE=$4            # Directory holding simulation outputs
+R_SAVE=$4            # Directory holding simulation outputs 
 ProjectId=${5:-None} # Which project ressource allocation should be charged
 MailAdress=$6        # Mail adress as in libIGCM
 DateBegin=$7         # Start date for the simulation
@@ -29,9 +29,40 @@ CesmepSlices=${10}   # Number of atlas time slices
 Components=${11}     # List of activated components
 Center=${12:-TGCC}   # Which computing center are we running on
 CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice
+CesmepReferences=${14:-NONE}           # Paths for the references simulation (with period suffix)
 
 # This script can be called from anywhere
 dir=$(cd $(dirname $0); pwd)
+
+crack_path ()
+# Derive a set of parameters from a simulation output's path, with period suffix as e.g.
+# /ccc/store/cont003/gen0826/lurtont/IGCM_OUT/IPSLCM6/*/historical/CM61-LR-hist-01/*/Analyse/1980-2005
+{
+    path=$1
+    if [ $Center = TGCC ] ; then 
+	root=$(echo $path | cut -d / -f 1-5)
+	rest=$(echo $path | cut -d / -f 6-)
+    elif [[ $Center == spirit* ]] ; then 
+	root=/$(echo $path | cut -d / -f 2)
+	rest=$(echo $path | cut -d / -f 3-)
+    elif [ $Center = IDRIS ] ; then 
+	root=$(echo $path | cut -d / -f 1-4)
+	rest=$(echo $path | cut -d / -f 5-)
+    else
+	echo "Unkown Center $Center"
+	exit 1
+    fi
+    login=$(echo $rest | cut -d / -f 1)
+    tagname=$(echo $rest | cut -d / -f 3)
+    [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagName
+    spacename=$(echo $rest | cut -d / -f 4)
+    exptype=$(echo $rest | cut -d / -f 5)
+    experimentname=$(echo $rest | cut -d / -f 6)
+    out=$(echo $rest | cut -d / -f 8)
+    period=$(echo $rest | cut -d / -f 9)
+
+    echo "$root $login $tagname $spacename $exptype $experimentname $out $period"
+}
 
 # First install a light copy of C-ESM-EP and cd to there
 $dir/install_lite.sh $target $comparison with_libIGCM
@@ -44,26 +75,7 @@ cd $target/cesmep_lite
 mv $comparison ${jobname}_${comparison}
 comparison=${jobname}_${comparison}
 
-# Derive a set of parameters from output's path
-if [ $Center = TGCC ] ; then 
-    root=$(echo $R_SAVE | cut -d / -f 1-5)
-    rest=$(echo $R_SAVE | cut -d / -f 6-)
-elif [[ $Center == spirit* ]] ; then 
-    root=/$(echo $R_SAVE | cut -d / -f 2)
-    rest=$(echo $R_SAVE | cut -d / -f 3-)
-elif [ $Center = IDRIS ] ; then 
-    root=$(echo $R_SAVE | cut -d / -f 1-4)
-    rest=$(echo $R_SAVE | cut -d / -f 5-)
-else
-    echo "Unkown Center $Center"
-    exit 1
-fi
-Login=$(echo $rest | cut -d / -f 1)
-TagName=$(echo $rest | cut -d / -f 3)
-[[ $Center == spirit* ]] && TagName="IGCM_OUT"/$TagName
-SpaceName=$(echo $rest | cut -d / -f 4)
-ExpType=$(echo $rest | cut -d / -f 5)
-ExperimentName=$(echo $rest | cut -d / -f 6)
+read Root Login TagName SpaceName ExpType ExperimentName foo <<< $(crack_path $R_SAVE)
 
 # Derive more parameters
 OUT='Analyse'
@@ -76,7 +88,7 @@ fi
 
 # Create comparison's parameters file and set first part
 cat <<-EOF > $comparison/libIGCM_fixed_settings.py
-	root           = '$root'
+	root           = '$Root'
 	Login          = '${Login}'
 	TagName        = '${TagName}'
 	SpaceName      = '${SpaceName}'
@@ -92,6 +104,31 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 
 # Install a dedicated datasets_setup file
 cp $dir/libIGCM_datasets.py $comparison/datasets_setup.py
+
+# Create a python module describing reference simulations
+rm -f $comparison/libIGCM_references.py
+if [ "$CesmepReferences" != NONE ]; then
+    # TBD : build dict of dict. Yet handle only one ref
+    for reference in ${CesmepReferences/,/ }; do
+	read RefRoot RefLogin RefTagName RefSpaceName RefExpType RefExperiment RefOut RefPeriod <<< \
+	     $(crack_path $reference)
+	cat <<-EOJ > $comparison/libIGCM_references.py
+		reference = dict(project='IGCM_OUT',
+		  root        = "$RefRoot",
+		  login       = "$RefLogin",
+		  model       = "$RefTagName",
+		  status      = "$RefSpaceName",
+		  experiment  = "$RefExpType",
+		  simulation  = "$RefExperiment",
+		  frequency   = 'monthly',
+		  OUT         = "$RefOut",
+		  ts_period   = 'full',
+		  clim_period = "$RefPeriod"
+		  )
+		EOJ
+	done
+fi
+
 
 # Compute CESMEP components list based on list of component
 # directories and on simulation components list ($Components)
