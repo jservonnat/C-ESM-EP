@@ -467,7 +467,7 @@ for component in job_components:
             queue = eval(queue)
         if 'QOS' in param_line and param_line[0] != '#':
             QOS = param_line.replace(' ', '').split('=')[1].split('#')[0]
-            QOS = eval(queue)
+            QOS = eval(QOS)
         if re.match('time *=', param_line) and param_line[0] != '#':
             time = param_line.replace(' ', '').split('=')[1].split('#')[0]
             time = int(time)
