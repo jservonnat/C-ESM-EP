@@ -101,7 +101,11 @@ if common_clim_period:
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-reference = 'default'
+try:
+    from libIGCM_references import reference
+    print("References were provided through libIGCM")
+except:
+    reference = 'default'
 
 
 #
