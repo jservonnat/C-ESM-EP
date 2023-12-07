@@ -55,7 +55,7 @@ nprocs = 32
 # --       climaf dataset
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
-reference = 'default'
+#reference = 'default'
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
