@@ -110,6 +110,15 @@ rm -f $comparison/libIGCM_references.py
 if [ "$CesmepReferences" != NONE ]; then
     # TBD : build dict of dict. Yet handle only one ref
     for reference in ${CesmepReferences/,/ }; do
+	
+	# Test that the path has some data
+	path=$(dirname $reference)
+	if [ $(ls $path 2>/dev/null | wc -l) -eq 0 ] ; then
+	    echo "ERROR : Reference path doesn't exist or has no data : $path"
+	    exit 5
+	fi
+
+	# Create reference attributes dict
 	read RefRoot RefLogin RefTagName RefSpaceName RefExpType RefExperiment RefOut RefPeriod <<< \
 	     $(crack_path $reference)
 	cat <<-EOJ > $comparison/libIGCM_references.py
