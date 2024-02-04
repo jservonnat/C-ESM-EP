@@ -141,5 +141,4 @@ echo CLIMAF_CACHE        = $CLIMAF_CACHE
 echo CESMEP_CLIMAF_CACHE = $CESMEP_CLIMAF_CACHE
 #echo PATH                = $PATH
 echo PYTHONPATH          = $PYTHONPATH
-echo
-
+echo 
