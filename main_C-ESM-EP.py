@@ -195,8 +195,14 @@ if reference == 'default':
     print('  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
     print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
 else:
-    for key in reference:
-        print('  '+key+' = ', reference[key])
+    if type(reference) is not list:
+        refs = [reference]
+    else:
+        refs = reference
+    for ref in refs:
+        print()
+        for key in ref:
+            print('  '+key+' = ', ref[key])
     print('  --')
     print('  --')
 
