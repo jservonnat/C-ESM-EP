@@ -31,15 +31,19 @@ def section_zonalmean_slices(models=[], reference='default', zonmean_slices_vari
         # Loop over seasons
         for season in zonmean_slices_seas:
             if do_cfile:
-                index += open_table() + open_line(variable + "-" + season) + close_line() + close_table()
+                index += open_table() + open_line(variable + "-" + season) + \
+                    close_line() + close_table()
             for basin in zonmean_slices_basins:
                 # -- Model Grid
                 if do_cfile:
-                    index += start_line(title_region(basin) + ' ' + varlongname(variable) + ' (' + variable + ')')
+                    index += start_line(title_region(basin) + ' ' +
+                                        varlongname(variable) + ' (' + variable + ')')
                 if reference == 'default':
                     ref = variable2reference(variable, my_obs=custom_obs_dict)
                 else:
                     ref = reference.copy()
+                    if type(ref) is list:
+                        ref = ref[0]
                 basin_zonmean_modelgrid = zonal_mean_slice(ref, variable, basin=basin, season=season,
                                                            ref=None, safe_mode=safe_mode, do_cfile=do_cfile, y=y,
                                                            add_product_in_title=None,

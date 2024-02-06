@@ -752,6 +752,8 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
         clim_model = clim_average(mask(model_dat, miss=0.0), season)
         #
         # -- Get the reference
+        if type(ref) is list:
+            ref = ref[0]
         if ref:
             ref.update(dict(variable=variable))
             # -- Get the reference data

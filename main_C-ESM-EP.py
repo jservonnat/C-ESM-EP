@@ -190,21 +190,20 @@ print('==> ----------------------------------- #')
 print('==> Against reference:')
 print('==> ----------------------------------- #')
 print('  ')
-if reference == 'default':
-    print('  reference = default')
-    print('  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
-    print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
+if type(reference) is not list:
+    refs = [reference]
 else:
-    if type(reference) is not list:
-        refs = [reference]
+    refs = reference
+for ref in refs:
+    print()
+    if ref == 'default':
+        print('  --> Using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
+        print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
     else:
-        refs = reference
-    for ref in refs:
-        print()
         for key in ref:
             print('  '+key+' = ', ref[key])
-    print('  --')
-    print('  --')
+print('  --')
+print('  --')
 
 
 # -----------------------------------------------------------------------------------

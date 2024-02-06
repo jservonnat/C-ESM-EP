@@ -102,7 +102,10 @@ if do_MLD_maps:
     if reference == 'default':
         ref = variable2reference(variable, my_obs=custom_obs_dict)
     else:
-        ref = reference
+        if type(reference) is list:
+            ref = reference[0]
+        else:
+            ref = reference
     #
     # -- MLD Diags -> Season and proj
     if not MLD_diags:
