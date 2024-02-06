@@ -502,14 +502,18 @@ if do_seaice_maps:
         # -- Check which reference will be used:
         #       -> 'default' = the observations that we get from variable2reference()
         #       -> or a dictionary pointing to a CliMAF dataset (without the variable)
+        if type(reference) is list:
+            ref = reference[0]
+        else:
+            ref = reference
         if reference == 'default':
             ref = variable2reference(variable, my_obs=custom_obs_dict)
         else:
-            ref = reference
             ref.update(dict(table='SImon', grid='gn'))
         # -> Sea Ice climatos
         # -- Line Title
-        line_title = proj+' '+season+' climatos '+varlongname(variable)+' ('+variable+')'
+        line_title = proj+' '+season+' climatos ' + \
+            varlongname(variable)+' ('+variable+')'
         # -- Open the line for the plots
         index += start_line(line_title)
         #
