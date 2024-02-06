@@ -136,23 +136,13 @@ index_name = None
 #    for an example/
 
 # Fix errors of igcm_out.py re. 3D Variables
-calias("IGCM_OUT", 'ua', 'vitu', filenameVar='histmth')
-calias("IGCM_OUT", 'va', 'vitv', filenameVar='histmth')
-calias("IGCM_OUT", 'ta', 'temp', filenameVar='histmth')
+calias("IGCM_OUT", 'ua',  'vitu', filenameVar='histmth')
+calias("IGCM_OUT", 'va',  'vitv', filenameVar='histmth')
+calias("IGCM_OUT", 'ta',  'temp', filenameVar='histmth')
 calias("IGCM_OUT", 'hur', 'rhum', filenameVar='histmth')
+calias("IGCM_OUT", 'hus', 'ovap', filenameVar='histmth')
 calias("IGCM_OUT", 'zg', 'geoph', filenameVar='histmth')
-#calias("IGCM_OUT", 'hus', filenameVar='histmth')
 
-# custom_plot_params['ta700']: {
-#     'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
-#     'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
-#     'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
-#     'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}}
-# custom_plot_params['ta500']: {
-#     'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
-#     'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
-#     'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
-#     'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}}
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
