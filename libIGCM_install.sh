@@ -29,7 +29,7 @@ CesmepSlices=${10}   # Number of atlas time slices
 Components=${11}     # List of activated components
 Center=${12:-TGCC}   # Which computing center are we running on
 CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice
-CesmepReferences=${14:-NONE}           # Paths for the references simulation (with period suffix)
+CesmepReferences=${14:-NONE} # Paths for the references simulation (with period suffix). A comma separated list
 
 # This script can be called from anywhere
 dir=$(cd $(dirname $0); pwd)
@@ -105,12 +105,20 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 # Install a dedicated datasets_setup file
 cp $dir/libIGCM_datasets.py $comparison/datasets_setup.py
 
-# Create a python module describing reference simulations
+# Create a python module defining a list of reference simulations
 rm -f $comparison/libIGCM_references.py
-if [ "$CesmepReferences" != NONE ]; then
-    # TBD : build dict of dict. Yet handle only one ref
-    for reference in ${CesmepReferences/,/ }; do
+if [ $CesmepReferences != NONE ]; then
+    echo "CesmepReferences=$CesmepReferences"
+    cat <<-EOH > $comparison/libIGCM_references.py
+	reference = [\\
+	EOH
+    for reference in ${CesmepReferences//,/ }; do	
+	if [ $reference = default ] ; then
+	    echo "    'default'" >>  $comparison/libIGCM_references.py
+	    continue
+	fi
 	
+	#e.g. /ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/1980_1989
 	# Test that the path has some data
 	path=$(dirname $reference)
 	if [ $(ls $path 2>/dev/null | wc -l) -eq 0 ] ; then
@@ -121,23 +129,25 @@ if [ "$CesmepReferences" != NONE ]; then
 	# Create reference attributes dict
 	read RefRoot RefLogin RefTagName RefSpaceName RefExpType RefExperiment RefOut RefPeriod <<< \
 	     $(crack_path $reference)
-	cat <<-EOJ > $comparison/libIGCM_references.py
-		reference = dict(project='IGCM_OUT',
-		  root        = "$RefRoot",
-		  login       = "$RefLogin",
-		  model       = "$RefTagName",
-		  status      = "$RefSpaceName",
-		  experiment  = "$RefExpType",
-		  simulation  = "$RefExperiment",
-		  frequency   = 'monthly',
-		  OUT         = "$RefOut",
-		  ts_period   = 'full',
-		  clim_period = "$RefPeriod"
-		  )
+	cat <<-EOJ >> $comparison/libIGCM_references.py
+		  dict(project='IGCM_OUT',
+		    root        = "$RefRoot",
+		    login       = "$RefLogin",
+		    model       = "$RefTagName",
+		    status      = "$RefSpaceName",
+		    experiment  = "$RefExpType",
+		    simulation  = "$RefExperiment",
+		    frequency   = 'monthly',
+		    OUT         = "$RefOut",
+		    ts_period   = 'full',
+		    clim_period = "$RefPeriod"
+		    ),
 		EOJ
 	done
+    cat <<-EOK >> $comparison/libIGCM_references.py
+	]
+	EOK
 fi
-
 
 # Compute CESMEP components list based on list of component
 # directories and on simulation components list ($Components)

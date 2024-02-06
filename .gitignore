@@ -5,8 +5,9 @@
 *log
 *job.in
 *last.out
- /reference_comparison/AtlasExplorer/AtlasExplorer_reference_comparison_C-ESM-EP_*
-/reference_comparison/AtlasExplorer/AtlasExplorer_reference_comparison_C-ESM-EP.e921695
-/reference_comparison/AtlasExplorer/copy_html_error_page.sh.e921696
+/*/*/*_comparison_C-ESM-EP_*
+/*/*/copy_html_error_page.sh.e*
 slurm-*.out
 /test_comparison
+/*/launched_jobs
+/*/mailjob

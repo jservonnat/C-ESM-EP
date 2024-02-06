@@ -157,3 +157,10 @@ index_name = None
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
+# Fix errors of igcm_out.py re. 3D Variables
+calias("IGCM_OUT", 'ua', 'vitu', filenameVar='histmth')
+calias("IGCM_OUT", 'va', 'vitv', filenameVar='histmth')
+calias("IGCM_OUT", 'ta', 'temp', filenameVar='histmth')
+calias("IGCM_OUT", 'hur', 'rhum', filenameVar='histmth')
+calias("IGCM_OUT", 'zg', 'geoph', filenameVar='histmth')
+calias("IGCM_OUT", 'hus', 'ovap', filenameVar='histmth')
