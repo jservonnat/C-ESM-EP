@@ -106,8 +106,11 @@ if do_main_time_series:
     thumbN_size = thumbnail_size
     #
     # -- Add the reference if you compare against a simulation
-    if reference!='default':
-        wmodels = [reference] + models
+    if reference != 'default':
+        if type(reference) is list:
+            wmodels = reference + models
+        else:
+            wmodels = [reference] + models
     else:
         wmodels = models
     #
