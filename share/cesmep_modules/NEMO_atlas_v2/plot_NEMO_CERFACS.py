@@ -12,7 +12,7 @@ import xarray as xr
 # from climaf import cachedir
 
 #########################################################################
-# 
+#
 # DATE/AUTHOR:
 ##############
 #
@@ -50,11 +50,13 @@ import xarray as xr
 # Obs de MOC RAPID (Il a fallu bricoler les donnees d'origine pour la dimension time au debut et unlim)
 # dataloc(project="ref_climatos",organization="generic",
 #        url='/home/esanchez/data_climaf/${variable}_vertical_unlim.nc')
-calias(project='ref_climatos', variable='moc', fileVariable='stream_function_mar', filenameVar='moc')
+calias(project='ref_climatos', variable='moc',
+       fileVariable='stream_function_mar', filenameVar='moc')
 
 # Useful observations
 # (1) Annual Cycles (12 years, 2D fields)
-levitus_ac = dict(project="ref_climatos", product='NODC-Levitus', clim_period='*')
+levitus_ac = dict(project="ref_climatos",
+                  product='NODC-Levitus', clim_period='*')
 woa13_ac = dict(project="ref_climatos", product='WOA13-v2', clim_period='*')
 rapid_ac = dict(project="ref_climatos", variable='moc')
 # (2) Time Series (N months, 2D fields)
@@ -63,7 +65,8 @@ aviso_ts = dict(project="ref_ts", product='AVISO-L4')  # ,period=opts.period)
 oras4_ts = dict(project="ref_ts", product='ORAS4')  # ,period=opts.period)
 
 # Useful boxes
-boxes = dict(gibraltar=dict(name="Gibraltar", domain={"lonmin": -14., "lonmax": -10., "latmin": 35.4, "latmax": 39.}))
+boxes = dict(gibraltar=dict(name="Gibraltar", domain={
+             "lonmin": -14., "lonmax": -10., "latmin": 35.4, "latmax": 39.}))
 
 
 #########################################################################
@@ -208,24 +211,31 @@ def set_fixed_fields(cdftool, region, model):
     # Path des mesh_mask pour les cdftools
     print("set_fixed_fields = ")
     print("mask.nc => ", model["path_mesh_mask"] + model["mesh_masks"][region])
-    print("mesh_hgr.nc => ", model["path_mesh_mask"] + model["mesh_masks"][region])
-    print("mesh_zgr.nc => ", model["path_mesh_mask"] + model["mesh_masks"][region])
-    print("new_maskglo.nc => ", model["path_mesh_mask"] + model["mesh_masks"]['ALLBAS'])
+    print("mesh_hgr.nc => ",
+          model["path_mesh_mask"] + model["mesh_masks"][region])
+    print("mesh_zgr.nc => ",
+          model["path_mesh_mask"] + model["mesh_masks"][region])
+    print("new_maskglo.nc => ",
+          model["path_mesh_mask"] + model["mesh_masks"]['ALLBAS'])
     fixed_fields(cdftool,
-                 ('mask.nc', model["path_mesh_mask"] + model["mesh_masks"][region]),
-                 ('mesh_hgr.nc', model["path_mesh_mask"] + model["mesh_masks"][region]),
-                 ('mesh_zgr.nc', model["path_mesh_mask"] + model["mesh_masks"][region]),
+                 ('mask.nc', model["path_mesh_mask"] +
+                  model["mesh_masks"][region]),
+                 ('mesh_hgr.nc', model["path_mesh_mask"] +
+                  model["mesh_masks"][region]),
+                 ('mesh_zgr.nc', model["path_mesh_mask"] +
+                  model["mesh_masks"][region]),
                  ('new_maskglo.nc', model["path_mesh_mask"] + model["mesh_masks"]['ALLBAS']))
     return ()
 
 
-def vertical_profile(model, variable, region, obs=None, box=None):  # mpm_note: new in this function: add box option)
+# mpm_note: new in this function: add box option)
+def vertical_profile(model, variable, region, obs=None, box=None):
     """
     Given two dataset specifications,and an oceanic variable name,
     create a figure for profile for the variable in both sources
 
     dataset specifications are dictionnaries
-    
+
     specifics: 
      - space averaging uses cdftools for model variable,on grid T
      - obs data are supposed to be an annual cycle
@@ -240,12 +250,12 @@ def vertical_profile(model, variable, region, obs=None, box=None):  # mpm_note: 
     """
     #
     if obs:
-        print("=> Calling ***" + basename() + "*** for " + variable + " from " + model.get("model") \
-              + "/" + model.get("experiment") + "/" + model.get("simulation") \
+        print("=> Calling ***" + basename() + "*** for " + variable + " from " + model.get("model")
+              + "/" + model.get("experiment") + "/" + model.get("simulation")
               + " and obs " + obs.get("product") + " in " + region + " and box:")
     else:
-        print("=> Calling ***" + basename() + "*** for " + variable + " from " + model.get("model") \
-              + "/" + model.get("experiment") + "/" + model.get("simulation") \
+        print("=> Calling ***" + basename() + "*** for " + variable + " from " + model.get("model")
+              + "/" + model.get("experiment") + "/" + model.get("simulation")
               + " in " + region + " and box:")
     print(box)
     #
@@ -258,14 +268,16 @@ def vertical_profile(model, variable, region, obs=None, box=None):  # mpm_note: 
     modvar = ds(**wmodel)
     if obs:
         obsvar = ds(**obs)
-    # compute temporal means 
+    # compute temporal means
     tmean_modvar = ccdo(modvar, operator='timavg -yearmonmean')
     if obs:
         tmean_obsvar = ccdo(obsvar, operator='yearmonmean')
-        tmean_obsvar_interp = regrid(tmean_obsvar, tmean_modvar, option='remapdis')
+        tmean_obsvar_interp = regrid(
+            tmean_obsvar, tmean_modvar, option='remapdis')
     # definir les mesh-mask pour les cdftools
-    set_fixed_fields(['ccdfmean_profile', 'ccdfmean_profile_box'], region, model)
-    # compute the vertical profiles 
+    set_fixed_fields(
+        ['ccdfmean_profile', 'ccdfmean_profile_box'], region, model)
+    # compute the vertical profiles
     if not box:
         vertprof_modvar = ccdfmean_profile(tmean_modvar, pos_grid='T')
         if obs:
@@ -274,15 +286,18 @@ def vertical_profile(model, variable, region, obs=None, box=None):  # mpm_note: 
             # mpm_nok#vertprof_obsvar=ccdfmean_profile(tmean_obsvar_interp,pos_grid='T')
     else:
         domain = box['domain']
-        vertprof_modvar = ccdfmean_profile_box(tmean_modvar, pos_grid='T', **domain)
+        vertprof_modvar = ccdfmean_profile_box(
+            tmean_modvar, pos_grid='T', **domain)
         if obs:
             tmean_obsvar_box = llbox(tmean_obsvar, **domain)
-            vertprof_obsvar = ccdo(tmean_obsvar_box, operator='mermean -zonmean')
-    # plot 
+            vertprof_obsvar = ccdo(
+                tmean_obsvar_box, operator='mermean -zonmean')
+    # plot
     if obs:
         if not box:
             plot_profile = plot(vertprof_obsvar, vertprof_modvar,
-                                title=region + " " + variable + " .vs. " + obs['product'],
+                                title=region + " " + variable +
+                                " .vs. " + obs['product'],
                                 y="index", options="gsnLeftString= | tiXAxisString= ", aux_options="xyLineColor='red'",
                                 invXY=False,
                                 contours=1, color='BlueWhiteOrangeRed')
@@ -343,7 +358,7 @@ def moc_slice(model, region, variable="msftmyz", y='lin', do_cfile=True, safe_mo
         #
         # options="trXMinF=-30.|"
     #
-    # masquer les valeurs 
+    # masquer les valeurs
     wmoc_mask = mask(wmoc, miss=0.0)
     #
     # -- Get the period for display in the plot: we build a tmp_period string
@@ -421,7 +436,8 @@ def moc_profile_vs_obs(model, obs, region, latitude, variable="msftmyz", y='lin'
         else:
             moc_model = tmp
         # calculer les moyennes temporelles
-        moc_model_mean_basin = regridn(time_average(moc_model), cdogrid='r1x360')
+        moc_model_mean_basin = regridn(
+            time_average(moc_model), cdogrid='r1x360')
         moc_model_mean_basin_mask = mask(moc_model_mean_basin, miss=0.0)
         # moc_model_lat=slice(moc_model_mean_basin_mask,dim='y',min=229,max=229)
     else:
@@ -435,10 +451,12 @@ def moc_profile_vs_obs(model, obs, region, latitude, variable="msftmyz", y='lin'
         # faire la correpondance region<->numero de basin
         basin = region2basin(model['model'], region)
         # extraire le bassin Atlantique de la MOC modele
-        moc_model_mean_basin = slice(moc_model_mean, dim='x', min=basin, max=basin)
+        moc_model_mean_basin = slice(
+            moc_model_mean, dim='x', min=basin, max=basin)
         moc_model_mean_basin_mask = mask(moc_model_mean_basin, miss=0.0)
         # moc_model_lat=slice(moc_model_mean_basin_mask,dim='lat',min=latitude,max=latitude)
-    moc_model_lat = slice(moc_model_mean_basin_mask, dim='lat', min=latitude, max=latitude)
+    moc_model_lat = slice(moc_model_mean_basin_mask,
+                          dim='lat', min=latitude, max=latitude)
     # plot
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)
@@ -492,7 +510,8 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
     # print("=> Calling ***"+basename()+"***  for "+variable+" from "+model.get("model")+"/"+model.get("experiment") \
     #                                 +"/"+model.get("simulation")+" in "+region+" region.")
     # MOC obs
-    moc_obs = ds(project="ref_climatos", variable='moc')  # mpm_note: emilia ne fait rien des obs ?
+    # mpm_note: emilia ne fait rien des obs ?
+    moc_obs = ds(project="ref_climatos", variable='moc')
     #
     # definir les datasets
     #
@@ -523,7 +542,8 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
         # extraire le bassin Atlantique de la MOC modele
         moc_model_basin = slice(moc_model, dim='x', min=basin, max=basin)
     # extraire la latitude demandee
-    moc_model_basin_lat = slice(moc_model_basin, dim='lat', min=latitude, max=latitude)
+    moc_model_basin_lat = slice(
+        moc_model_basin, dim='lat', min=latitude, max=latitude)
     # calculer la moyenne annuelle
     moc_model_yr = ccdo(moc_model_basin_lat, operator='yearmean')
     # calculer le max de la MOC a cette latitude
@@ -539,10 +559,10 @@ def maxmoc_time_serie(model, region, latitude, variable="msftmyz", do_cfile=True
     title = build_plot_title(wmodel, None)
     #
     p = dict(options=curves_options + "|" +
-                     "tiMainFontHeightF=0.023|tiMainFont=helvetica-bold|" +
-                     "gsnStringFontHeightF=0.019|" +
-                     "gsnCenterString=MAX_MOC_at_Lat" + str(latitude) + " " + tmp_period + "|" +
-                     "gsnRightString= |gsnLeftString=Sv "
+             "tiMainFontHeightF=0.023|tiMainFont=helvetica-bold|" +
+             "gsnStringFontHeightF=0.019|" +
+             "gsnCenterString=MAX_MOC_at_Lat" + str(latitude) + " " + tmp_period + "|" +
+             "gsnRightString= |gsnLeftString=Sv "
              )
     plot_maxmoc = curves(maxmoc_model_yr, title=title, **p)
     #
@@ -555,7 +575,7 @@ def hovmoller_drift_profile(model, variable, region, y='lin', do_cfile=True, saf
     Model is a dict defining the model dataset (except variable)
     """
     #
-    print("=> Calling ***" + basename() + "*** for " + variable + " from " + model.get("model") + "/" + \
+    print("=> Calling ***" + basename() + "*** for " + variable + " from " + model.get("model") + "/" +
           model.get("experiment") + " in region " + region + ".")
     #
     # definir le dataset
@@ -620,12 +640,12 @@ def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True
     #
     if obs:
         print("=> Calling ***" + basename() + "***  for " + variable + " of " + model.get("model") + "/" + model.get(
-            "experiment") \
-              + " and obs " + obs.get("product") + " in region " + region + ".")
+            "experiment")
+            + " and obs " + obs.get("product") + " in region " + region + ".")
     else:
         print("=> Calling ***" + basename() + "***  for " + variable + " of " + model.get("model") + "/" + model.get(
-            "experiment") \
-              + " in region " + region + ".")
+            "experiment")
+            + " in region " + region + ".")
     #
     # Definir les datasets
     mod = model.copy()
@@ -682,7 +702,8 @@ def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True
         name_in_plot = model['simulation']
     # plot
     if obs:
-        index_to_plot = cens({obse['product']: index_obs, name_in_plot: index_model})
+        index_to_plot = cens(
+            {obse['product']: index_obs, name_in_plot: index_model})
         if prang:
             # plot_index_ts = curves(index_obs, index_model, min=prang["min"], max=prang["max"], X_axis=X_axis,
             plot_index_ts = curves(index_to_plot, min=prang["min"], max=prang["max"], X_axis=X_axis,
@@ -717,7 +738,7 @@ def index_timeserie(model, variable, region, obs=None, prang=None, do_cfile=True
 #      - -> soit on propose les obs regrillees => comment est-ce qu'on identifie depuis CliMAF? Un projet a part, ou
 #           une modif de ref_climatos?
 #           necessite d'identifier automatiquement la grille => faisable
-#      - -> 
+#      - ->
 # -> Salinite et temperature, pour ORCA2, ORCA1, eORCA1, eORCA025 (masks = ceux utilises pour le model)
 #
 # -> pour le model regrille sur les obs, on fait:
@@ -771,28 +792,29 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
                     rgrd_clim_model = lonlatvert_interpolation(regrid(clim_model, clim_ref, option='remapdis'),
                                                                clim_ref, horizontal_regridding=False)
                 except:
-                    print('--> Error in lonlatvert_interpolation( regrid(clim_model, clim_ref, option="remapdis"),' \
+                    print('--> Error in lonlatvert_interpolation( regrid(clim_model, clim_ref, option="remapdis"),'
                           ' clim_ref, horizontal_regridding=False )')
                     print('--> Set safe_mode=False to see the error')
                     rgrd_clim_model = clim_model
             else:
                 rgrd_clim_model = lonlatvert_interpolation(regrid(clim_model, clim_ref, option='remapdis'), clim_ref,
                                                            horizontal_regridding=False)
-                #print('----')
-                #print('----')
-                #print('----')
+                # print('----')
+                # print('----')
+                # print('----')
                 #print('rgrd_clim_model = ', cfile(rgrd_clim_model))
                 #print('clim_model = ', cfile(clim_model))
                 #print('clim_ref = ', cfile(clim_ref))
-                #print('----')
-                #print('----')
-                #print('----')
+                # print('----')
+                # print('----')
+                # print('----')
             #
             # -- Get the reference mask
             if 'path_mesh_mask' in ref:
                 mask_file = ref['path_mesh_mask'] + ref['mesh_masks'][basin]
             else:
-                mask_file = os.path.dirname(ref_dat.baseFiles().split(' ')[0]) + '/' + basin.lower() + '_mask.nc'
+                mask_file = os.path.dirname(ref_dat.baseFiles().split(
+                    ' ')[0]) + '/' + basin.lower() + '_mask.nc'
             print('----')
             print('----')
             print('----')
@@ -806,7 +828,8 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             for val in tmp_ref['depth'].values:
                 str_depth_vals += ',' + str(int(val))
 
-            mask_dat = ccdo( fds(mask_file, variable='mask', period='fx'), operator='sellevel'+str_depth_vals)
+            mask_dat = ccdo(fds(mask_file, variable='mask',
+                            period='fx'), operator='sellevel'+str_depth_vals)
             basin_mask = mask(mask_dat, miss=0.0)
             #
             # -- Apply the mask to the model and the ref
@@ -814,8 +837,10 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             masked_ref = multiply(clim_ref, basin_mask)
             #
             if 'product' not in ref:
-                masked_model = regridn(masked_model, cdogrid='r360x180', option='remapdis')
-                masked_ref = regridn(masked_ref, cdogrid='r360x180', option='remapdis')
+                masked_model = regridn(
+                    masked_model, cdogrid='r360x180', option='remapdis')
+                masked_ref = regridn(
+                    masked_ref, cdogrid='r360x180', option='remapdis')
             # -- Compute the zonal means
             ZM_MODEL = zonmean(masked_model)
             ZM_REF = zonmean(masked_ref)
@@ -841,20 +866,24 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
                 ZM_bias = diff_zonmean(ZM_MODEL, ZM_REF)
             # -- Compute the zonal mean for the basin using the obs masks
         else:
-            print('No reference (obs) provided in zonal_mean_slice for method regrid_model_on_obs')
+            print(
+                'No reference (obs) provided in zonal_mean_slice for method regrid_model_on_obs')
             # -- Get the reference mask
             if 'path_mesh_mask' in model:
-                mask_file = model['path_mesh_mask'] + model['mesh_masks'][basin]
+                mask_file = model['path_mesh_mask'] + \
+                    model['mesh_masks'][basin]
             else:
-                mask_file = os.path.dirname(model_dat.baseFiles().split(' ')[0]) + '/' + basin.lower() + '_mask.nc'
+                mask_file = os.path.dirname(model_dat.baseFiles().split(' ')[
+                                            0]) + '/' + basin.lower() + '_mask.nc'
             print('mask_file = ', mask_file)
 
-            # -- Select vertical levels 
+            # -- Select vertical levels
             tmp_model = xr.open_dataset(cfile(clim_model), decode_times=False)
             str_depth_vals = ''
             for val in tmp_model['depth'].values:
                 str_depth_vals += ',' + str(int(val))
-            mask_dat = ccdo( fds(mask_file, variable='mask', period='fx'), operator='sellevel'+str_depth_vals)
+            mask_dat = ccdo(fds(mask_file, variable='mask',
+                            period='fx'), operator='sellevel'+str_depth_vals)
             #mask_dat = fds(mask_file, variable='mask', period='fx')
             basin_mask = mask(mask_dat, miss=0.0)
             #
@@ -862,7 +891,8 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             masked_model = multiply(clim_model, basin_mask)
             #
             if 'product' not in model:
-                masked_model = regridn(masked_model, cdogrid='r360x180', option='remapdis')
+                masked_model = regridn(
+                    masked_model, cdogrid='r360x180', option='remapdis')
             # -- Compute the zonal means
             ZM_MODEL = zonmean(masked_model)
     #
@@ -892,7 +922,8 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
         wmodel.update(dict(variable=variable))
         wmodel = get_period_manager(wmodel, diag='clim')
         model_dat = ds(**wmodel)
-        model_clim = ccdo(clim_average(model_dat, season), operator='setctomiss,0')
+        model_clim = ccdo(clim_average(model_dat, season),
+                          operator='setctomiss,0')
         if fileHasVar(cfile(model_clim), 'lev'):
             model_clim_ok = rename_depth(model_clim)
         else:
@@ -909,7 +940,8 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
         # else:
         set_fixed_fields('ccdfzonalmean_bas', basin, model)
         # calculer la moyenne zonale pour le bassin choisi
-        model_clim_zonmean_basin = ccdfzonalmean_bas(model_clim_ok, point_type='T', basin=str(basin).lower())
+        model_clim_zonmean_basin = ccdfzonalmean_bas(
+            model_clim_ok, point_type='T', basin=str(basin).lower())
         # -- Ajouter les latitudes ici??
         # else:
         ZM_MODEL = model_clim_zonmean_basin
@@ -966,9 +998,12 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
                 # -> Sinon, on regrille 'obs' sur le modele, et on utilise les masks de bassins
                 # -> du model pour calculer les moyennes zonales
                 # ref_clim_interp = regrid(ref_clim_ok, model_clim_ok, option='remapdis')
-                ref_clim_interp = ccdo(ref_clim_ok, operator='remapdis,' + cfile(model_clim_ok))
-            test = lonlatvert_interpolation(ref_clim_interp, model_clim_ok, horizontal_regridding=False)
-            ref_clim_zonmean_basin = ccdfzonalmean_bas(test, point_type='T', basin=str(basin).lower())
+                ref_clim_interp = ccdo(
+                    ref_clim_ok, operator='remapdis,' + cfile(model_clim_ok))
+            test = lonlatvert_interpolation(
+                ref_clim_interp, model_clim_ok, horizontal_regridding=False)
+            ref_clim_zonmean_basin = ccdfzonalmean_bas(
+                test, point_type='T', basin=str(basin).lower())
             # calculer la moyenne zonale pour le bassin choisi
             ZM_OBS = zonmean_interpolation(ref_clim_zonmean_basin, model_clim_zonmean_basin,
                                            horizontal_regridding=False)
@@ -988,11 +1023,13 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
     # -- Title of the plot -> If 'customname' is in the dictionary of dat, it will be used
     # -- as the title. If not, it checks whether dat is a reference or a model simulation
     # -- and builds the title
-    title = build_plot_title(wmodel, None)  # add_product_in_title='') #add_product_in_title)
+    # add_product_in_title='') #add_product_in_title)
+    title = build_plot_title(wmodel, None)
     #
     # -- Get the default plot parameters with the function 'plot_params'
     # -- We also update with a custom dictionary of params (custom_plot_params) if the user sets one
-    p = plot_params(variable + '_zonmean', context, custom_plot_params=custom_plot_params)
+    p = plot_params(variable + '_zonmean', context,
+                    custom_plot_params=custom_plot_params)
     p.update(dict(y=y,
                   contours=1,
                   tiMainFontHeightF=0.023, tiMainFont="helvetica-bold",

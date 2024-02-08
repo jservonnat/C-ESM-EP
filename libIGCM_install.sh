@@ -141,6 +141,7 @@ if [ $CesmepReferences != NONE ]; then
 		    OUT         = "$RefOut",
 		    ts_period   = 'full',
 		    clim_period = "$RefPeriod"
+		    custom_name = "$RefExperiment/$RefPeriod"
 		    ),
 		EOJ
 	done
