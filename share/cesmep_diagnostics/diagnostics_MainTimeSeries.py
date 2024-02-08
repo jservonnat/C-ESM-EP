@@ -14,7 +14,7 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 # --      diagnostics_${component}.py                                                                     - |
 # --        ==> add html code to 'index' (initialized with 'header')                                      - |
 # --            using the CliMAF html toolbox (start_line, cell, close_table... )                         - |
-# --            to create your own atlas page                                                             - | 
+# --            to create your own atlas page                                                             - |
 # --                                                                                                      - |
 # --      Developed within the ANR Convergence Project                                                    - |
 # --      CNRM GAME, IPSL, CERFACS                                                                        - |
@@ -148,11 +148,13 @@ if do_main_time_series:
         if 'project_specs' in time_series:
             for dataset_dict in WWmodels_clim:
                 if dataset_dict['project'] in time_series['project_specs']:
-                    dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
-              
+                    dataset_dict.update(
+                        time_series['project_specs'][dataset_dict['project']])
+
             for dataset_dict in WWmodels_ts:
                 if dataset_dict['project'] in time_series['project_specs']:
-                    dataset_dict.update(time_series['project_specs'][dataset_dict['project']])
+                    dataset_dict.update(
+                        time_series['project_specs'][dataset_dict['project']])
             time_series.pop('project_specs')
         if 'table' in time_series:
             for dataset_dict in WWmodels_clim:
@@ -174,7 +176,8 @@ if do_main_time_series:
                     print('dataset_dict in time_series = ', dataset_dict)
                     # -- Apply period manager if needed
                     dataset_dict.update(dict(variable=time_series['variable']))
-                    dataset_dict = get_period_manager(dataset_dict, diag='clim')
+                    dataset_dict = get_period_manager(
+                        dataset_dict, diag='clim')
                     highlight_period.append(build_period_str(dataset_dict))
 
         for dataset_dict in WWmodels_ts:
@@ -199,12 +202,14 @@ if do_main_time_series:
                 if time_series['variable'] in ocean_variables:
                     dat = regridn(dat, cdogrid='r360x180')
                 #
-                dat = llbox(dat, lonmin=lonmin, lonmax=lonmax, latmin=latmin, latmax=latmax)
+                dat = llbox(dat, lonmin=lonmin, lonmax=lonmax,
+                            latmin=latmin, latmax=latmax)
             #
             #
             # -- Apply the operation
             if 'operation_kwargs' in time_series:
-                ts_dat = time_series['operation'](dat, **time_series['operation_kwargs'])
+                ts_dat = time_series['operation'](
+                    dat, **time_series['operation_kwargs'])
             else:
                 ts_dat = time_series['operation'](dat)
             #
@@ -255,7 +260,8 @@ if do_main_time_series:
             fig_size = time_series['fig_size']
         else:
             fig_size = '15*5'
-        thumbnail_main_ts = str(int(str.split(fig_size, '*')[0])*75)+'*'+str(int(str.split(fig_size, '*')[1])*75)
+        thumbnail_main_ts = str(
+            int(str.split(fig_size, '*')[0])*75)+'*'+str(int(str.split(fig_size, '*')[1])*75)
         index += cell("", safe_mode_cfile_plot(myplot, safe_mode=safe_mode),
                       thumbnail=thumbnail_main_ts, hover=hover, **alternative_dir)
         #
@@ -286,5 +292,3 @@ if do_main_time_series:
 # --                                                                                                   - /
 # --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
-
-
