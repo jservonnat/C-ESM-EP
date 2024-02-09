@@ -105,14 +105,12 @@ if do_main_time_series:
     # -----------------------------------------------------------------------------------------
     thumbN_size = thumbnail_size
     #
-    # -- Add the reference if you compare against a simulation
-    if reference != 'default':
-        if type(reference) is list:
-            wmodels = reference + models
-        else:
-            wmodels = [reference] + models
+    # -- Add the references which are simulations
+    if type(reference) is list:
+        refs = reference
     else:
-        wmodels = models
+        refs = [reference]
+    wmodels = [ref for ref in refs if ref != 'default'] + models
     #
     # -- Period Manager
     if not use_available_period_set:
