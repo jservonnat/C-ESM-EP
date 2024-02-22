@@ -30,7 +30,7 @@ from custom_plot_params import dict_plot_params as custom_plot_params
 
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'debug'
+verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -42,6 +42,8 @@ do_parallel = False
 # nprocs = 32
 # memory = 30 # in gb; 30 for ocean atlasas
 # queue = 'zen4' # onCiclad: h12, days3
+# time = 480 # minutes
+# QOS = 'test'
 
 
 # -- Set the reference against which we plot the diagnostics
@@ -99,10 +101,16 @@ calias("IGCM_OUT", 'tas', 'tair', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rsds', 'swdown', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rlds', 'lwdown', filenameVar='sechiba_history')
 
-calias('IGCM_OUT', 'hfls', 'fluxlat')
-calias('IGCM_OUT', 'hfss', 'fluxsens')
-calias('IGCM_OUT', 'et', 'evspsblveg')
-calias('IGCM_OUT', 'snw', 'frac_snow')
+calias('IGCM_OUT', 'hfls', 'fluxlat', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'hfss', 'fluxsens', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'et', 'evspsblveg', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'snw', 'frac_snow', filenameVar='sechiba_history')
+
+calias('IGCM_OUT', 'cLitter', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'cSoil', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'cVeg', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'npp', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'gpp', filenameVar='stomate_ipcc_history')
 
 calias('ref_climatos', 'hfls', 'fluxlat')
 calias('ref_climatos', 'hfss', 'fluxsens')

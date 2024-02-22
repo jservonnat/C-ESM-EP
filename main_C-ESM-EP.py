@@ -143,9 +143,17 @@ user_login = (os.getcwd().split('/')[4] if username == 'fabric' else username)
 # -> root_url_to_cesmep_outputs = URL of the root directory of the C-ESM-EP atlas (need to add 'C-ESM-EP',
 # comparison and component to reach the atlas)
 
-# -- Location of the directory where we will store the results of the atlas
-atlas_dir = path_to_cesmep_output_rootdir + '/C-ESM-EP/' + \
-    comparison + '_' + user_login + '/' + component
+# -- C-ESM-EP tree from the C-ESM-EP output rootdir
+try:
+    from libIGCM_fixed_settings import TagName, SpaceName, ExpType, ExperimentName, OUT
+except:
+    suffix_to_comparison = 'C-ESM-EP/' + comparison + '_' + user_login + '/'
+else:
+    suffix_to_comparison = f'C-ESM-EP/{TagName}/{SpaceName}/{ExpType}/{ExperimentName}/{OUT}/{comparison}/'
+
+    # -- Location of the directory where we will store the results of the atlas
+atlas_dir = path_to_cesmep_output_rootdir + \
+    '/' + suffix_to_comparison + component
 
 # -- Url of the atlas (without the html file)
 atlas_url = atlas_dir.replace(
@@ -166,12 +174,6 @@ if atCNRM or atTGCC or onSpirit or atIDRIS:
 alternative_dir = {'dirname': atlas_dir}
 
 
-# -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug',
-# -- intermediate -> 'warning')
-# -----------------------------------------------------------------------------------
-clog(verbose)
-
-
 # -- Print the models
 # -----------------------------------------------------------------------------------
 print('==> ----------------------------------- #')
@@ -188,15 +190,20 @@ print('==> ----------------------------------- #')
 print('==> Against reference:')
 print('==> ----------------------------------- #')
 print('  ')
-if reference == 'default':
-    print('  reference = default')
-    print('  --> you are using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
-    print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
+if type(reference) is not list:
+    refs = [reference]
 else:
-    for key in reference:
-        print('  '+key+' = ', reference[key])
-    print('  --')
-    print('  --')
+    refs = reference
+for ref in refs:
+    print()
+    if ref == 'default':
+        print('  --> Using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')
+        print('  --> you can setup you own references in custom_obs_dict.py for each variable independently')
+    else:
+        for key in ref:
+            print('  '+key+' = ', ref[key])
+print('  --')
+print('  --')
 
 
 # -----------------------------------------------------------------------------------
@@ -240,6 +247,11 @@ if os.path.isfile(param_file):
 if not index_name:
     index_name = 'atlas_'+component+'_'+comparison+'.html'
 
+
+# -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug',
+# -- intermediate -> 'warning')
+# -----------------------------------------------------------------------------------
+clog(verbose)
 
 # -- Automatically zoom on the plot when the mouse is on it
 # ---------------------------------------------------------------------------- >
@@ -344,7 +356,7 @@ if atTGCC or atIDRIS:
     # -- Copie des résultats de scratch à work
     if atTGCC:
         path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-            'scratch', 'workflash')
+            'scratch', 'work')
     elif atIDRIS:
         path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
             'scratch', 'work')
@@ -360,14 +372,14 @@ if atTGCC or atIDRIS:
     # -- thredds_cp des résultats de work à thredds (après un nettoyage de la cible)
     if atTGCC:
         path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
-            '/C-ESM-EP/' + comparison + '_' + user_login
+            '/' + suffix_to_comparison
         cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
         print(cmd12)
         os.system(cmd12)
         cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
             ' '+path_to_comparison_on_web_server+'/'
     elif atIDRIS:
-        path_to_comparison_on_web_server = 'C-ESM-EP/' + comparison + '_' + user_login
+        path_to_comparison_on_web_server = suffix_to_comparison
         cmd12 = 'thredds_rm ' + path_to_comparison_on_web_server+'/'+component
         print(cmd12)
         os.system(cmd12)

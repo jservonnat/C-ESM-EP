@@ -42,9 +42,11 @@ do_parallel = False
 # nprocs = 32
 # memory = 30 # in gb; 30 for ocean atlasas
 # queue = 'days3' # onCiclad: h12, days3
+# time = 480 # minutes
+# QOS = 'test'
 
 
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -77,13 +79,16 @@ domain = {}
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-variables_energy_budget = ['fluxlat', 'fluxsens', 'albvis', 'albnir', 'tair', 'swdown', 'lwdown']
+variables_energy_budget = ['fluxlat', 'fluxsens',
+                           'albvis', 'albnir', 'tair', 'swdown', 'lwdown']
 # -> climato + bias map + difference with the first simulation
-do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps = True  # -> [ORCHIDEE Atlas
+# -> [ORCHIDEE Atlas
+do_ORCHIDEE_Energy_Budget_climobs_bias_modelmodeldiff_maps = True
 # -> climato + bias maps
 do_ORCHIDEE_Energy_Budget_climobs_bias_maps = True  # -> [ORCHIDEE Atlas
 # -> climato ref simu (first) + differences with the first simulation
-do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True  # -> [ORCHIDEE Atlas
+# -> [ORCHIDEE Atlas
+do_ORCHIDEE_Energy_Budget_climrefmodel_modelmodeldiff_maps = True
 # ---------------------------------------------------------------------------- >
 
 period_manager_test_variable = 'fluxlat'
@@ -94,13 +99,16 @@ period_manager_test_variable = 'fluxlat'
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-variables_water_budget = ['transpir_PFT_2', 'inter_PFT_2_3_10', 'evapnu', 'subli', 'evap', 'runoff', 'drainage', 'snow']
+variables_water_budget = ['transpir_PFT_2', 'inter_PFT_2_3_10',
+                          'evapnu', 'subli', 'evap', 'runoff', 'drainage', 'snow']
 # -> climato + bias map + difference with the first simulation
-do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps = True  # -> [ORCHIDEE Atlas
+# -> [ORCHIDEE Atlas
+do_ORCHIDEE_Water_Budget_climobs_bias_modelmodeldiff_maps = True
 # -> climato + bias maps
 do_ORCHIDEE_Water_Budget_climobs_bias_maps = True  # -> [ORCHIDEE Atlas
 # -> climato ref simu (first) + differences with the first simulation
-do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps = True  # -> [ORCHIDEE Atlas
+# -> [ORCHIDEE Atlas
+do_ORCHIDEE_Water_Budget_climrefmodel_modelmodeldiff_maps = True
 # ---------------------------------------------------------------------------- >
 
 
@@ -114,11 +122,13 @@ variables_carbon_budget = ['gpptot', 'lai', 'GPP_treeFracPrimDec', 'GPP_treeFrac
                            'GPP_c4PftFrac', 'total_soil_carb_PFT_tot',
                            'maint_resp_PFT_2', 'growth_resp_PFT_2', 'hetero_resp_PFT_2', 'auto_resp_PFT_2']
 # -> climato + bias map + difference with the first simulation
-do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = True  # -> [ORCHIDEE Atlas
+# -> [ORCHIDEE Atlas
+do_ORCHIDEE_Carbon_Budget_climobs_bias_modelmodeldiff_maps = True
 # -> climato + bias maps
 do_ORCHIDEE_Carbon_Budget_climobs_bias_maps = True  # -> [ORCHIDEE Atlas
 # -> climato ref simu (first) + differences with the first simulation
-do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = True  # -> [ORCHIDEE Atlas
+# -> [ORCHIDEE Atlas
+do_ORCHIDEE_Carbon_Budget_climrefmodel_modelmodeldiff_maps = True
 # ---------------------------------------------------------------------------- >
 
 
@@ -145,25 +155,32 @@ calias("IGCM_OUT", 'maxvegetfrac', filenameVar='sechiba_history')
 
 # GPP * maxvegetfrac * Contfrac
 derive("IGCM_OUT", 'GPPmaxvegetfrac', 'multiply', 'GPP', 'maxvegetfrac')
-derive("IGCM_OUT", 'GPPmaxvegetfracContfrac', 'multiply', 'GPPmaxvegetfrac', 'Contfrac')
+derive("IGCM_OUT", 'GPPmaxvegetfracContfrac',
+       'multiply', 'GPPmaxvegetfrac', 'Contfrac')
 
 # GPP treeFracPrimDec
 derive('IGCM_OUT', 'GPP3689', 'select_veget_types', 'GPPmaxvegetfracContfrac',
        selection='-d veget,2 -d veget,5 -d veget,7 -d veget,8')
-derive("IGCM_OUT", 'GPP_treeFracPrimDec', 'ccdo', 'GPP3689', operator='vertsum -selname,GPP3689')
+derive("IGCM_OUT", 'GPP_treeFracPrimDec', 'ccdo',
+       'GPP3689', operator='vertsum -selname,GPP3689')
 
 # GPP treeFracPrimEver
 derive('IGCM_OUT', 'GPP2457', 'select_veget_types', 'GPPmaxvegetfracContfrac',
        selection='-d veget,1 -d veget,3 -d veget,4 -d veget,6')
-derive("IGCM_OUT", 'GPP_treeFracPrimEver', 'ccdo', 'GPP2457', operator='vertsum -selname,GPP2457')
+derive("IGCM_OUT", 'GPP_treeFracPrimEver', 'ccdo',
+       'GPP2457', operator='vertsum -selname,GPP2457')
 
 # GPP c3PftFrac
-derive('IGCM_OUT', 'GPP1012', 'select_veget_types', 'GPPmaxvegetfracContfrac', selection='-d veget,9 -d veget,11')
-derive("IGCM_OUT", 'GPP_c3PftFrac', 'ccdo', 'GPP1012', operator='vertsum -selname,GPP1012')
+derive('IGCM_OUT', 'GPP1012', 'select_veget_types',
+       'GPPmaxvegetfracContfrac', selection='-d veget,9 -d veget,11')
+derive("IGCM_OUT", 'GPP_c3PftFrac', 'ccdo',
+       'GPP1012', operator='vertsum -selname,GPP1012')
 
 # GPP c4PftFrac" (PFTs 11, 13)
-derive('IGCM_OUT', 'GPP1113', 'select_veget_types', 'GPPmaxvegetfracContfrac', selection='-d veget,10 -d veget,12')
-derive("IGCM_OUT", 'GPP_c4PftFrac', 'ccdo', 'GPP1113', operator='vertsum -selname,GPP1113')
+derive('IGCM_OUT', 'GPP1113', 'select_veget_types',
+       'GPPmaxvegetfracContfrac', selection='-d veget,10 -d veget,12')
+derive("IGCM_OUT", 'GPP_c4PftFrac', 'ccdo',
+       'GPP1113', operator='vertsum -selname,GPP1113')
 
 thumbnail_size = '300*175'
 # ---------------------------------------------------------------------------- >

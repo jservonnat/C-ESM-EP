@@ -52,7 +52,7 @@
 # -- Python 2 <-> 3 compatibility ---------------------------------------------------------
 from __future__ import unicode_literals, print_function, absolute_import, division
 import subprocess
-from subprocess import getoutput, getstatusoutput
+from subprocess import getoutput, getstatusoutput, check_output
 
 # -- Import python modules ----------------------------------------------------------------
 import os
@@ -215,8 +215,9 @@ for component in allcomponents:
             available_components.append(component)
         else:
             if do_print:
-                print("Skipping component", component,
-                      "which dir is not readable")
+                pass
+                # print("Skipping component", component,
+                #      "which dir is not readable")
 
 # -> Then, we check whether there are some components not listed in allcomponents;
 # if yes, they will be added at the end of the list
@@ -319,7 +320,12 @@ if not path_to_cesmep_output_rootdir_on_web_server:
     path_to_cesmep_output_rootdir_on_web_server = path_to_cesmep_output_rootdir
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
-suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
+try:
+    from libIGCM_fixed_settings import TagName, SpaceName, ExpType, ExperimentName, OUT
+except:
+    suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
+else:
+    suffix_to_comparison = f'/C-ESM-EP/{TagName}/{SpaceName}/{ExpType}/{ExperimentName}/{OUT}/{comparison}/'
 
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
 #  -> path_to_comparison_outdir = path to the comparison directory
@@ -339,14 +345,13 @@ frontpage_address = comparison_url + frontpage_html
 # -- outdir_workdir = path to the work equivalent of the scratch
 if atTGCC:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
-        'scratch', 'workflash')
+        'scratch', 'work')
 if atIDRIS:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
         'scratch', 'work')
 if atTGCC or atIDRIS:
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
-
 # -- Create the output directory for the comparison if they do not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
     os.makedirs(path_to_comparison_on_web_server)
@@ -378,8 +383,8 @@ if argument.lower() not in ['url', 'clean']:
                     os.makedirs(os.path.dirname(atlas_pathfilename))
                 # -- Copy an html template to say that the atlas is not yet available
                 # 1. copy the template to the target html page
-                os.system(
-                    'cp -f share/fp_template/Running_template.html ' + atlas_pathfilename)
+                check_output(
+                    'cp -f share/fp_template/Running_template.html ' + atlas_pathfilename, shell=True)
                 # 2. Edit target_component and target_comparison
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
@@ -390,7 +395,7 @@ if argument.lower() not in ['url', 'clean']:
                         atlas_pathfilename.split("/")[-1]
                     cmd = rmcmd + '; mfthredds -d ' + destdir + ' ' + atlas_pathfilename
                     #print("cmd=", cmd)
-                    os.system(cmd)
+                    check_output(cmd, shell=True)
 
         if atTGCC:
             if component in job_components:
@@ -400,14 +405,14 @@ if argument.lower() not in ['url', 'clean']:
                     os.makedirs(os.path.dirname(atlas_pathfilename))
                 # -- Copy an html template to say that the atlas is not yet available
                 # 1. copy the template to the target html page
-                os.system(
-                    'cp share/fp_template/Running_template.html ' + atlas_pathfilename)
+                check_output(
+                    'cp share/fp_template/Running_template.html ' + atlas_pathfilename, shell=True)
                 # 2. Edit target_component and target_comparison
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 # 3. thredds_cp
-                os.system('thredds_cp ' + atlas_pathfilename +
-                          ' ' + path_to_comparison_on_web_server + component)
+                check_output('thredds_cp ' + atlas_pathfilename +
+                             ' ' + path_to_comparison_on_web_server + component, shell=True)
 
     # Create an empty file for accumulating launched jobs ids
     launched_jobs = comparison_dir + "/launched_jobs"
@@ -430,6 +435,8 @@ for component in job_components:
     nprocs = '32'
     memory = None
     queue = None
+    QOS = None
+    time = None
     param_lines = []
     if os.path.isfile(submitdir + '/params_' + component + '.py'):
         param_filename = open(submitdir + '/params_' + component + '.py')
@@ -457,8 +464,17 @@ for component in job_components:
             memory = param_line.replace(' ', '').split('=')[1].split('#')[0]
         if 'queue' in param_line and param_line[0] != '#':
             queue = param_line.replace(' ', '').split('=')[1].split('#')[0]
+            queue = eval(queue)
+        if 'QOS' in param_line and param_line[0] != '#':
+            QOS = param_line.replace(' ', '').split('=')[1].split('#')[0]
+            QOS = eval(QOS)
+        if re.match('time *=', param_line) and param_line[0] != '#':
+            time = param_line.replace(' ', '').split('=')[1].split('#')[0]
+            time = int(time)
 
     #
+    if time is None:
+        time = 480  # minutes
     # -- Needed to copy the html error page if necessary
     if component not in metrics_components:
         atlas_url = comparison_url + component + '/atlas_' + \
@@ -487,12 +503,16 @@ for component in job_components:
         if account is None:
             # Deduce account from CCCHOME
             account = os.getenv("CCCHOME").split("/")[4]
+        if not queue:
+            queue = 'skylake'
+        if QOS is None:
+            QOS = 'normal'
         if component in metrics_components:
             continue  # metrics_components are not tested at TGCC
-        if component != 'NEMO_zonmean':
-            partition = '-q skylake'
+        if do_parallel:
+            nprocs = str(nprocs).replace('\n', '')
         else:
-            partition = '-q xlarge'
+            nprocs = '1'
         cmd = 'cd ' + submitdir + ' ; export ' +\
             ' comparison=' + comparison +\
             ' component=' + component +\
@@ -501,10 +521,10 @@ for component in job_components:
             ' PYTHONPATH=' + os.getenv("PYTHONPATH", "") +\
             ' ; ccc_msub' + add_email +\
             ' -r ' + jobname + ' -o ' + jobname + '_%I.out' + ' -e ' + jobname + '_%I.out' +\
-            ' -n 1 -T 36000 ' + partition + ' -Q normal -A ' + account +\
-            ' -m store,work,scratch ' +\
-            '../../job_C-ESM-EP.sh'
-        # -- Submit job
+            ' -n ' + nprocs + f' -Q {QOS} -A ' + account +\
+            ' -m store,work,scratch ' + ' -q ' + queue + ' -T ' + f'{time*60}' +\
+            ' ../../' + job_script
+        # -- Submit job and record jobid in a file
         if do_print:
             exitcode, output = getstatusoutput(cmd)
             if exitcode == 0:
@@ -514,7 +534,6 @@ for component in job_components:
             else:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
-
     #
     # -- Case onSpirit and atIDRIS : use SBATCH
     if onSpirit or atIDRIS:
@@ -567,21 +586,21 @@ for component in job_components:
             job_options += parallel_instructions
             if do_print:
                 print('    -> Parallel execution: nprocs = ' + nprocs)
+        else:
+            parallel_instructions = ' --ntasks=1'
         #
 
         # -- Build the job command line
-        job_options += ' --time=480'
+        job_options += f' --time={time}'
         env_variables = ' --export=ALL' + \
             ',component=' + component + \
             ',comparison=' + comparison + \
             ',WD=${PWD},cesmep_frontpage=' + frontpage_address + \
             ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache
-        if atIDRIS:
-            env_variables += ',singularity_container=' + \
-                os.getenv('singularity_container', '')
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'sbatch --job-name=' + jobname + ' ' + job_options + \
-            account_options + env_variables + ' ../../' + job_script
+            account_options + env_variables + parallel_instructions + \
+            ' ../../' + job_script
 
         # -- Submit job
         if do_print:
@@ -590,15 +609,18 @@ for component in job_components:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
             else:
-                # JobId is last string of last line od output
+                # JobId is last string of last line of output
                 jobid = output.split("\n")[-1].split(' ')[-1]
                 with open(launched_jobs, "a") as lj:
                     lj.write(jobid+"\n")
-                error_job = f'cd {submitdir} ; sbatch --dependency=afternotok:{jobid} ' + \
-                    env_variables + f',atlas_pathfilename={atlas_pathfilename}  ' + \
+                error_job = f'cd {submitdir} ; sbatch --dependency=afternotok:{jobid} '
+                if atIDRIS:
+                    error_job += "--kill-on-invalid-dep=yes "
+                error_job += env_variables + \
+                    f',atlas_pathfilename={atlas_pathfilename}  ' + \
                     f'--job-name=err_on_{jobname}' + account_options +\
                     ' ../../share/fp_template/copy_html_error_page.sh'
-                os.system(error_job)
+                check_output(error_job, shell=True)
 
     #
     if atCNRM:
@@ -631,7 +653,7 @@ for component in job_components:
                     f'sqsub -b \"--partition=P8HOST -d afternotok:{jobid}\" ' + \
                     f'-e \"atlas_pathfilename={atlas_pathfilename},' + variables + '\"' + \
                     ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n'
-                os.system(error_job)
+                check_output(error_job, shell=True)
 
     if atCerfacs:
         #
@@ -645,7 +667,7 @@ for component in job_components:
                 ' ; sbatch --job-name=CESMEP --partition=prod --nodes=1 --ntasks-per-node=1 ' + \
                 ' --output=cesmep.o --error=cesmep.e -w gsa4 ../../' + job_script
             print(cmd)
-            os.system(cmd)
+            check_output(cmd, shell=True)
 
     #
     # -- Provide a copy of job submission command
@@ -678,11 +700,11 @@ if argument.lower() not in ['url', 'clean']:
         cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
         if do_print:
             print("First copying html front page to workdir: ", cmd1)
-        os.system(cmd1)
+        check_output(cmd1, shell=True)
         html_file = path_to_comparison_outdir_workdir_tgcc + frontpage_html
         if atTGCC:
             cmd = 'thredds_cp ' + html_file + ' ' + path_to_comparison_on_web_server +\
-                '; chmod +r ' + path_to_comparison_on_web_server + '/' + frontpage_html
+                '; chmod +r ' + path_to_comparison_on_web_server + frontpage_html
         if atIDRIS:
             rmcmd = "mfthredds -r " + path_to_comparison_on_web_server + \
                 '/' + html_file.split("/")[-1]
@@ -692,9 +714,7 @@ if argument.lower() not in ['url', 'clean']:
     if onSpirit or atCNRM or atCerfacs:
         cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
     #
-    # print(os.getcwd())
-    # print(cmd)
-    os.system(cmd)
+    check_output(cmd, shell=True)
 
     # -- Copy the top image
     if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
@@ -704,6 +724,7 @@ if argument.lower() not in ['url', 'clean']:
             if atTGCC:
                 cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + \
                     'CESMEP_bandeau.png ' + path_to_comparison_on_web_server
+                cmd += "; chmod +r " + path_to_comparison_on_web_server + "/CESMEP_bandeau.png"
             if atIDRIS:
                 rmcmd = 'mfthredds -r  ' + path_to_comparison_on_web_server + '/' + \
                     'CESMEP_bandeau.png '
@@ -712,7 +733,7 @@ if argument.lower() not in ['url', 'clean']:
         if onSpirit or atCNRM or atCerfacs:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + \
                 path_to_comparison_on_web_server
-    os.system(cmd)
+        check_output(cmd, shell=True)
 
     # -- Launch a job that sends a mail when all atlas jobs are completed
     if one_mail_per_component is False and email is not None:
@@ -746,7 +767,7 @@ if argument.lower() not in ['url', 'clean']:
                 cmd += f" --mail-type=END --mail-user={email} -o {out} -e {out} mailjob;"
                 cmd += f" rm -f mailjob {launched_jobs}"
             #print('mail cmd=', cmd)
-            os.system(cmd)
+            check_output(cmd, shell=True)
 
 
 # -- Final: Print the final message with the address of the C-ESM-EP front page
