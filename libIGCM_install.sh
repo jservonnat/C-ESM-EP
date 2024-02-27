@@ -114,7 +114,7 @@ if [ $CesmepReferences != NONE ]; then
 	EOH
     for reference in ${CesmepReferences//,/ }; do	
 	if [ $reference = default ] ; then
-	    echo "    'default'" >>  $comparison/libIGCM_references.py
+	    echo "  'default'," >>  $comparison/libIGCM_references.py
 	    continue
 	fi
 	
