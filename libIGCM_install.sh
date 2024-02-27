@@ -140,7 +140,7 @@ if [ $CesmepReferences != NONE ]; then
 		    frequency   = 'monthly',
 		    OUT         = "$RefOut",
 		    ts_period   = 'full',
-		    clim_period = "$RefPeriod"
+		    clim_period = "$RefPeriod",
 		    custom_name = "$RefExperiment/$RefPeriod"
 		    ),
 		EOJ
