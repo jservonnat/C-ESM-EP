@@ -7,14 +7,13 @@
 
 # It works only if installed in a $SUBMIT_DIR/cesmep_lite directory,
 # by libIGCM's script 'ins_job' 
-
 set -e
 
 cd $(dirname $0)
 
 # Read helper file
-read CesmepCode comparison foo foo foo cache foo < libIGCM_post.param
-
-export PYTHONPATH=$(pwd):$CesmepCode:$PYTHONPATH
+read CesmepCode comparison foo foo foo foo cache foo < libIGCM_post.param
 export CESMEP_CLIMAF_CACHE=$cache
+export PYTHONPATH=$(pwd):$CesmepCode:$PYTHONPATH:$(pwd)/$comparison
+
 python run_C-ESM-EP.py $comparison clean 
