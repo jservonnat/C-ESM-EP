@@ -36,7 +36,7 @@ dir=$(cd $(dirname $0); pwd)
 
 crack_path ()
 # Derive a set of parameters from a simulation output's path, with period suffix as e.g.
-# /ccc/store/cont003/gen0826/lurtont/IGCM_OUT/IPSLCM6/*/historical/CM61-LR-hist-01/*/Analyse/1980-2005
+#/-:i:/ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/1980-2005
 {
     path=$1
     if [ $Center = TGCC ] ; then 
@@ -54,7 +54,7 @@ crack_path ()
     fi
     login=$(echo $rest | cut -d / -f 1)
     tagname=$(echo $rest | cut -d / -f 3)
-    [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagName
+    [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagname
     spacename=$(echo $rest | cut -d / -f 4)
     exptype=$(echo $rest | cut -d / -f 5)
     experimentname=$(echo $rest | cut -d / -f 6)
