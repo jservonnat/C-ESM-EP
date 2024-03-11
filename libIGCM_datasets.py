@@ -36,7 +36,7 @@ if CesmepPeriod != 0:
         current_slice = common.copy()
         clim_period = "%d_%d" % (begin, end)
         current_slice.update(clim_period=clim_period,
-                             customname=ExperimentName + ' ' + clim_period)
+                             customname=ExperimentName + '_' + clim_period)
         models.insert(0, current_slice)
         begin -= CesmepPeriod
         end -= CesmepPeriod
