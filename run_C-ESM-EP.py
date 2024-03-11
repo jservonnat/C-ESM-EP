@@ -352,7 +352,7 @@ if atIDRIS:
 if atTGCC or atIDRIS:
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
-# -- Create the output directory for the comparison if they do not exist
+# -- Create the output directory for the comparison if it does not exist
 if not os.path.isdir(path_to_comparison_on_web_server):
     os.makedirs(path_to_comparison_on_web_server)
 
@@ -788,11 +788,16 @@ if argument.lower() not in ['clean']:
         print('-- ' + html_file)
 
 if argument.lower() in ['clean']:
+    print("Cleaning CESMEP CliMAF cache ", cesmep_climaf_cache)
     os.system("rm -fr " + cesmep_climaf_cache)
+    print("Cleaning data on web server ", path_to_comparison_on_web_server)
     os.system("rm -fr " + path_to_comparison_on_web_server)
     if atTGCC:
+        print("Cleaning data on output dir ",
+              path_to_comparison_outdir_workdir_tgcc)
         os.system("rm -fr " + path_to_comparison_outdir_workdir_tgcc)
     else:
+        print("Cleaning data on output dir ", path_to_comparison_outdir)
         os.system("rm -fr " + path_to_comparison_outdir)
 
 if not all_submits_OK:

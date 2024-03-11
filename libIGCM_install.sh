@@ -13,30 +13,29 @@
 
 # The created script activates a set of components which matches the type of experiment
 
-#set -x
-
 # LibIGCM provided parameters
 target=$1            # Directory where C-ESM-EP  should be installed
 comparison=$2        # Which C-ESM-EP 'comparison' will be run
 jobname=$3           # Used as a prefix for comparison's name
-R_SAVE=$4            # Directory holding simulation outputs 
+R_SAVE=$4            # Directory holding simulation outputs (up to segment ExperimentName)
 ProjectId=${5:-None} # Which project ressource allocation should be charged
 MailAdress=$6        # Mail adress as in libIGCM
 DateBegin=$7         # Start date for the simulation
-ConfigCesmep=$8      # Value of config.card Post section variable Cesmep
+ConfigCesmep=$8      # Value derived from config.card's Post section variable Cesmep
 CesmepPeriod=$9      # Period for atlas time slices
 CesmepSlices=${10}   # Number of atlas time slices
-Components=${11}     # List of activated components
+Components=${11}     # List of activated physical components
 Center=${12:-TGCC}   # Which computing center are we running on
 CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice
-CesmepReferences=${14:-NONE} # Paths for the references simulation (with period suffix). A comma separated list
+CesmepReferences=${14:-NONE} # Paths for the references simulation outputs, with period suffix. A comma separated list
+CesmepInputFrequency=${15:-monthly} # Which is the frequency of simulation outputs to use
 
 # This script can be called from anywhere
 dir=$(cd $(dirname $0); pwd)
 
 crack_path ()
 # Derive a set of parameters from a simulation output's path, with period suffix as e.g.
-# /ccc/store/cont003/gen0826/lurtont/IGCM_OUT/IPSLCM6/*/historical/CM61-LR-hist-01/*/Analyse/1980-2005
+#/-:i:/ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/TS_MO/1980-2005
 {
     path=$1
     if [ $Center = TGCC ] ; then 
@@ -54,14 +53,28 @@ crack_path ()
     fi
     login=$(echo $rest | cut -d / -f 1)
     tagname=$(echo $rest | cut -d / -f 3)
-    [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagName
+    [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagname
     spacename=$(echo $rest | cut -d / -f 4)
     exptype=$(echo $rest | cut -d / -f 5)
     experimentname=$(echo $rest | cut -d / -f 6)
+    # Next fields are expected only for reference simulations
+    DIR=$(echo $rest | cut -d / -f 7)
     out=$(echo $rest | cut -d / -f 8)
-    period=$(echo $rest | cut -d / -f 9)
-
-    echo "$root $login $tagname $spacename $exptype $experimentname $out $period"
+    
+    # Next field is either a period, with implies frequency
+    # is monthly, or a subdir (e.g. TS_MO, TS_DA, MO, DA, ..)
+    next=$(echo $rest | cut -d / -f 9)
+    if [[ $next =~ [0-9]{4}[-_][0-9]{4} ]] ; then
+	period=$next
+	freq=monthly
+    else
+	period=$(echo $rest | cut -d / -f 10)
+	freq=${next:(-2):2} # Last two letters
+	[ freq = MO ] && freq=monthly
+	[ freq = DA ] && freq=daily
+	[ freq = YE ] && freq=yearly
+    fi
+    echo "$root $login $tagname $spacename $exptype $experimentname $out $period $freq"
 }
 
 # First install a light copy of C-ESM-EP and cd to there
@@ -78,15 +91,15 @@ comparison=${jobname}_${comparison}
 read Root Login TagName SpaceName ExpType ExperimentName foo <<< $(crack_path $R_SAVE)
 
 # Derive more parameters
-OUT='Analyse'
-frequency='monthly'
+OUT=Analyse
 if [ $ConfigCesmep = SE ]; then
-    frequency='seasonal'
+    CesmepInputFrequency=seasonal
 elif [ $ConfigCesmep != TS ]; then
-    OUT='Output'
+    # This applies to cases Pack and AtEnd
+    OUT=Output
 fi
 
-# Create comparison's parameters file and set first part
+# Create comparison's parameters file and set part which is fixed along run
 cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	root           = '$Root'
 	Login          = '${Login}'
@@ -95,7 +108,7 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	ExpType        = '${ExpType}'
 	ExperimentName = '${ExperimentName}'
 	OUT            = '$OUT'
-	frequency      = '$frequency'
+	frequency      = '$CesmepInputFrequency'
 	DateBegin      = '${DateBegin//-/}'
 	CesmepSlices   = $CesmepSlices
 	CesmepSlicesDuration = $CesmepSlicesDuration
@@ -105,10 +118,9 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 # Install a dedicated datasets_setup file
 cp $dir/libIGCM_datasets.py $comparison/datasets_setup.py
 
-# Create a python module defining a list of reference simulations
+# Create python module libIGCM_references.py defining a list of reference simulations
 rm -f $comparison/libIGCM_references.py
 if [ $CesmepReferences != NONE ]; then
-    echo "CesmepReferences=$CesmepReferences"
     cat <<-EOH > $comparison/libIGCM_references.py
 	reference = [\\
 	EOH
@@ -127,8 +139,7 @@ if [ $CesmepReferences != NONE ]; then
 	fi
 
 	# Create reference attributes dict
-	read RefRoot RefLogin RefTagName RefSpaceName RefExpType RefExperiment RefOut RefPeriod <<< \
-	     $(crack_path $reference)
+	read RefRoot RefLogin RefTagName RefSpaceName RefExpType RefExperiment RefOut RefPeriod RefFreq <<< $(crack_path $reference)
 	cat <<-EOJ >> $comparison/libIGCM_references.py
 		  dict(project='IGCM_OUT',
 		    root        = "$RefRoot",
@@ -137,11 +148,11 @@ if [ $CesmepReferences != NONE ]; then
 		    status      = "$RefSpaceName",
 		    experiment  = "$RefExpType",
 		    simulation  = "$RefExperiment",
-		    frequency   = 'monthly',
+		    frequency   = "$RefFreq",
 		    OUT         = "$RefOut",
 		    ts_period   = 'full',
-		    clim_period = "$RefPeriod",
-		    custom_name = "$RefExperiment/$RefPeriod"
+		    clim_period = "$RefPeriod"
+		    custom_name = "${RefExperiment}_{$RefPeriod}"
 		    ),
 		EOJ
 	done
@@ -151,7 +162,7 @@ if [ $CesmepReferences != NONE ]; then
 fi
 
 # Compute CESMEP components list based on list of component
-# directories and on simulation components list ($Components)
+# directories and on simulation physical components list ($Components)
 comps=","
 for comp in $(cd $comparison ; ls ) ; do
     ! [ -d $comparison/$comp ] && continue
@@ -199,7 +210,7 @@ case $Center in
 esac    
 cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
 
-# Write down a few parameters in a file used by libIGCM_post.sh
+# Write down a few parameters in file libIGCM_post.param, used by libIGCM_post.sh
 echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $CesmepSlicesDuration $cache $comps " > libIGCM_post.param
 
 # Set account/project to charge, and mail to use, in relevant file
