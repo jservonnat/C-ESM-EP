@@ -9,7 +9,7 @@
 # --      diagnostics_${component}.py                                                                     - |
 # --        ==> add html code to 'index' (initialized with 'header')                                      - |
 # --            using the CliMAF html toolbox (start_line, cell, close_table... )                         - |
-# --            to create your own atlas page                                                             - | 
+# --            to create your own atlas page                                                             - |
 # --                                                                                                      - |
 # --      Developed within the ANR Convergence Project                                                    - |
 # --      CNRM GAME, IPSL, CERFACS                                                                        - |
@@ -60,7 +60,7 @@ index = header(atlas_head_title, style_file=style_file)
 print('---------------------------------')
 print('-- Running Atlas Explorer      --')
 print('-- atlas_explorer_variables =  --')
-print('-> ', atlas_explorer_variables    )
+print('-> ', atlas_explorer_variables)
 print('--                             --')
 # -- Period Manager
 if not use_available_period_set:
@@ -85,11 +85,13 @@ if do_parallel:
 else:
     index += section_2D_maps(**kwargs)
 
-   
+
 if atlas_explorer_climato_variables:
     # -- Update kwargs accordingly
     kwargs.pop('add_line_of_climato_plots')
-    kwargs.update(dict(variables=atlas_explorer_climato_variables, section_title='Atlas Explorer Climatologies'))
+    kwargs.pop('regridding')
+    kwargs.update(dict(variables=atlas_explorer_climato_variables,
+                  section_title='Atlas Explorer Climatologies'))
     #
     if do_parallel:
         index += parallel_section(section_climato_2D_maps, **kwargs)
@@ -120,5 +122,3 @@ if atlas_explorer_climato_variables:
 # --                                                                                                   - /
 # --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
-
-
