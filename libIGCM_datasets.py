@@ -10,6 +10,27 @@ from libIGCM_settings import root, Login, TagName, SpaceName, \
 
 from env.site_settings import atIDRIS, atTGCC, onSpirit
 
+# Next three imports allow to process data that is not at the location
+# initialized by libIGCM. This is the case when creating a fake
+# simulation for processing the data of another simulation
+# Each segment of the data path which is not correct should be changed
+try:
+    from libIGCM_settings import DataPathExperimentName
+except:
+    DataPathExperimentName = ExperimentName
+
+#  e.g. /ccc/store/cont003/gen0826
+try:
+    from libIGCM_settings import DataPathRoot
+except:
+    DataPathRoot = root
+
+try:
+    from libIGCM_settings import DataPathLogin
+except:
+    DataPathLogin = Login
+
+
 #from CM_atlas.time_manager import find_common_period
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
@@ -17,12 +38,12 @@ routine_cache_cleaning = [dict(age='+20')]
 
 models = []
 common = dict(project='IGCM_OUT',
-              root=root,
-              login=Login,
+              root=DataPathRoot,
+              login=DataPathLogin,
               model=TagName,
               status=SpaceName,
               experiment=ExpType,
-              simulation=ExperimentName,
+              simulation=DataPathExperimentName,
               frequency=frequency,
               OUT=OUT,
               ts_period='full'

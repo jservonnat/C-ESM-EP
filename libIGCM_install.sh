@@ -14,21 +14,22 @@
 # The created script activates a set of components which matches the type of experiment
 
 # LibIGCM provided parameters
-target=$1            # Directory where C-ESM-EP  should be installed
-comparison=$2        # Which C-ESM-EP 'comparison' will be run
+target=$1            # Directory where C-ESM-EP  should be installed (will be created)
+comparison=$2        # Which C-ESM-EP 'comparison' will be run. e.g. run_comparison
 jobname=$3           # Used as a prefix for comparison's name
-R_SAVE=$4            # Directory holding simulation outputs (up to segment ExperimentName)
-ProjectId=${5:-None} # Which project ressource allocation should be charged
+R_SAVE=$4            # Directory holding simulation outputs
+ProjectId=${5:-None} # Which project ressource allocation should be charged (at TGCC and IDRIS)
 MailAdress=$6        # Mail adress as in libIGCM
 DateBegin=$7         # Start date for the simulation
-ConfigCesmep=$8      # Value derived from config.card's Post section variable Cesmep
-CesmepPeriod=$9      # Period for atlas time slices
+ConfigCesmep=$8      # Value derived from config.card's Post section variable Cesmep (SE, TS or anything else)
+CesmepPeriod=$9      # Period for atlas time slices (in years)
 CesmepSlices=${10}   # Number of atlas time slices
-Components=${11}     # List of activated physical components
-Center=${12:-TGCC}   # Which computing center are we running on
-CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice
+Components=${11}     # List of activated physical components (e.g. ,ATM,OCE, ). Use "," at begin, end and as separator
+Center=${12:-TGCC}   # Which computing center are we running on (TGCC, IDRIS, spirit*)
+CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice (in years)
 CesmepReferences=${14:-NONE} # Paths for the references simulation outputs, with period suffix. A comma separated list
-CesmepInputFrequency=${15:-monthly} # Which is the frequency of simulation outputs to use
+CesmepInputFrequency=${15:-monthly} # Which is the frequency of simulation outputs to use (daily/monthly/yearly)
+
 
 # This script can be called from anywhere
 dir=$(cd $(dirname $0); pwd)
@@ -113,6 +114,15 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	CesmepSlices   = $CesmepSlices
 	CesmepSlicesDuration = $CesmepSlicesDuration
 	CesmepPeriod   = $CesmepPeriod
+	#
+	# Next three lines allow to process data that is not at the location
+	# indicated by libIGCM. This is the case when creating a fake
+	# simulation for processing the data of another simulation
+	# Each segment of the data path which is not correct should be specified
+	#
+	# DataPathRoot =   # e.g. /ccc/store/cont003/gen0826
+	# DataPathLogin = 
+	# DataPathExperimentName = 
 	EOF
 
 # Install a dedicated datasets_setup file
