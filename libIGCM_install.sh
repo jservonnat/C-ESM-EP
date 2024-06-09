@@ -180,7 +180,8 @@ for comp in $(cd $comparison ; ls ) ; do
     add=false
     case $comp in
 	MainTimeSeries | AtlasExplorer)
-	    [[ $Components = *,ATM,* || $Components = *,OCE,* ]] && add=true ;;
+	    [[ $Components = *,ATM,* || $Components = *,OCE,* ||
+		   $Components = *,SRF,* || $Components = *,SBG,* ]] && add=true ;;
 
 	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean |\
 	NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | \
