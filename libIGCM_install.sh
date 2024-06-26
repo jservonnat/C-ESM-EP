@@ -71,9 +71,10 @@ crack_path ()
     else
 	period=$(echo $rest | cut -d / -f 10)
 	freq=${next:(-2):2} # Last two letters
-	[ freq = MO ] && freq=monthly
-	[ freq = DA ] && freq=daily
-	[ freq = YE ] && freq=yearly
+	freq=${freq:-None}
+	[ $freq = MO ] && freq=monthly
+	[ $freq = DA ] && freq=daily
+	[ $freq = YE ] && freq=yearly
     fi
     echo "$root $login $tagname $spacename $exptype $experimentname $out $period $freq"
 }
@@ -115,14 +116,16 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	CesmepSlicesDuration = $CesmepSlicesDuration
 	CesmepPeriod   = $CesmepPeriod
 	#
-	# Next three lines allow to process data that is not at the location
-	# indicated by libIGCM. This is the case when creating a fake
-	# simulation for processing the data of another simulation
-	# Each segment of the data path which is not correct should be specified
-	#
-	# DataPathRoot =   # e.g. /ccc/store/cont003/gen0826
-	# DataPathLogin = 
-	# DataPathExperimentName = 
+	# Next lines will allow to build the simulation output data path. This 
+	# is needed when creating a fake simulation for computing an atlas, and e.g.
+	# the user or the project used when running ins_job for C-ESM-EP (which 
+	# shows above) is not the same as when running the simulation (which shows 
+	# in the data path)
+	# Each such parameter should be specified
+	
+	# DataPathRoot =   # e.g. '/ccc/store/cont003/gen0826'
+	# DataPathLogin =   # e.g.  'user_login_showing_in_the_data_path'  
+	# DataPathExperimentName =    # needed only if you changed w.r.t.the initial config.card
 	EOF
 
 # Install a dedicated datasets_setup file
@@ -161,8 +164,8 @@ if [ $CesmepReferences != NONE ]; then
 		    frequency   = "$RefFreq",
 		    OUT         = "$RefOut",
 		    ts_period   = 'full',
-		    clim_period = "$RefPeriod"
-		    custom_name = "${RefExperiment}_{$RefPeriod}"
+		    clim_period = "$RefPeriod",
+		    custom_name = "${RefExperiment}_${RefPeriod}"
 		    ),
 		EOJ
 	done

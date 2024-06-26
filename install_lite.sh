@@ -64,7 +64,7 @@ fi
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 
-links="share job_C-ESM-EP.sh job_PMP_C-ESM-EP.sh locations.py"
+links="share job_C-ESM-EP.sh job_PMP_C-ESM-EP.sh locations.py custom_obs_dict.py"
 [ $with_libIGCM != no ] && links+=" libIGCM_clean.sh libIGCM_post.sh"
 for file in $links; do
      ln -sf $cesmep_dir/$file $target

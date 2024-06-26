@@ -84,8 +84,8 @@ export PYTHONPATH=$PYTHONPATH:$(pwd)/$comparison
 submit_dir=$(basename $(cd ..; pwd))
 python3 run_C-ESM-EP.py $comparison ${component:-$components} ${slice_end}_${submit_dir} >> $out 2>&1
 if [ $? -ne 0 ] ;then
-    echo "Issue launching C-ESM-EP atlas - see $out"
+    echo "Issue launching some C-ESM-EP atlas job - see $out"
     exit 1
 else
-    echo "C-ESM-EP atlas succesfully launched - see $out"
+    echo "C-ESM-EP atlas job(s) succesfully launched - see $out"
 fi
