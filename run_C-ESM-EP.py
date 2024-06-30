@@ -519,6 +519,7 @@ for component in job_components:
             ' cesmep_frontpage=' + frontpage_address +\
             ' CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache +\
             ' PYTHONPATH=' + os.getenv("PYTHONPATH", "") +\
+            ' CESMEP_CONTAINER=' + os.getenv("CESMEP_CONTAINER", "") +\
             ' ; ccc_msub' + add_email +\
             ' -r ' + jobname + ' -o ' + jobname + '_%I.out' + ' -e ' + jobname + '_%I.out' +\
             ' -n ' + nprocs + f' -Q {QOS} -A ' + account +\
