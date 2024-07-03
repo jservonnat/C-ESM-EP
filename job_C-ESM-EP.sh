@@ -78,7 +78,7 @@ run_main="python ${atlas_script} --comparison ${comparison} --component ${compon
 if [ ${atTGCC:-0} -eq 1 ] ; then
     
     env="--env re(CCC.*DIR) --env re(CLIMAF.*) --env PYTHONPATH "
-    env+="--env TMPDIR=${CLIMAF_CACHE} --env LOGNAME "
+    env+="--env TMPDIR=${CLIMAF_CACHE} --env LOGNAME --env SLURM_JOBID "
     pcocc-rs run $env $CESMEP_CONTAINER  <<-EOF
 
 	set -x
@@ -107,6 +107,7 @@ elif [ -n "$singularity_container" ] ; then
     #
     env="TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
     env+=",LOGNAME=$LOGNAME,PYTHONPATH=$PYTHONPATH"
+    env+=",SLURM_JOBID=$SLURM_JOBID"
     #
     set -x
     srun singularity shell --bind $binds --env $env \
