@@ -30,9 +30,11 @@ source $root/utils.sh
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     export atTGCC=1
-    export LC_ALL=C.UTF-8  # Needed by pcocc (actually by Click in python 3.6)
-    export LANG=C.UTF-8    # Needed by pcocc (actually by Click in python 3.6)
-    my_append -ep PATH /ccc/cont003/home/igcmg/igcmg/Tools/irene 
+    export tools=/ccc/cont003/home/igcmg/igcmg/Tools
+    my_append -ep PATH $tools/irene
+    my_append -bp PYTHONPATH $tools/climaf
+    export PCOCC_CONFIG_PATH=/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/.config/pcocc
+    export CESMEP_CONTAINER=${CESMEP_CONTAINER:-"ipsl:cesmep_container"}
 fi
 
 # --> At IDRIS - Jean-Zay
@@ -47,7 +49,7 @@ if [[ -d "/gpfsdswork" ]]; then
     fi
     if [ -z $singularity_container ] 
     then
-	echo -e"\n\nBefore you firt run of C-ESM-EP at IDRIS, you must "
+	echo -e"\n\nBefore your first run of C-ESM-EP at IDRIS, you must "
 	echo -e "declare the singularity container that satisfies C-ESM-EP "
 	echo -e "prerequisites, by issuing (only once) these commands :"
 	echo -e "\n\t module load singularity"
@@ -55,6 +57,7 @@ if [[ -d "/gpfsdswork" ]]; then
 	echo -e "\n where <file> is the newest '.sif' file in that Tools directory"
 	exit 1
     fi
+    my_append -bp PYTHONPATH /gpfswork/rech/psl/commun/Tools/climaf
 fi
 
 # --> On Spirit

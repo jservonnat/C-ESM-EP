@@ -77,9 +77,6 @@ run_main="python ${atlas_script} --comparison ${comparison} --component ${compon
 
 if [ ${atTGCC:-0} -eq 1 ] ; then
     
-    export irene_tools=/ccc/cont003/home/igcmg/igcmg/Tools/irene
-    export PCOCC_CONFIG_PATH=/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/.config/pcocc
-    CESMEP_CONTAINER=${CESMEP_CONTAINER:-"ipsl:cesmep_container"}
     env="--env re(CCC.*DIR) --env re(CLIMAF.*) --env PYTHONPATH "
     env+="--env TMPDIR=${CLIMAF_CACHE} --env LOGNAME "
     pcocc-rs run $env $CESMEP_CONTAINER  <<-EOF
@@ -87,7 +84,6 @@ if [ ${atTGCC:-0} -eq 1 ] ; then
 	set -x
 	umask 0022
 	export PATH=\$PATH:$irene_tools  # For thredds_cp
-	export PYTHONPATH=/src/climaf:$PYTHONPATH
 	$run_main
 	EOF
 
@@ -110,16 +106,13 @@ elif [ -n "$singularity_container" ] ; then
     binds+=,/gpfsdsmnt/ipsl/dods/pub:/gpfsdsmnt/ipsl/dods/pub
     #
     env="TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
-    env+=",LOGNAME=$LOGNAME"
+    env+=",LOGNAME=$LOGNAME,PYTHONPATH=$PYTHONPATH"
     #
     set -x
     srun singularity shell --bind $binds --env $env \
         $SINGULARITY_ALLOWED_DIR/$singularity_container <<-EOG
 	set -x
 	export PATH=/gpfslocalsup/bin:\$PATH
-	# CliMAF location may be tuned below. Container default is /src/climaf
-	export CLIMAF=/src/climaf
-	export PYTHONPATH=\$CLIMAF:$PYTHONPATH
 	$run_main
 	EOG
     
