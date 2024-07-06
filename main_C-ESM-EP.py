@@ -377,7 +377,7 @@ if atTGCC or atIDRIS:
         print(cmd12)
         os.system(cmd12)
         cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
-            ' '+path_to_comparison_on_web_server+'/'
+            ' '+path_to_comparison_on_web_server
     elif atIDRIS:
         path_to_comparison_on_web_server = suffix_to_comparison
         cmd12 = 'thredds_rm ' + path_to_comparison_on_web_server+'/'+component
@@ -386,7 +386,7 @@ if atTGCC or atIDRIS:
         cmd2 = '(cd ' + path_to_comparison_outdir_workdir_hpc + '/..' +\
             '; thredds_cp ' + component + ' ' + path_to_comparison_on_web_server + ')'
     print("cmd2=", cmd2)
-    os.system(cmd2)
+    subprocess.check_output(cmd2, shell=True, stderr=subprocess.STDOUT)
 
     print(' -- ')
     print(' -- ')

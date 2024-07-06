@@ -30,9 +30,11 @@ source $root/utils.sh
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
     export atTGCC=1
-    export tools=/ccc/cont003/home/igcmg/igcmg/Tools
-    my_append -ep PATH $tools/irene
-    my_append -bp PYTHONPATH $tools/climaf
+    export irene_tools=/ccc/cont003/home/igcmg/igcmg/Tools/irene
+    my_append -ep PATH $irene_tools
+    export CLIMAF=/ccc/cont003/home/igcmg/igcmg/Tools/climaf
+    my_append -bp PYTHONPATH $CLIMAF
+    # How to find environment container, and which container to use
     export PCOCC_CONFIG_PATH=/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/.config/pcocc
     export CESMEP_CONTAINER=${CESMEP_CONTAINER:-"ipsl:cesmep_container"}
 fi
@@ -63,7 +65,7 @@ fi
 # --> On Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
-	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20230611_climafV3.0_IPSL9
+	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20240703_climafV3.1_IPSL3
 	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
 	module purge
@@ -142,7 +144,6 @@ echo "Environment settings for C-ESM-EP"
 echo "---------------------------------"
 echo CLIMAF_CACHE        = $CLIMAF_CACHE
 echo CESMEP_CLIMAF_CACHE = $CESMEP_CLIMAF_CACHE
-#echo PATH                = $PATH
 echo PYTHONPATH          = $PYTHONPATH
-[ ! -z $CESMEP_CONTAINER ] && echo CESMEP_CONTAINER     =$CESMEP_CONTAINER
+[ ! -z $CESMEP_CONTAINER ] && echo CESMEP_CONTAINER     = $CESMEP_CONTAINER
 echo 
