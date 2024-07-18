@@ -4,9 +4,15 @@
 # imported file libIGCM_settings
 
 from libIGCM_settings import root, Login, TagName, SpaceName, \
-    ExpType, ExperimentName, frequency, OUT, DateBegin, \
+    frequency, OUT, DateBegin, \
     CesmepSlices, CesmepPeriod, CesmepSlices, CesmepSlicesDuration, \
     end, data_end
+
+try:
+    from libIGCM_settings import JobName, ExperimentName
+except:
+    # Odd syntax from an old version of CESMEP. To me removed at some date...
+    from libIGCM_settings import ExperimentName as JobName, ExpType as ExperimentName
 
 from env.site_settings import atIDRIS, atTGCC, onSpirit
 
@@ -15,9 +21,13 @@ from env.site_settings import atIDRIS, atTGCC, onSpirit
 # simulation for processing the data of another simulation
 # Each segment of the data path which is not correct should be changed
 try:
-    from libIGCM_settings import DataPathExperimentName
+    from libIGCM_settings import DataPathJobName
 except:
-    DataPathExperimentName = ExperimentName
+    try:
+        # Old (odd) syntax, and for upward compatibility
+        from libIGCM_settings import DataPathExperimentName as DataPathJobName
+    except:
+        DataPathJobName = JobName
 
 #  e.g. /ccc/store/cont003/gen0826
 try:
@@ -42,8 +52,8 @@ common = dict(project='IGCM_OUT',
               login=DataPathLogin,
               model=TagName,
               status=SpaceName,
-              experiment=ExpType,
-              simulation=DataPathExperimentName,
+              experiment=ExperimentName,
+              simulation=DataPathJobName,
               frequency=frequency,
               OUT=OUT,
               ts_period='full'
@@ -57,7 +67,7 @@ if CesmepPeriod != 0:
         current_slice = common.copy()
         clim_period = "%d_%d" % (begin, end)
         current_slice.update(clim_period=clim_period,
-                             customname=ExperimentName + '_' + clim_period)
+                             customname=JobName + '_' + clim_period)
         models.insert(0, current_slice)
         begin -= CesmepPeriod
         end -= CesmepPeriod
@@ -65,7 +75,7 @@ if CesmepPeriod != 0:
 else:
     clim_period = "%d_%d" % (YearBegin, data_end)
     common.update(clim_period=clim_period,
-                  customname=ExperimentName + ' ' + clim_period)
+                  customname=JobName + ' ' + clim_period)
     models.append(common)
 
 #

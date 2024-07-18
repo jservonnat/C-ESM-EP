@@ -56,8 +56,8 @@ crack_path ()
     tagname=$(echo $rest | cut -d / -f 3)
     [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagname
     spacename=$(echo $rest | cut -d / -f 4)
-    exptype=$(echo $rest | cut -d / -f 5)
-    experimentname=$(echo $rest | cut -d / -f 6)
+    experimentname=$(echo $rest | cut -d / -f 5)
+    jobname=$(echo $rest | cut -d / -f 6)
     # Next fields are expected only for reference simulations
     DIR=$(echo $rest | cut -d / -f 7)
     out=$(echo $rest | cut -d / -f 8)
@@ -76,7 +76,7 @@ crack_path ()
 	[ $freq = DA ] && freq=daily
 	[ $freq = YE ] && freq=yearly
     fi
-    echo "$root $login $tagname $spacename $exptype $experimentname $out $period $freq"
+    echo "$root $login $tagname $spacename $experimentname $jobname $out $period $freq"
 }
 
 # First install a light copy of C-ESM-EP and cd to there
@@ -90,7 +90,7 @@ cd $target/cesmep_lite
 mv $comparison ${jobname}_${comparison}
 comparison=${jobname}_${comparison}
 
-read Root Login TagName SpaceName ExpType ExperimentName foo <<< $(crack_path $R_SAVE)
+read Root Login TagName SpaceName ExperimentName JobName foo <<< $(crack_path $R_SAVE)
 
 # Derive more parameters
 OUT=Analyse
@@ -107,8 +107,8 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	Login          = '${Login}'
 	TagName        = '${TagName}'
 	SpaceName      = '${SpaceName}'
-	ExpType        = '${ExpType}'
 	ExperimentName = '${ExperimentName}'
+	JobName        = '${JobName}'
 	OUT            = '$OUT'
 	frequency      = '$CesmepInputFrequency'
 	DateBegin      = '${DateBegin//-/}'
@@ -125,7 +125,7 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	
 	# DataPathRoot =   # e.g. '/ccc/store/cont003/gen0826'
 	# DataPathLogin =   # e.g.  'user_login_showing_in_the_data_path'  
-	# DataPathExperimentName =    # needed only if you changed w.r.t.the initial config.card
+	# DataPathJobName =    # needed only if you changed w.r.t.the initial config.card
 	EOF
 
 # Install a dedicated datasets_setup file
@@ -152,15 +152,15 @@ if [ $CesmepReferences != NONE ]; then
 	fi
 
 	# Create reference attributes dict
-	read RefRoot RefLogin RefTagName RefSpaceName RefExpType RefExperiment RefOut RefPeriod RefFreq <<< $(crack_path $reference)
+	read RefRoot RefLogin RefTagName RefSpaceName RefExperimentName RefJobName RefOut RefPeriod RefFreq <<< $(crack_path $reference)
 	cat <<-EOJ >> $comparison/libIGCM_references.py
 		  dict(project='IGCM_OUT',
 		    root        = "$RefRoot",
 		    login       = "$RefLogin",
 		    model       = "$RefTagName",
 		    status      = "$RefSpaceName",
-		    experiment  = "$RefExpType",
-		    simulation  = "$RefExperiment",
+		    experiment  = "$RefExperimentName",
+		    simulation  = "$RefJobName",
 		    frequency   = "$RefFreq",
 		    OUT         = "$RefOut",
 		    ts_period   = 'full',
@@ -222,7 +222,7 @@ case $Center in
     IDRIS) cacheroot=$SCRATCH ;;
     spirit*) cacheroot=/scratchu/$USER ;;
 esac    
-cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
+cache=$cacheroot/cesmep_climaf_caches/${JobName}_${TagName}_${ExperimentName}_${SpaceName}_${OUT}
 
 # Write down a few parameters in file libIGCM_post.param, used by libIGCM_post.sh
 echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $CesmepSlicesDuration $cache $comps " > libIGCM_post.param
