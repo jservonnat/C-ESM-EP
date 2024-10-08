@@ -14,7 +14,7 @@
 # The created script activates a set of components which matches the type of experiment
 
 # LibIGCM provided parameters
-target=$1            # Directory where C-ESM-EP  should be installed (will be created)
+target=$1            # Directory where C-ESM-EP  should be installed (it will be created)
 comparison=$2        # Which C-ESM-EP 'comparison' will be run. e.g. run_comparison
 jobname=$3           # Used as a prefix for comparison's name
 R_SAVE=$4            # Directory holding simulation outputs
@@ -36,7 +36,7 @@ dir=$(cd $(dirname $0); pwd)
 
 crack_path ()
 # Derive a set of parameters from a simulation output's path, with period suffix as e.g.
-#/-:i:/ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/TS_MO/1980-2005
+# /ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/TS_MO/1980-2005
 {
     path=$1
     if [ $Center = TGCC ] ; then 
@@ -58,10 +58,10 @@ crack_path ()
     spacename=$(echo $rest | cut -d / -f 4)
     experimentname=$(echo $rest | cut -d / -f 5)
     jobname=$(echo $rest | cut -d / -f 6)
-    # Next fields are expected only for reference simulations
-    DIR=$(echo $rest | cut -d / -f 7)
-    out=$(echo $rest | cut -d / -f 8)
     
+    # Next fields are expected only for reference simulations
+    # DIR=$(echo $rest | cut -d / -f 7) # e.g. ATM, or *
+    out=$(echo $rest | cut -d / -f 8) # e.g. Analyse
     # Next field is either a period, with implies frequency
     # is monthly, or a subdir (e.g. TS_MO, TS_DA, MO, DA, ..)
     next=$(echo $rest | cut -d / -f 9)
