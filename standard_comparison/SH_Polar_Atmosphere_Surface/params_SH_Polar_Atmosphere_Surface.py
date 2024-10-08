@@ -59,6 +59,9 @@ do_parallel = False
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "SH Polar St. - Atmosphere Surface"
+# With libIGCM, the user may have provided an additional title
+if AtlasTitle != "NONE":
+    atlas_head_title += " - " + AtlasTitle
 
 
 # -- Set the overall season, region and geographical domain

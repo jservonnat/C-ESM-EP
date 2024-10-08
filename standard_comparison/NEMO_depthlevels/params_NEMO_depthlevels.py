@@ -60,6 +60,9 @@ memory = 30  # in gb; 30 for ocean atlasas
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "NEMO - T & S @depth"
+# When driven by libIGCM, an additional title may be provided by config.card
+if AtlasTitle != "NONE":
+    atlas_head_title += " - " + AtlasTitle
 
 
 # -- Set the overall season, region and geographical domain

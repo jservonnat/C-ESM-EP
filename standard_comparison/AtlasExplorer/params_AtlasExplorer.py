@@ -67,6 +67,12 @@ do_parallel = False
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "Atlas Explorer"
+# When driven by libIGCM, an additional title may be provided by config.card
+if AtlasTitle != "NONE":
+    atlas_head_title += " - " + AtlasTitle
+else:
+    print("No change to title")
+print("head_title=", atlas_head_title)
 
 
 # -- Set the overall season, region and geographical domain

@@ -47,7 +47,11 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atlas Explorer"
+if atlas_head_title is None:
+    atlas_head_title = "AtlasExplorer"
+    # When driven by libIGCM, an additional title may be provided by config.card
+    if AtlasTitle != "NONE":
+        atlas_head_title += " - " + AtlasTitle
 
 
 # - Init html index

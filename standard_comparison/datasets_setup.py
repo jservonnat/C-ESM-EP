@@ -65,7 +65,7 @@
 # ---------------------------------------------------------------------------------------- /
 
 # -- List of simulations: models = [dict(...), dict(...), ...]
-# -- 
+# --
 # -- Specify the list of 'datasets' (list of python dictionaries) you want to assess with the atlas.
 # -- A CliMAF dataset is defined by:
 # --      - project: a pre-defined organization of data (ex: CMIP5, IGCM_OUT, EM...)
@@ -75,7 +75,7 @@
 # --        CliMAF will extract this period from the files in the directory
 # --        pointed at by the request
 # --      - clim_period: a character string indicating the period over which you want
-# --        your climatology (pre-computed, or to be done) 
+# --        your climatology (pre-computed, or to be done)
 # --        => pre-computed for frequency='seasonal'
 # --        => to be done on demand for frequency='monthly'
 # --      - ts_period: a character string indicating the period over which you want
@@ -87,7 +87,7 @@
 # -- All other keywords are linked with the projects (see the definition of the projects
 # -- for more informations).
 # --
-# -- Option = 
+# -- Option =
 # --   - You can pass a season in the dataset definition (ex: season='DJF'); any season used by clim_average()
 # --     This season will have higher priority than the overall season argument (in this param file or
 # --     via the command line).
@@ -130,11 +130,10 @@
 # --    - TurbulentAirSeaFluxes
 # --    - PISCES_2D_maps
 # --    - ORCHIDEE_2D_maps
-  
+
 # ---------------------------------------------------------------------------- >
 from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs
 from CM_atlas import *
-
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
@@ -300,7 +299,7 @@ reference = 'default'
 # --> Note that the YYYYMM-YYYYMM string means that the period is described in the filename and that CliMAF can
 # --> perform period selection among the files it found in the directory (can be YYYY, YYYYMM, YYYYMMDD).
 # --> You can use an argument like ${years} instead if you just want to do string matching (no smart period selection)
-# 
+#
 # -- call the dataloc CliMAF function
 # dataloc(project='CMIP5_bis', organization='generic', url=pattern)
 # ---------------------------------------------------------------------------- >
@@ -309,4 +308,3 @@ reference = 'default'
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

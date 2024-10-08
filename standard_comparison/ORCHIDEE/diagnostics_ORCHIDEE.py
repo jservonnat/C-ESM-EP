@@ -40,9 +40,10 @@
 # ---------------------------------------------
 
 
-# -- Head title of the atlas
+# -- Head title of the atlas may have been set in params_xx.py
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "ORCHIDEE"
+if atlas_head_title is None:
+    atlas_head_title = "ORCHIDEE"
 
 
 # - Init html index

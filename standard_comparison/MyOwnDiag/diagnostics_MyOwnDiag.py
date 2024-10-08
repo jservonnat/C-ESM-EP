@@ -7,7 +7,7 @@
 # --      diagnostics_${component}.py                                                                     - |
 # --        ==> add html code to 'index' (initialized with 'header')                                      - |
 # --            using the CliMAF html toolbox (start_line, cell, close_table... )                         - |
-# --            to create your own atlas page                                                             - | 
+# --            to create your own atlas page                                                             - |
 # --                                                                                                      - |
 # --      Developed within the ANR Convergence Project                                                    - |
 # --      CNRM GAME, IPSL, CERFACS                                                                        - |
@@ -41,9 +41,13 @@ from os import getcwd
 # ---------------------------------------------
 
 
-# -- Head title of the atlas
+# -- Head title of the atlas. Should normally be set in params_xx.py
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "My own diagnostics"
+if atlas_head_title is None:
+    atlas_head_title = "My own diagnostics"
+    # When driven by libIGCM, an additional title may be provided by config.card
+    if AtlasTitle != "NONE":
+        atlas_head_title += " - " + AtlasTitle
 
 
 # - Init html index
@@ -90,8 +94,9 @@ if do_my_own_climaf_diag:
     # -- Define plot parameters per variable -> better if in the params file
     # -----------------------------------------------------------------------------------------
     my_own_climaf_diag_plot_params = dict(
-       tas=dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
-       pr=dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
+        tas=dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
+        pr=dict(contours=1, min=0, max=30, delta=2,
+                color='precip_11lev', scale=86400.),
 
     )
     #
@@ -108,7 +113,8 @@ if do_my_own_climaf_diag:
             # -- in the list models, and add the variable
             # -----------------------------------------------------------------------------------------
             wmodel = model.copy()  # - copy the dictionary to avoid modifying the original dictionary
-            wmodel.update(dict(variable=variable))  # - add a variable to the dictionary with update
+            # - add a variable to the dictionary with update
+            wmodel.update(dict(variable=variable))
             #
             # ==> -- Apply frequency and period manager
             # -----------------------------------------------------------------------------------------
@@ -124,16 +130,19 @@ if do_my_own_climaf_diag:
             #
             # -- Compute the amplitude of the annual cycle (max - min)
             # -----------------------------------------------------------------------------------------
-            amp = minus(ccdo(dat, operator='timmax'), ccdo(dat, operator='timmin'))
+            amp = minus(ccdo(dat, operator='timmax'),
+                        ccdo(dat, operator='timmin'))
             #
             # /// -- Build the titles
             # -----------------------------------------------------------------------------------------
-            title = build_plot_title(wmodel, None)  # > returns the model name if project=='CMIP5'
+            # > returns the model name if project=='CMIP5'
+            title = build_plot_title(wmodel, None)
             #                                           otherwise it returns the simulation name
             #                                           It returns the name of the reference if you provide
             #                                           a second argument ('dat1 - dat2')
             LeftString = variable
-            RightString = build_str_period(wmodel)  # -> finds the right key for the period (period of clim_period)
+            # -> finds the right key for the period (period of clim_period)
+            RightString = build_str_period(wmodel)
             CenterString = 'Seas cyc. amplitude'
             #
             # -- Plot the amplitude of the annual cycle
@@ -186,5 +195,3 @@ do_parallel = False
 # --                                                                                                   - /
 # --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
-
-
