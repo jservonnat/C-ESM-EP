@@ -13,7 +13,7 @@
 #set -x
 
 begin=${1?Please provide begin year of the period to process}
-end=${2??Please provide end year of the period to process}
+end=${2?Please provide end year of the period to process}
 component=$3 # For tests purpose only
 
 cd $(dirname $0)

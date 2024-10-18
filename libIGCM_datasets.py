@@ -1,7 +1,7 @@
 # This is a version of datasets_setup.py adapted for the case of a libIGCM
 # running simulation at TGCC. It creates a list of 'models' made of
 # successive time slices up to the last processed one (which is described by
-# imported file libIGCM_settings
+# imported file libIGCM_settings)
 
 from libIGCM_settings import root, Login, TagName, SpaceName, \
     frequency, OUT, DateBegin, \
@@ -63,7 +63,8 @@ YearBegin = int(DateBegin[0:4])
 if CesmepPeriod != 0:
     begin = end - CesmepSlicesDuration + 1
     count = 0
-    while begin >= YearBegin and count < CesmepSlices:
+    while begin >= YearBegin and \
+            ((CesmpSlices == 'max') or (count < CesmepSlices)):
         current_slice = common.copy()
         clim_period = "%d_%d" % (begin, end)
         current_slice.update(clim_period=clim_period,

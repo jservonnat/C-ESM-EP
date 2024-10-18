@@ -228,6 +228,10 @@ for subdir in subdirs:
 # If the user runs the C-ESM-EP by default, it runs all the available components
 if components == allcomponents:
     components = available_components
+elif len(components) == 0 and argument != 'None':
+    print("No component to launch. Please chek your component arg (%s)!" %
+          args[2])
+    exit(1)
 
 # -- We get the atlas_head_title variable in the params_component.py
 # -- file to have a more explicit string for the links
@@ -509,7 +513,7 @@ for component in job_components:
             # Deduce account from CCCHOME
             account = os.getenv("CCCHOME").split("/")[4]
         if not queue:
-            queue = 'skylake'
+            queue = 'xlarge'
         if QOS is None:
             QOS = 'normal'
         if component in metrics_components:
