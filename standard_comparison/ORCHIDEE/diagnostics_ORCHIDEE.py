@@ -42,7 +42,8 @@
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "ORCHIDEE"
+if atlas_head_title is None :
+    atlas_head_title = "ORCHIDEE"
 
 
 # - Init html index

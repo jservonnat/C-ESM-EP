@@ -49,7 +49,8 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 
 # - Init html index
 # -----------------------------------------------------------------------------------
-index = header(atlas_head_title, style_file=style_file)
+if atlas_head_title is None :
+    index = header(atlas_head_title, style_file=style_file)
 
 # ---------------------------------------------------------------------------------------- #
 # -- Plotting the maps of the Atlas Explorer                                            -- #
