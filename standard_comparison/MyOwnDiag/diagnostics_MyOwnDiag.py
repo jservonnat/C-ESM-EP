@@ -1,124 +1,134 @@
-# ------------------------------------------------------------------------------------------------------ \
-# --                                                                                                    - \
-# --                                                                                                     - \
-# --      Scientific diagnostics for the                                                                  - \
-# --          CliMAF Earth System Model Evaluation Platform                                               - |
-# --                                                                                                      - |
-# --      diagnostics_${component}.py                                                                     - |
-# --        ==> add html code to 'index' (initialized with 'header')                                      - |
-# --            using the CliMAF html toolbox (start_line, cell, close_table... )                         - |
-# --            to create your own atlas page                                                             - | 
-# --                                                                                                      - |
-# --      Developed within the ANR Convergence Project                                                    - |
-# --      CNRM GAME, IPSL, CERFACS                                                                        - |
-# --      Contributions from CNRM, LMD, LSCE, NEMO Group, ORCHIDEE team.                                  - |
-# --      Based on CliMAF: WP5 ANR Convergence, S. Senesi (CNRM) and J. Servonnat (LSCE - IPSL)           - |
-# --                                                                                                      - |
-# --      J. Servonnat, S. Senesi, L. Vignon, MP. Moine, O. Marti, E. Sanchez, F. Hourdin,                - |
-# --      I. Musat, M. Chevallier, J. Mignot, M. Van Coppenolle, J. Deshayes, R. Msadek,                  - |
-# --      P. Peylin, N. Vuichard, J. Ghattas, F. Maignan, A. Ducharne, P. Cadule,                         - |
-# --      P. Brockmann, C. Rousset, J.Y. Perterschmitt                                                    - |
-# --                                                                                                      - |
-# --      Contact: jerome.servonnat@lsce.ipsl.fr                                                          - |
-# --                                                                                                      - |
-# --  See the documentation at: https://github.com/jservonnat/C-ESM-EP/wiki                               - |
-# --                                                                                                      - |
-# --                                                                                                      - /
-# --  Note: you can actually use an empty datasets_setup                                                 - /
-# --  and an empty params_${component}.py, and set everything from here                                 - /
-# --                                                                                                   - /
-# --                                                                                                  - /
-# ---------------------------------------------------------------------------------------------------- /
+#
+# Example of a diagnostic module in C-ESM-EP ( CliMAF Earth System Model Evaluation Platform )
+#
 
-from os import getcwd
+# The principles :
 
-# ----------------------------------------------
-# --                                             \
-# --  My very own diagnostics                     \
-# --                                              /
-# --                                             /
-# --                                            /
-# ---------------------------------------------
+# Such a module is 'loaded'(using exec()) by the C-ESM-EP driver,
+# i.e. main_C-ESM-EP.py, That driver imports various functions
+# (including CliMAF's), which defines a series of variables. See
+# details at file end.
 
+# It is loaded after file ../datasets_setup.py, which should define
+# the list of models to work on: 'models'. A 'model' is here are
+# dictionnary of key/value pairs defining the data (except the
+# vairable name), where keys are the facet names for the data's
+# 'project' (e.g. CMIP5, IGCM_OUT)
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-atlas_head_title = "My own diagnostics"
+# It is also loaded after file ./params_xxx.py, which should set all
+# parameters driving the diagnostic computation that are more prone to
+# change than the code here.
 
+# You may have empty datasets_setup.py and params_xxx.py files, and
+# set everything here. But the idea is that the diagnostics_xx.py code
+# is ultimately part of C-ESM-EP shared code (and lies in shared/
+# dir), while params_xx.py can be modified by each user, and lies in
+# the comparison dir
 
-# - Init html index
-# -----------------------------------------------------------------------------------
+# In this example, we include here params_xx.py material ; see near file end. 
+
+# This module's tasks are:
+# - create figures, possibly using CliMAF. If not, you have to find the data using
+#   the attributes for each model in dict `models`. You may use CliMAF for easing
+#   that part, see section 'Finding data files with CliMAF' below
+#
+# - define and populate variable 'index', which is the html code for the atlas, by using
+#   a few CliMAF functions and providing them with the figures paths
+#   See example below and doc for such functions at
+#   https://climaf.readthedocs.io/en/master/functions_results_viewing.html#module-climaf.chtml
+
+# The figures should rather be organized in lines of figures, with one line per
+# combination of variable + season
+
+# The section starting with comment ==> are mandatory to build a section in the atlas.
+# The comments starting with /// identify code that is specific to the diagnostic
+# presented here.
+
+# --  See full documentation at: https://github.com/jservonnat/C-ESM-EP/wiki                               - |
+#
+# -----------------------------------------------------------------------------------------
+
+# This code can run with or without using CliMAF for computation. 
+using_climaf = False
+
+#
+# -- Head title of the atlas. Will be used also as link text in the top-level multi-atlas
+# -- It is usually set in params_xx.py
+if atlas_head_title is None :
+    atlas_head_title = "My own diagnostics"
+#
+# - Init html index (Note: style_file is set by main_C-ESM-EP.py)
 index = header(atlas_head_title, style_file=style_file)
+#
+# ==> -- Open the section 
+# -----------------------------------------------------------------------------------------
+index += section("My own CliMAF diagnostic", level=4)
+#
+# ==> -- Control the size of the figures
+# -----------------------------------------------------------------------------------------
+#  
+if thumbnail_size:
+    figure_size = thumbnail_size  # possibly defined in params_xx.py
+else:
+    figure_size = thumbnail_size_global # defined in share/default/default_atlas_settings.py
+#
+# ==> -- Open a html 'table' and the html figures line with a title
+# ----------------------------------------------------------------------------------------
+index += open_table()  # This allows to have all figures nicely aligned across figure lines
 
-# - 1. Make climatology maps by hand (not even using datasets_setup.py)
+# Create a first table line with a single element : some sub-title
+index += line(['Diag #1 = amplitude of the annual cycle'])
 
-# - 2. Time series plot of the global tas of all available CMIP5 models
-
-# - 3. Maps of the datasets specified in datasets_setup.py
-
-
-# ---------------------------------------------------------------------------------------- #
-# -- Your own diagnostic script                                                         -- #
-# -- This section is a copy of the previous section; it is a good example               -- #
-# -- of how to add your own script/diagnostic                                           -- #
-# -- The section starting with comments with ==> at the beginning are mandatory to      -- #
-# -- build a section in the C-ESM-EP. The comments starting with /// identify code that -- #
-# -- is specific to the diagnostic presented here.                                      -- #
-if do_my_own_climaf_diag:
+#
+# preliminary step = copy the models dictionary to avoid modifying the 
+# entries in the (global) models dict. `models` is usually set by datasets_setup.py
+Wmodels = copy.deepcopy(models)
+#
+# -- We will loop on some variables list (better define it in the params file)
+# -----------------------------------------------------------------------------------------
+my_own_climaf_diag_variables = ['tas', 'pr']
+#
+#
+# -- Define plot parameters per variable (better if in the params file)
+# -----------------------------------------------------------------------------------------
+# Syntax for such settings is driven by arguments to CliMAF's `plot` operator,
+# documented at https://climaf.readthedocs.io/en/master/scripts/plot.html.
+# Not needed if not using CliMAF `plot`
+my_own_climaf_diag_plot_params = dict(
+    tas=dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
+    pr=dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
+)
+#
+# Loop on variables
+#
+for variable in my_own_climaf_diag_variables:
+    index += open_line()  # all figures for one variable will lay on a single line
     #
-    # ==> -- Open the section and an html table
+    # -- Loop on the models 
     # -----------------------------------------------------------------------------------------
-    index += section("My own CliMAF diagnostic", level=4)
-    #
-    # ==> -- Control the size of the thumbnail -> thumbN_size
-    # -----------------------------------------------------------------------------------------
-    if thumbnail_size:
-        thumbN_size = thumbnail_size
-    else:
-        thumbN_size = thumbnail_size_global
-    #
-    # ==> -- Open the html line with the title
-    # -----------------------------------------------------------------------------------------
-    index += open_table()
-    line_title = 'Diag #1 = amplitude of the annual cycle'
-    index += start_line(line_title)
-    #
-    # ==> -- Apply the period_for_diag_manager (not actually needed here)
-    # -----------------------------------------------------------------------------------------
-    Wmodels = copy.deepcopy(models)
-    #
-    # -- Define plot parameters per variable -> better if in the params file
-    # -----------------------------------------------------------------------------------------
-    my_own_climaf_diag_plot_params = dict(
-       tas=dict(contours=1, min=0, max=60, delta=5, color='precip3_16lev'),
-       pr=dict(contours=1, min=0, max=30, delta=2, color='precip_11lev', scale=86400.),
-
-    )
-    #
-    # -- Loop on the variables defined in my_own_climaf_diag_variables -> better if in the params file
-    # -----------------------------------------------------------------------------------------
-    my_own_climaf_diag_variables = ['tas', 'pr']
-    for variable in my_own_climaf_diag_variables:
+    for model in Wmodels:
         #
-        # -- Loop on the models
         # -----------------------------------------------------------------------------------------
-        for model in Wmodels:
+        wmodel = model.copy()  # - copy the dictionary to avoid modifying the original dictionary
+        wmodel["variable"] = variable  # - add a variable to the dictionary
+        # Avoid ambiguity on some attributes (depends on datasets_setup.py content and variable)
+        if wmodel["project"] == "CMIP6" :
+            wmodel["table"] = "Amon"
+            wmodel["grid"] = "gr"
+        if wmodel["project"] == "CMIP5" :
+            wmodel["realm"] = "atmos"
+        #
+        # ==> -- Apply period manager
+        # -----------------------------------------------------------------------------------------
+        # ==> -- It aims at finding the last SE or last XX years available when the user provides
+        # ==> -- clim_period='last_SE' or clim_period='last_XXY'... in model attributes.
+        # ==> -- get_period_manager scans the existing files and find the requested period
+        # ==> -- !!! This modifies wmodel so that it will point to the requested period
+        wmodel = get_period_manager(wmodel, diag='clim')
+        #
+        if using_climaf :
             #
-            # -- preliminary step = copy the model dictionary to avoid modifying the dictionary
-            # -- in the list models, and add the variable
-            # -----------------------------------------------------------------------------------------
-            wmodel = model.copy()  # - copy the dictionary to avoid modifying the original dictionary
-            wmodel.update(dict(variable=variable))  # - add a variable to the dictionary with update
-            #
-            # ==> -- Apply frequency and period manager
-            # -----------------------------------------------------------------------------------------
-            # ==> -- They aim at finding the last SE or last XX years available when the user provides
-            # ==> -- clim_period='last_SE' or clim_period='last_XXY'...
-            # ==> -- and get_period_manager scans the existing files and find the requested period
-            # ==> -- !!! Both functions modify the wmodel so that it will point to the requested period
-            wmodel = get_period_manager(wmodel, diag='clim')
-            #
-            # /// -- Get the dataset and compute the annual cycle
+            # /// -- Get the dataset and compute the annual cycle using CliMAF functions
             # -----------------------------------------------------------------------------------------
             dat = annual_cycle(ds(**wmodel))
             #
@@ -128,12 +138,13 @@ if do_my_own_climaf_diag:
             #
             # /// -- Build the titles
             # -----------------------------------------------------------------------------------------
-            title = build_plot_title(wmodel, None)  # > returns the model name if project=='CMIP5'
-            #                                           otherwise it returns the simulation name
-            #                                           It returns the name of the reference if you provide
-            #                                           a second argument ('dat1 - dat2')
+            # build_plot_title returns the model name if project=='CMIP5' otherwise
+            # it returns the simulation name. It returns the name of the reference
+            # if you provide a second argument ('dat1 - dat2')
+            title = build_plot_title(wmodel, None)  
             LeftString = variable
-            RightString = build_str_period(wmodel)  # -> finds the right key for the period (period of clim_period)
+            # As right string, finds the right key for the period (period of clim_period)
+            RightString = build_period_str(wmodel)  
             CenterString = 'Seas cyc. amplitude'
             #
             # -- Plot the amplitude of the annual cycle
@@ -141,32 +152,103 @@ if do_my_own_climaf_diag:
             plot_amp = plot(amp, title=title, gsnLeftString=LeftString, gsnRightString=RightString,
                             gsnCenterString=CenterString, **my_own_climaf_diag_plot_params[variable])
             #
-            # ==> -- Add the plot to the line
-            # -----------------------------------------------------------------------------------------
-            index += cell("", safe_mode_cfile_plot(plot_amp, safe_mode=safe_mode),
-                          thumbnail=thumbN_size, hover=hover, **alternative_dir)
+            # ==> -- Create figure file
+            # -----------------------------------------------------------------------
+            figure_file = safe_mode_cfile_plot(plot_amp, safe_mode=safe_mode)
             #
-        # ==> -- Close the line and the table for this section
+        else:
+            #
+            # /// -- Finding data files with CliMAF , and using non-CliMAF code for
+            # /// -- generating a simple plot
+            #
+            print("wmodel=",wmodel)
+            #
+            # Let CliMAF find datafiles.
+            # It will resolve for attributes=*, when there is no amboguity 
+            #
+            d=ds(**wmodel).explore('resolve')
+            datafiles = d.baseFiles()
+            # datafiles is a space separated string of filenames, which period
+            # intersects the requested period. So, the covered period may be
+            # larger or smaller than the requested one.
+            #
+            # If needed, you may use
+            #     d.check(period=True, gap=True)
+            # which returns True is there is no gap and that requested
+            # period is included
+            #
+            # Apply a toy code sequence : get and plot first time step
+            #
+            if datafiles :
+                first_file = datafiles.split()[0]
+                print("First file=",first_file)
+                #
+                import xarray as xr
+                #
+                with xr.open_dataset(first_file) as datas:
+                    # You may have to match 'standard' variable name
+                    # (as used in datasets_setup.py) with actual
+                    # variable name in data file
+                    variable_name_in_file = None
+                    aliases = {
+                        "tas" : ["t2m", "tair"] ,
+                        "pr"  : ["precip"]
+                    }
+                    for varname in [ variable ] + aliases[variable] :
+                        if varname in datas.data_vars :
+                            variable_name_in_file = varname
+                            break
+                    if variable_name_in_file is None:
+                        print(f"Cannot find variable {variable} in file {filename}")
+                        exit
+                    #
+                    # Get variable for first time step
+                    var = datas.data_vars[variable_name_in_file][0] 
+                var.plot()
+                #
+                # ==> -- Create figure file
+                # -----------------------------------------------------------------------
+                from matplotlib import pyplot as plt
+                # Must use a distinct figure file name for each figure
+                from random import choices
+                from string import ascii_uppercase
+                figure_file = ''.join(choices(ascii_uppercase, k=10))+".png"
+                print(f"Figure={figure_file} for wmodel=",wmodel)
+                plt.savefig(figure_file)
+                #
+                plt.close()
+            else:
+                print("Issue accessing datafile for ", wmodel)
+                exit
+        #
+        # ==> -- Add the plot to the figures line
         # -----------------------------------------------------------------------------------------
-        index += close_line() + close_table()
+        index += cell("", figure_file, thumbnail=figure_size, hover=False, **alternative_dir)
+        #
+    # ==> -- Close the line for the variable
+    # -----------------------------------------------------------------------------------------
+    index += close_line()
+    #
+# ==> -- Close the table before possibly adding a section
+# -----------------------------------------------------------------------------------------
+index += close_table()
 
-# -- Preliminary settings: import module, set the verbosity and the 'safe mode'
+
+# Next settings are usually included in params_xx.py
 # ---------------------------------------------------------------------------- >
+
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'debug'
+verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
-# -- Set to True to clean the CliMAF cache
+# -- Set to True to clean the CliMAF cache before running the diag
 clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
 
-# -----------------------------------------------------------------------------------
 # --   End
-# --
-# -----------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------------------------------ \
 # --                                                                                                    - \
@@ -176,15 +258,11 @@ do_parallel = False
 # --     if use_available_period_set == True, it means that you also have Wmodels_clim and Wmodels_ts     - |
 # --     that correspond to 'models' with periods for climatologies and time series (respectively)        - |
 # --     that have already been found (if you used arguments like 'last_10Y', 'first_30Y', 'full' or '*') - |
-# --   - alternative_dir: to be used as an argument to cell(..., altdir=alternative_dir)                  - |
+# --   - alternative_dir: to be used as an argument to cell(..., **alternative_dir)                  - |
 # --   - the parameters from params_${component}.py (safe_mode,                                           - |
 # --   - the cesmep modules in share/cesmep_modules                                                       - |
 # --   - the default values from share/default/default_atlas_settings.py                                  - |
 # --                                                                                                      - /
-# -- Note: you can actually use an empty datasets_setup                                                  - /
-# -- and an empty params_${component}.py, and set everything from here                                  - /
-# --                                                                                                   - /
-# --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
 
 

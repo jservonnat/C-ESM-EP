@@ -228,10 +228,6 @@ for subdir in subdirs:
 # If the user runs the C-ESM-EP by default, it runs all the available components
 if components == allcomponents:
     components = available_components
-elif len(components) == 0 and argument != 'None':
-    print("No component to launch. Please chek your component arg (%s)!" %
-          args[2])
-    exit(1)
 
 # -- We get the atlas_head_title variable in the params_component.py
 # -- file to have a more explicit string for the links
@@ -261,7 +257,7 @@ for component in available_components:
         # content.splitlines()
         module_title = None
         for tmpline in content_diag.splitlines()+content_params.splitlines():
-            if 'atlas_head_title' in tmpline.split('=')[0]:
+            if '=' in tmpline and 'atlas_head_title' in tmpline.split('=')[0]:
                 if '"' in tmpline:
                     sep = '"'
                 if "'" in tmpline:
@@ -374,6 +370,10 @@ job_components = []
 for component in components:
     if component in available_components and component not in job_components:
         job_components.append(component)
+
+if len(job_components) == 0 and argument != 'None':
+    print("No component to launch. Please chek your component arg (%s)!" %
+          args[2])
 
 # -- Loop on the components and edit the html file with pysed
 if argument.lower() not in ['url', 'clean']:

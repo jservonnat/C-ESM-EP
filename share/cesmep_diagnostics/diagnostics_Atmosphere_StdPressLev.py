@@ -71,7 +71,8 @@ if not use_available_period_set:
 else:
     Wmodels = copy.deepcopy(Wmodels_clim)
 for model in Wmodels:
-    model.update(dict(table='Amon'))
+    if model['project'][0:4] == 'CMIP':
+        model.update(dict(table='Amon'))
 
 # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
 kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
