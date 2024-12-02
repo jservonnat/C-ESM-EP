@@ -77,6 +77,9 @@ run_main="python ${atlas_script} --comparison ${comparison} --component ${compon
 
 if [ ${atTGCC:-0} -eq 1 ] ; then
     
+    export irene_tools=/ccc/cont003/home/igcmg/igcmg/Tools/irene
+    export PCOCC_CONFIG_PATH=/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/.config/pcocc
+    CESMEP_CONTAINER=${CESMEP_CONTAINER:-"ipsl:cesmep_container"}
     env="--env re(CCC.*DIR) --env re(CLIMAF.*) --env PYTHONPATH "
     env+="--env TMPDIR=${CLIMAF_CACHE} --env LOGNAME --env SLURM_JOBID "
     pcocc-rs run $env $CESMEP_CONTAINER  <<-EOF
