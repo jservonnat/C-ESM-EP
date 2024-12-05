@@ -361,6 +361,8 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
     # -- If we are working on 3D atmospheric variable, compute the zonal mean
     if is3d(variable) or zonmean_variable:
         climato_dat = zonmean(climato_dat)
+        p["forbid_plotmap"]=True
+        
     #
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)
@@ -874,6 +876,8 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     if plot_context_suffix:
         context = context + '_' + plot_context_suffix
     p = plot_params(variable, context, custom_plot_params=custom_plot_params)
+    if is3d(variable) or zonmean_variable:
+        p["forbid_plotmap"]=True
     #
     # -- Add the projection
     if 'proj' not in p:
