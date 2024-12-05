@@ -65,11 +65,21 @@ fi
 # --> On Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
-	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20240703_climafV3.1_IPSL8
+	prefix=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/
+	if [ -z $CESMEP_CLIMAF_MODULE ] ; then 
+	    emodule=env20240920_climafV3.1_IPSL9
+	else
+	    emodule=$CESMEP_CLIMAF_MODULE
+	    if [ ${emodule:0:1} != "/" ]; then
+	    	emodule=$prefix/$emodule
+	    fi
+	fi
 	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
 	module purge
 	module load $emodule
+	# If one wants to use an aternate CLiMAF version
+	#export PYTHONPATH=~/climaf_installs/climaf_running:$PYTHONPATH
     else
 	echo "C-ESM-EP is not maintained on system $(uname -n)"
 	exit 1
