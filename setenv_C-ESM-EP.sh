@@ -65,14 +65,10 @@ fi
 # --> On Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
-	prefix=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/
-	if [ -z $CESMEP_CLIMAF_MODULE ] ; then 
-	    emodule=env20240920_climafV3.1_IPSL9
-	else
-	    emodule=$CESMEP_CLIMAF_MODULE
-	    if [ ${emodule:0:1} != "/" ]; then
-	    	emodule=$prefix/$emodule
-	    fi
+	emodule=${CESMEP_CLIMAF_MODULE:-env20240920_climafV3.1_IPSL9}
+	if [ ${emodule:0:1} != "/" ]; then
+	    prefix=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf
+	    emodule=$prefix/$emodule
 	fi
 	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
@@ -143,7 +139,7 @@ fi
 my_append -bp PYTHONPATH ${root}/share/cesmep_modules
 my_append -bp PYTHONPATH ${root}
 my_append -bp PYTHONPATH ${directory_of_this_script}
-
+#
 my_append -bp PATH ${root}
 
 # Set CliMAF cache
