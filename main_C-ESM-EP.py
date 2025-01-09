@@ -140,6 +140,11 @@ user_login = (os.getcwd().split('/')[4] if username == 'fabric' else username)
 # -> root_url_to_cesmep_outputs = URL of the root directory of the C-ESM-EP atlas (need 
 # to add 'C-ESM-EP', comparison and component to reach the atlas)
 
+try:
+    from settings import publish
+except:
+    publish = True
+
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
 try:
     from libIGCM_fixed_settings import TagName, SpaceName, OUT
@@ -321,25 +326,27 @@ with open(outfile, "w") as filout:
 
 blabla = None
 if onSpirit:
-    # -- Copy on thredds...
-    # ----------------------------------------------------------------------------------------------
-    # -- thredds directory (web server)
-    threddsdir = str.replace(atlas_dir, 'scratchu', 'thredds/ipsl')
-    os.system('rm -rf '+threddsdir)
-    th_dir = str.replace(threddsdir, '/'+component, '')
-    if not os.path.isdir(th_dir):
-        os.makedirs(th_dir)
-    os.system('cp -r '+atlas_dir+' '+th_dir)
-    print("index copied in : "+threddsdir)
-
-    alt_dir_name = threddsdir.replace(
-        '/thredds/ipsl', '/thredds/fileServer/ipsl_thredds')
-    root_url = "https://thredds-su.ipsl.fr"
-
-    # -- and return the url of the atlas
-    print("Available at this address "+root_url +
-          outfile.replace(atlas_dir, alt_dir_name))
-
+    if publish:
+        # -- Copy on thredds...
+        # ----------------------------------------------------------------------------------------------
+        # -- thredds directory (web server)
+        threddsdir = str.replace(atlas_dir, 'scratchu', 'thredds/ipsl')
+        os.system('rm -rf '+threddsdir)
+        th_dir = str.replace(threddsdir, '/'+component, '')
+        if not os.path.isdir(th_dir):
+            os.makedirs(th_dir)
+        os.system('cp -r '+atlas_dir+' '+th_dir)
+        print("index copied in : "+threddsdir)
+    
+        alt_dir_name = threddsdir.replace(
+            '/thredds/ipsl', '/thredds/fileServer/ipsl_thredds')
+        root_url = "https://thredds-su.ipsl.fr"
+    
+        # -- and return the url of the atlas
+        print("Available at this address "+root_url +
+              outfile.replace(atlas_dir, alt_dir_name))
+    else:
+        print("Index available at here: "+outfile)
 
 #
 
@@ -362,30 +369,35 @@ if atTGCC or atIDRIS:
     print(cmd1)
     os.system(cmd1)
     #
-    # -- thredds_cp des résultats de work à thredds (après un nettoyage de la cible)
-    if atTGCC:
-        path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
-            '/' + suffix_to_comparison
-        cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
-        print(cmd12)
-        os.system(cmd12)
-        cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
-            ' '+path_to_comparison_on_web_server
-    elif atIDRIS:
-        path_to_comparison_on_web_server = suffix_to_comparison
-        cmd12 = 'thredds_rm ' + path_to_comparison_on_web_server+'/'+component
-        print(cmd12)
-        os.system(cmd12)
-        cmd2 = '(cd ' + path_to_comparison_outdir_workdir_hpc + '/..' +\
-            '; thredds_cp ' + component + ' ' + path_to_comparison_on_web_server + ')'
-    print("cmd2=", cmd2)
-    subprocess.check_output(cmd2, shell=True, stderr=subprocess.STDOUT)
+    if publish:
+        # -- thredds_cp des résultats de work à thredds (après un nettoyage de la cible)
+        if atTGCC:
+            path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
+                '/' + suffix_to_comparison
+            cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
+            print(cmd12)
+            os.system(cmd12)
+            cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
+                ' '+path_to_comparison_on_web_server
+        elif atIDRIS:
+            path_to_comparison_on_web_server = suffix_to_comparison
+            cmd12 = 'thredds_rm ' + path_to_comparison_on_web_server+'/'+component
+            print(cmd12)
+            os.system(cmd12)
+            cmd2 = '(cd ' + path_to_comparison_outdir_workdir_hpc + '/..' +\
+                '; thredds_cp ' + component + ' ' + path_to_comparison_on_web_server + ')'
+        print("cmd2=", cmd2)
+        subprocess.check_output(cmd2, shell=True, stderr=subprocess.STDOUT)
 
     print(' -- ')
     print(' -- ')
     print(' -- ')
-    print('Index available at : ' +
-          outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
+    if publish:
+        print('Index available at : ' +
+              outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
+    else:
+        print('Index available at : ' + outfile)
+        
 
 if atTGCC or atIDRIS:
     print("The atlas is ready as ", index_name.replace(

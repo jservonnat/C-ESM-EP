@@ -91,7 +91,12 @@ except:
     print("Importing account from settings failed")
     account = None
 
-
+#
+try:
+    from settings import publish
+except:
+    publish = True
+    
 # -- Get email
 try:
     from settings import email, one_mail_per_component
@@ -222,7 +227,8 @@ for component in allcomponents:
 # -> Then, we check whether there are some components not listed in allcomponents;
 # if yes, they will be added at the end of the list
 for subdir in subdirs:
-    if subdir not in allcomponents and subdir not in 'tmp_paramfiles':
+    if subdir not in allcomponents and \
+       os.path.isfile(comparison + "/" + subdir + "/params_" + subdir + ".py") :
         available_components.append(subdir)
 
 # If the user runs the C-ESM-EP by default, it runs all the available components
@@ -383,7 +389,7 @@ for component in components:
         job_components.append(component)
 
 if len(job_components) == 0 and argument != 'None':
-    print("No component to launch. Please chek your component arg (%s)!" %
+    print("No component to launch. Please check your component arg (%s)!" %
           args[2])
 
 # -- Loop on the components and edit the html file with pysed
@@ -408,7 +414,7 @@ if argument.lower() not in ['url', 'clean']:
                 # 2. Edit target_component and target_comparison
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
-                if atIDRIS:
+                if atIDRIS and publish:
                     # 3. First clean target, then thredds_cp
                     destdir = path_to_comparison_on_web_server + component
                     rmcmd = 'mfthredds -r ' + destdir + '/' + \
@@ -431,8 +437,9 @@ if argument.lower() not in ['url', 'clean']:
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
                 # 3. thredds_cp
-                check_output('thredds_cp ' + atlas_pathfilename +
-                             ' ' + path_to_comparison_on_web_server + component, shell=True)
+                if publish :
+                    check_output('thredds_cp ' + atlas_pathfilename + ' ' +
+                                 path_to_comparison_on_web_server + component, shell=True)
 
     # Create an empty file for accumulating launched jobs ids
     launched_jobs = comparison_dir + "/launched_jobs"
@@ -709,9 +716,8 @@ if argument.lower() not in ['url', 'clean']:
         prefix = "/atlas_"
         if component in metrics_components:
             prefix = "/"
-        url = comparison_url + component + prefix + \
-            component + '_' + comparison + '.html'
-        pysed(frontpage_html, '%%target_' + component + '%%', url)
+        relative_url = component + prefix + component + '_' + comparison + '.html'
+        pysed(frontpage_html, '%%target_' + component + '%%', relative_url)
 
     # -- Edit the comparison name
     pysed(frontpage_html, 'target_comparison', comparison)
@@ -731,29 +737,37 @@ if argument.lower() not in ['url', 'clean']:
                 '/' + html_file.split("/")[-1]
             cmd = rmcmd + ";mfthredds -d " + path_to_comparison_on_web_server + ' ' + html_file
         cmd += ' ; rm ' + frontpage_html
+        if publish: 
+            check_output(cmd, shell=True)
     #
     if onSpirit or atCNRM or atCerfacs:
-        cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
+        if publish:
+            cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
+        else:
+            cmd = f'mv -f {frontpage_html} {path_to_comparison_outdir}'
+        check_output(cmd, shell=True)
     #
-    check_output(cmd, shell=True)
 
     # -- Copy the top image
     if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
         if atTGCC or atIDRIS:
             os.system('cp share/fp_template/CESMEP_bandeau.png ' +
                       path_to_comparison_outdir_workdir_tgcc)
-            if atTGCC:
+            if atTGCC and publish:
                 cmd = 'thredds_cp ' + path_to_comparison_outdir_workdir_tgcc + \
                     'CESMEP_bandeau.png ' + path_to_comparison_on_web_server
                 cmd += "; chmod +r " + path_to_comparison_on_web_server + "/CESMEP_bandeau.png"
-            if atIDRIS:
+            if atIDRIS and publish:
                 rmcmd = 'mfthredds -r  ' + path_to_comparison_on_web_server + '/' + \
                     'CESMEP_bandeau.png '
                 cmd = rmcmd + ';mfthredds -d  ' + path_to_comparison_on_web_server + ' ' + \
                     path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png '
         if onSpirit or atCNRM or atCerfacs:
-            cmd = 'cp -f share/fp_template/CESMEP_bandeau.png ' + \
-                path_to_comparison_on_web_server
+            cmd = 'cp -f share/fp_template/CESMEP_bandeau.png '
+            if publish :
+                cmd += path_to_comparison_on_web_server
+            else:
+                cmd += path_to_comparison_outdir
         check_output(cmd, shell=True)
 
     # -- Launch a job that sends a mail when all atlas jobs are completed
@@ -797,22 +811,27 @@ if argument.lower() not in ['url', 'clean']:
 
 if argument.lower() not in ['clean']:
     print('')
-    print('-- The CliMAF ESM Evaluation Platform atlas is available here: ')
-    print('--')
-    print('--   ' + frontpage_address)
-    print('--')
+    if publish :
+        print('-- The CliMAF ESM Evaluation Platform atlas is available here: ')
+        print('--')
+        print('--   ' + frontpage_address)
+        print('--')
     print('--')
     print('-- The html file is here: ')
-    if not atIDRIS:
-        print('-- ' + path_to_comparison_on_web_server + frontpage_html)
-    else:
+    if atIDRIS or atTGCC:
         print('-- ' + html_file)
+    else:
+        if publish :
+            print('-- ' + path_to_comparison_on_web_server + frontpage_html)
+        else:
+            print('-- ' + path_to_comparison_outdir + frontpage_html)
 
 if argument.lower() in ['clean']:
     print("Cleaning CESMEP CliMAF cache ", cesmep_climaf_cache)
     os.system("rm -fr " + cesmep_climaf_cache)
-    print("Cleaning data on web server ", path_to_comparison_on_web_server)
-    os.system("rm -fr " + path_to_comparison_on_web_server)
+    if publish:
+        print("Cleaning data on web server ", path_to_comparison_on_web_server)
+        os.system("rm -fr " + path_to_comparison_on_web_server)
     if atTGCC:
         print("Cleaning data on output dir ",
               path_to_comparison_outdir_workdir_tgcc)

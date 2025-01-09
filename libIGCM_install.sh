@@ -29,6 +29,7 @@ Center=${12:-TGCC}   # Which computing center are we running on (TGCC, IDRIS, sp
 CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice (in years)
 CesmepReferences=${14:-NONE} # Paths for the references simulation outputs, with period suffix. A comma separated list
 CesmepInputFrequency="${15:-monthly}" # Which is the frequency of simulation outputs to use (daily/monthly/yearly)
+CesmepPublish=${16:-True}
 
 
 # This script can be called from anywhere
@@ -234,12 +235,16 @@ cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${
 # Write down a few parameters in file libIGCM_post.param, used by libIGCM_post.sh
 echo "$dir $comparison ${DateBegin//-/} $CesmepPeriod $CesmepSlices $CesmepSlicesDuration $cache $comps " > libIGCM_post.param
 
-# Set account/project to charge, and mail to use, in relevant file
+# Set account/project to charge, and mail to use, and flag 'publish',
+# in relevant file
 [ $Center = IDRIS ] && ProjectId=$ProjectId"@cpu"
 sed -i \
     -e "s/account *=.*/account = \"$ProjectId\"/" \
     -e "s/mail *=.*/mail = \"${MailAdress}\"/" \
     settings.py
+if [ $CesmepPublish = FALSE -o $CesmepPublish = False ]; then
+    sed -i -e "s/publish *=.*/publish = False/" settings.py
+fi
 
 # Create a link to simulation outputs (for easing debug)
 ln -sf $R_SAVE simulation_outputs

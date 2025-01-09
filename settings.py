@@ -12,3 +12,7 @@ one_mail_per_component = False
 #   - at IDRIS, default account is provided by command idrproj
 account = None
 # account = "psl@cpu"   # Example for IDRIS
+
+# Should we publish the atlas to an http capable location such as
+# thredds-su.ipsl.fr/thredds.   
+publish = True
