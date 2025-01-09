@@ -11,21 +11,20 @@
 from __future__ import unicode_literals, print_function, division
 
 # -- Imports
-from climaf.api import *
-from climaf.chtml import *
-from CM_atlas import *
-from env.site_settings import onSpirit, atTGCC, atCNRM, atIDRIS
 from getpass import getuser
-from climaf import __path__ as cpath
-import json
 import os
 import copy
 import subprocess
-import shlex
 from optparse import OptionParser
+#
+from env.site_settings import onSpirit, atTGCC, atCNRM, atIDRIS
+from climaf.api import *
+from climaf.chtml import *
+#
+from CM_atlas import *
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
-
+#
 csync(True)
 
 # -----------------------------------------------------------------------------------
@@ -62,16 +61,9 @@ parser.add_option("--cesmep_frontpage",
 (opts, args) = parser.parse_args()
 
 
-# -- Define the path to the main C-ESM-EP directory:
+# -- Define the path to the main C-ESM-EP directory as path of the current code file:
 # -----------------------------------------------------------------------------------
-rootmainpath = os.getcwd()
-print('rootmainpath = ', rootmainpath)
-if os.path.isfile(rootmainpath+'main_C-ESM-EP.py'):
-    main_cesmep_path = rootmainpath
-if os.path.isfile(rootmainpath+'/../main_C-ESM-EP.py'):
-    main_cesmep_path = rootmainpath+'/../'
-if os.path.isfile(rootmainpath+'/../../main_C-ESM-EP.py'):
-    main_cesmep_path = rootmainpath+'/../../'
+main_cesmep_path = os.path.dirname(os.path.abspath(__file__)) + "/"
 
 
 # -- Get the default parameters from default_atlas_settings.py -> Priority = default
@@ -102,7 +94,8 @@ if not os.path.isfile(diagnostics_file):
 print('-- Use diagnostics_file =', diagnostics_file)
 
 
-# -- If we specify a datasets_setup from the command line, we use 'models' from this file
+# -- If there is a datasets_setup_available_period.py file, we use 'models' from
+# -- this file and tell diagnostics codes to use it (via use_available_period_set)
 # -----------------------------------------------------------------------------------
 datasets_setup_available_period_set_file = datasets_setup.replace(
     '.py', '_available_period_set.py')
@@ -134,14 +127,18 @@ username = getuser()
 user_login = (os.getcwd().split('/')[4] if username == 'fabric' else username)
 
 
-# -- Get the site specifications:
+# -- Use the site specifications from module locations.py, to compute atlas_dir
+# -- and atlas_url
 # -----------------------------------------------------------------------------------
-# -> path_to_cesmep_output_rootdir = where (directory) we physically store the results of the C-ESM-EP
-# (root directory of the whole atlas tree)
-# -> path_to_cesmep_output_rootdir_on_web_server = path to the results on the web server (which are
-# soft- or hard-linked to results on path_to_cesmep_output_rootdir, or even copied from there)
-# -> root_url_to_cesmep_outputs = URL of the root directory of the C-ESM-EP atlas (need to add 'C-ESM-EP',
-# comparison and component to reach the atlas)
+# -> path_to_cesmep_output_rootdir = where (directory) we physically store the 
+# results of the C-ESM-EP (root directory of the whole atlas tree)
+
+# -> path_to_cesmep_output_rootdir_on_web_server = path to the results on the 
+# web server (which are soft- or hard-linked to results on
+# path_to_cesmep_output_rootdir, or even copied from there)
+
+# -> root_url_to_cesmep_outputs = URL of the root directory of the C-ESM-EP atlas (need 
+# to add 'C-ESM-EP', comparison and component to reach the atlas)
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
 try:
@@ -218,16 +215,8 @@ print('  --')
 
 
 # -----------------------------------------------------------------------------------
-# --   PART 2: Build the html
-# --              - the header
-# --              - and the sections of diagnostics:
-# --                 * Atlas Explorer
-# --                 * Atmosphere
-# --                 * Blue Ocean - physics
-# --                 * White Ocean - Sea Ice
-# --                 * Green Ocean - Biogeochemistry
-# --                 * Land Surfaces
-# --                 ...
+# --   PART 2: Build the html, i.e. some init + execute the params code then
+# --   the diagnostics code
 # -----------------------------------------------------------------------------------
 
 
@@ -248,21 +237,19 @@ if os.path.isfile(param_file):
     exec(open(param_file).read())
 
 
-# -- Add the season to the html file name
+# -- Set the html file name
 # -----------------------------------------------------------------------------------
 if not index_name:
     index_name = 'atlas_'+component+'_'+comparison+'.html'
 
 
-# -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug',
-# -- intermediate -> 'warning')
+# -- Set the verbosity of CliMAF , based on 'verbose' in params file
 # -----------------------------------------------------------------------------------
 clog(verbose)
 
-# -- Automatically zoom on the plot when the mouse is on it
+# -- Automatically zoom on the plot when the mouse is on it ?
 # ---------------------------------------------------------------------------- >
 hover = False
-
 
 # -- Add the compareCompanion (P. Brockmann)
 # --> Works as a 'basket' on the html page to select some figures and
@@ -314,7 +301,7 @@ if add_compareCompanion:
     print('Add compareCompanion')
     index += compareCompanion()
 
-# -- End the index
+# -- Finalize the index  (SS : why is it done here, while opening index is done in diag code ?)
 index += trailer()
 
 

@@ -14,7 +14,6 @@ custom_obs_dict = dict()
 
 reference_models = []
 period_manager_test_variable = None
-apply_period_manager_once_for_all_diags = False
 do_SST_for_tuning = False
 do_atlas_explorer = False
 do_parallel_atlas_explorer = False

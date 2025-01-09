@@ -247,34 +247,45 @@ for component in available_components:
     if not os.path.isfile(diag_filename):
         diag_filename = main_cesmep_path + \
             '/share/cesmep_diagnostics/diagnostics_' + component + '.py'
-    # paramfile = comparison+'/'+component+'/diagnostics_'+component+'.py'
     # Allow to de-activate a component by setting read attribute to false
     try:
         with open(diag_filename, 'r') as content_file_diag:
             content_diag = content_file_diag.read()
-        with open(params_filename, 'r') as content_file_params:
-            content_params = content_file_params.read()
-        # content.splitlines()
-        module_title = None
-        for tmpline in content_diag.splitlines()+content_params.splitlines():
+    except:
+        if do_print:
+            print("Skipping component ", component,
+                  " which diagnostic file %s is not readable"%diag_filename)
+            continue
+    if os.path.isfile(params_filename):
+        try:
+            with open(params_filename, 'r') as content_file_params:
+                content_params = content_file_params.read()
+        except:
+            if do_print:
+                print("Skipping component ", component,
+                      " which params file %s is not readable"%params_filename)
+            continue
+    # content.splitlines()
+    module_title = None
+    for tmpline in content_diag.splitlines()+content_params.splitlines():
+        try :
             if '=' in tmpline and 'atlas_head_title' in tmpline.split('=')[0]:
                 if '"' in tmpline:
                     sep = '"'
                 if "'" in tmpline:
                     sep = "'"
                 module_title = tmpline.split(sep)[1]
-        if module_title:
-            name_in_html = module_title
-        else:
-            name_in_html = component
-        cesmep_modules.append([component, name_in_html])
-        tested_available_components.append(component)
-    except:
-        if do_print:
-            print("Skipping component ", component,
-                  " which diagnostic file is not readable")
-            # available_components.remove(component)
-            continue
+        except:
+            print("Cannot set atlas_head_title for component %s "%component + \
+                  "using this line of diag or params file")
+            print(tmpline,"\n")
+            sys.exit(1)
+    if module_title:
+        name_in_html = module_title
+    else:
+        name_in_html = component
+    cesmep_modules.append([component, name_in_html])
+    tested_available_components.append(component)
 
 available_components = tested_available_components
 
@@ -448,10 +459,10 @@ for component in job_components:
     time = None
     param_lines = []
     if os.path.isfile(submitdir + '/params_' + component + '.py'):
-        param_filename = open(submitdir + '/params_' + component + '.py')
+        param_file = open(submitdir + '/params_' + component + '.py')
         if do_print:
             print('param file = ', submitdir + '/params_' + component + '.py')
-        param_lines = param_filename.readlines()
+        param_lines = param_file.readlines()
     #
     diag_filename = submitdir + '/diagnostics_' + component + '.py'
     if not os.path.isfile(diag_filename):

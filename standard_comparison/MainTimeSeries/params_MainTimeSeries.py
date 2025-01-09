@@ -149,7 +149,6 @@ time_series_specs = [
 
 ]
 
-apply_period_manager_once_for_all_diags = False
 period_manager_test_variable = 'tos'
 
 common_ts_plot_params = dict(
