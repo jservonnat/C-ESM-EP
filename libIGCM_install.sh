@@ -30,6 +30,8 @@ CesmepSlicesDuration=${13:-$CesmepPeriod}   # Duration of an atlas time slice (i
 CesmepReferences=${14:-NONE} # Paths for the references simulation outputs, with period suffix. A comma separated list
 CesmepInputFrequency="${15:-monthly}" # Which is the frequency of simulation outputs to use (daily/monthly/yearly)
 CesmepPublish=${16:-True}
+CesmepAtlasPath=${17:-NONE} # Path for the atlas (relative to $WORKDIR/C-ESM-EP/)
+CesmepAtlasTitle=${18:-NONE} # Title for the atlas 
 
 
 # This script can be called from anywhere
@@ -112,6 +114,7 @@ fi
 # Create comparison's parameters file and set part which is fixed along run
 cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	root           = '$Root'
+	# Next is the login for C-ESM-EP jobs (which may differ from the simulation's job
 	Login          = '${Login}'
 	TagName        = '${TagName}'
 	SpaceName      = '${SpaceName}'
@@ -123,6 +126,8 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	CesmepSlices   = $CesmepSlices
 	CesmepSlicesDuration = $CesmepSlicesDuration
 	CesmepPeriod   = $CesmepPeriod
+	AtlasPath      = '$CesmepAtlasPath'
+	AtlasTitle     = '$CesmepAtlasTitle'
 	#
 	# Next lines will allow to build the simulation output data path. This 
 	# is needed when creating a fake simulation for computing an atlas, and e.g.
@@ -131,9 +136,9 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	# in the data path)
 	# Each such parameter should be specified
 	
-	# DataPathRoot =   # e.g. '/ccc/store/cont003/gen0826'
-	# DataPathLogin =   # e.g.  'user_login_showing_in_the_data_path'  
-	# DataPathExperimentName =    # needed only if you changed w.r.t.the initial config.card
+	# DataPathRoot =       # e.g. '/ccc/store/cont003/gen0826'
+	# DataPathLogin =      # user login showing in the data path 
+	# DataPathJobName =    # needed only if you changed w.r.t.the initial config.card
 	EOF
 
 # Install a dedicated datasets_setup file

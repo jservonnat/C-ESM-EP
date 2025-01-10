@@ -6,7 +6,7 @@
 from libIGCM_settings import root, Login, TagName, SpaceName, \
     frequency, OUT, DateBegin, \
     CesmepSlices, CesmepPeriod, CesmepSlices, CesmepSlicesDuration, \
-    end, data_end
+    AtlasPath, end, data_end
 
 try:
     from libIGCM_settings import JobName, ExperimentName
@@ -89,8 +89,8 @@ elif atIDRIS:
     root = '/gpfsstore/rech/psl'
     gridpath = '/gpfswork/rech/psl/commun/database/grids'
 elif onSpirit:
-    root = 'please_set_default_root_for_spirit_in_libIGCM_datasets.py'
-    gridpath = 'please_set_gridpath_for_spirit_in_libIGCM_datasets.py'
+    root = 'please_set_default_root_for_spirit_in_libIGCM_datasets.py /'
+    gridpath = 'please_set_gridpath_for_spirit_in_libIGCM_datasets.py /'
 
 IGCM_common_keys = dict(
     root=root,

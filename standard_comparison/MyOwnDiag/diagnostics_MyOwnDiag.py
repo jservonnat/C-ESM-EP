@@ -19,6 +19,14 @@
 # parameters driving the diagnostic computation that are more prone to
 # change than the code here.
 
+# -- Head title of the atlas. Should normally be set in params_xx.py
+# ---------------------------------------------------------------------------- >
+if atlas_head_title is None:
+    atlas_head_title = "My own diagnostics"
+    # When driven by libIGCM, an additional title may be provided by config.card
+    if AtlasTitle != "NONE":
+        atlas_head_title += " - " + AtlasTitle
+
 # You may have empty datasets_setup.py and params_xxx.py files, and
 # set everything here. But the idea is that the diagnostics_xx.py code
 # is ultimately part of C-ESM-EP shared code (and lies in shared/
@@ -134,7 +142,8 @@ for variable in my_own_climaf_diag_variables:
             #
             # -- Compute the amplitude of the annual cycle (max - min)
             # -----------------------------------------------------------------------------------------
-            amp = minus(ccdo(dat, operator='timmax'), ccdo(dat, operator='timmin'))
+            amp = minus(ccdo(dat, operator='timmax'),
+                        ccdo(dat, operator='timmin'))
             #
             # /// -- Build the titles
             # -----------------------------------------------------------------------------------------
@@ -264,5 +273,3 @@ do_parallel = False
 # --   - the default values from share/default/default_atlas_settings.py                                  - |
 # --                                                                                                      - /
 # ---------------------------------------------------------------------------------------------------- /
-
-

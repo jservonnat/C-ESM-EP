@@ -61,6 +61,12 @@ import getpass
 import re
 from locations import path_to_cesmep_output_rootdir, \
     path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs, climaf_cache
+try:
+    from libIGCM_fixed_settings import AtlasPath, AtlasTitle
+except:
+    print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
+    AtlasPath = "NONE"
+    AtlasTitle = "NONE"
 
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
@@ -275,7 +281,8 @@ for component in available_components:
     module_title = None
     for tmpline in content_diag.splitlines()+content_params.splitlines():
         try :
-            if '=' in tmpline and 'atlas_head_title' in tmpline.split('=')[0]:
+            if '=' in tmpline and 'atlas_head_title' in tmpline.split('=')[0] \
+               and "=" in tmpline and not "+=" in tmpline:
                 if '"' in tmpline:
                     sep = '"'
                 if "'" in tmpline:
@@ -337,17 +344,21 @@ if not path_to_cesmep_output_rootdir_on_web_server:
     path_to_cesmep_output_rootdir_on_web_server = path_to_cesmep_output_rootdir
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
-try:
-    from libIGCM_fixed_settings import TagName, SpaceName, OUT
-except:
-    suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
+
+if AtlasPath != "NONE":
+    suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
 else:
     try:
-        from libIGCM_fixed_settings import JobName, ExperimentName
+        from libIGCM_fixed_settings import TagName, SpaceName, OUT
     except:
-        # Odd syntax from an old version of CESMEP. To me removed at some date...
-        from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
-    suffix_to_comparison = f'/C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
+        suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
+    else:
+        try:
+            from libIGCM_fixed_settings import JobName, ExperimentName
+        except:
+            # Odd syntax from an old version of CESMEP. To me removed at some date...
+            from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
+        suffix_to_comparison = f'/C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
 
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
 #  -> path_to_comparison_outdir = path to the comparison directory
@@ -719,8 +730,12 @@ if argument.lower() not in ['url', 'clean']:
         relative_url = component + prefix + component + '_' + comparison + '.html'
         pysed(frontpage_html, '%%target_' + component + '%%', relative_url)
 
-    # -- Edit the comparison name
-    pysed(frontpage_html, 'target_comparison', comparison)
+    # -- Edit the comparison label : put AtlasTitle if any, else comparison name
+    if AtlasTitle != "NONE":
+        comparison_label = AtlasTitle
+    else:
+        comparison_label = comparison
+    pysed(frontpage_html, 'target_comparison', comparison_label)
 
     # -- Copy the edited html front page
     if atTGCC or atIDRIS:

@@ -40,9 +40,9 @@
 # ---------------------------------------------
 
 
-# -- Head title of the atlas
+# -- Head title of the atlas may have been set in params_xx.py
 # ---------------------------------------------------------------------------- >
-if atlas_head_title is None :
+if atlas_head_title is None:
     atlas_head_title = "ORCHIDEE"
 
 

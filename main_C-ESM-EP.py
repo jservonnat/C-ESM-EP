@@ -24,7 +24,12 @@ from climaf.chtml import *
 from CM_atlas import *
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
-#
+try:
+    from libIGCM_fixed_settings import AtlasPath
+except:
+    print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
+    AtlasPath = "NONE"
+
 csync(True)
 
 # -----------------------------------------------------------------------------------
@@ -146,17 +151,20 @@ except:
     publish = True
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
-try:
-    from libIGCM_fixed_settings import TagName, SpaceName, OUT
-except:
-    suffix_to_comparison = 'C-ESM-EP/' + comparison + '_' + user_login + '/'
+if AtlasPath != "NONE":
+    suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
 else:
     try:
-        from libIGCM_fixed_settings import JobName, ExperimentName
+        from libIGCM_fixed_settings import TagName, SpaceName, OUT
     except:
-        # Odd syntax from an old version of CESMEP. To me removed at some date...
-        from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
-    suffix_to_comparison = f'C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
+        suffix_to_comparison = 'C-ESM-EP/' + comparison + '_' + user_login + '/'
+    else:
+        try:
+            from libIGCM_fixed_settings import JobName, ExperimentName
+        except:
+            # Odd syntax from an old version of CESMEP. To me removed at some date...
+            from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
+        suffix_to_comparison = f'C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
 
     # -- Location of the directory where we will store the results of the atlas
 atlas_dir = path_to_cesmep_output_rootdir + \
