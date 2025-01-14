@@ -379,10 +379,6 @@ frontpage_address = comparison_url + frontpage_html
 if atTGCC:
     path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
         'scratch', 'work')
-if atIDRIS:
-    path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
-        'scratch', 'work')
-if atTGCC or atIDRIS:
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
 # -- Create the output directory for the comparison if it does not exist
@@ -425,14 +421,6 @@ if argument.lower() not in ['url', 'clean']:
                 # 2. Edit target_component and target_comparison
                 pysed(atlas_pathfilename, 'target_component', component)
                 pysed(atlas_pathfilename, 'target_comparison', comparison)
-                if atIDRIS and publish:
-                    # 3. First clean target, then thredds_cp
-                    destdir = path_to_comparison_on_web_server + component
-                    rmcmd = 'mfthredds -r ' + destdir + '/' + \
-                        atlas_pathfilename.split("/")[-1]
-                    cmd = rmcmd + '; mfthredds -d ' + destdir + ' ' + atlas_pathfilename
-                    #print("cmd=", cmd)
-                    check_output(cmd, shell=True)
 
         if atTGCC:
             if component in job_components:
@@ -738,7 +726,7 @@ if argument.lower() not in ['url', 'clean']:
     pysed(frontpage_html, 'target_comparison', comparison_label)
 
     # -- Copy the edited html front page
-    if atTGCC or atIDRIS:
+    if atTGCC :
         cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
         if do_print:
             print("First copying html front page to workdir: ", cmd1)
@@ -747,15 +735,11 @@ if argument.lower() not in ['url', 'clean']:
         if atTGCC:
             cmd = 'thredds_cp ' + html_file + ' ' + path_to_comparison_on_web_server +\
                 '; chmod +r ' + path_to_comparison_on_web_server + frontpage_html
-        if atIDRIS:
-            rmcmd = "mfthredds -r " + path_to_comparison_on_web_server + \
-                '/' + html_file.split("/")[-1]
-            cmd = rmcmd + ";mfthredds -d " + path_to_comparison_on_web_server + ' ' + html_file
         cmd += ' ; rm ' + frontpage_html
         if publish: 
             check_output(cmd, shell=True)
     #
-    if onSpirit or atCNRM or atCerfacs:
+    if onSpirit or atCNRM or atCerfacs or atIDRIS:
         if publish:
             cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
         else:
@@ -765,7 +749,7 @@ if argument.lower() not in ['url', 'clean']:
 
     # -- Copy the top image
     if not os.path.isfile(path_to_comparison_on_web_server + '/CESMEP_bandeau.png'):
-        if atTGCC or atIDRIS:
+        if atTGCC :
             os.system('cp share/fp_template/CESMEP_bandeau.png ' +
                       path_to_comparison_outdir_workdir_tgcc)
             if atTGCC and publish:
@@ -777,7 +761,7 @@ if argument.lower() not in ['url', 'clean']:
                     'CESMEP_bandeau.png '
                 cmd = rmcmd + ';mfthredds -d  ' + path_to_comparison_on_web_server + ' ' + \
                     path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png '
-        if onSpirit or atCNRM or atCerfacs:
+        if onSpirit or atCNRM or atCerfacs or atIDRIS:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png '
             if publish :
                 cmd += path_to_comparison_on_web_server
@@ -833,7 +817,7 @@ if argument.lower() not in ['clean']:
         print('--')
     print('--')
     print('-- The html file is here: ')
-    if atIDRIS or atTGCC:
+    if atTGCC:
         print('-- ' + html_file)
     else:
         if publish :

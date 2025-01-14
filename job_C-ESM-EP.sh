@@ -95,18 +95,10 @@ elif [ -n "$singularity_container" ] ; then
     # We are probably at IDRIS, and will use singularity
     module load singularity
     # File systems bindings
-    binds=$HOME:$HOME,$SCRATCH:$SCRATCH
-    # Must bind /gpfswork/rech and /gpfsstore/rech to access data in psl/common
-    # and of other projects
-    binds+=,/gpfsstore/rech:/gpfsstore/rech,/gpfswork/rech:/gpfswork/rech
-    # Must bind /gpfsdswork/projects to mimic a system symbolic link for $WORK
-    binds+=,/gpfswork:/gpfsdswork/projects
-    # Same for $SCRATCH
-    binds+=,/gpfsscratch:/gpfsssd/scratch
-    # Must bind /gpfslocalsup/bin for accessing mfthredds and thredds_cp commands
-    binds+=,/gpfslocalsup/bin:/gpfslocalsup/bin
-    # Must bind /gpfsdsmnt/ipsl/dods/pub for executing thredds_cp
-    binds+=,/gpfsdsmnt/ipsl/dods/pub:/gpfsdsmnt/ipsl/dods/pub
+    binds=$HOME,$SCRATCH
+    binds+=,/lustre/fswork/projects/rech/psl
+    binds+=,/lustre/fswork/projects/rech/psl:/gpfswork/rech/psl
+    binds+=,/gpfslocalsys
     #
     env="TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
     env+=",LOGNAME=$LOGNAME,PYTHONPATH=$PYTHONPATH"

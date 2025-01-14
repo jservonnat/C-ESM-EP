@@ -359,15 +359,11 @@ if onSpirit:
 #
 
 #
-if atTGCC or atIDRIS:
+if atTGCC :
 
     # -- Copie des résultats de scratch à work
-    if atTGCC:
-        path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-            'scratch', 'work')
-    elif atIDRIS:
-        path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-            'scratch', 'work')
+    path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
+        'scratch', 'work')
     if not os.path.isdir(path_to_comparison_outdir_workdir_hpc):
         os.makedirs(path_to_comparison_outdir_workdir_hpc)
     else:
@@ -379,21 +375,13 @@ if atTGCC or atIDRIS:
     #
     if publish:
         # -- thredds_cp des résultats de work à thredds (après un nettoyage de la cible)
-        if atTGCC:
-            path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
-                '/' + suffix_to_comparison
-            cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
-            print(cmd12)
-            os.system(cmd12)
-            cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
-                ' '+path_to_comparison_on_web_server
-        elif atIDRIS:
-            path_to_comparison_on_web_server = suffix_to_comparison
-            cmd12 = 'thredds_rm ' + path_to_comparison_on_web_server+'/'+component
-            print(cmd12)
-            os.system(cmd12)
-            cmd2 = '(cd ' + path_to_comparison_outdir_workdir_hpc + '/..' +\
-                '; thredds_cp ' + component + ' ' + path_to_comparison_on_web_server + ')'
+        path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
+            '/' + suffix_to_comparison
+        cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
+        print(cmd12)
+        os.system(cmd12)
+        cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
+            ' '+path_to_comparison_on_web_server
         print("cmd2=", cmd2)
         subprocess.check_output(cmd2, shell=True, stderr=subprocess.STDOUT)
 
@@ -407,7 +395,7 @@ if atTGCC or atIDRIS:
         print('Index available at : ' + outfile)
         
 
-if atTGCC or atIDRIS:
+if atTGCC :
     print("The atlas is ready as ", index_name.replace(
         atlas_dir, path_to_comparison_outdir_workdir_hpc))
 else:

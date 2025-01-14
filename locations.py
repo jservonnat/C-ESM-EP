@@ -118,7 +118,8 @@ if atIDRIS:
     scratch = os.getenv("SCRATCH")
     path_to_cesmep_output_rootdir = scratch
     # thredds_cp requires relative target paths
-    path_to_cesmep_output_rootdir_on_web_server = "."
+    #path_to_cesmep_output_rootdir_on_web_server = "."
+    path_to_cesmep_output_rootdir_on_web_server = os.getenv("THREDDSDIR")    
     root_url_to_cesmep_outputs = 'https://thredds-su.ipsl.fr/thredds/fileServer/' +\
         'idris_thredds/work/' + username
     climaf_cache = scratch + '/cache_atlas_explorer'
