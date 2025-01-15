@@ -195,9 +195,10 @@ for comp in $(cd $comparison ; ls ) ; do
     # Work only on directories
     add=false
     case $comp in
-	MainTimeSeries | AtlasExplorer)
-	    [[ $Components = *,ATM,* || $Components = *,OCE,* ||
-		   $Components = *,SRF,* || $Components = *,SBG,* ]] && add=true ;;
+	#AtlasExplorer)
+	#    [[ $Components = *,ATM,* || $Components = *,OCE,* ]] && add=true ;;
+	MainTimeSeries )
+	    [[ $Components = *,ATM,* || $Components = *,OCE,* ]] && add=true ;;
 
 	Atmosphere_Surface | Atmosphere_StdPressLev | Atmosphere_zonmean |\
 	NH_Polar_Atmosphere_StdPressLev | NH_Polar_Atmosphere_Surface | \

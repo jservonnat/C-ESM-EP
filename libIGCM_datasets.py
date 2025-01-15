@@ -64,7 +64,7 @@ if CesmepPeriod != 0:
     begin = end - CesmepSlicesDuration + 1
     count = 0
     while begin >= YearBegin and \
-            ((CesmpSlices == 'max') or (count < CesmepSlices)):
+            ((CesmepSlices == 'max') or (count < CesmepSlices)):
         current_slice = common.copy()
         clim_period = "%d_%d" % (begin, end)
         current_slice.update(clim_period=clim_period,

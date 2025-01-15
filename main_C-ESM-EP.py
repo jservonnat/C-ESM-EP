@@ -25,10 +25,11 @@ from CM_atlas import *
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
 try:
-    from libIGCM_fixed_settings import AtlasPath
+    from libIGCM_fixed_settings import AtlasPath, AtlasTitle
 except:
-    print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
+    #print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
     AtlasPath = "NONE"
+    AtlasTitle = "NONE"
 
 csync(True)
 

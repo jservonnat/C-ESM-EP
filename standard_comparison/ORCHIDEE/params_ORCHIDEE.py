@@ -106,6 +106,8 @@ calias("IGCM_OUT", 'rlds', 'lwdown', filenameVar='sechiba_history')
 
 calias('IGCM_OUT', 'hfls', 'fluxlat', filenameVar='sechiba_history')
 calias('IGCM_OUT', 'hfss', 'fluxsens', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'mrros', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'mrrob', 'drainage', filenameVar='sechiba_history')
 calias('IGCM_OUT', 'et', 'evspsblveg', filenameVar='sechiba_history')
 calias('IGCM_OUT', 'snw', 'frac_snow', filenameVar='sechiba_history')
 
