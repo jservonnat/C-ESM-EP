@@ -22,8 +22,8 @@
 cesmep_dir=$(cd $(dirname $0) ; pwd)  # Dir of current code
 [ -h $cesmep_dir/share ] && echo "Cannot work from a lite install" && exit 1
 
-target=${1?} 
-comparison=${2?}
+target=${1?"Provide target directory as first argument"} 
+comparison=${2?"Provide comparison name as second argument"}
 with_libIGCM=${3:-no}  # If arg #3 is set, also link scripts used by libIGCM
 
 target=$(cd $target ; pwd)
@@ -31,6 +31,18 @@ target=$(cd $target ; pwd)
     echo "$0 : Must provide an existing directory as first argument" && exit 1
 target=$target/cesmep_lite
 if [ -d $target ] ; then
+    echo -e "\033[1;32mThere's already a C-ESM-EP lite install at $target."
+    echo -n -e " Do you want to supersede it (y/N) ? : \033[m"
+    read reponse
+    case ${reponse} in
+	oui|OUI|o|y|yes|YES)
+	    echo "OK"
+	    ;;
+	non|NON|n|no|NO|*)
+	    echo "No C-ESM-EP install !"
+	    exit 9
+	    ;;
+    esac
     chmod -R 777 $target
     rm -fR $target
 fi
@@ -52,20 +64,19 @@ fi
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 
-links="share job_C-ESM-EP.sh job_PMP_C-ESM-EP.sh locations.py"
+links="share job_C-ESM-EP.sh job_PMP_C-ESM-EP.sh locations.py custom_obs_dict.py"
 [ $with_libIGCM != no ] && links+=" libIGCM_clean.sh libIGCM_post.sh"
 for file in $links; do
      ln -sf $cesmep_dir/$file $target
 done
 
-# Copy some pyhton files (cannot link because of side effect in PYTHONPATH)
+# Copy some python files (cannot link because of side effect in PYTHONPATH)
 copies="run_C-ESM-EP.py main_C-ESM-EP.py"
 for file in $copies; do
      cp -f $cesmep_dir/$file $target
 done
 
-
-# Copy only files that will or could be changed
+# Copy also files that will or could be changed
 cp -f $cesmep_dir/settings.py $target
 
 # Set root directory in setenv_C-ESM-EP.sh

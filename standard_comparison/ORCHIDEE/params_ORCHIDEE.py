@@ -30,7 +30,7 @@ from custom_plot_params import dict_plot_params as custom_plot_params
 
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'debug'
+verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -42,6 +42,8 @@ do_parallel = False
 # nprocs = 32
 # memory = 30 # in gb; 30 for ocean atlasas
 # queue = 'zen4' # onCiclad: h12, days3
+# time = 480 # minutes
+# QOS = 'test'
 
 
 # -- Set the reference against which we plot the diagnostics
@@ -58,6 +60,9 @@ do_parallel = False
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "ORCHIDEE"
+# When driven by libIGCM, an additional title may be provided by config.card
+if AtlasTitle != "NONE":
+    atlas_head_title += " - " + AtlasTitle
 
 
 # -- Set the overall season, region and geographical domain
@@ -99,10 +104,18 @@ calias("IGCM_OUT", 'tas', 'tair', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rsds', 'swdown', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rlds', 'lwdown', filenameVar='sechiba_history')
 
-calias('IGCM_OUT', 'hfls', 'fluxlat')
-calias('IGCM_OUT', 'hfss', 'fluxsens')
-calias('IGCM_OUT', 'et', 'evspsblveg')
-calias('IGCM_OUT', 'snw', 'frac_snow')
+calias('IGCM_OUT', 'hfls', 'fluxlat', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'hfss', 'fluxsens', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'mrros', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'mrrob', 'drainage', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'et', 'evspsblveg', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'snw', 'frac_snow', filenameVar='sechiba_history')
+
+calias('IGCM_OUT', 'cLitter', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'cSoil', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'cVeg', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'npp', filenameVar='stomate_ipcc_history')
+calias('IGCM_OUT', 'gpp', filenameVar='stomate_ipcc_history')
 
 calias('ref_climatos', 'hfls', 'fluxlat')
 calias('ref_climatos', 'hfss', 'fluxsens')
@@ -129,16 +142,16 @@ variables_water_budget = ['es', 'et', 'mrros', 'mrrob', 'snw']
 tmp_vars = []
 for var in variables_water_budget:
     if var in ['snw']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='LImon'))
     elif var in ['mrrob', 'es']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='*mon'))
     elif var in ['et']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Nonemon'))
     else:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Lmon'))
 variables_water_budget = tmp_vars
 # -> climato + bias map + difference with the first simulation
@@ -165,10 +178,10 @@ variables_carbon_budget = ['cLitter', 'cSoil', 'cVeg', 'lai', 'gpp', 'npp']
 tmp_vars = []
 for var in variables_carbon_budget:
     if var in ['cSoil']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Emon'))
     else:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Lmon'))
 variables_carbon_budget = tmp_vars
 

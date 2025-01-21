@@ -50,6 +50,8 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 
 # - Init html index
 # -----------------------------------------------------------------------------------
+if atlas_head_title is None :
+    atlas_head_title = "Ocean Zonal Means"
 index = header(atlas_head_title, style_file=style_file)
 
 

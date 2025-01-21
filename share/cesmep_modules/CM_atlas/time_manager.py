@@ -167,13 +167,16 @@ def get_period_manager(dat_dict, diag=None):
     # -> Check if the variable is a derived variable; if yes, returns one variable it is based on
     # -> Will be used only for the request
     tested_variable = req_dict['variable']
-    req_dict.update(dict(variable=base_variable_of_derived_variable(tested_variable, req_dict['project'])))
+    req_dict.update(dict(variable=base_variable_of_derived_variable(
+        tested_variable, req_dict['project'])))
     #
     # -- if period, we can use the .explore('resolve') method to get the available period
     if period:
         req_dict.update(dict(period=period))
         # - Get the period corresponding to the user request (among *, last_10Y,...)
-        if period.upper() in ['FULL', '*'] or 'LAST_' in period.upper() or 'FIRST_' in period.upper():
+        if period.upper() in ['FULL', '*'] \
+           or 'LAST_' in period.upper() \
+           or 'FIRST_' in period.upper():
             # -- Use ds.explore method to find the available period
             #try:
             #    req = ds(**req_dict).explore('resolve')

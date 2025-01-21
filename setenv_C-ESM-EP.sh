@@ -29,22 +29,14 @@ source $root/utils.sh
 
 # --> At TGCC - Irene
 if [[ -d "/ccc" && ! -d "/data" ]] ; then
-    # pcocc name for the container to use for setting the environment
-    docker_container=cesmep_container
-    export LC_ALL=C.UTF-8  # Needed by pcocc (actually by Click in python 3.6)
-    export LANG=C.UTF-8    # Needed by pcocc (actually by Click in python 3.6)
-    if ! pcocc image show $docker_container #> /dev/null 2>&1 ;
-    then
-	echo -e"\n\nBefore your first run of C-ESM-EP at TGCC, you must tell pcocc  "
-	echo -e "which is the Docker container that satisfies C-ESM-EP prerequisites,"
-	echo -e "by issuing (only once) a command like"
-	echo -e "\n\t pcocc image import docker-archive:\$container_archive $docker_container\n"
-	echo -e "where \$container_archive is one of the files in :"
-	echo -e "\t/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/"
-	echo -e "(ask your C-ESM-EP guru for the up-to-date location and file)"
-	exit 1
-    fi
-    my_append -ep PATH /ccc/cont003/home/igcmg/igcmg/Tools/irene 
+    export atTGCC=1
+    export irene_tools=/ccc/cont003/home/igcmg/igcmg/Tools/irene
+    my_append -ep PATH $irene_tools
+    export CLIMAF=/ccc/cont003/home/igcmg/igcmg/Tools/climaf
+    my_append -bp PYTHONPATH $CLIMAF
+    # How to find environment container, and which container to use
+    export PCOCC_CONFIG_PATH=/ccc/work/cont003/igcmg/igcmg/climaf_python_docker_archives/.config/pcocc
+    export CESMEP_CONTAINER=${CESMEP_CONTAINER:-"ipsl:cesmep_container"}
 fi
 
 # --> At IDRIS - Jean-Zay
@@ -52,33 +44,38 @@ if [[ -d "/gpfsdswork" ]]; then
     echo "loading module singularity"
     set +x
     module load singularity
-    set -x
     if [ -z $singularity_container ]
     then
-	# identify newest container among those managed by idrcontmgr
-	singularity_container=$(idrcontmgr ls | /usr/bin/grep sif | tail -n -1)
+	# identify one container among those managed by idrcontmgr
+	export singularity_container=$(idrcontmgr ls | /usr/bin/grep sif | tail -n -1)
     fi
     if [ -z $singularity_container ] 
     then
-	echo -e"\n\nBefore you firt run of C-ESM-EP at IDRIS, you must "
+	echo -e"\n\nBefore your first run of C-ESM-EP at IDRIS, you must "
 	echo -e "declare the singularity container that satisfies C-ESM-EP "
 	echo -e "prerequisites, by issuing (only once) these commands :"
 	echo -e "\n\t module load singularity"
-	echo -e "\t idcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>\n"
+	echo -e "\t idrcontmgr cp /gpfswork/rech/psl/commun/Tools/cesmep_environment/<file>\n"
 	echo -e "\n where <file> is the newest '.sif' file in that Tools directory"
 	exit 1
     fi
+    my_append -bp PYTHONPATH /gpfswork/rech/psl/commun/Tools/climaf
 fi
 
 # --> On Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
-	emodule=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf/env20230611_climafV3.0_IPSL1
+	emodule=${CESMEP_CLIMAF_MODULE:-env20240920_climafV3.1_IPSL9}
+	if [ ${emodule:0:1} != "/" ]; then
+	    prefix=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf
+	    emodule=$prefix/$emodule
+	fi
 	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
 	module purge
 	module load $emodule
-	set -x
+	# If one wants to use an aternate CLiMAF version
+	#export PYTHONPATH=~/climaf_installs/climaf_running:$PYTHONPATH
     else
 	echo "C-ESM-EP is not maintained on system $(uname -n)"
 	exit 1
@@ -142,14 +139,17 @@ fi
 my_append -bp PYTHONPATH ${root}/share/cesmep_modules
 my_append -bp PYTHONPATH ${root}
 my_append -bp PYTHONPATH ${directory_of_this_script}
-
+#
 my_append -bp PATH ${root}
 
 # Set CliMAF cache
 export CLIMAF_CACHE=$(python3 -c 'from locations import climaf_cache; print(climaf_cache)')
 
+echo
+echo "Environment settings for C-ESM-EP"
+echo "---------------------------------"
 echo CLIMAF_CACHE        = $CLIMAF_CACHE
 echo CESMEP_CLIMAF_CACHE = $CESMEP_CLIMAF_CACHE
-echo PATH                = $PATH
 echo PYTHONPATH          = $PYTHONPATH
-
+[ ! -z $CESMEP_CONTAINER ] && echo CESMEP_CONTAINER     = $CESMEP_CONTAINER
+echo 

@@ -14,7 +14,7 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 # --      diagnostics_${component}.py                                                                     - |
 # --        ==> add html code to 'index' (initialized with 'header')                                      - |
 # --            using the CliMAF html toolbox (start_line, cell, close_table... )                         - |
-# --            to create your own atlas page                                                             - | 
+# --            to create your own atlas page                                                             - |
 # --                                                                                                      - |
 # --      Developed within the ANR Convergence Project                                                    - |
 # --      CNRM GAME, IPSL, CERFACS                                                                        - |
@@ -49,6 +49,8 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 
 # - Init html index
 # -----------------------------------------------------------------------------------
+if atlas_head_title is None :
+    atlas_head_title = "Ocean main diags"
 index = header(atlas_head_title, style_file=style_file)
 
 
@@ -102,7 +104,10 @@ if do_MLD_maps:
     if reference == 'default':
         ref = variable2reference(variable, my_obs=custom_obs_dict)
     else:
-        ref = reference
+        if type(reference) is list:
+            ref = reference[0]
+        else:
+            ref = reference
     #
     # -- MLD Diags -> Season and proj
     if not MLD_diags:
@@ -121,11 +126,13 @@ if do_MLD_maps:
         proj = MLD_diag[1]
         #
         # -- Control the size of the thumbnail -> thumbN_size
-        thumbN_size = (thumbnail_polar_size if 'SH' in proj or 'NH' in proj else thumbnail_size_global)
+        thumbN_size = (
+            thumbnail_polar_size if 'SH' in proj or 'NH' in proj else thumbnail_size_global)
         #
         # -- Open the html line with the title
         index += open_table()
-        line_title = season+' '+proj+' climato '+varlongname(variable)+' ('+variable+')'
+        line_title = season+' '+proj+' climato ' + \
+            varlongname(variable)+' ('+variable+')'
         index += open_line(line_title) + close_line() + close_table()
         #
         # -- Open the html line for the plots
@@ -142,7 +149,8 @@ if do_MLD_maps:
                                        safe_mode=safe_mode, regrid_option='remapdis')
         #
         # -- Add the climatology to the line
-        index += cell("", ref_MLD_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+        index += cell("", ref_MLD_climato, thumbnail=thumbN_size,
+                      hover=hover, **alternative_dir)
         #
         for model in Wmodels:
             # -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
@@ -150,11 +158,13 @@ if do_MLD_maps:
             wmodel = model.copy()
             wmodel.update(dict(table='Omon', grid='gn'))
             if 'frequency_for_annual_cycle' in wmodel:
-                wmodel.update(dict(frequency=wmodel['frequency_for_annual_cycle']))
+                wmodel.update(
+                    dict(frequency=wmodel['frequency_for_annual_cycle']))
             print('wmodel = ')
             MLD_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
                                        safe_mode=safe_mode, regrid_option='remapdis')
-            index += cell("", MLD_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+            index += cell("", MLD_climato, thumbnail=thumbN_size,
+                          hover=hover, **alternative_dir)
             #
         # -- Close the line and the table of the climatos
         close_line()
@@ -178,7 +188,8 @@ if do_curl_maps:
     # -- Wind stress curl Diags -> Season and proj
     if not curl_diags:
         curl_diags = [dict(name='Global, annual mean', season='ANM', proj='GLOB', thumbNsize='400*300'),
-                      dict(name='NH, annual mean', season='ANM', proj='NH40', thumbNsize='400*400'),
+                      dict(name='NH, annual mean', season='ANM',
+                           proj='NH40', thumbNsize='400*400'),
                       dict(name='North Atlantic, annual mean', season='ANM',
                            domain=dict(lonmin=-80, lonmax=0, latmin=30, latmax=90), thumbNsize='400*300'),
                       dict(name='Tropical Atlantic, annual mean', season='ANM',
@@ -228,7 +239,8 @@ if do_curl_maps:
             curl_climato = plot_curl(tauu_variable, tauv_variable, curl_variable, wmodel, season, proj, domain=domain,
                                      custom_plot_params=custom_plot_params,
                                      safe_mode=safe_mode, regrid_option='remapdis')
-            index += cell("", curl_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+            index += cell("", curl_climato, thumbnail=thumbN_size,
+                          hover=hover, **alternative_dir)
             #
         # -- Close the line and the table of the climatos
         close_line()
@@ -254,11 +266,13 @@ if do_ATLAS_TIMESERIES_SPATIAL_INDEXES:
         # -- Loop on the regions
         for region in ts_basins:
             # -- Open the line with the title
-            index += start_line(title_region(region)+' '+varlongname(variable)+' ('+variable+')')
+            index += start_line(title_region(region)+' ' +
+                                varlongname(variable)+' ('+variable+')')
             #
             # -- Loop on the models
             if not use_available_period_set:
-                Wmodels = period_for_diag_manager(models, diag='ocean_basin_timeseries')
+                Wmodels = period_for_diag_manager(
+                    models, diag='ocean_basin_timeseries')
             for model in Wmodels:
                 if variable == "tos" and region == "GLO":
                     print("=> comparison with HadISST")
@@ -271,7 +285,8 @@ if do_ATLAS_TIMESERIES_SPATIAL_INDEXES:
                 else:
                     basin_index = index_timeserie(model, variable, region=region, obs=None, prang=None,
                                                   safe_mode=safe_mode)
-                index += cell("", basin_index, thumbnail=thumbsize_TS, hover=hover, **alternative_dir)
+                index += cell("", basin_index, thumbnail=thumbsize_TS,
+                              hover=hover, **alternative_dir)
             index += close_line() + close_table()
 
 
@@ -299,13 +314,15 @@ if do_ATLAS_MOC_DIAGS:
         #
         for model in Wmodels:
             basin_moc_slice = moc_slice(model, region=region, y='lin')
-            index += cell("", basin_moc_slice, thumbnail=thumbsize_MOC_slice, hover=hover, **alternative_dir)
+            index += cell("", basin_moc_slice, thumbnail=thumbsize_MOC_slice,
+                          hover=hover, **alternative_dir)
         index += close_line() + close_table()
         # -- Model levels
         index += start_line(title_region(region)+" MOC (model levels)")
         for model in Wmodels:
             basin_moc_slice = moc_slice(model, region=region, y='index')
-            index += cell("", basin_moc_slice, thumbnail=thumbsize_MOC_slice, hover=hover, **alternative_dir)
+            index += cell("", basin_moc_slice, thumbnail=thumbsize_MOC_slice,
+                          hover=hover, **alternative_dir)
         index += close_line() + close_table()
     #
     # -- MOC Profile at 26N vs Rapid
@@ -331,14 +348,18 @@ if do_ATLAS_MOC_DIAGS:
             index += start_line("maxMoc at latitude "+str(latitude))
             # -- Loop on models
             if not use_available_period_set:
-                Wmodels = period_for_diag_manager(models, diag='MOC_timeseries')
+                Wmodels = period_for_diag_manager(
+                    models, diag='MOC_timeseries')
             for model in Wmodels:
                 wmodel = model.copy()
                 if 'frequency' in wmodel:
                     if wmodel['frequency'] in ['seasonal', 'annual_cycle']:
-                        wmodel.update(dict(frequency='monthly', period=model['clim_period']))
-                maxmoc_tserie = maxmoc_time_serie(wmodel, region='ATL', latitude=latitude, safe_mode=safe_mode)
-                index += cell("", maxmoc_tserie, thumbnail=thumbsize_MOC_TS, hover=hover, **alternative_dir)
+                        wmodel.update(dict(frequency='monthly',
+                                      period=model['clim_period']))
+                maxmoc_tserie = maxmoc_time_serie(
+                    wmodel, region='ATL', latitude=latitude, safe_mode=safe_mode)
+                index += cell("", maxmoc_tserie, thumbnail=thumbsize_MOC_TS,
+                              hover=hover, **alternative_dir)
             index += close_line()+close_table()
 
 
@@ -350,7 +371,8 @@ if do_ATLAS_VERTICAL_PROFILES:
     # Loop on variables, one per line
     # -- Period Manager
     if not use_available_period_set:
-        Wmodels = period_for_diag_manager(models, diag='ocean_vertical_profiles')
+        Wmodels = period_for_diag_manager(
+            models, diag='ocean_vertical_profiles')
     else:
         Wmodels = copy.deepcopy(Wmodels_clim)
     for variable in VertProf_variables:
@@ -367,14 +389,17 @@ if do_ATLAS_VERTICAL_PROFILES:
                         # mpm_to_improve: pour l'instant, pas de comparaison aux obs dans les sous-basins
                         basin_profile = vertical_profile(model, variable, obs=None, region=region,
                                                          box=None, safe_mode=safe_mode)
-                    index += cell("", basin_profile, thumbnail=thumbsize_VertProf, hover=hover, **alternative_dir)
+                    index += cell("", basin_profile, thumbnail=thumbsize_VertProf,
+                                  hover=hover, **alternative_dir)
                 index += close_line()+close_table()
         # -- Line title
-        index += start_line('Gibraltar '+varlongname(variable)+' ('+variable+') vs '+obs.get("product"))
+        index += start_line('Gibraltar '+varlongname(variable) +
+                            ' ('+variable+') vs '+obs.get("product"))
         for model in Wmodels:
             gibr_profile = vertical_profile(model, variable, obs=obs, region='GLO',
                                             box=boxes.get("gibraltar"), safe_mode=safe_mode)
-            index += cell("", gibr_profile, thumbnail=thumbsize_VertProf, hover=hover, **alternative_dir)
+            index += cell("", gibr_profile, thumbnail=thumbsize_VertProf,
+                          hover=hover, **alternative_dir)
         index += close_line()+close_table()
 
 
@@ -385,7 +410,8 @@ if do_ATLAS_ZONALMEAN_SLICES:
     # Loop over variables
     # -- Period Manager
     if not use_available_period_set:
-        Wmodels = period_for_diag_manager(models, diag='ocean_zonalmean_sections')
+        Wmodels = period_for_diag_manager(
+            models, diag='ocean_zonalmean_sections')
     else:
         Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
@@ -416,10 +442,13 @@ if do_ATLAS_DRIFT_PROFILES:
     # Loop over variables
     for variable in drift_profiles_variables:
         for region in drift_profiles_basins:
-            index += start_line('Drift vs T0: '+title_region(region)+' '+varlongname(variable)+' ('+variable+')')
+            index += start_line('Drift vs T0: '+title_region(region) +
+                                ' '+varlongname(variable)+' ('+variable+')')
             for model in Wmodels:
-                basin_drift = hovmoller_drift_profile(model, variable, region=region, y=y, safe_mode=safe_mode)
-                index += cell("", basin_drift, thumbnail=thumbsize_TS, hover=hover, **alternative_dir)
+                basin_drift = hovmoller_drift_profile(
+                    model, variable, region=region, y=y, safe_mode=safe_mode)
+                index += cell("", basin_drift, thumbnail=thumbsize_TS,
+                              hover=hover, **alternative_dir)
             index += close_line()+close_table()
 
 
@@ -445,7 +474,8 @@ if do_seaice_annual_cycle:
     #
     # -- Period Manager
     if not use_available_period_set:
-        Wmodels = period_for_diag_manager(models, diag='sea_ice_volume_annual_cycle')
+        Wmodels = period_for_diag_manager(
+            models, diag='sea_ice_volume_annual_cycle')
     else:
         Wmodels = copy.deepcopy(Wmodels_clim)
     # -- Add table
@@ -458,8 +488,9 @@ if do_seaice_annual_cycle:
     #
     # -- Gather the figures in an html line
     index += open_line('Sea Ice Volume (km3))') +\
-             cell("", siv_NH, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir) + \
-             cell("", siv_SH, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir)
+        cell("", siv_NH, thumbnail=thumbnail_size_global, hover=hover, **alternative_dir) + \
+        cell("", siv_SH, thumbnail=thumbnail_size_global,
+             hover=hover, **alternative_dir)
     close_line()
     #
     # -- Close this table
@@ -478,7 +509,8 @@ if do_seaice_maps:
     #
     # -- Sea Ice Diags -> Season and Pole
     if not sea_ice_diags:
-        sea_ice_diags = [('March', 'NH'), ('September', 'NH'), ('March', 'SH'), ('September', 'SH')]
+        sea_ice_diags = [('March', 'NH'), ('September', 'NH'),
+                         ('March', 'SH'), ('September', 'SH')]
     #
     # -- Period Manager
     if not use_available_period_set:
@@ -499,14 +531,18 @@ if do_seaice_maps:
         # -- Check which reference will be used:
         #       -> 'default' = the observations that we get from variable2reference()
         #       -> or a dictionary pointing to a CliMAF dataset (without the variable)
+        if type(reference) is list:
+            ref = reference[0]
+        else:
+            ref = reference
         if reference == 'default':
             ref = variable2reference(variable, my_obs=custom_obs_dict)
         else:
-            ref = reference
             ref.update(dict(table='SImon', grid='gn'))
         # -> Sea Ice climatos
         # -- Line Title
-        line_title = proj+' '+season+' climatos '+varlongname(variable)+' ('+variable+')'
+        line_title = proj+' '+season+' climatos ' + \
+            varlongname(variable)+' ('+variable+')'
         # -- Open the line for the plots
         index += start_line(line_title)
         #
@@ -519,13 +555,15 @@ if do_seaice_maps:
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
             wmodel = model.copy()
             if 'frequency_for_annual_cycle' in wmodel:
-                wmodel.update(dict(frequency=wmodel['frequency_for_annual_cycle']))
+                wmodel.update(
+                    dict(frequency=wmodel['frequency_for_annual_cycle']))
             #
             # -- Do the plot
             SI_climato = plot_sic_climato_with_ref(variable, wmodel, ref, season, proj,
                                                    custom_plot_params=custom_plot_params, safe_mode=safe_mode)
             # -- And add to the html line
-            index += cell("", SI_climato, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            index += cell("", SI_climato, thumbnail=thumbnail_polar_size,
+                          hover=hover, **alternative_dir)
             #
             #
         index += close_line()
@@ -533,7 +571,8 @@ if do_seaice_maps:
         # --> Sea Ice thickness climato ----------------------------------------------
         variable = 'sit'
         # -- Title of the line
-        line_title = proj+' '+season+' climato '+varlongname(variable)+' ('+variable+')'
+        line_title = proj+' '+season+' climato ' + \
+            varlongname(variable)+' ('+variable+')'
         # -- Open the line for the plots
         index += start_line(line_title)
         # -- Loop on the models (add the results to the html line)
@@ -543,7 +582,8 @@ if do_seaice_maps:
             # -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
             wmodel = model.copy()
             if 'frequency_for_annual_cycle' in wmodel:
-                wmodel.update(dict(frequency=wmodel['frequency_for_annual_cycle']))
+                wmodel.update(
+                    dict(frequency=wmodel['frequency_for_annual_cycle']))
             #
             # -- Add the table
             wmodel['table'] = 'SImon'
@@ -554,14 +594,17 @@ if do_seaice_maps:
                                        safe_mode=safe_mode)
             #
             # -- And add to the html line
-            index = index+cell("", SIT_climato, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            index = index + \
+                cell("", SIT_climato, thumbnail=thumbnail_polar_size,
+                     hover=hover, **alternative_dir)
             #
         index += close_line()+close_table()
 
         # --> Sea Ice thickness climato ----------------------------------------------
         variable = 'sivolu'
         # -- Title of the line
-        line_title = proj+' '+season+' climato '+varlongname(variable)+' ('+variable+')'
+        line_title = proj+' '+season+' climato ' + \
+            varlongname(variable)+' ('+variable+')'
         # -- Open the line for the plots
         index += start_line(line_title)
         # -- Loop on the models (add the results to the html line)
@@ -573,14 +616,17 @@ if do_seaice_maps:
             wmodel.update(dict(table='SImon', grid='gn'))
             #
             if 'frequency_for_annual_cycle' in wmodel:
-                wmodel.update(dict(frequency=wmodel['frequency_for_annual_cycle']))
+                wmodel.update(
+                    dict(frequency=wmodel['frequency_for_annual_cycle']))
             #
             # -- Do the plot
             SIT_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
                                        safe_mode=safe_mode)
             #
             # -- And add to the html line
-            index = index+cell("", SIT_climato, thumbnail=thumbnail_polar_size, hover=hover, **alternative_dir)
+            index = index + \
+                cell("", SIT_climato, thumbnail=thumbnail_polar_size,
+                     hover=hover, **alternative_dir)
             #
         index += close_line()+close_table()
 
@@ -608,5 +654,3 @@ if do_seaice_maps:
 # --                                                                                                   - /
 # --                                                                                                  - /
 # ---------------------------------------------------------------------------------------------------- /
-
-

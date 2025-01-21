@@ -30,7 +30,7 @@ from os import getcwd
 from climaf.operators_derive import derive
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'debug'
+verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -43,6 +43,8 @@ do_parallel = False
 nprocs = 32
 # memory = 20 # in gb
 # queue = 'days3'
+# time = 480 # minutes
+# QOS = 'test'
 
 
 # -- Set the reference against which we plot the diagnostics
@@ -61,7 +63,9 @@ nprocs = 32
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "Main Time Series"
-
+# When driven by libIGCM, an additional title may be provided by config.card
+if AtlasTitle != "NONE":
+    atlas_head_title += " - " + AtlasTitle
 
 
 # -- Set the overall season, region and geographical domain
@@ -81,7 +85,8 @@ domain = dict()
 # -- It's meant to be a simple and flexible way to produce time series
 # -- on demand.
 # ---------------------------------------------------------------------------- >
-do_main_time_series = True  # -> use atlas_explorer_variables to set your own selection of variables
+# -> use atlas_explorer_variables to set your own selection of variables
+do_main_time_series = True
 
 
 def annual_mean_space_average(dat):
@@ -142,28 +147,27 @@ time_series_specs = [
     #     center_string='Arctic Sea Ice Annual Volume',
     #     right_string='-',
     #     ylabel='Sea Ice Volume (km3)', xlabel='Time (years)',
-    #     ylabel_fontsize=15, 
+    #     ylabel_fontsize=15,
     #    )
 
 ]
 
-apply_period_manager_once_for_all_diags = False
 period_manager_test_variable = 'tos'
 
 common_ts_plot_params = dict(
-         fig_size='15*5',
-         lw=1,
-         highlight_period='clim_period',
-         highlight_period_lw=4,
-         right_margin=0.95, bottom_margin=0.4,
-         legend_fontsize=15,
-         legend_labels=['simulation', 'climato period'],
-         legend_lw=[7, 2, 4],
-         legend_xy_pos=[-0.03, -0.3],
-         legend_colors='black,black',
-         legend_ncol=4,
-         append_custom_legend_to_default=True,
-         # xlim=['1800','2800']
+    fig_size='15*5',
+    lw=1,
+    highlight_period='clim_period',
+    highlight_period_lw=4,
+    right_margin=0.95, bottom_margin=0.4,
+    legend_fontsize=15,
+    legend_labels=['simulation', 'climato period'],
+    legend_lw=[7, 2, 4],
+    legend_xy_pos=[-0.03, -0.3],
+    legend_colors='black,black',
+    legend_ncol=4,
+    append_custom_legend_to_default=True,
+    # xlim=['1800','2800']
 )
 
 for elt in time_series_specs:
@@ -198,4 +202,3 @@ index_name = None
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
-

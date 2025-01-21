@@ -122,11 +122,13 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
 
 
 # -- 2D Maps
-def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_params={}, do_cfile=True, mpCenterLonF=None,
-                 cdogrid=None, regrid_option='remapbil', safe_mode=True, ocean_variables=ocean_variables,
-                 shade_missing=False, zonmean_variable=False, plot_context_suffix=None, add_vectors=False,
-                 add_aux_contours=False,
-                 display_field_stats=False):
+def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
+                  custom_plot_params={}, do_cfile=True, mpCenterLonF=None,
+                  cdogrid=None, regrid_option='remapbil', safe_mode=True,
+                  ocean_variables=ocean_variables, shade_missing=False,
+                  zonmean_variable=False, plot_context_suffix=None,
+                  add_vectors=False, add_aux_contours=False,
+                  display_field_stats=False):
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
@@ -361,6 +363,8 @@ def plot_climato(var, dat_dict, season, proj='GLOB', domain={}, custom_plot_para
     # -- If we are working on 3D atmospheric variable, compute the zonal mean
     if is3d(variable) or zonmean_variable:
         climato_dat = zonmean(climato_dat)
+        p["forbid_plotmap"]=True
+        
     #
     # -- Get the period for display in the plot: we build a tmp_period string
     # -- Check whether the period is described by clim_period, years or period (default)
@@ -874,6 +878,8 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     if plot_context_suffix:
         context = context + '_' + plot_context_suffix
     p = plot_params(variable, context, custom_plot_params=custom_plot_params)
+    if is3d(variable) or zonmean_variable:
+        p["forbid_plotmap"]=True
     #
     # -- Add the projection
     if 'proj' not in p:
@@ -1089,19 +1095,18 @@ thumbnail_size_3d = "250*250"
 
 def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variables=[],
                     section_title='Climatology (ref) and bias maps', domain=dict(),
-                    safe_mode=True, add_product_in_title=True, shade_missing=False, zonmean_variable=False,
-                    ocean_variables=ocean_variables,
-                    custom_plot_params={}, custom_obs_dict={}, alternative_dir={}, add_line_of_climato_plots=False,
+                    safe_mode=True, add_product_in_title=True, shade_missing=False,
+                    zonmean_variable=False, ocean_variables=ocean_variables,
+                    custom_plot_params={}, custom_obs_dict={}, alternative_dir={},
+                    add_line_of_climato_plots=False,
                     thumbnail_size=None, regridding='model_on_ref',
-                    do_cfile=True):
+                    do_cfile=True, filename_func=None):
     #
     # -- Upper band at the top of the section
     if do_cfile:
         index = section(section_title, level=4)
     else:
         plots_crs = []
-    #
-    #
     #
     # -- Loop on the atmospheric variables (can also include ocean variables)
     for var in variables:
@@ -1221,6 +1226,9 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                                        safe_mode=safe_mode, do_cfile=do_cfile)
             print('ref_climato = ', ref_climato)
             if do_cfile:
+                if filename_func is not None :
+                    alternative_dir.update(
+                        target_filename = filename_func(ref, None, variable, season))
                 print('alternative_dir = ', alternative_dir)
                 index += cell("", ref_climato, thumbnail=thumbN_size,
                               hover=hover, **alternative_dir)
@@ -1239,6 +1247,9 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                                        shade_missing=shade_missing, regridding=regridding,
                                        do_cfile=do_cfile)
                 if do_cfile:
+                    if filename_func is not None :
+                        alternative_dir.update(
+                            target_filename = filename_func(wmodel, ref, variable, season))
                     index += cell("", model_diff, thumbnail=thumbN_size,
                                   hover=hover, **alternative_dir)
                 else:
@@ -1263,6 +1274,9 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
                                             safe_mode=safe_mode, shade_missing=shade_missing,
                                             do_cfile=do_cfile)
                 if do_cfile:
+                    if filename_func is not None :
+                        alternative_dir.update(
+                            target_filename = filename_func(model, None, variable, season))
                     index += cell("", climato_plot, thumbnail=thumbN_size,
                                   hover=hover, **alternative_dir)
                 else:
@@ -1287,7 +1301,7 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
                             safe_mode=True, do_cfile=True, add_product_in_title=True, shade_missing=False,
                             zonmean_variable=False,
                             custom_plot_params={}, custom_obs_dict={}, alternative_dir={},
-                            thumbnail_size=None):
+                            thumbnail_size=None, filename_func=None):
     #
     # -- Upper band at the top of the section
     if do_cfile:
@@ -1403,6 +1417,9 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
             # -- if do_cfile, we return the index; if do_cfile=False, add the CRS of the plot to plots_crs
             print('ref_climato = ', ref_climato)
             if do_cfile:
+                if filename_func is not None :
+                    alternative_dir.update(
+                        target_filename = filename_func(ref, None, variable, season))
                 index += cell("", ref_climato, thumbnail=thumbN_size,
                               hover=hover, **alternative_dir)
             else:
@@ -1418,6 +1435,10 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
                                              safe_mode=safe_mode, shade_missing=shade_missing)
                 # -- if do_cfile, we return the index; if do_cfile=False, add the CRS of the plot to plots_crs
                 if do_cfile:
+                    if filename_func is not None :
+                        alternative_dir.update(
+                            target_filename = filename_func(model, None, variable, season))
+                    print('alternative_dir = ',alternative_dir)
                     index += cell("", model_climato, thumbnail=thumbN_size,
                                   hover=hover, **alternative_dir)
                 else:
@@ -1437,9 +1458,11 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
 
 # -- Function to produce a section of 2D maps (both atmosphere and ocean variables)
 # -----------------------------------------------------------------------------------
-def section_2D_maps_climobs_bias_modelmodeldiff(models, reference, proj, season, variables, section_title, domain,
-                                                safe_mode=True, add_product_in_title=True, shade_missing=False,
-                                                custom_plot_params={}, custom_obs_dict={}, alternative_dir={}):
+def section_2D_maps_climobs_bias_modelmodeldiff(
+        models, reference, proj, season, variables, section_title, domain,
+        safe_mode=True, add_product_in_title=True, shade_missing=False,
+        custom_plot_params={}, custom_obs_dict={}, alternative_dir={},
+        filename_func=None):
     #
     # -- Upper band at the top of the section
     index = section(section_title, level=4)
@@ -1525,6 +1548,9 @@ def section_2D_maps_climobs_bias_modelmodeldiff(models, reference, proj, season,
                 index += open_table()
                 index += open_line()
                 #
+                if filename_func is not None :
+                    alternative_dir.update(
+                        target_filename = filename_func(ref, None, variable, season))
                 index += cell("", ref_climato, thumbnail=thumbN_size,
                               hover=hover, **alternative_dir)
                 #
@@ -1534,6 +1560,9 @@ def section_2D_maps_climobs_bias_modelmodeldiff(models, reference, proj, season,
                                              ocean_variables=ocean_variables,
                                              safe_mode=safe_mode, add_product_in_title=add_product_in_title,
                                              shade_missing=shade_missing)
+                if filename_func is not None :
+                    alternative_dir.update(
+                        target_filename = filename_func(models[0], ref, variable, season))
                 index += cell("", bias_first_model, thumbnail=thumbN_size,
                               hover=hover, **alternative_dir)
                 # -- Loop on the models and compute the difference against the reference
@@ -1546,6 +1575,9 @@ def section_2D_maps_climobs_bias_modelmodeldiff(models, reference, proj, season,
                                                ocean_variables=ocean_variables,
                                                safe_mode=safe_mode, add_product_in_title=add_product_in_title,
                                                shade_missing=shade_missing)
+                        if filename_func is not None :
+                            alternative_dir.update(
+                                target_filename = filename_func(model, models[0], variable, season))
                         index += cell("", model_diff, thumbnail=thumbN_size,
                                       hover=hover, **alternative_dir)
                 #
@@ -1730,8 +1762,10 @@ def plot_zonal_profile(variable, model, reference=dict(), season='ANM', domain={
 
 # -- Function to produce a section of 2D maps climatologies (both atmosphere and ocean variables)
 # -----------------------------------------------------------------------------------
-def section_zonal_profiles(models, reference, season, variables, section_title, domain,
-                           safe_mode=True, custom_obs_dict={}, alternative_dir={}):
+def section_zonal_profiles(
+        models, reference, season, variables, section_title, domain,
+        safe_mode=True, custom_obs_dict={}, alternative_dir={},
+        filename_func=None):
     #
     # -- Upper band at the top of the section
     index = section(section_title, level=4)
@@ -1794,6 +1828,9 @@ def section_zonal_profiles(models, reference, season, variables, section_title, 
                   variable + ' ' + season + ' of ', model)
             zonal_profile = plot_zonal_profile(var, model, ref, season, domain=domain,
                                                safe_mode=safe_mode)
+            if filename_func is not None :
+                alternative_dir.update(
+                    target_filename = filename_func(model, ref, variable, season))
             index += cell("", zonal_profile, thumbnail=thumbN_size,
                           hover=hover, **alternative_dir)
         #

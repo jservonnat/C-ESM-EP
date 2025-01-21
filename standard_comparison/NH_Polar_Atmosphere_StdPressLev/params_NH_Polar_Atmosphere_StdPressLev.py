@@ -29,7 +29,7 @@ from os import getcwd
 from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'debug'
+verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
 # -- Set to True to clean the CliMAF cache
@@ -40,10 +40,12 @@ routine_cache_cleaning = [dict(age='+20')]
 do_parallel = False
 # nprocs = 32
 # memory = 30 # in gb; 30 for ocean atlasas
-queue = 'zen4' # onCiclad: h12, days3 , onSPirit : zen4
+# queue = 'zen4' # onCiclad: h12, days3 , onSPirit : zen4
+# time = 480 # minutes
+# QOS = 'test'
 
 
-# -- Set the reference against which we plot the diagnostics 
+# -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
 # --    -> 'default' uses variable2reference to point to a default
 # --       reference dataset (obs and reanalyses)
@@ -57,7 +59,9 @@ queue = 'zen4' # onCiclad: h12, days3 , onSPirit : zen4
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
 atlas_head_title = "NH Polar St. - Atmosphere Std press levels"
-
+# When driven by libIGCM, an additional title may be provided by config.card
+if AtlasTitle != "NONE":
+    atlas_head_title += " - " + AtlasTitle
 
 
 # -- Set the overall season, region and geographical domain
@@ -98,7 +102,7 @@ for var in atlas_explorer_variables_list:
                                              ))
 
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
-regridding = 'model_on_ref' # 'ref_on_model', 'no_regridding'
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
 # -- Activate the parallel execution of the plots
 do_parallel = False
