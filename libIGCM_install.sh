@@ -49,8 +49,9 @@ crack_path ()
 	root=/$(echo $path | cut -d / -f 2)
 	rest=$(echo $path | cut -d / -f 3-)
     elif [ $Center = IDRIS ] ; then 
-	root=$(echo $path | cut -d / -f 1-4)
-	rest=$(echo $path | cut -d / -f 5-)
+	#ex: /lustre/fsstor/projects/rech/psl/upe47jz/IGCM_OUT/OL2/DEVT/secsto/MyPostExp2
+	root=$(echo $path | cut -d / -f 1-6)
+	rest=$(echo $path | cut -d / -f 7-)
     else
 	echo "Unkown Center $Center"
 	exit 1
@@ -140,6 +141,12 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	# DataPathLogin =      # user login showing in the data path 
 	# DataPathJobName =    # needed only if you changed w.r.t.the initial config.card
 	EOF
+if [ $DataPathRoot ] ; then
+    sed -i -e "s/# DataPathRoot.*/DataPathRoot = \"$DataPathRoot\"" $comparison/libIGCM_fixed_settings.py
+fi
+if [ $DataPathLogin ] ; then
+    sed -i -e "s/# DataPathLogin.*/DataPathLogin = \"$DataPathLogin\"/" $comparison/libIGCM_fixed_settings.py
+fi
 
 # Install a dedicated datasets_setup file
 cp $dir/libIGCM_datasets.py $comparison/datasets_setup.py
