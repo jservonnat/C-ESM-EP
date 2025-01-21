@@ -142,16 +142,16 @@ variables_water_budget = ['es', 'et', 'mrros', 'mrrob', 'snw']
 tmp_vars = []
 for var in variables_water_budget:
     if var in ['snw']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='LImon'))
     elif var in ['mrrob', 'es']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='*mon'))
     elif var in ['et']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Nonemon'))
     else:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Lmon'))
 variables_water_budget = tmp_vars
 # -> climato + bias map + difference with the first simulation
@@ -178,10 +178,10 @@ variables_carbon_budget = ['cLitter', 'cSoil', 'cVeg', 'lai', 'gpp', 'npp']
 tmp_vars = []
 for var in variables_carbon_budget:
     if var in ['cSoil']:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Emon'))
     else:
-        tmp_vars.append(dict(variable=var, mpCenterLonF=0,
+        tmp_vars.append(dict(variable=var, 
                         focus='land', table='Lmon'))
 variables_carbon_budget = tmp_vars
 
