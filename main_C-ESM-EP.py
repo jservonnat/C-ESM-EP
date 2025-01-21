@@ -360,20 +360,27 @@ if onSpirit:
 #
 
 #
-if atTGCC :
+if atTGCC or atIDRIS:
 
     # -- Copie des résultats de scratch à work
-    path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
-        'scratch', 'work')
+    if atTGCC:
+        path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
+            'scratch', 'work')
+    if atIDRIS:
+        path_to_comparison_outdir_workdir_hpc = atlas_dir.replace(
+            'fsn1', 'fswork')
     if not os.path.isdir(path_to_comparison_outdir_workdir_hpc):
         os.makedirs(path_to_comparison_outdir_workdir_hpc)
     else:
         print('rm -rf '+path_to_comparison_outdir_workdir_hpc+'/*')
         os.system('rm -rf '+path_to_comparison_outdir_workdir_hpc+'/*')
-    cmd1 = 'cp -r '+atlas_dir+'/* '+path_to_comparison_outdir_workdir_hpc
-    print(cmd1)
+    cmd1 = 'cp -fr '+atlas_dir+'/* '+path_to_comparison_outdir_workdir_hpc
+    print("Copying to WORKDIR with: ",cmd1)
     os.system(cmd1)
     #
+    print(' -- ')
+    print(' -- ')
+    print(' -- ')
     if publish:
         # -- thredds_cp des résultats de work à thredds (après un nettoyage de la cible)
         path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
@@ -381,22 +388,26 @@ if atTGCC :
         cmd12 = 'rm -rf '+path_to_comparison_on_web_server+'/'+component
         print(cmd12)
         os.system(cmd12)
-        cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
-            ' '+path_to_comparison_on_web_server
-        print("cmd2=", cmd2)
-        subprocess.check_output(cmd2, shell=True, stderr=subprocess.STDOUT)
-
-    print(' -- ')
-    print(' -- ')
-    print(' -- ')
-    if publish:
+        if atTGCC:
+            cmd2 = 'thredds_cp '+path_to_comparison_outdir_workdir_hpc + \
+                ' '+path_to_comparison_on_web_server
+        if atIDRIS:
+            cmd2 = 'cp -fr '+path_to_comparison_outdir_workdir_hpc + \
+                ' '+path_to_comparison_on_web_server
+            
+        print("Copying to web server with: ",cmd2)
+        try :
+            subprocess.check_output(cmd2, shell=True, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            raise
         print('Index available at : ' +
               outfile.replace(path_to_cesmep_output_rootdir, root_url_to_cesmep_outputs))
     else:
         print('Index available at : ' + outfile)
         
 
-if atTGCC :
+if atTGCC or atIDRIS :
     print("The atlas is ready as ", index_name.replace(
         atlas_dir, path_to_comparison_outdir_workdir_hpc))
 else:

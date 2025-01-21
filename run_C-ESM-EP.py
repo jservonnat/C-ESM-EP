@@ -376,9 +376,13 @@ comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
 frontpage_address = comparison_url + frontpage_html
 
 # -- outdir_workdir = path to the work equivalent of the scratch
-if atTGCC:
-    path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
-        'scratch', 'work')
+if atTGCC or atIDRIS:
+    if atTGCC:
+        path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
+            'scratch', 'work')
+    if atIDRIS:
+        path_to_comparison_outdir_workdir_tgcc = path_to_comparison_outdir.replace(
+            'fsn1', 'fswork')
     if not os.path.isdir(path_to_comparison_outdir_workdir_tgcc):
         os.makedirs(path_to_comparison_outdir_workdir_tgcc)
 # -- Create the output directory for the comparison if it does not exist
@@ -401,6 +405,11 @@ if len(job_components) == 0 and argument != 'None':
 
 # -- Loop on the components and edit the html file with pysed
 if argument.lower() not in ['url', 'clean']:
+    if onSpirit or atCNRM:
+        target = path_to_comparison_outdir
+    elif atTGCC or atIDRIS:
+        target = path_to_comparison_outdir_workdir_tgcc
+    #
     for component in available_components:
         if component not in metrics_components:
             atlas_url = comparison_url + component + '/atlas_' + \
@@ -408,37 +417,23 @@ if argument.lower() not in ['url', 'clean']:
         else:
             atlas_url = comparison_url + component + '/' + \
                 component + '_' + comparison + '.html'
-        if onSpirit or atCNRM or atIDRIS:
-            if component in job_components:
-                atlas_pathfilename = atlas_url.replace(
-                    comparison_url, path_to_comparison_outdir)
-                if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
-                    os.makedirs(os.path.dirname(atlas_pathfilename))
-                # -- Copy an html template to say that the atlas is not yet available
-                # 1. copy the template to the target html page
-                check_output(
-                    'cp -f share/fp_template/Running_template.html ' + atlas_pathfilename, shell=True)
-                # 2. Edit target_component and target_comparison
-                pysed(atlas_pathfilename, 'target_component', component)
-                pysed(atlas_pathfilename, 'target_comparison', comparison)
-
-        if atTGCC:
-            if component in job_components:
-                atlas_pathfilename = atlas_url.replace(
-                    comparison_url, path_to_comparison_outdir_workdir_tgcc)
-                if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
-                    os.makedirs(os.path.dirname(atlas_pathfilename))
-                # -- Copy an html template to say that the atlas is not yet available
-                # 1. copy the template to the target html page
-                check_output(
-                    'cp share/fp_template/Running_template.html ' + atlas_pathfilename, shell=True)
-                # 2. Edit target_component and target_comparison
-                pysed(atlas_pathfilename, 'target_component', component)
-                pysed(atlas_pathfilename, 'target_comparison', comparison)
-                # 3. thredds_cp
-                if publish :
-                    check_output('thredds_cp ' + atlas_pathfilename + ' ' +
-                                 path_to_comparison_on_web_server + component, shell=True)
+            
+        if component in job_components:
+            atlas_pathfilename = atlas_url.replace(comparison_url, target)
+            if not os.path.isdir(os.path.dirname(atlas_pathfilename)):
+                os.makedirs(os.path.dirname(atlas_pathfilename))
+            # -- Copy an html template to say that the atlas is not yet available
+            # 1. copy the template to the target html page
+            check_output(
+                'cp -f share/fp_template/Running_template.html ' +\
+                atlas_pathfilename, shell=True)
+            # 2. Edit target_component and target_comparison
+            pysed(atlas_pathfilename, 'target_component', component)
+            pysed(atlas_pathfilename, 'target_comparison', comparison)
+        if publish and atTGCC :            
+            # 3. thredds_cp
+            check_output('thredds_cp ' + atlas_pathfilename + ' ' +
+                         path_to_comparison_on_web_server + component, shell=True)
 
     # Create an empty file for accumulating launched jobs ids
     launched_jobs = comparison_dir + "/launched_jobs"
@@ -726,20 +721,23 @@ if argument.lower() not in ['url', 'clean']:
     pysed(frontpage_html, 'target_comparison', comparison_label)
 
     # -- Copy the edited html front page
-    if atTGCC :
+    if atTGCC or atIDRIS:
         cmd1 = 'cp ' + frontpage_html + ' ' + path_to_comparison_outdir_workdir_tgcc
         if do_print:
             print("First copying html front page to workdir: ", cmd1)
         check_output(cmd1, shell=True)
         html_file = path_to_comparison_outdir_workdir_tgcc + frontpage_html
-        if atTGCC:
-            cmd = 'thredds_cp ' + html_file + ' ' + path_to_comparison_on_web_server +\
-                '; chmod +r ' + path_to_comparison_on_web_server + frontpage_html
-        cmd += ' ; rm ' + frontpage_html
         if publish: 
+            if atTGCC:
+                cp_cmd = 'thredds_cp'
+            if atIDRIS:
+                cp_cmd = 'cp '
+            cmd = cp_cmd + ' ' + html_file + ' ' + path_to_comparison_on_web_server +\
+                '; chmod +r ' + path_to_comparison_on_web_server + frontpage_html
+            cmd += ' ; rm ' + frontpage_html
             check_output(cmd, shell=True)
     #
-    if onSpirit or atCNRM or atCerfacs or atIDRIS:
+    if onSpirit or atCNRM or atCerfacs :
         if publish:
             cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
         else:

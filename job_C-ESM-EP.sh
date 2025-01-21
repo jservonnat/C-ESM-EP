@@ -98,6 +98,8 @@ elif [ -n "$singularity_container" ] ; then
     binds=$HOME,$SCRATCH
     binds+=,/lustre/fswork/projects/rech/psl
     binds+=,/lustre/fswork/projects/rech/psl:/gpfswork/rech/psl
+    binds+=,/lustre/fsstor/projects/rech/psl
+    binds+=,/lustre/fsnomig/ipsl/dods/
     binds+=,/gpfslocalsys
     #
     env="TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
