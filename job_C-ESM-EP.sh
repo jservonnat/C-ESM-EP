@@ -95,11 +95,9 @@ elif [ -n "$singularity_container" ] ; then
     # We are probably at IDRIS, and will use singularity
     module load singularity
     # File systems bindings
-    binds=$HOME,$SCRATCH
-    binds+=,/lustre/fswork/projects/rech/psl
-    binds+=,/lustre/fswork/projects/rech/psl:/gpfswork/rech/psl
-    binds+=,/lustre/fsstor/projects/rech/psl
-    binds+=,/lustre/fsnomig/ipsl/dods/
+    binds=$HOME,$SCRATCH,$STORE,$THREDDSDIR
+    binds+=,/lustre/fswork/projects/rech 
+    binds+=,/lustre/fswork/projects/rech/psl:/gpfswork/rech/psl # Mimic a system link
     binds+=,/gpfslocalsys
     #
     env="TMPDIR=${CLIMAF_CACHE},CLIMAF_CACHE=${CLIMAF_CACHE}"
