@@ -524,7 +524,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
               ocean_variables=ocean_variables, cdogrid=None, add_climato_contours=False, regrid_option='remapdis', regridding='model_on_ref',
               safe_mode=True, custom_plot_params={}, do_cfile=True, spatial_anomalies=False, shade_missing=False,
               zonmean_variable=False, plot_context_suffix=None, add_vectors=False, add_aux_contours=False,
-              display_bias_corr_rmse=False):
+              display_bias_corr_rmse=False, display_field_stats=False):
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
@@ -617,6 +617,9 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         if 'realm' in wvar:
             realm = wvar['realm']
             wvar.pop('realm')
+        if 'display_field_stats' in wvar:
+            display_field_stats = wvar['display_field_stats']
+            wvar.pop('display_field_stats')
         if 'project_specs' in wvar:
             project_specs = wvar['project_specs']
             wvar.pop('project_specs')
@@ -903,15 +906,38 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
                 p.update(dict(aux_options=aux_options))
             wvar.pop('aux_options')
     #
+    # -- Min, max et mean of the field
+    if display_field_stats:
+        if safe_mode:
+            try:
+                field_min = '%s' % (
+                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmin'))[0][0][0]) * scale + offset)))
+                field_max = '%s' % (
+                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmax'))[0][0][0]) * scale + offset)))
+                field_mean = '%s' % (
+                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmean'))[0][0][0]) * scale + offset)))
+                minmaxmean_str = variable + ' min=' + str(field_min) + ' ; max=' + str(field_max) + ' ; mean=' + str(
+                    field_mean)
+                p.update(dict(gsnLeftString=minmaxmean_str,
+                              gsnCenterString=' ',
+                              gsnRightString=season))
+                title += ' ' + tmp_period
+            except:
+                print('----> display_field_stats failed')
+    else:
+        # -- Set the left, center and right strings of the plot
+        p.update(dict(gsnLeftString=tmp_period,
+                      gsnCenterString=variable,
+                      gsnRightString=season))
     #
-    # -- Set the left, center and right strings of the plot
-    if not 'gsnLeftString' in p:
-        p['gsnLeftString'] = tmp_period
-    if not 'gsnCenterString' in p:
-        p['gsnCenterString'] = variable
-    if not 'gsnRightString' in p:
-        p['gsnRightString'] = modelseason
-    #
+    # # -- Set the left, center and right strings of the plot
+    # if not 'gsnLeftString' in p:
+    #     p['gsnLeftString'] = tmp_period
+    # if not 'gsnCenterString' in p:
+    #     p['gsnCenterString'] = variable
+    # if not 'gsnRightString' in p:
+    #     p['gsnRightString'] = modelseason
+    # #
     # -- If the variable is 3d, add the plotting parameters that are specific to the
     # -- zonal mean fields
     if is3d(variable):
