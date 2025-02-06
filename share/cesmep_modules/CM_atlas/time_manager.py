@@ -58,7 +58,7 @@ def period_for_diag_manager(DAT_DICT, diag=''):
         return WDAT_DICT
 
 
-def base_variable_of_derived_variable(tested_variable, project='*'):
+def base_variable_of_derived_variable(tested_variable, project='*', ratio=None):
     ''' Returns one of the variables used to compute a derived variable '''
     project_derived_variables = copy.deepcopy(derived_variables['*'])
     if project in derived_variables:
@@ -68,6 +68,9 @@ def base_variable_of_derived_variable(tested_variable, project='*'):
             if isinstance(elt, list):
                 base_var = elt[0]
         tested_variable = base_var
+    # Special case : variables defined as ratio of (time averaged) variables
+    if ratio is not None:
+        tested_variable = ratio.split("/")[0]
     return tested_variable
 
 
@@ -104,7 +107,7 @@ def frequency_manager_for_diag(model, diag='TS'):
     return ''
 
 
-def get_period_manager(dat_dict, diag=None):
+def get_period_manager(dat_dict, diag=None, ratio=None):
     #
     # Garde fou: if frequency is missing in dat_dict, we use the default value (monthly most of the time)
     if 'frequency' not in dat_dict:
@@ -168,7 +171,7 @@ def get_period_manager(dat_dict, diag=None):
     # -> Will be used only for the request
     tested_variable = req_dict['variable']
     req_dict.update(dict(variable=base_variable_of_derived_variable(
-        tested_variable, req_dict['project'])))
+        tested_variable, req_dict['project'], ratio)))
     #
     # -- if period, we can use the .explore('resolve') method to get the available period
     if period:

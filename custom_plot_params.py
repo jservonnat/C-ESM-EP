@@ -64,12 +64,19 @@ dict_plot_params = {
         'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
         'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
         'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
-        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}},
+        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}
+    },
     'ta500': {
         'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
         'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
         'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
-        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}},
+        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}
+    },
+    'ratio_ep': {
+        'default': {'color': 'precip3_16lev', 'units': '', 'min': 0, 'max': 2, 'delta':0.1},
+        #'full_field': {'colors': '0 0.1 0.5 1 2 3 4 5 6 7 8 9 10'},
+        'bias': {'min': -1, 'max': 1},
+        'model_model': {'min': -1, 'max': 1},
 
     'iceshelf': {
             'default': {'units': 'kg/m2/s', 'color': 'CBR_wet'}},
