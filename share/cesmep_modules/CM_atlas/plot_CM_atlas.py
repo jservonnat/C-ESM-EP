@@ -90,11 +90,13 @@ def get_realization_simulation_kw(ds_obj):
 
 
 def build_plot_title(model, ref=None, add_product_in_title=True):
+    #if model is None:
+    #    return "No data"
     if not ref:
         add_product_in_title = False
-    print('model = ', model)
+    #print('model = ', model)
     ds_model = ds(**model)
-    print('ds_model.kvp = ', ds_model.kvp)
+    #print('ds_model.kvp = ', ds_model.kvp)
     if 'customname' in model:
         title = replace_keywords_with_values(model, model['customname'])
     else:

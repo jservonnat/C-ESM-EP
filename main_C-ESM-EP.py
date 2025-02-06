@@ -31,7 +31,7 @@ except:
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
 
-csync(True)
+#csync(True)
 
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:

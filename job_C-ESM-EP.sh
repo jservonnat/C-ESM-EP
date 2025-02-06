@@ -70,10 +70,14 @@ echo ">>> CC= "$CLIMAF_CACHE
 
 # -- Run the atlas...
 # -------------------------------------------------------- >
-echo "Running ${atlas_file} for season ${season} with parameter file ${param_file} in $(pwd)"
+echo "Running ${atlas_file} with parameter file ${param_file} in $(pwd)"
 #echo "Using CliMAF cache = ${CLIMAF_CACHE}"
 
-run_main="python ${atlas_script} --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
+# When wishig to profile the code. See https://docs.python.org/3/library/profile.html
+#profiling="-m profile -o profile.out "
+profiling=""
+
+run_main="python ${atlas_script} $profiling --comparison ${comparison} --component ${component} --cesmep_frontpage $cesmep_frontpage"
 
 if [ ${atTGCC:-0} -eq 1 ] ; then
     

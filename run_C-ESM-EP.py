@@ -97,6 +97,11 @@ except:
     print("Importing account from settings failed")
     account = None
 
+try:
+    from settings import submit_options
+except:
+    submit_options = ""
+
 #
 try:
     from settings import publish
@@ -402,6 +407,7 @@ for component in components:
 if len(job_components) == 0 and argument != 'None':
     print("No component to launch. Please check your component arg (%s)!" %
           args[2])
+    exit(0)
 
 # -- Loop on the components and edit the html file with pysed
 if argument.lower() not in ['url', 'clean']:
@@ -561,7 +567,7 @@ for component in job_components:
     if onSpirit or atIDRIS:
         # -- Start the job_options variables: a string that will
         #    contain all the job options to be passed to qsub
-        job_options = ''
+        job_options = submit_options
         #
         # -- email
         if email and one_mail_per_component:
