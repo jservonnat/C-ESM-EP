@@ -17,7 +17,7 @@ import copy
 import subprocess
 from optparse import OptionParser
 #
-from env.site_settings import onSpirit, atTGCC, atCNRM, atIDRIS
+from env.site_settings import onSpirit, atTGCC, atCNRM, atIDRIS, onObelix
 from climaf.api import *
 from climaf.chtml import *
 #
@@ -178,7 +178,7 @@ atlas_url = atlas_dir.replace(
 
 # -- We create the atlas directory if it doesn't exist, or remove the figures
 # -----------------------------------------------------------------------------------
-if atCNRM or atTGCC or onSpirit or atIDRIS:
+if atCNRM or atTGCC or onSpirit or atIDRIS or onObelix:
     if not os.path.isdir(atlas_dir):
         os.makedirs(atlas_dir)
     else:
@@ -333,29 +333,25 @@ print('outfile = ', outfile)
 with open(outfile, "w") as filout:
     filout.write(index)
 
-blabla = None
-if onSpirit:
+if onSpirit or onObelix:
     if publish:
         # -- Copy on thredds...
-        # ----------------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------------
         # -- thredds directory (web server)
-        threddsdir = str.replace(atlas_dir, 'scratchu', 'thredds/ipsl')
+        threddsdir = atlas_dir.replace(path_to_cesmep_output_rootdir,
+                                       path_to_cesmep_output_rootdir_on_web_server)
         os.system('rm -rf '+threddsdir)
         th_dir = str.replace(threddsdir, '/'+component, '')
-        if not os.path.isdir(th_dir):
-            os.makedirs(th_dir)
+        if not os.path.isdir(th_dir): os.makedirs(th_dir)
         os.system('cp -r '+atlas_dir+' '+th_dir)
         print("index copied in : "+threddsdir)
-    
-        alt_dir_name = threddsdir.replace(
-            '/thredds/ipsl', '/thredds/fileServer/ipsl_thredds')
-        root_url = "https://thredds-su.ipsl.fr"
-    
-        # -- and return the url of the atlas
-        print("Available at this address "+root_url +
-              outfile.replace(atlas_dir, alt_dir_name))
+        
+        # -- and print the url of the atlas
+        print("Available at this address " + \
+              outfile.replace(path_to_cesmep_output_rootdir,
+                              root_url_to_cesmep_outputs))
     else:
-        print("Index available at here: "+outfile)
+        print("Index available here: "+outfile)
 
 #
 
@@ -406,8 +402,6 @@ if atTGCC or atIDRIS:
     else:
         print('Index available at : ' + outfile)
         
-
-if atTGCC or atIDRIS :
     print("The atlas is ready as ", index_name.replace(
         atlas_dir, path_to_comparison_outdir_workdir_hpc))
 else:

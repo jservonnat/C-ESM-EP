@@ -132,7 +132,7 @@
 # --    - ORCHIDEE_2D_maps
 
 # ---------------------------------------------------------------------------- >
-from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs, onObelix
 from CM_atlas import *
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
@@ -231,8 +231,10 @@ if onCiclad or atTGCC or onSpirit:
     if atTGCC:
         models.pop(2)
         root = '/ccc/store/cont003/gencmip6'
-    if onCiclad or onSpirit:
+    if onSpirit:
         root = '/thredds/tgcc/store'
+    elif onObelix:
+        root = "/home/scratch01/"
     #
     # -- Provide a set of common keys to the elements of models
     # ---------------------------------------------------------------------------- >
