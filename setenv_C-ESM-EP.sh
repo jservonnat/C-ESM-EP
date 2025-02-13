@@ -87,6 +87,20 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
     fi
 fi
 
+# Obelix at LSCE
+if [[ -d "/home/orchideeshare/"  ]] ; then
+    emodule=${CESMEP_CLIMAF_MODULE:-env20250128_climafV3.1_IPSL12}
+    if [ ${emodule:0:1} != "/" ]; then
+	prefix=/home/orchideeshare/igcmg/Tools/cesmep/modules
+	emodule=$prefix/$emodule
+    fi
+    set +x
+    echo Loading module $emodule for CliMAF and C-ESM-EP
+    module purge
+    module load $emodule
+    #export PYTHONPATH=~/climaf_installs/climaf_running:$PYTHONPATH
+fi
+
 # --> At CNRM
 if [[ -d "/cnrm" ]] ; then   
     unset PYTHONPATH

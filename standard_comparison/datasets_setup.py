@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- >
-from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs #, onObelix
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs, onObelix
 from CM_atlas import *
 
 
@@ -119,9 +119,10 @@ if onCiclad or atTGCC or onSpirit:
         alt_models = [ m for m in models if 'CMIP' not in m['project']]
         models = alt_models
         root = '/ccc/store/cont003/gencmip6'
-        
-    if onCiclad or onSpirit:
+    if onSpirit:
         root = '/thredds/tgcc/store'
+    elif onObelix:
+        root = "/home/scratch01/"
     #
     # -- Provide a set of common keys to the elements of models
     # ---------------------------------------------------------------------------- >

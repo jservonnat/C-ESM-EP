@@ -25,10 +25,11 @@ locations="
     senesis@irene-fr.ccc.cea.fr:/ccc/cont003/home/igcmg/igcmg/Tools/cesmep
     upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep
     ssenesi@spirit2.ipsl.fr:/net/nfs/tools/Users/SU/jservon/cesmep_installs/$version
+    ssenesi@o:/home/orchideeshare/igcmg/cesmep_next
     "
 
-olocations="
-    upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/upe47jz/cesmep_for_test
+locations="
+    ssenesi@o:/home/orchideeshare/igcmg/cesmep_next
     "
 
 set -e

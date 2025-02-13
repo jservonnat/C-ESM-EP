@@ -17,14 +17,15 @@ import os
 # and we would like to avoid using this slightly heavy procedure
 # when executing this script
 if os.path.exists('/ccc') and not(os.path.exists('/data')):
-    atCNRM = onCiclad = onSpirit = atCerfacs = atIDRIS = False
+    atCNRM = onCiclad = onSpirit = atCerfacs = atIDRIS = onObelix = False
     atTGCC = atIPSL = True
 elif os.path.exists('/gpfsdswork'):
-    atCNRM = onCiclad = onSpirit = atCerfacs = atTGCC = False
+    atCNRM = onCiclad = onSpirit = atCerfacs = atTGCC = onObelix = False
     atIDRIS = atIPSL = True
 
 else:
-    from env.site_settings import atCNRM, onCiclad, onSpirit, atTGCC, atCerfacs, atIDRIS
+    from env.site_settings import atCNRM, onCiclad, onSpirit, \
+        atTGCC, atCerfacs, atIDRIS, onObelix
 
 username = getpass.getuser()
 
@@ -91,6 +92,21 @@ if onSpirit:
     root_url_to_cesmep_outputs = "https://thredds-su.ipsl.fr/thredds/fileServer/ipsl_thredds/"+username
     climaf_cache = '/scratchu/' + username + '/atlas_explorer'
 
+# -- Obelix
+if onObelix:
+    # -- path_to_cesmep_output_rootdir is the location of the root output directory
+    # -- where we generate all the C-ESM-EP comparisons (later moved to thredds)
+    path_to_cesmep_output_rootdir = '/home/scratch01/' + username  
+    #
+    # -- path
+    path_to_cesmep_output_rootdir_on_web_server = '/home/dods/orchidods/cesmep/' + \
+        username  # pour index général
+    # --
+    # -- Url to access path_to_cesmep_output_rootdir from a web page
+    root_url_to_cesmep_outputs = "http://dods.lsce.ipsl.fr/orchidods/cesmep/" + \
+        username
+    climaf_cache = '/home/scratch01/' + username + '/climaf_cache'
+    
 
 # -- TGCC
 if atTGCC:

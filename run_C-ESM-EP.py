@@ -75,7 +75,7 @@ else:
     
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
-from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs
+from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs, onObelix
 
 if onCiclad:
     print("Ciclad is nor more supported")
@@ -416,7 +416,7 @@ if len(job_components) == 0 and argument != 'None':
 
 # -- Loop on the components and edit the html file with pysed
 if argument.lower() not in ['url', 'clean']:
-    if onSpirit or atCNRM:
+    if onSpirit or atCNRM or onObelix:
         target = path_to_comparison_outdir
     elif atTGCC or atIDRIS:
         target = path_to_comparison_outdir_workdir_tgcc
@@ -748,7 +748,7 @@ if argument.lower() not in ['url', 'clean']:
             cmd += ' ; rm ' + frontpage_html
             check_output(cmd, shell=True)
     #
-    if onSpirit or atCNRM or atCerfacs :
+    if onSpirit or atCNRM or atCerfacs or onObelix:
         if publish:
             cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
         else:
@@ -770,7 +770,7 @@ if argument.lower() not in ['url', 'clean']:
                     'CESMEP_bandeau.png '
                 cmd = rmcmd + ';mfthredds -d  ' + path_to_comparison_on_web_server + ' ' + \
                     path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png '
-        if onSpirit or atCNRM or atCerfacs or atIDRIS:
+        if onSpirit or atCNRM or atCerfacs or atIDRIS or onObelix:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png '
             if publish :
                 cmd += path_to_comparison_on_web_server
