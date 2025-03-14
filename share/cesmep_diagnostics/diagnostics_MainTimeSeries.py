@@ -194,10 +194,10 @@ if do_main_time_series:
             #
             # -- select a domain if the user provided one
             if 'domain' in time_series:
-                lonmin = str(time_series['domain']['lonmin'])
-                lonmax = str(time_series['domain']['lonmax'])
-                latmin = str(time_series['domain']['latmin'])
-                latmax = str(time_series['domain']['latmax'])
+                lonmin = time_series['domain']['lonmin']
+                lonmax = time_series['domain']['lonmax']
+                latmin = time_series['domain']['latmin']
+                latmax = time_series['domain']['latmax']
                 # -- We regrid the dataset if
                 if time_series['variable'] in ocean_variables:
                     dat = regridn(dat, cdogrid='r360x180')

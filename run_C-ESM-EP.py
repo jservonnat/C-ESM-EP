@@ -436,10 +436,10 @@ if argument.lower() not in ['url', 'clean']:
             # 2. Edit target_component and target_comparison
             pysed(atlas_pathfilename, 'target_component', component)
             pysed(atlas_pathfilename, 'target_comparison', comparison)
-        if publish and atTGCC :            
-            # 3. thredds_cp
-            check_output('thredds_cp ' + atlas_pathfilename + ' ' +
-                         path_to_comparison_on_web_server + component, shell=True)
+            if publish and atTGCC :            
+                # 3. thredds_cp
+                check_output('thredds_cp ' + atlas_pathfilename + ' ' +
+                    path_to_comparison_on_web_server + component, shell=True)
 
     # Create an empty file for accumulating launched jobs ids
     launched_jobs = comparison_dir + "/launched_jobs"

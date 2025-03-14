@@ -22,8 +22,8 @@ fi
 
 # The target locations are :
 locations="
-    senesis@irene-fr.ccc.cea.fr:/ccc/cont003/home/igcmg/igcmg/Tools/cesmep_next
-    upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep_next
+    senesis@irene-fr.ccc.cea.fr:/ccc/cont003/home/igcmg/igcmg/Tools/cesmep
+    upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep
     ssenesi@spirit2.ipsl.fr:/net/nfs/tools/Users/SU/jservon/cesmep_installs/$version
     "
 
