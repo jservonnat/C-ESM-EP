@@ -65,7 +65,7 @@ fi
 # --> On Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
-	emodule=${CESMEP_CLIMAF_MODULE:-env20240920_climafV3.1_IPSL9}
+	emodule=${CESMEP_CLIMAF_MODULE:-env20240920_climafV3.1_IPSL12}
 	if [ ${emodule:0:1} != "/" ]; then
 	    prefix=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf
 	    emodule=$prefix/$emodule

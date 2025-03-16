@@ -64,7 +64,6 @@ from locations import path_to_cesmep_output_rootdir, \
 try:
     from libIGCM_fixed_settings import AtlasPath, AtlasTitle
 except:
-    print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
 
@@ -94,7 +93,7 @@ else:
 try:
     from settings import account
 except:
-    print("Importing account from settings failed")
+    #print("Importing account from settings failed")
     account = None
 
 try:

@@ -232,7 +232,7 @@ if onCiclad or atTGCC or onSpirit:
              experiment='pdControl',
              simulation='CM70-ico-O4-BOOST100',
              clim_period='1880_1889',
-             #customname='ICOBOOST100 *',
+             customname='ICOBOOST100',
              color='red'
              ),
 
@@ -242,7 +242,7 @@ if onCiclad or atTGCC or onSpirit:
              experiment='pdControl',
              simulation='CM70-ico-O4-BOOST100',
              clim_period='last_5Y',
-             #customname='ICOBOOST100_L5 *',
+             customname='ICOBOOST100_L5',
              color='red'
              ),
     ]
