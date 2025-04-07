@@ -873,8 +873,8 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
                 mask_file = model['path_mesh_mask'] + \
                     model['mesh_masks'][basin]
             else:
-                mask_file = os.path.dirname(model_dat.baseFiles().split(' ')[
-                                            0]) + '/' + basin.lower() + '_mask.nc'
+                print('model_dat.baseFiles()',model_dat.baseFiles())
+                mask_file = os.path.dirname(model_dat.baseFiles().split(' ')[0]) + '/' + basin.lower() + '_mask.nc'
             print('mask_file = ', mask_file)
 
             # -- Select vertical levels
