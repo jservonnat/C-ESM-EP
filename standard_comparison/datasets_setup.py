@@ -142,7 +142,7 @@ routine_cache_cleaning = [dict(age='+20')]
 if onCiclad or onSpirit:
     gridpath = '/data/igcmg/database/grids/'
 if atTGCC:
-    gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+    gridpath = '/ccc/work/cont003/igcmg/igcmg/database/grids/'
 if atCNRM:
     gridpath = '/cnrm/est/COMMON/C-ESM-EP/grids/'
 
