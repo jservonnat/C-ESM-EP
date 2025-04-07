@@ -25,6 +25,16 @@
 
 # -- Empty params_${component}.py file! everything is done from diagnostics_${component}.py
 
+# -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
+verbose = 'error'
+# -- Safe Mode (set to False and verbose='debug' if you want to debug)
+safe_mode = True
+# -- Set to True to clean the CliMAF cache before running the diag
+clean_cache = False
+# -- Patterns to clean the cache at the end of the execution of the atlas
+routine_cache_cleaning = [dict(age='+20')]
+# -- Parallel and memory instructions
+do_parallel = False
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
