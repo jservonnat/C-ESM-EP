@@ -35,7 +35,7 @@ from itertools import chain
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 
-debug = True 
+debug = False 
 
 if debug:
      # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
@@ -62,26 +62,15 @@ nprocs = 32
 # time = 480 # minutes
 # QOS = 'test'
 
-
-# -- Set the reference against which we plot the diagnostics
-# ---------------------------------------------------------------------------- >
-# --    -> 'default' uses variable2reference to point to a default
-# --       reference dataset (obs and reanalyses)
-# --    -> you can set reference to a dictionary that will point any other
-# --       climaf dataset
-# --       For instance, you can set it to models[0] if you want to see the
-# --       differences relative to the first simulation of the list 'models'
-#reference = 'default'
-
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "ORCHIDEE Essentials"
-# When driven by libIGCM, an additional title may be provided by config.card
-if AtlasTitle != "NONE":
-    atlas_head_title += " - " + AtlasTitle
-else:
-    print("No change to title")
-print("head_title=", atlas_head_title)
+#atlas_head_title = "ORCHIDEE Essentials"
+## When driven by libIGCM, an additional title may be provided by config.card
+#if AtlasTitle != "NONE":
+#    atlas_head_title += " - " + AtlasTitle
+#else:
+#    print("No change to title")
+#print("head_title=", atlas_head_title)
 
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
@@ -95,58 +84,63 @@ proj = 'GLOB'
 # domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = dict()
 
-
 # ---------------------------------------------------------------------------- >
 # -- diagnostics
 # -- This section is based on the same mechanisms as Atlas Explorer; it is
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- 
-variables_energy_budget = ['tas'] #['hfls', 'hfss', 'tas', 'rsds', 'rlds'], 
-variables_water_budget = [] #['es', 'et', 'mrros', 'mrrob', 'snw'], 
+variables_energy_budget = ['hfls', 'hfss']#, 'albnir', 'albvis'] #, 'tas', 'rsds', 'rlds'], 
+variables_water_budget = ['evspsbl'] #['es', 'et', 'mrros', 'mrrob', 'snw'], 
 variables_carbon_budget = ['lai'] #['cLitter', 'cSoil', 'cVeg', 'lai', 'gpp', 'npp'], 
 
 atlas_explorer_variables_list = [variables_energy_budget, variables_water_budget, variables_carbon_budget]
-
 atlas_explorer_variables = []
+
 for var in chain.from_iterable(atlas_explorer_variables_list):
 
-    if var in variables_energy_budget:
-        atlas_explorer_variables.append(dict(variable=var, focus='land', season=season,
-                                             project_specs=dict(
-                                                 CMIP6=dict(table='Amon'),
-                                                 IGCM_OUT=dict(DIR='ATM'),
-                                             ),
-                                             ))
-    elif var in variables_water_budget: 
-        if var in ['snw']:
-            atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, project_specs=dict(table='LImon')))
-        elif var in ['mrrob', 'es']:
-            atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, project_specs=dict(table='*mon')))
-        elif var in ['et']:
-            atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, project_specs=dict(table='Nonemon')))
-        else:
-            atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, project_specs=dict(table='Lmon')))
+    settings = dict(variable=var, focus='land', season=season)
 
-    else:
-        if var in ['cSoil']:
-            atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, project_specs=dict(table='Emon')))
-        elif var in ['lai', 'gpp']:
-            atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, DIR='SBG'))
-            #atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, project_specs=dict(table='Lmon', IGCM_OUT=dict(DIR='SBG'))))
+    # define project specs 
+    if var in variables_energy_budget:
+        if var in ['hfls', 'hfss']:
+            project_specs = dict(CMIP6=dict(table='Amon'),IGCM_OUT=dict(DIR='ATM'))
         else:
-            atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, project_specs=dict(table='Lmon')))        
+            project_specs = dict(CMIP6=dict(table='Amon'),IGCM_OUT=dict(DIR='SRF'))
+
+    elif var in variables_water_budget: 
+        if var in ['evspsbl']:
+            project_specs = dict(table='Lmon', IGCM_OUT=dict(DIR='SRF'))
+        elif var in ['snw']:
+            project_specs = dict(table='LImon')
+        elif var in ['mrrob', 'es']:
+            project_specs = dict(table='*mon')
+        elif var in ['et']:
+            project_specs = dict(table='Nonemon')
+        else:
+            project_specs = dict(table='Lmon')
+    else:
+        if var in ['lai', 'gpp']:
+            #atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, DIR='SBG'))
+            project_specs = dict(table='Lmon', IGCM_OUT=dict(DIR='SBG'))
+        elif var in ['cSoil']:
+            project_specs = dict(table='Emon')
+        else:
+            project_specs = dict(table='Lmon')
+
+    # construct atlas_explorer_variables dict
+    settings['project_specs'] = project_specs
+    atlas_explorer_variables.append(settings)
 
 #Aliases for non CMIP names
-calias('IGCM_OUT', 'hfls', 'fluxlat', filenameVar='sechiba_history')
-calias('IGCM_OUT', 'hfss', 'fluxsens', filenameVar='sechiba_history')
-calias('ref_climatos', 'hfls', 'fluxlat')
-calias('ref_climatos', 'hfss', 'fluxsens')
+calias('IGCM_OUT', 'albvis', 'alb_vis', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'albnir', 'alb_nir', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'tas', 'tair', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rsds', 'swdown', filenameVar='sechiba_history')
 calias("IGCM_OUT", 'rlds', 'lwdown', filenameVar='sechiba_history')
 
-calias('IGCM_OUT', 'et', 'evspsblveg', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'evsp', 'evspsblveg', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'evspsbl', 'evap', filenameVar='sechiba_history')
 calias('IGCM_OUT', 'mrros', filenameVar='sechiba_history')
 calias('IGCM_OUT', 'mrrob', 'drainage', filenameVar='sechiba_history')
 calias('IGCM_OUT', 'snw', 'frac_snow', filenameVar='sechiba_history')
@@ -158,17 +152,32 @@ calias('IGCM_OUT', 'npp', filenameVar='stomate_ipcc_history')
 #calias('IGCM_OUT', 'gpp', filenameVar='stomate_ipcc_history')
 #calias('IGCM_OUT', 'lai', filenameVar='stomate_ipcc_history')
 
-# Add observations to custom_obs_dict
-custom_obs_dict = dict(
-    hfls = dict(project='ref_climatos', product='EnsembleLEcor', frequency='annual_cycle'),
-    hfss = dict(project='ref_climatos', product='EnsembleHcor', frequency='annual_cycle'),
-    gpp = dict(project='ref_climatos', product='EnsembleGPP', frequency='annual_cycle'),
-    lai = dict(project='ref_climatos', product='GIMM3G', table='Lmon', frequency='annual_cycle'),
-    #lai      = dict(project='ref_climatos', product='GLASS'        , frequency='annual_cycle'),
-    alb_vis = dict(project='ref_climatos', product='MODIS', frequency='annual_cycle'),
-    alb_nir = dict(project='ref_climatos', product='MODIS', frequency='annual_cycle'),
-    snow = dict(project='ref_climatos', product='MODIS', frequency='annual_cycle')
-)
+## Add observations to custom_obs_dict
+calias('ref_climatos', 'hfls', 'fluxlat')
+calias('ref_climatos', 'hfss', 'fluxsens')
+calias('obsMAPPER', 'hfls', 'fluxlat')
+calias('obsMAPPER', 'hfss', 'fluxsens')
+calias('obsMAPPER', 'albnir', 'alb_nir')
+calias('obsMAPPER', 'albvis', 'alb_vis')
+calias('obsMAPPER', 'evspsbl', 'evap')
+
+ORCH_Essential_obs = {
+    'albedo': dict(project='obsMAPPER', variable_mapperName='albedo', product='modis', customname='MODIS (MAPPER)'),
+    'albnir': dict(project='obsMAPPER', variable_mapperName='alb_nir', product='modis', customname='MODIS (MAPPER)'),
+    'albvis': dict(project='obsMAPPER', variable_mapperName='alb_vis', product='modis', customname='MODIS (MAPPER)'),
+    'evspsbl': dict(project='obsMAPPER', variable_mapperName='evap', product='gleam', customname='GLEAM (MAPPER)'),   
+    'hfls': dict(project='obsMAPPER', variable_mapperName='fluxlat', product='jung', customname='FLUXCOM (MAPPER)'),    
+    'hfss': dict(project='obsMAPPER', variable_mapperName='fluxsens', product='jung', customname='FLUXCOM (MAPPER)'),
+    'lai': dict(project='obsMAPPER', variable_mapperName='lai', product='gimms', customname='GIMMS (MAPPER)'),
+    #
+#    'hfls': dict(project='ref_climatos', product='EnsembleLEcor', frequency='annual_cycle'),
+#    'hfss': dict(project='ref_climatos', product='EnsembleHcor', frequency='annual_cycle'),
+#    'lai': dict(project='ref_climatos', product='GIMM3G', table='Lmon', frequency='annual_cycle'),
+#    'albvis': dict(project='ref_climatos', product='MODIS', table='Lmon', frequency='annual_cycle'),
+#    'albnir': dict(project='ref_climatos', product='MODIS', table='Lmon', frequency='annual_cycle'),
+#    'gpp': dict(project='ref_climatos', product='EnsembleGPP', frequency='annual_cycle'),
+#    'lai': dict(project='ref_climatos', product='GLASS'        , frequency='annual_cycle'),
+}
 
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
 regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
@@ -176,7 +185,7 @@ regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 # -- Activate the parallel execution of the plots
 do_parallel = False
 
-period_manager_test_variable = 'tas'
+period_manager_test_variable = 'hfls'
 # ---------------------------------------------------------------------------- >
 
 
