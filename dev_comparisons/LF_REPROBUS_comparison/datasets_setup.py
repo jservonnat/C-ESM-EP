@@ -29,17 +29,6 @@ data_end       = 2022
 ### -----
 
 
-# -- REPROBUS projects
-my_projects = {'definitions': ['pathfilename', 'frequency'],
-               'ECMWF_data_t': ['/ccc/work/cont003/gen0826/fallettl/OBS_data/t_merged_all.nc',
-                                       ""],
-               'ECMWF_data_u': ['/ccc/work/cont003/gen0826/fallettl/OBS_data/ECMWF/u_merged_all.nc',
-                                       ""],
-               'HALOE_data_chimie': ['/ccc/work/cont003/gen0826/fallettl/OBS_data/HALOE/haloe_lat_climat.nc',
-                                       ""]
-              }
-
-
 
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
