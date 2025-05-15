@@ -344,44 +344,15 @@ if common_clim_period:
 # --       differences relative to the first simulation of the list 'models'
 reference = 'default'
 
-pattern = '/data/vbastrik/MAPPER/OBS/${variable_mapperName}.${product}.360720.nc'
-cproject('obsMAPPER', ('frequency', 'annual_cycle'), 'variable_mapperName', 'product', separator='%')
+pattern = '/data/vbastrik/MAPPER/OBS/${variable}.${product}.360720.nc'
+cproject('obsMAPPER', ('frequency', 'annual_cycle'), 'product', separator='%')
 dataloc(project='obsMAPPER', organization='generic', url=pattern)
 
 cdef('variable', '*', project='obsMAPPER')
-cdef('variable_mapperName', '*', project='obsMAPPER')
 cdef('product', '*', project='obsMAPPER')
 #cdef('frequency'   , 'monthly'      , project='obsMAPPER')
 cdef('period'      , '1980-2005'    , project='obsMAPPER')
 
-# reference = dict(project='CMIP5', model='CNRM-CM5', experiment='historical',
-#                  frequency='monthly', period='1980-2005',
-#                  customname='CMIP5 CNRM-CM5'
-#                 )
-
-# -- Declare a 'CMIP5_bis' CliMAF project (a replicate of the CMIP5 project)
-# ---------------------------------------------------------------------------- >
-# cproject('CMIP5_bis', ('frequency','monthly'), 'model', 'realm', 'table', 'experiment',
-#          ensemble=['model','simulation'],separator='%')
-# --> systematic arguments = simulation, frequency, variable
-# -- Set the aliases for the frequency
-# cfreqs('CMIP5_bis', {'monthly':'mon'})
-# -- Set default values
-# cdef('simulation'  , 'r1i1p1'       , project='CMIP5_bis')
-# cdef('experiment'  , 'historical'   , project='CMIP5_bis')
-# cdef('table'       , '*'            , project='CMIP5_bis')
-# cdef('realm'       , '*'            , project='CMIP5_bis')
-# -- Define the pattern
-# pattern="/prodigfs/project/CMIP5/output/*/${model}/${experiment}/${frequency}/${realm}/${table}/${simulation}/latest/
-#         "${variable}/${variable}_${table}_${model}_${experiment}_${simulation}_YYYYMM-YYYYMM.nc"
-# --> Note that the YYYYMM-YYYYMM string means that the period is described in the filename and that CliMAF can
-# --> perform period selection among the files it found in the directory (can be YYYY, YYYYMM, YYYYMMDD).
-# --> You can use an argument like ${years} instead if you just want to do string matching (no smart period selection)
-#
-# -- call the dataloc CliMAF function
-# dataloc(project='CMIP5_bis', organization='generic', url=pattern)
-# ---------------------------------------------------------------------------- >
-#
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #

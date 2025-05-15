@@ -39,20 +39,13 @@ from climaf.operators import cscript
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "ORCHIDEE Essentials"
+atlas_head_title = "Essentials"
 # When driven by libIGCM, an additional title may be provided by config.card
 if AtlasTitle != "NONE":
     atlas_head_title += " - " + AtlasTitle
 else:
     print("No change to title")
 print("head_title=", atlas_head_title)
-
-#if atlas_head_title is None:
-#    atlas_head_title = "AtlasExplorer"
-#    # When driven by libIGCM, an additional title may be provided by config.card
-#    if AtlasTitle != "NONE":
-#        atlas_head_title += " - " + AtlasTitle
-
 
 # - Init html index
 # -----------------------------------------------------------------------------------
@@ -71,45 +64,38 @@ if thumbnail_size:
 else:
     figure_size = thumbnail_size_global # defined in share/default/default_atlas_settings.py
 
-# we need to : 
-# filter wrt project (IPSL/CMIP or ORC)
-# fiter wrt obs (if they exists) : we could have separate observation datasets (ideally, GT should work with more than one obs, if available)
-# center climato figs
-
-# -- diff with obs
 # ---------------------------------------------------------------------------------------- #
-models_ORCH_essentials = [m for m in models if 'IPSLCM7' in m['model']]
+# -- ESSENTIALS
+# 1) GT Evaluation (IPSLCM7 diff with obs)
+# 2) verification against mapper results (LMDZOR sims), to be removed after
+# ---------------------------------------------------------------------------------------- #
+variables_filtered = [v for v in atlas_explorer_variables if (v['variable'] in ORCH_Essentials_obs)]
 
-kwargs = dict(models=models_ORCH_essentials, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
-              section_title='ORCHIDEE ESSENTIALS (GT Evaluation)', domain=domain,
-              custom_plot_params=custom_plot_params,
-              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-              add_line_of_climato_plots=add_line_of_climato_plots,
-              alternative_dir=alternative_dir, custom_obs_dict=ORCH_Essential_obs,
-              regridding=regridding,
-              thumbnail_size=thumbnail_size)
+essentials = {  'ORCHIDEE (GT Evaluation)':{'keyword':'model', 'pattern':'IPSLCM7'},
+                'ORCHIDEE (Mapper comparison)':{'keyword':'model', 'pattern':'LMDZOR'},
+                }
 
-if do_parallel:
-    index += parallel_section(section_2D_maps, **kwargs)
-else:
-    index += section_2D_maps(**kwargs)
+for plot_section,filters in essentials.items():
 
-## -- Climatologies (MAPPER)
-## ---------------------------------------------------------------------------------------- #
-#models_MAPPER = [m for m in models if 'LMDZOR' in m['model']]
-#
+    models_essentials = [ m for m in models if (filters['pattern'] in m[filters['keyword']]) ]
+    
+    kwargs = dict(models=models_essentials, reference=reference, proj=proj, season=season, variables=variables_filtered,
+                  section_title=plot_section, domain=domain,
+                  custom_plot_params=custom_plot_params,
+                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                  add_line_of_climato_plots=add_line_of_climato_plots,
+                  alternative_dir=alternative_dir, custom_obs_dict=ORCH_Essentials_obs,
+                  regridding=regridding,
+                  thumbnail_size=thumbnail_size)
+    
+    if do_parallel:
+        index += parallel_section(section_2D_maps, **kwargs)
+    else:
+        index += section_2D_maps(**kwargs)
+
+
+### ---------------------------------------------------------------------------------------- #
 #kwargs = dict(models=models_MAPPER, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
-#              section_title='ORCHIDEE (Mapper comparison)', domain=domain,
-#              custom_plot_params=custom_plot_params,
-#              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-#              add_line_of_climato_plots=add_line_of_climato_plots,
-#              alternative_dir=alternative_dir, custom_obs_dict=ORCH_Essential_obs,
-#              regridding=regridding,
-#              thumbnail_size=thumbnail_size)
-#
-#index += section_2D_maps(**kwargs)
-#
-##kwargs = dict(models=models_MAPPER, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
 ##              section_title='ORCHIDEE (Mapper comparison)', domain=domain,
 ##              custom_plot_params=custom_plot_params,
 ##              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
@@ -117,7 +103,9 @@ else:
 ##              thumbnail_size=thumbnail_size)
 ##
 ##index += section_climato_2D_maps(**kwargs)
-
+#
+## ---------------------------------------------------------------------------------------- #
+## OLD CODE FOR TESTING PYTHON SCRIPT, NEEDS TO BE READAPTED FOR RIVER DISCHARGE
 ## ---------------------------------------------------------------------------------------- #
 ## retrieve data objects
 ## compute  

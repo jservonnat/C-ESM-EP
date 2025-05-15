@@ -29,13 +29,11 @@ from climaf.api import *
 from custom_plot_params import dict_plot_params as custom_plot_params
 from custom_obs_dict import custom_obs_dict
 
-from itertools import chain
-
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 
-debug = False 
+debug = False
 
 if debug:
      # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
@@ -43,10 +41,8 @@ if debug:
     # -- Safe Mode (set to False and verbose='debug' if you want to debug)
     safe_mode = False
 else:
-   # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-    verbose = 'error'
-    # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-    safe_mode = True
+   verbose = 'error'
+   safe_mode = True
 
 # -- Set to True to clean the CliMAF cache
 clean_cache = False
@@ -62,21 +58,8 @@ nprocs = 32
 # time = 480 # minutes
 # QOS = 'test'
 
-# -- Head title of the atlas
-# ---------------------------------------------------------------------------- >
-#atlas_head_title = "ORCHIDEE Essentials"
-## When driven by libIGCM, an additional title may be provided by config.card
-#if AtlasTitle != "NONE":
-#    atlas_head_title += " - " + AtlasTitle
-#else:
-#    print("No change to title")
-#print("head_title=", atlas_head_title)
-
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
-# ---------------------------------------------------------------------------- >
-# -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
-#my_seasons = ['ANM', 'DJF', 'JJA']
 season = 'ANM'
 # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
 proj = 'GLOB'
@@ -85,100 +68,106 @@ proj = 'GLOB'
 domain = dict()
 
 # ---------------------------------------------------------------------------- >
-# -- diagnostics
-# -- This section is based on the same mechanisms as Atlas Explorer; it is
-# -- thus possible to use the functionalities (python dictionaries to add options
-# -- with a variable)
-# ---------------------------------------------------------------------------- 
-variables_energy_budget = ['hfls', 'hfss']#, 'albnir', 'albvis'] #, 'tas', 'rsds', 'rlds'], 
-variables_water_budget = ['evspsbl'] #['es', 'et', 'mrros', 'mrrob', 'snw'], 
-variables_carbon_budget = ['lai'] #['cLitter', 'cSoil', 'cVeg', 'lai', 'gpp', 'npp'], 
+## ACCEPTED VARIABLES 
+## ratios for water and carbon budgets are excluded ('ratio_ie', 'ratio_te'; 'ratio_ng', resp.)
+energy_budget = ['hfls', 'hfss', 'albedo_glob', 'albedo', 'albvis', 'albnir', 'rsds', 'rlds', 'ts']
+water_budget = ['mrso', 'humrel', 'transpir', 'inter', 'evspsbl', 'es', 'snow', 'twbr']
+carbon_budget = ['lai', 'LAI_MEAN_GS', 'gpp', 'gpp_srf', 'gpp_ipcc', 'npp', 'nbp', 'ra', 'rh', 'fLuc', 'fHarvest', 'fWoodharvest', 'cSoil', 'cVeg', 'cProduct']
 
-atlas_explorer_variables_list = [variables_energy_budget, variables_water_budget, variables_carbon_budget]
-atlas_explorer_variables = []
+## Aliases for ORCHIDEE/C-ESM-EP(CMIP) names
+aliases_dict = {'fluxlat':'hfls', 'fluxsens':'hfss', 'alb_vis':'albvis', 'alb_nir':'albnir',
+                'swnet':'rss', 'swdown':'rsds', 'lwdown':'rlds',
+                'temp_sol':'ts',                 
+                #humrel:?, #inter:? 'tran':'transpir'?, 
+                'evap':'evspsbl', 'evapnu':'es', #snow:frac_snow?
+               } 
 
-for var in chain.from_iterable(atlas_explorer_variables_list):
+for orchidee_alias, cesmep_alias in aliases_dict.items():
+    calias('IGCM_OUT', cesmep_alias, orchidee_alias)
+    calias('obsMAPPER', cesmep_alias, orchidee_alias)
 
-    settings = dict(variable=var, focus='land', season=season)
+## DERIVED VARIABLES (partially taken from Stephane's scripts)
+calias('IGCM_OUT', 'maxvegetfrac', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'read_lai', filenameVar='sechiba_history')
+derive("IGCM_OUT", "lai", "ccdo2", "read_lai", "maxvegetfrac", operator="vertsum -mul")
 
-    # define project specs 
-    if var in variables_energy_budget:
-        if var in ['hfls', 'hfss']:
-            project_specs = dict(CMIP6=dict(table='Amon'),IGCM_OUT=dict(DIR='ATM'))
-        else:
-            project_specs = dict(CMIP6=dict(table='Amon'),IGCM_OUT=dict(DIR='SRF'))
+cscript("compute_total_albedo", "cdo mulc,-1. -subc,1 -div ${in_1} ${in_2} ${out}", _var="albedo")
+derive("IGCM_OUT", 'albedo', 'compute_total_albedo', 'rss', 'rsds')
 
-    elif var in variables_water_budget: 
-        if var in ['evspsbl']:
-            project_specs = dict(table='Lmon', IGCM_OUT=dict(DIR='SRF'))
-        elif var in ['snw']:
-            project_specs = dict(table='LImon')
-        elif var in ['mrrob', 'es']:
-            project_specs = dict(table='*mon')
-        elif var in ['et']:
-            project_specs = dict(table='Nonemon')
-        else:
-            project_specs = dict(table='Lmon')
-    else:
-        if var in ['lai', 'gpp']:
-            #atlas_explorer_variables.append(dict(variable=var, focus='land', season=season, DIR='SBG'))
-            project_specs = dict(table='Lmon', IGCM_OUT=dict(DIR='SBG'))
-        elif var in ['cSoil']:
-            project_specs = dict(table='Emon')
-        else:
-            project_specs = dict(table='Lmon')
+cscript("compute_mean_albedo", "cdo mulc,0.5 -add ${in_1} ${in_2} ${out}", _var="albedo_glob")
+derive("IGCM_OUT", 'albedo_glob', 'compute_mean_albedo', 'albvis', 'albnir')
 
-    # construct atlas_explorer_variables dict
-    settings['project_specs'] = project_specs
-    atlas_explorer_variables.append(settings)
+## FIX FOR ALBEDO_GLOB REFERENCE
+albvis_mapper = ds(project='obsMAPPER', variable='albvis', product='modis')
+albnir_mapper = ds(project='obsMAPPER', variable='albnir', product='modis')
+cscript("compute_mean_albedo_mapper", "cdo mulc,0.5 -add, -chname,albvis,albedo_glob  ${in_1} ${in_2} ${out}")
+albedo_glob = compute_mean_albedo_mapper(albvis_mapper, albnir_mapper)
 
-#Aliases for non CMIP names
-calias('IGCM_OUT', 'albvis', 'alb_vis', filenameVar='sechiba_history')
-calias('IGCM_OUT', 'albnir', 'alb_nir', filenameVar='sechiba_history')
-calias("IGCM_OUT", 'tas', 'tair', filenameVar='sechiba_history')
-calias("IGCM_OUT", 'rsds', 'swdown', filenameVar='sechiba_history')
-calias("IGCM_OUT", 'rlds', 'lwdown', filenameVar='sechiba_history')
+cproject('derived_obs', ('frequency', 'annual_cycle'), 'product', separator='%')
+dataloc(project='derived_obs', organization='generic', url=cfile(albedo_glob))
+cdef('variable', '*', project='derived_obs')
+cdef('product', '*', project='derived_obs')
+cdef('period'      , '1980-2005'    , project='derived_obs')
 
-calias('IGCM_OUT', 'evsp', 'evspsblveg', filenameVar='sechiba_history')
-calias('IGCM_OUT', 'evspsbl', 'evap', filenameVar='sechiba_history')
-calias('IGCM_OUT', 'mrros', filenameVar='sechiba_history')
-calias('IGCM_OUT', 'mrrob', 'drainage', filenameVar='sechiba_history')
-calias('IGCM_OUT', 'snw', 'frac_snow', filenameVar='sechiba_history')
-
-calias('IGCM_OUT', 'cLitter', filenameVar='stomate_ipcc_history')
-calias('IGCM_OUT', 'cSoil', filenameVar='stomate_ipcc_history')
-calias('IGCM_OUT', 'cVeg', filenameVar='stomate_ipcc_history')
-calias('IGCM_OUT', 'npp', filenameVar='stomate_ipcc_history')
-#calias('IGCM_OUT', 'gpp', filenameVar='stomate_ipcc_history')
-#calias('IGCM_OUT', 'lai', filenameVar='stomate_ipcc_history')
-
-## Add observations to custom_obs_dict
-calias('ref_climatos', 'hfls', 'fluxlat')
-calias('ref_climatos', 'hfss', 'fluxsens')
-calias('obsMAPPER', 'hfls', 'fluxlat')
-calias('obsMAPPER', 'hfss', 'fluxsens')
-calias('obsMAPPER', 'albnir', 'alb_nir')
-calias('obsMAPPER', 'albvis', 'alb_vis')
-calias('obsMAPPER', 'evspsbl', 'evap')
-
-ORCH_Essential_obs = {
-    'albedo': dict(project='obsMAPPER', variable_mapperName='albedo', product='modis', customname='MODIS (MAPPER)'),
-    'albnir': dict(project='obsMAPPER', variable_mapperName='alb_nir', product='modis', customname='MODIS (MAPPER)'),
-    'albvis': dict(project='obsMAPPER', variable_mapperName='alb_vis', product='modis', customname='MODIS (MAPPER)'),
-    'evspsbl': dict(project='obsMAPPER', variable_mapperName='evap', product='gleam', customname='GLEAM (MAPPER)'),   
-    'hfls': dict(project='obsMAPPER', variable_mapperName='fluxlat', product='jung', customname='FLUXCOM (MAPPER)'),    
-    'hfss': dict(project='obsMAPPER', variable_mapperName='fluxsens', product='jung', customname='FLUXCOM (MAPPER)'),
-    'lai': dict(project='obsMAPPER', variable_mapperName='lai', product='gimms', customname='GIMMS (MAPPER)'),
-    #
-#    'hfls': dict(project='ref_climatos', product='EnsembleLEcor', frequency='annual_cycle'),
-#    'hfss': dict(project='ref_climatos', product='EnsembleHcor', frequency='annual_cycle'),
-#    'lai': dict(project='ref_climatos', product='GIMM3G', table='Lmon', frequency='annual_cycle'),
-#    'albvis': dict(project='ref_climatos', product='MODIS', table='Lmon', frequency='annual_cycle'),
-#    'albnir': dict(project='ref_climatos', product='MODIS', table='Lmon', frequency='annual_cycle'),
-#    'gpp': dict(project='ref_climatos', product='EnsembleGPP', frequency='annual_cycle'),
-#    'lai': dict(project='ref_climatos', product='GLASS'        , frequency='annual_cycle'),
+## OBSERVATIONS
+ORCH_Essentials_obs = { 
+    'albedo': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
+    'albnir': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
+    'albvis': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
+    'albedo_glob': dict(project='derived_obs', product='modis', customname='MODIS (from MAPPER)'),
+    'evspsbl': dict(project='obsMAPPER', product='gleam', customname='GLEAM 3.3b (from MAPPER)'),   
+    'hfls': dict(project='obsMAPPER', product='jung', customname='MTE (from MAPPER)'),    
+    'hfss': dict(project='obsMAPPER', product='jung', customname='MTE (from MAPPER)'),
+    'lai': dict(project='obsMAPPER', product='gimms', customname='GIMMS LAI3g (from MAPPER)'),
 }
 
+# ---------------------------------------------------------------------------- >
+# -- VARIABLE CESMEP PARAMETERS
+# ---------------------------------------------------------------------------- 
+variables_list = ['hfls', 'hfss', 'albedo_glob', 'evspsbl', 'lai'] 
+atlas_explorer_variables = []
+
+for var in variables_list:
+    
+    ## set variable name to CMIP (if exists)
+    var_name = aliases_dict[var] if var in aliases_dict else var
+ 
+    if (var_name in energy_budget) or (var_name in water_budget) or (var_name in carbon_budget):
+        ## define project specs 
+        settings = dict(variable=var_name, focus='land', season=season)
+        project_specs = {}
+    
+        ## set dir
+        if (var_name in energy_budget) or (var_name in water_budget): 
+            project_specs = dict(IGCM_OUT=dict(DIR='SRF'))
+    
+            if var_name == 'albedo':
+                project_specs['IGCM_OUT']['OUT'] = 'Output'
+                settings['line_title'] = f'Total Albedo ({var_name}) ; season = {season}'
+
+            if var_name == 'albedo_glob': 
+                settings['line_title'] = f'Mean Albedo ({var_name}) ; season = {season}'
+
+            if var_name == 'evspsbl':
+                settings['line_title'] = f'Evapotranspiration ({var_name}) ; season = {season}'
+        else:
+            project_specs = dict(IGCM_OUT=dict(DIR='SBG'))
+        
+        #used when testing my own python cscript, needs to be checked
+        #atlas_explorer_variables.a#ppend(dict(variable=var, focus='land', season=season, DIR='SBG'))
+                                   #
+        # construct atlas_explorer_variables dict
+        settings['project_specs'] = project_specs
+        atlas_explorer_variables.append(settings)
+
+        ## add obs from ref_climatos
+        if not (var_name in ORCH_Essentials_obs):
+            var_ref_climatos = variable2reference(var_name, project='ref_climatos')
+            
+            if not (var_ref_climatos is None): 
+                ORCH_Essentials_obs[var_name] = var_ref_climatos
+
+# ---------------------------------------------------------------------------- >
 # -- Choose the regridding (explicit ; can also be used in the variable dictionary)
 regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
@@ -186,17 +175,10 @@ regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 do_parallel = False
 
 period_manager_test_variable = 'hfls'
-# ---------------------------------------------------------------------------- >
-
-
-# -- Some settings -- customization
-# ---------------------------------------------------------------------------- >
-
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
 
 # -- Name of the html file
 # -- if index_name is set to None, it will be build as user_comparisonname_season
@@ -205,15 +187,6 @@ add_product_in_title = True
 # ---------------------------------------------------------------------------- >
 index_name = None
 
-# -- Custom plot params
-# -- Changing the plot parameters of the plots
-# ---------------------------------------------------------------------------- >
-# Load an auxilliary file custom_plot_params (from the working directory)
-# of plot params (like atmos_plot_params.py)
-# -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
-#    for an example/
-
-
 # ---------------------------------------------------------------------------------------- #
-# -- END                                                                                -- #
+# -- END -- #
 # ---------------------------------------------------------------------------------------- #
