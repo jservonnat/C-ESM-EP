@@ -28,11 +28,12 @@ from os import getcwd
 from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'error'
+verbose = 'debug' #was 'error' before
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = True
+safe_mode = False
+#clog('debug')
 # -- Set to True to clean the CliMAF cache
-clean_cache = False
+clean_cache = True
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20'), dict(pattern='oneVar')]
 # -- Parallel and memory instructions
@@ -43,6 +44,17 @@ memory = 40  # in gb; 30 for ocean atlasas
 # time = 480 # minutes
 # QOS = 'test'
 
+# -- Thumbnail sizes
+# ---------------------------------------------------------------------------- >
+thumbnail_size = '300*175'
+thumbnail_polar_size = '250*250'
+thumbnail_size_3d = '250*250'
+thumbsize_zonalmean = '450*250'
+thumbsize_TS = '450*250'
+thumbsize_MOC_slice = '475*250'
+thumbsize_MAXMOC_profile = '325*250'
+thumbsize_MOC_TS = '325*250'
+thumbsize_VertProf = '250*250'
 
 # -- Set the reference against which we plot the diagnostics
 # ---------------------------------------------------------------------------- >
@@ -53,6 +65,23 @@ memory = 40  # in gb; 30 for ocean atlasas
 # --       For instance, you can set it to models[0] if you want to see the
 # --       differences relative to the first simulation of the list 'models'
 # reference = 'default'
+
+     
+# -- Create project my_ts_obs
+pattern='/home/cburgard/SCRIPTS/C-ESM-EP/REF_OBS/eORCA1.4.2_ref-${variable}_${product}_monthly.nc'
+cproject('my_ice_obs', 'product', ('period','fx'), separator='%') # we set period to fx and frequency to seasonal for the climatologies
+dataloc(project='my_ice_obs', url=pattern) 
+
+pattern='/home/cburgard/SCRIPTS/C-ESM-EP/REF_OBS/${variable}_${product}_1991_2020_annualmean.nc'
+cproject('my_bottom_obs', 'product', ('period','fx'), separator='%')
+dataloc(project='my_bottom_obs', url=pattern)
+
+custom_obs_dict = {
+                    'iceshelf':dict(project='my_ice_obs', variable='iceshelf', product='DaiTrenberth_Davison', frequency='seasonal'),
+                    'iceberg':dict(project='my_ice_obs', variable='iceberg', product='DaiTrenberth_Davison', frequency='seasonal'),
+                    'T_bottom':dict(project='my_bottom_obs', variable='T_bottom', product='WOA23', period='fx', frequency='yr'),
+                    'S_bottom':dict(project='my_bottom_obs', variable='S_bottom', product='WOA23', period='fx', frequency='yr'),
+                    'rhopot_bottom':dict(project='my_bottom_obs', variable='rhopot_bottom', product='WOA23', period='fx', frequency='yr')}   
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
@@ -88,39 +117,43 @@ liste_seasons_ocean = ['ANM', 'DJF', 'JAS']
 liste_seasons_seaice = ['ANM', 'September', 'February']                                                                                             
                                                                                      
 ocean_2D_variables = []                                                                                                           
-for var in ['tos', 'sos', 'iceshelf', 'iceberg']:                                                                                                 
+for var in ['tos']:      #      , 'sos', 'iceshelf', 'iceberg'                                                                                   
     for my_season in liste_seasons_ocean:                                                                                               
         ocean_2D_variables.append(dict(variable=var, season=my_season, table='Omon', grid='gn',                                   
                                        project_specs=dict(                                                                        
                                            IGCM_OUT=dict(DIR='OCE')                                                            
                                        )                                                                                          
                                        ))
+                                       
+#for var in ['iceshelf', 'iceberg']:                                                                                              
+#    for my_season in liste_seasons_ocean:                                                                                               
+#        ocean_2D_variables.append(dict(variable=var, season=my_season, table='Omon', grid='gn',                                   
+#                                       project_specs=dict(                                                                        
+#                                           IGCM_OUT=dict(DIR='OCE',OUT='Output'),                                                            
+#                                       )                                                                                          
+#                                       ))
 
 # -- Mixed Layer Depth
-do_MLD_maps = True  # -> [NEMO Atlas] Maps of Mixed Layer Depth
+do_MLD_maps = False  # -> [NEMO Atlas] Maps of Mixed Layer Depth
 
 # ---------------------------------------------------------------------------- >
 # -- White Ocean : Sea Ice diagnostics
 # ---------------------------------------------------------------------------- >
 # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
-do_seaice_maps = True
+do_seaice_maps = False
 # do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
 # ---------------------------------------------------------------------------- >
+
+# ---------------------------------------------------------------------------- >
+# -- Blue Ocean : Bottom ocean diagnostics
+# ---------------------------------------------------------------------------- >
+
+do_bottomTS_maps = True
 
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-# -- Thumbnail sizes
-# ---------------------------------------------------------------------------- >
-thumbnail_size = '300*175'
-thumbnail_polar_size = '250*250'
-thumbnail_size_3d = '250*250'
-thumbsize_zonalmean = '450*250'
-thumbsize_TS = '450*250'
-thumbsize_MOC_slice = '475*250'
-thumbsize_MAXMOC_profile = '325*250'
-thumbsize_MOC_TS = '325*250'
-thumbsize_VertProf = '250*250'
+
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >

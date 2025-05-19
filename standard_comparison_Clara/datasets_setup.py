@@ -230,22 +230,32 @@ if onCiclad or atTGCC or onSpirit:
              login='p86caub',
              model='IPSLCM7',
              experiment='pdControl',
-             simulation='CM70-ico-O4-BOOST100',
-             clim_period='1880_1889',
-             customname='ICOBOOST100',
-             color='red'
+             simulation='CM70-ico-BOOST100-CLD-RS',
+             clim_period='last_50Y',
+             customname='ICOBOOST100CLD-NODORSOIL',
+             color='green'
              ),
 
         dict(project='IGCM_OUT',
              login='p86caub',
              model='IPSLCM7',
              experiment='pdControl',
-             simulation='CM70-ico-O4-BOOST100',
-             clim_period='last_5Y',
-             customname='ICOBOOST100_L5',
+             simulation='CM70-ico-O2-BOOST100-CLD',
+             clim_period='last_50Y',
+             customname='ICOBOOST100CLD-O2',
              color='red'
              ),
-    ]
+    
+        #dict(project='IGCM_OUT',
+        #    login='burgardc',
+        #    model='IPSLCM7',
+        #    experiment='piControl',
+        #    simulation='opencav-presc04',
+        #    clim_period='1850_1859',
+        #    customname='opencav-presc04',
+        #    color='blue'
+        #    ),
+        ]
     if atTGCC:
         # CMIP5 and CMIP6 data are not readable by everyone there...
         alt_models = [ m for m in models if 'CMIP' not in m['project']]
