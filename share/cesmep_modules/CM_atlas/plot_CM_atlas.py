@@ -1130,15 +1130,18 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
             if 'thumbnail_size' in var:
                 w_thumbnail_size = var['thumbnail_size']
                 var.pop('thumbnail_size')
+            wreference = var.get('reference', reference)
+            if 'reference' in var:
+                var.pop('reference')
         else:
             variable = var
         #
         # -- Loop on the references => the user can provide multiple references per variable
         var_references = []
-        if not isinstance(reference, list):
-            reference = [reference]
-        print('reference => ', reference)
-        for ref in reference:
+        if not isinstance(wreference, list):
+            wreference = [wreference]
+        print('wreference => ', wreference)
+        for ref in wreference:
             if ref == 'default':
                 var_references.append(ref)
             else:
