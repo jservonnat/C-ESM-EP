@@ -160,6 +160,27 @@ index_name = None
 #    for an example/
 
 
+# -- References
+# ---------------------------------------------------------------------------- >
+pattern_default = '/.../...nc'
+cproject('default_project', ...)
+dataloc(project='default_project', url=pattern_default)
+
+pattern_second = '/.../...nc'
+cproject('second_project', ...)
+dataloc(project='second_project', url=pattern_second)
+
+references = [
+        dict(project='default_project'),
+        dict(project='second_project')
+        ]
+
+#references_by_variable = dict(
+#        'var1' = [dict(project='default_project'), dict(project='second_project')],
+#        'var2' = [dict(project='default_project')],
+#        )
+
+
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #
