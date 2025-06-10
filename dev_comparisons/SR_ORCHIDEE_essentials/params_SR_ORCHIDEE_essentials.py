@@ -5,7 +5,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: Atmosphere_Surface                                                 - |
+# --             - component: ORCHIDEE                                                           - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -58,6 +58,7 @@ nprocs = 32
 # time = 480 # minutes
 # QOS = 'test'
 
+# ---------------------------------------------------------------------------- >
 # -- Set the overall season, region and geographical domain
 # --> season, region and domain do not overwrite the values that are pre-defined with some diagnostics
 season = 'ANM'
@@ -67,28 +68,51 @@ proj = 'GLOB'
 # domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = dict()
 
+# ----------------------------------------------------------------------------
+# -- REFERENCES (PART 1): MAPPER
+# ---------------------------------------------------------------------------- 
+# MAPPER
+pattern1 = '/data/vbastrik/MAPPER/OBS/${variable}.${product}.360720.nc'
+pattern2 = '/data/vbastrik/MAPPER/OBS/${product}.nc'
+
+cproject('obsMAPPER', ('frequency', 'annual_cycle'), 'product', separator='%')
+dataloc(project='obsMAPPER', organization='generic', url=[pattern1, pattern2])
+cdef('variable', '*', project='obsMAPPER')
+cdef('product', '*', project='obsMAPPER')
+#cdef('frequency'   , 'monthly'      , project='obsMAPPER')
+cdef('period'      , '1980-2005'    , project='obsMAPPER')
+
 # ---------------------------------------------------------------------------- >
-## ACCEPTED VARIABLES 
-## ratios for water and carbon budgets are excluded ('ratio_ie', 'ratio_te'; 'ratio_ng', resp.)
+## ACCEPTED VARIABLES (CMIP names, if they exists)
+# ratios for water and carbon budgets are excluded ('ratio_ie', 'ratio_te'; 'ratio_ng', resp.)
 energy_budget = ['hfls', 'hfss', 'albedo_glob', 'albedo', 'albvis', 'albnir', 'rsds', 'rlds', 'ts']
 water_budget = ['mrso', 'humrel', 'transpir', 'inter', 'evspsbl', 'es', 'snow', 'twbr']
 carbon_budget = ['lai', 'LAI_MEAN_GS', 'gpp', 'gpp_srf', 'gpp_ipcc', 'npp', 'nbp', 'ra', 'rh', 'fLuc', 'fHarvest', 'fWoodharvest', 'cSoil', 'cVeg', 'cProduct']
+river_basins = ['hydrographs', 'pr']
 
-## Aliases for ORCHIDEE/C-ESM-EP(CMIP) names
+# Aliases for ORCHIDEE/C-ESM-EP(CMIP) names
 aliases_dict = {'fluxlat':'hfls', 'fluxsens':'hfss', 'alb_vis':'albvis', 'alb_nir':'albnir',
                 'swnet':'rss', 'swdown':'rsds', 'lwdown':'rlds',
                 'temp_sol':'ts',                 
                 #humrel:?, #inter:? 'tran':'transpir'?, 
                 'evap':'evspsbl', 'evapnu':'es', #snow:frac_snow?
+                'precip':'pr'
                } 
 
 for orchidee_alias, cesmep_alias in aliases_dict.items():
-    calias('IGCM_OUT', cesmep_alias, orchidee_alias)
+    if (cesmep_alias in energy_budget) or (cesmep_alias in water_budget):
+        calias('IGCM_OUT', cesmep_alias, orchidee_alias, filenameVar='sechiba_history')
+
+    elif (cesmep_alias in carbon_budget):
+        calias('IGCM_OUT', cesmep_alias, orchidee_alias, filenameVar='stomate_history')
+    else:
+        pass
+
     calias('obsMAPPER', cesmep_alias, orchidee_alias)
 
 ## DERIVED VARIABLES (partially taken from Stephane's scripts)
 calias('IGCM_OUT', 'maxvegetfrac', filenameVar='sechiba_history')
-calias('IGCM_OUT', 'read_lai', filenameVar='sechiba_history')
+calias('IGCM_OUT', 'read_lai', filenameVar='sechiba_history', fileVariable='lai')
 derive("IGCM_OUT", "lai", "ccdo2", "read_lai", "maxvegetfrac", operator="vertsum -mul")
 
 cscript("compute_total_albedo", "cdo mulc,-1. -subc,1 -div ${in_1} ${in_2} ${out}", _var="albedo")
@@ -97,7 +121,9 @@ derive("IGCM_OUT", 'albedo', 'compute_total_albedo', 'rss', 'rsds')
 cscript("compute_mean_albedo", "cdo mulc,0.5 -add ${in_1} ${in_2} ${out}", _var="albedo_glob")
 derive("IGCM_OUT", 'albedo_glob', 'compute_mean_albedo', 'albvis', 'albnir')
 
-## FIX FOR ALBEDO_GLOB REFERENCE
+# ----------------------------------------------------------------------------
+# -- REFERENCES (PART 2): derived obs 
+# ---------------------------------------------------------------------------- 
 albvis_mapper = ds(project='obsMAPPER', variable='albvis', product='modis')
 albnir_mapper = ds(project='obsMAPPER', variable='albnir', product='modis')
 cscript("compute_mean_albedo_mapper", "cdo mulc,0.5 -add, -chname,albvis,albedo_glob  ${in_1} ${in_2} ${out}")
@@ -109,7 +135,8 @@ cdef('variable', '*', project='derived_obs')
 cdef('product', '*', project='derived_obs')
 cdef('period'      , '1980-2005'    , project='derived_obs')
 
-## OBSERVATIONS
+# ----------------------------------------------------------------------------
+# ref dictionary (instead of ref_climatos) 
 ORCH_Essentials_obs = { 
     'albedo': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
     'albnir': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
@@ -119,13 +146,15 @@ ORCH_Essentials_obs = {
     'hfls': dict(project='obsMAPPER', product='jung', customname='MTE (from MAPPER)'),    
     'hfss': dict(project='obsMAPPER', product='jung', customname='MTE (from MAPPER)'),
     'lai': dict(project='obsMAPPER', product='gimms', customname='GIMMS LAI3g (from MAPPER)'),
+    'hydrographs': dict(project='obsMAPPER', product='grdc', customname='GRDC (from MAPPER)'),
+    'pr': dict(project='obsMAPPER', product='gpcp', customname='GPCP (from MAPPER)'),
 }
 
-# ---------------------------------------------------------------------------- >
+# ----------------------------------------------------------------------------
 # -- VARIABLE CESMEP PARAMETERS
 # ---------------------------------------------------------------------------- 
 variables_list = ['hfls', 'hfss', 'albedo_glob', 'evspsbl', 'lai'] 
-atlas_explorer_variables = []
+atlas_budget_variables = []
 
 for var in variables_list:
     
@@ -138,9 +167,12 @@ for var in variables_list:
         project_specs = {}
     
         ## set dir
-        if (var_name in energy_budget) or (var_name in water_budget): 
+        if (var_name in energy_budget) or (var_name in water_budget) or (var_name == 'lai'): 
             project_specs = dict(IGCM_OUT=dict(DIR='SRF'))
-    
+            
+#            if var_name == 'lai':
+#                project_specs['IGCM_OUT']['OUT'] = 'Output'
+   
             if var_name == 'albedo':
                 project_specs['IGCM_OUT']['OUT'] = 'Output'
                 settings['line_title'] = f'Total Albedo ({var_name}) ; season = {season}'
@@ -150,15 +182,16 @@ for var in variables_list:
 
             if var_name == 'evspsbl':
                 settings['line_title'] = f'Evapotranspiration ({var_name}) ; season = {season}'
-        else:
+            
+        elif (var_name in carbon_budget):
             project_specs = dict(IGCM_OUT=dict(DIR='SBG'))
-        
-        #used when testing my own python cscript, needs to be checked
-        #atlas_explorer_variables.a#ppend(dict(variable=var, focus='land', season=season, DIR='SBG'))
-                                   #
+        else:
+            pass
+
         # construct atlas_explorer_variables dict
         settings['project_specs'] = project_specs
-        atlas_explorer_variables.append(settings)
+
+        atlas_budget_variables.append(settings)
 
         ## add obs from ref_climatos
         if not (var_name in ORCH_Essentials_obs):
