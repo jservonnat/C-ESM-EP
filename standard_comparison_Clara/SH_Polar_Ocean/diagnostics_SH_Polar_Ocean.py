@@ -335,7 +335,7 @@ if do_bottomTS_maps:
     #
     # -- Bottom Ocean Diags -> Season and Pole
     #if not bottom_ocean_diags:
-    bottom_ocean_diags = [('ANM', 'SH60')] #, ('JAS', 'SH30'), ('DJF', 'SH30')]
+    bottom_ocean_diags = [('ANM', 'SH30')] #, ('JAS', 'SH30'), ('DJF', 'SH30')]
     #
     # -- Period Manager
     if not use_available_period_set:
@@ -402,9 +402,16 @@ if do_bottomTS_maps:
             so_clim = time_average(so)
             
             # -- T_bottom
-            Tbot_clim = cfile(Tbot_script(thetao_clim, so_clim))  
-            Tbot_rg = regrid(Tbot_clim, ref)  # Regrid mod to match obs
-            diff = Tbot_rg - ref
+            Tbot_clim = Tbot_script(thetao_clim, so_clim)
+
+            fixed_fields('regrid',
+            ('mesh_mask.nc','/data/igcmg/database/grids/eORCA1.2_mesh_mask.nc'))
+            
+            Tbot_rg = regrid(Tbot_clim, ref)
+            diff = fsub(Tbot_rg, ref)
+            
+            #Tbot_rg = regrid(Tbot_clim, ref)  # Regrid mod to match obs
+            #diff = Tbot_rg - ref
             diff_Tbot_plot= plot(diff, proj=proj, color='MPL_coolwarm', colors='-5 -4 -3 -2 -1 0 1 2 3 4 5')
             diff_Tbot_plot_file = cfile(diff_Tbot_plot)
             index += cell("", ref_Tbot_plot_file, thumbnail=thumbN_size, hover=hover, **alternative_dir)                                                                                                              
