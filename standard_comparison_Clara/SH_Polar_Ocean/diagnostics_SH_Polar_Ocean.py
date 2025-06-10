@@ -385,23 +385,25 @@ if do_bottomTS_maps:
             wmodel = model.copy()
     
             wmodel.update(dict(table='Omon', grid='gn'))
-            #
-            thetao_wmodel = wmodel.copy()                                                                                            
-            thetao_wmodel['variable'] = 'thetao'                                                                                     
-            thetao = ds(**thetao_wmodel)   
             
-            so_wmodel = wmodel.copy()                                                                                                
-            so_wmodel['variable'] = 'so'                                                                                             
-            so_wmodel = ds(**so_wmodel)                                                                                              
-            so = ds(**so_wmodel)   
-    
             # -- get period manager -> we use thetao to find the available period
             wmodel['variable'] = 'thetao'
             wmodel = get_period_manager(wmodel, diag='clim')
+            #
+            thetao_wmodel = wmodel.copy()                                                                                            
+            thetao_wmodel['variable'] = 'thetao'                                                                                     
+            thetao = ds(**thetao_wmodel) 
+            
+            so_wmodel = wmodel.copy()                                                                                                
+            so_wmodel['variable'] = 'so'                                                                                             
+            so = ds(**so_wmodel)   
+
+            thetao_clim = time_average(thetao)
+            so_clim = time_average(so)
             
             # -- T_bottom
-            Tbot = Tbot_script(thetao, so)  
-            Tbot_rg = regrid(Tbot, ref)  # Regrid mod to match obs
+            Tbot_clim = cfile(Tbot_script(thetao_clim, so_clim))  
+            Tbot_rg = regrid(Tbot_clim, ref)  # Regrid mod to match obs
             diff = Tbot_rg - ref
             diff_Tbot_plot= plot(diff, proj=proj, color='MPL_coolwarm', colors='-5 -4 -3 -2 -1 0 1 2 3 4 5')
             diff_Tbot_plot_file = cfile(diff_Tbot_plot)
