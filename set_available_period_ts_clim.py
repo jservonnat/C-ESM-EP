@@ -36,7 +36,7 @@ clog('debug')
 # -- Get the comparison name and build the datasets_setup.py file name
 args = sys.argv
 if len(args) == 1:
-    print '--> Provide a comparison name'
+    print('--> Provide a comparison name')
 if len(args) >= 2:
     comparison = args[1]
     if not comparison[len(comparison) - 1] == '/':
@@ -65,8 +65,9 @@ else:
     os.system('cp ' + datasets_setup_file + ' ' + datasets_setup_available_period_set_file)
 
 # -- Execute the datasets_setup file to get the content
-execfile(datasets_setup_file)
-
+#execfile(datasets_setup_file)
+exec(open(datasets_setup_file).read())
+    
 # -- Clim ---------------------------------------------
 Wmodels_clim = period_for_diag_manager(models, diag='clim')
 for dataset_dict in Wmodels_clim:
@@ -78,7 +79,7 @@ for dataset_dict in Wmodels_clim:
         if 'root' in wdataset_dict:
             wdataset_dict.update(dict(root=str.replace(wdataset_dict['root'], 'work', 'store')))
     # ---
-    print 'wdataset_dict = ', wdataset_dict
+    print('wdataset_dict = ', wdataset_dict)
     wdataset_dict.update(dict(variable=period_manager_test_variable))
     if dataset_dict['project'] == 'CMIP6' and period_manager_test_variable == 'tas':
         wdataset_dict.update(dict(grid='gr', table='Amon'))
@@ -87,9 +88,9 @@ for dataset_dict in Wmodels_clim:
     if 'clim_period' in wdataset_dict:
         wdataset_dict = get_period_manager(wdataset_dict, diag='clim')
     if check:
-        print '-----> Proceed checking clim = '
+        print('-----> Proceed checking clim = ')
         cdrop(ds(**wdataset_dict))
-        print cfile(ds(**wdataset_dict))
+        print(cfile(ds(**wdataset_dict)))
     # -- Fix CMIP6 --
     if 'period' in wdataset_dict:
         dataset_dict.update(dict(period=wdataset_dict['period']))
@@ -107,7 +108,7 @@ for dataset_dict in Wmodels_ts:
         if 'root' in wdataset_dict:
             wdataset_dict.update(dict(root=str.replace(wdataset_dict['root'], 'work', 'store')))
     # ---
-    print 'wdataset_dict = ', wdataset_dict
+    print('wdataset_dict = ', wdataset_dict)
     wdataset_dict.update(dict(variable=period_manager_test_variable))
     if dataset_dict['project'] == 'CMIP6' and period_manager_test_variable == 'tas':
         wdataset_dict.update(dict(grid='gr', table='Amon'))
@@ -116,9 +117,9 @@ for dataset_dict in Wmodels_ts:
     if 'ts_period' in wdataset_dict:
         wdataset_dict = get_period_manager(wdataset_dict, diag='ts')
     if check:
-        print '-----> Proceed checking TS = '
+        print('-----> Proceed checking TS = ')
         cdrop(ds(**wdataset_dict))
-        print cfile(ds(**wdataset_dict))
+        print(cfile(ds(**wdataset_dict)))
     # -- Fix CMIP6 --
     if 'period' in wdataset_dict:
         dataset_dict.update(dict(period=wdataset_dict['period']))
@@ -127,14 +128,14 @@ for dataset_dict in Wmodels_ts:
     # --
 
 thefile = open(datasets_setup_available_period_set_file, 'w')
-print>> thefile, '# -- This file is used as a dataset_setup.py file.'
-print>> thefile, '# -- It is used by main_C-ESM-EP.py if it exists. Remove it (or rename it) if you want to use the ' \
-                 'period manager again.'
-print>> thefile, '# -- All the modifications that you do here will be used by the C-ESM-EP.'
-print>> thefile, '# -- However, they wont be merged to datasets_setup.py if you want to restart from datasets_setup.py.'
-print>> thefile, ''
-print>> thefile, ''
-print>> thefile, ''
+print(thefile, '# -- This file is used as a dataset_setup.py file.')
+print(thefile, '# -- It is used by main_C-ESM-EP.py if it exists. Remove it (or rename it) if you want to use the ' \
+                 'period manager again.')
+print(thefile, '# -- All the modifications that you do here will be used by the C-ESM-EP.')
+print(thefile, '# -- However, they wont be merged to datasets_setup.py if you want to restart from datasets_setup.py.')
+print(thefile, '')
+print(thefile, '')
+print(thefile, '')
 
 # -- Append the results to datasets_setup_available_period_set.py
 list_of_kw = ['project', 'root', 'login', 'model', 'experiment', 'simulation',
@@ -142,41 +143,41 @@ list_of_kw = ['project', 'root', 'login', 'model', 'experiment', 'simulation',
 kw_for_ts = ['frequency', 'period', 'ts_period', 'diag']
 kw_for_clim = ['frequency', 'period', 'clim_period', 'diag']
 
-print>> thefile, 'Wmodels = ['
+print(thefile, 'Wmodels = [')
 
 item_number = 0
 for item in Wmodels_ts:
-    print>> thefile, '    dict('
+    print(thefile, '    dict(')
     for kw in list_of_kw:
         if kw in item:
-            print>> thefile, '         ' + kw + '="' + item[kw] + '",'
+            print(thefile, '         ' + kw + '="' + item[kw] + '",')
     for kw in item:
         if kw not in list_of_kw + kw_for_ts + kw_for_clim:
-            print>> thefile, '         ' + kw + '="' + item[kw] + '",'
+            print(thefile, '         ' + kw + '="' + item[kw] + '",')
     # -- Add period for climatology
-    print>> thefile, '         clim_period = dict('
+    print(thefile, '         clim_period = dict(')
     for kw in kw_for_clim:
         if kw in Wmodels_clim[item_number]:
-            print>> thefile, '                            ' + kw + '="' + Wmodels_clim[item_number][kw] + '",'
-    print>> thefile, '                           ),'
+            print(thefile, '                            ' + kw + '="' + Wmodels_clim[item_number][kw] + '",')
+    print(thefile, '                           ),')
     # -- Add period for the time series
-    print>> thefile, '         ts_period   = dict('
+    print(thefile, '         ts_period   = dict(')
     for kw in kw_for_ts:
         if kw in Wmodels_ts[item_number]:
-            print>> thefile, '                            ' + kw + '="' + Wmodels_ts[item_number][kw] + '",'
-    print>> thefile, '                           ),'
+            print(thefile, '                            ' + kw + '="' + Wmodels_ts[item_number][kw] + '",')
+    print(thefile, '                           ),')
     # -- Close the item
-    print>> thefile, '        ),'
+    print(thefile, '        ),')
     item_number = item_number + 1
-print>> thefile, ']'
+print(thefile, ']')
 
 # -- Append the datasets_setup file
-print>> thefile, ''
-print>> thefile, ''
-print>> thefile, ''
+print(thefile, '')
+print(thefile, '')
+print(thefile, '')
 
 theoldlines = open(datasets_setup_file, 'r').readlines()
 for oldline in theoldlines:
-    print>> thefile, str.replace(oldline, '\n', '')
+    print(thefile, str.replace(oldline, '\n', ''))
 
 thefile.close()
