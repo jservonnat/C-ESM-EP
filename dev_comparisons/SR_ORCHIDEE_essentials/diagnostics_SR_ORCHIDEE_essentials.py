@@ -70,7 +70,7 @@ else:
 # a) GT Evaluation (IPSLCM6 diff with obs)
 # b) verification against mapper results (LMDZOR sims), to be removed after
 
-budget_atlas = False
+budget_atlas = True
 river_basins = True
 
 # remark (2025-06-10)

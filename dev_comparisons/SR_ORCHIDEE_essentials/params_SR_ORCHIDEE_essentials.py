@@ -89,8 +89,8 @@ if atCNRM:
     #root = "/cnrm/est/COMMON/climaf/reference_datasets_from_IPSL/"
     root_orchEVAL = ""
     
-pattern1 = root_orchEVAL +'$MAPPER/v0/{variable}.${product}.360720.nc'
-pattern2 = root_orchEVAL +'$MAPPER/v0/{product}.nc'
+pattern1 = root_orchEVAL +'MAPPER/v0/${variable}.${product}.360720.nc'
+pattern2 = root_orchEVAL +'MAPPER/v0/${product}.nc'
 
 cproject('obsMAPPER', ('frequency', 'annual_cycle'), 'product', separator='%')
 dataloc(project='obsMAPPER', organization='generic', url=[pattern1, pattern2])
