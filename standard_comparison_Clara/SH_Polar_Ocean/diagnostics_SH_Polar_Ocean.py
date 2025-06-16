@@ -356,7 +356,8 @@ if do_bottomTS_maps:
         #       -> 'default' = the observations that we get from variable2reference()
         #       -> or a dictionary pointing to a CliMAF dataset (without the variable)
         variable = 'T_bottom'
-        ref = variable2reference(variable, my_obs=custom_obs_dict)
+        #ref = variable2reference(variable, my_obs=custom_obs_dict)
+        #ref = ds(**custom_obs_dict[variable])
 
         # -- Control the size of the thumbnail -> thumbN_size
         thumbN_size = (thumbnail_polar_size if 'SH' in proj or 'NH' in proj else thumbnail_size_global)
@@ -369,10 +370,10 @@ if do_bottomTS_maps:
         # -- Open the html line for the plots
         index += open_table() + open_line('')
 
-        ref = ds(**custom_obs_dict['T_bottom'])
+        ref = ds(**custom_obs_dict[variable])
         #plot de la reference
         #wref = cfile(ref, deep=True)
-        ref_Tbot_plot= plot(ref, proj=proj, color='cmocean_thermal', colors='270 270.5 271 271.5 272 272.5 273 273.5 274 274.5 275 275.5 276')
+        ref_Tbot_plot= plot(ref, proj=proj, color='cmocean_thermal', min=-3, max=2, delta=0.5, offset=-273.15)
         ref_Tbot_plot_file = cfile(ref_Tbot_plot)
         # -- Add the climatology to the line
         #index += cell("", ref_Tbot_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
@@ -386,7 +387,7 @@ if do_bottomTS_maps:
     
             wmodel.update(dict(table='Omon', grid='gn'))
             print(wmodel)
-            wmodel.update(dict(mesh_hgr='/data/cburgard/PREPARE_FORCING/PREPARE_CAVITY_MASKS/raw/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights_mesh_mask.nc'))
+            #wmodel.update(dict(mesh_hgr='/data/cburgard/PREPARE_FORCING/PREPARE_CAVITY_MASKS/raw/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights_mesh_mask.nc'))
             
             # -- get period manager -> we use thetao to find the available period
             wmodel['variable'] = 'thetao'
@@ -404,6 +405,7 @@ if do_bottomTS_maps:
             Tbot = Tbot_script(thetao, so)
             print('file Tbot '+cfile(Tbot))
             Tbot_clim = clim_average(Tbot, 'ANM')
+            print('file Tbot_clim '+cfile(Tbot_clim))
             
             #fixed_fields('regrid',('mesh_mask.nc','/data/igcmg/database/grids/eORCA1.2_mesh_mask.nc'))
             
@@ -414,9 +416,9 @@ if do_bottomTS_maps:
             
             #Tbot_rg = regrid(Tbot_clim, ref)  # Regrid mod to match obs
             #diff = Tbot_rg - ref
-            diff_Tbot_plot= plot(diff, proj=proj, color='MPL_coolwarm', colors='-5 -4 -3 -2 -1 0 1 2 3 4 5')
-            diff_Tbot_plot_file = cfile(diff_Tbot_plot)
-            index += cell("", diff_Tbot_plot_file, thumbnail=thumbN_size, hover=hover, **alternative_dir)                                                                                                              
+            diff_Tbot_plot= plot(diff, proj=proj, color='MPL_coolwarm', min=-5, max=5, delta=1)
+            #diff_Tbot_plot_file = cfile(diff_Tbot_plot)
+            index += cell("", safe_mode_cfile_plot(diff_Tbot_plot, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)                                                                                                              
         # -- Close the line and the table of the climatos
         close_line()
         #
