@@ -185,61 +185,138 @@ if atCerfacs:
 
 # --> case onCiclad or atTGCC:
 if onCiclad or atTGCC or onSpirit:
+
     models = [
-       dict(project='IGCM_OUT',
-                login='p86caub',
-                model='IPSLCM7',
-                status='DEVT',
-                experiment='pdControl',
-                simulation='CM70-ico-O2-BOOST100-CLD' ,
-                frequency='monthly',
-                clim_period='1920_1929',
-                ts_period='1920_1929',
-                customname='CM70-ico-O2-BOOST100-CLD',
-                ),
-        dict(project='IGCM_OUT',
-                login='p86caub',
-                model='IPSLCM7',
-                status='DEVT',
-                experiment='pdControl',
-                simulation='CM70-ico-O4-BOOST100-CLD' ,
-                frequency='monthly',
-                clim_period='1920_1929',
-                ts_period='1920_1929',
-                customname='CM70-ico-O4-BOOST100-CLD',
-                ),
+##       dict(project='IGCM_OUT',
+##                login='p86caub',
+##                model='IPSLCM6',
+##                experiment='pdControl',
+##                simulation='IPSLCM6.2-LR-pd-QUEST-01' ,
+##                frequency='monthly',
+##                clim_period='1920_1929',
+##                ts_period='1920_1929',
+##                customname='pdControl-IPSLCM6',
+##                color='green',
+##                ),
 #        dict(project='IGCM_OUT',
 #                login='p86caub',
 #                model='IPSLCM7',
-#                status='DEVT',
+#                experiment='pdControl',
+#                simulation='CM70-ico-O2-BOOST100-CLD' ,
+#                frequency='monthly',
+#                clim_period='1920_1929',
+#                ts_period='1920_1929',
+#                customname='CM70-ico-O2-BOOST100-CLD',
+#                color='green',
+#                ),
+#        dict(project='IGCM_OUT',
+#                login='p86caub',
+#                model='IPSLCM7',
+#                experiment='pdControl',
+#                simulation='CM70-ico-O4-BOOST100-CLD' ,
+#                frequency='monthly',
+#                clim_period='1920_1929',
+#                ts_period='1920_1929',
+#                customname='CM70-ico-O4-BOOST100-CLD',
+#                color='green',
+#                ),
+#        dict(project='IGCM_OUT',
+#                login='p86caub',
+#                model='IPSLCM7',
 #                experiment='pdControl',
 #                simulation='CM70-ico-BOOST100-CLD-RS' ,
 #                frequency='monthly',
 #                clim_period='1920_1929',
 #                ts_period='1920_1929',
 #                customname='CM70-ico-BOOST100-CLD-RS',
+#                color='green',
+#                ),
+#
+        dict(project='IGCM_OUT',
+                login='p86ghatt',
+                model='LMDZOR',
+                status='PROD',
+                experiment='refORCH22.LMDZr4938',
+                simulation='CL6.ORC22r8572.Z95',
+                #frequency='monthly',
+                OUT='Output',
+                clim_period='1999_2008',
+                ts_period='1999_2008',
+                customname='CL6.ORC22r8572',
+                ),
+        dict(project='IGCM_OUT',
+                login='p86ghatt',
+                model='LMDZOR',
+                status='PROD',
+                experiment='refORCH8845.LMDZr4938',
+                simulation='CL6.r8845.F',
+                #frequency='monthly',
+                OUT='Output',
+                clim_period='1999_2008',
+                ts_period='1999_2008',
+                customname='CL6.ORC4r8845.F',
+                ),
+        dict(project='IGCM_OUT',
+                login='p86ghatt',
+                model='LMDZOR',
+                status='PROD',
+                experiment='refORCH8910.LMDZr4938',
+                simulation='CL6.r8910amelie.A',
+                #frequency='monthly',
+                OUT='Output',
+                clim_period='1999_2008',
+                ts_period='1999_2008',
+                customname='CL6.ORC4v8910.A',
+                ),
+        dict(project='IGCM_OUT',
+                login='p86ghatt',
+                model='LMDZOR',
+                status='PROD',
+                experiment='refORCH8910.LMDZr4938',
+                simulation='CL6.r8910noMOSS.B',
+                #frequency='monthly',
+                OUT='Output',
+                clim_period='1999_2008',
+                ts_period='1999_2008',
+                customname='CL6.ORC4v8910.B',
+                ),
+        dict(project='IGCM_OUT',
+                login='p86ghatt',
+                model='LMDZOR',
+                status='PROD',
+                experiment='refORCH8910.LMDZr4938',
+                simulation='CL6.r8910snow3.C',
+                #frequency='monthly',
+                OUT='Output',
+                clim_period='1999_2008',
+                ts_period='1999_2008',
+                customname='CL6.ORC4v8910.C',
+                ),
+#        dict(project='IGCM_OUT',
+#                login='p86ghatt',
+#                model='LMDZOR',
+#                status='PROD',
+#                experiment='refORCH8910.LMDZr4938',
+#                simulation='CL6.r8910alb.D',
+#                #frequency='monthly',
+#                OUT='Output',
+#                clim_period='1999_2008',
+#                ts_period='1999_2008',
+#                customname='CL6.ORC4v8910.D',
 #                ),
         dict(project='IGCM_OUT',
-               login='p86caub',
-               model='IPSLCM7',
-               experiment='pdControl',
-               simulation='CM711-ico-O2-pd-02' ,
-               frequency='monthly',
-               clim_period='1930_1939',
-               ts_period='1930_1939',
-               customname='pdControl-IPSLCM7', 
-               ),
-        dict(project='IGCM_OUT',
-               login='p86fair',
-               model='IPSLCM6',
-               experiment='pdControl',
-               simulation='IPSLCM6.2-LR-pd-QUEST-01' ,
-               frequency='monthly',
-               clim_period='1940_1949',
-               ts_period='1940_1949',
-               customname='pdControl-IPSLCM6',
-               ),
-        ]
+                login='p86ghatt',
+                model='LMDZOR',
+                status='PROD',
+                experiment='refORCH8910.LMDZr4938',
+                simulation='CL6.r8910amelienoMOSS.E',
+                #frequency='monthly',
+                OUT='Output',
+                clim_period='1999_2008',
+                ts_period='1999_2008',
+                customname='CL6.ORC4v8910.E',
+                ),
+    ]
 
     if atTGCC:
         # CMIP5 and CMIP6 data are not readable by everyone there...
@@ -249,7 +326,7 @@ if onCiclad or atTGCC or onSpirit:
         
     if onCiclad or onSpirit:
         root = '/thredds/tgcc/store'
-    #nutshell
+    #
     # -- Provide a set of common keys to the elements of models
     # ---------------------------------------------------------------------------- >
     common_keys = dict(
@@ -292,6 +369,35 @@ if common_clim_period:
 # --       differences relative to the first simulation of the list 'models'
 reference = 'default'
 
+# reference = dict(project='CMIP5', model='CNRM-CM5', experiment='historical',
+#                  frequency='monthly', period='1980-2005',
+#                  customname='CMIP5 CNRM-CM5'
+#                 )
+
+# -- Declare a 'CMIP5_bis' CliMAF project (a replicate of the CMIP5 project)
+# ---------------------------------------------------------------------------- >
+# cproject('CMIP5_bis', ('frequency','monthly'), 'model', 'realm', 'table', 'experiment',
+#          ensemble=['model','simulation'],separator='%')
+# --> systematic arguments = simulation, frequency, variable
+# -- Set the aliases for the frequency
+# cfreqs('CMIP5_bis', {'monthly':'mon'})
+# -- Set default values
+# cdef('simulation'  , 'r1i1p1'       , project='CMIP5_bis')
+# cdef('experiment'  , 'historical'   , project='CMIP5_bis')
+# cdef('table'       , '*'            , project='CMIP5_bis')
+# cdef('realm'       , '*'            , project='CMIP5_bis')
+# -- Define the pattern
+# pattern="/prodigfs/project/CMIP5/output/*/${model}/${experiment}/${frequency}/${realm}/${table}/${simulation}/latest/
+#         "${variable}/${variable}_${table}_${model}_${experiment}_${simulation}_YYYYMM-YYYYMM.nc"
+# --> Note that the YYYYMM-YYYYMM string means that the period is described in the filename and that CliMAF can
+# --> perform period selection among the files it found in the directory (can be YYYY, YYYYMM, YYYYMMDD).
+# --> You can use an argument like ${years} instead if you just want to do string matching (no smart period selection)
+#
+# -- call the dataloc CliMAF function
+# dataloc(project='CMIP5_bis', organization='generic', url=pattern)
+# ---------------------------------------------------------------------------- >
+
+#
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
 # ---------------------------------------------------------------------------------------- #

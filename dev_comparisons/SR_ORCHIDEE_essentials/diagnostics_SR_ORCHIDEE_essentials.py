@@ -70,13 +70,15 @@ else:
 # a) GT Evaluation (IPSLCM6 diff with obs)
 # b) verification against mapper results (LMDZOR sims), to be removed after
 
-budget_atlas = True
+budget_atlas = False
 river_basins = True
 
 # remark (2025-06-10)
 # This cscript receive a cens object (ensemble) and therefore, can handle labels by itself. 
 # However, the python script must receive a single-quoted string, since CLIMAF passes these labels separated by a $ sign
-path = '/home/sreyes/cesmep/git/dev_comparisons/SR_ORCHIDEE_essentials/scripts/'
+#path = '/home/sreyes/cesmep/git/dev_comparisons/SR_ORCHIDEE_essentials/scripts/'
+path = os.path.dirname(os.path.abspath(__file__)) +'/dev_comparisons/SR_ORCHIDEE_essentials/scripts/'
+
 cscript('river_plot', 'python '+path+'river_discharge.py --variable ${var} --reference ${ref} --ref_label ${ref_label} --simulations "${mmin}" --sim_labels \'${labels}\' --basinmap ${basinmap} --outfig ${out}', format='png')
 
 # ---------------------------------------------------------------------------------------- #
@@ -174,7 +176,7 @@ for plot_section,filters in essentials.items():
 
                 if hasattr(dat, 'listfiles') and (dat.listfiles() is None):
                     try:
-                        dat = ds(**wmodel_analyse).explore('resolve')
+                        dat = ds(**wmodel_output).explore('resolve')
                     except Exception as e:
                         print(f"For {wmodel_output['customname']}, 'routing_hydrographs_r' has not been found at 'sechiba_routing'", e)
  

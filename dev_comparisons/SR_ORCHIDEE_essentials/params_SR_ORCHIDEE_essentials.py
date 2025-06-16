@@ -71,9 +71,26 @@ domain = dict()
 # ----------------------------------------------------------------------------
 # -- REFERENCES (PART 1): MAPPER
 # ---------------------------------------------------------------------------- 
-# MAPPER
-pattern1 = '/data/vbastrik/MAPPER/OBS/${variable}.${product}.360720.nc'
-pattern2 = '/data/vbastrik/MAPPER/OBS/${product}.nc'
+## -- Set path to mapper folder (to be checked)
+# adapted from /net/nfs/tools/Users/SU/jservon/climaf_installs/climaf_V3.0/climaf/projects/ref_climatos_and_ts.py
+if onCiclad or onSpirit:
+    #root = "/data/jservon/Evaluation/ReferenceDatasets/"
+    root_orchEVAL = "/projsu/igcmg/IGCM/SRF/ORCHIDEE_EVALUATION/"
+if atTGCC:
+    #root = "/ccc/work/cont003/igcmg/igcmg/IGCM/ReferenceDatasets/"
+    root_orchEVAL = "/ccc/work/cont003/igcmg/igcmg/IGCM/SRF/ORCHIDEE_EVALUATION/"
+if atIDRIS:
+    #root = "/workgpfs/rech/psl/rpsl035/IGCM/ReferenceDatasets/"
+    root_orchEVAL = "/workgpfs/rech/psl/rpsl035/IGCM/SRF/ORCHIDEE_EVALUATION/"
+if atCerfacs:
+    #root = "/data/scratch/globc/dcom/CMIP6_TOOLS/ReferenceDatasets/"
+    root_orchEVAL = "/data/scratch/globc/dcom/CMIP6_TOOLS/SRF/ORCHIDEE_EVALUATION/"
+if atCNRM:
+    #root = "/cnrm/est/COMMON/climaf/reference_datasets_from_IPSL/"
+    root_orchEVAL = ""
+    
+pattern1 = root_orchEVAL +'$MAPPER/v0/{variable}.${product}.360720.nc'
+pattern2 = root_orchEVAL +'$MAPPER/v0/{product}.nc'
 
 cproject('obsMAPPER', ('frequency', 'annual_cycle'), 'product', separator='%')
 dataloc(project='obsMAPPER', organization='generic', url=[pattern1, pattern2])
