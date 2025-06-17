@@ -404,8 +404,11 @@ if do_bottomTS_maps:
             # -- T_bottom
             Tbot = Tbot_script(thetao, so)
             print('file Tbot '+cfile(Tbot))
-            Tbot_clim = clim_average(Tbot, 'ANM')
+            Tbot_clim = ccdo(clim_average(Tbot, 'ANM'), operator='setmissval,1e+20')
             print('file Tbot_clim '+cfile(Tbot_clim))
+
+            # this needs to be done before the regrid
+            #ccdo( time_average(Tbot), operator='setmissval,1e+20')
             
             #fixed_fields('regrid',('mesh_mask.nc','/data/igcmg/database/grids/eORCA1.2_mesh_mask.nc'))
             
