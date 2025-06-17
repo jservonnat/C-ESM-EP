@@ -36,6 +36,8 @@
 from __future__ import unicode_literals, print_function, absolute_import, division
 
 from climaf.operators import cscript
+from climaf.classes import processDatasetArgs
+from climaf.chtml import blank_cell
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
@@ -62,230 +64,218 @@ index = header(atlas_head_title, style_file=style_file)
 if thumbnail_size:
     figure_size = thumbnail_size  # possibly defined in params_xx.py
 else:
-    figure_size = thumbnail_size_global # defined in share/default/default_atlas_settings.py
+    figure_size = thumbnail_size_global # defined in share/default/default_atlas_settings.py ("300*175")
 
 # ---------------------------------------------------------------------------------------- #
 # -- ESSENTIALS
-# 1) GT Evaluation (IPSLCM7 diff with obs)
-# 2) verification against mapper results (LMDZOR sims), to be removed after
-# ---------------------------------------------------------------------------------------- #
-variables_filtered = [v for v in atlas_explorer_variables if (v['variable'] in ORCH_Essentials_obs)]
+# a) GT Evaluation (IPSLCM6 diff with obs)
+# b) verification against mapper results (LMDZOR sims), to be removed after
 
-essentials = {  'ORCHIDEE (GT Evaluation)':{'keyword':'model', 'pattern':'IPSLCM7'},
-                'ORCHIDEE (Mapper comparison)':{'keyword':'model', 'pattern':'LMDZOR'},
-                }
+budget_atlas = True
+river_basins = True
+
+# remark (2025-06-10)
+# This cscript receive a cens object (ensemble) and therefore, can handle labels by itself. 
+# However, the python script must receive a single-quoted string, since CLIMAF passes these labels separated by a $ sign
+path = os.path.dirname(os.path.abspath(__file__)) +'/dev_comparisons/SR_ORCHIDEE_essentials/scripts/'
+cscript('river_plot', 'python '+path+'river_discharge.py --variable ${var} --reference ${ref} --ref_label ${ref_label} --simulations "${mmin}" --sim_labels \'${labels}\' --basinmap ${basinmap} --colors ${colors}  --outfig ${out}', format='png')
+
+# ---------------------------------------------------------------------------------------- #
+variables_filtered = [v for v in atlas_budget_variables if (v['variable'] in ORCH_Essentials_obs)]
+
+essentials = {  'ORCHIDEE':{'keyword':'project', 'pattern':'IGCM_OUT'} }
 
 for plot_section,filters in essentials.items():
 
     models_essentials = [ m for m in models if (filters['pattern'] in m[filters['keyword']]) ]
+ 
+    if budget_atlas:
+        ## DIFF BETWEEN REF AND SIMS
+        kwargs = dict(models=models_essentials, reference=reference, proj=proj, season=season, variables=variables_filtered,
+                      section_title=plot_section, domain=domain,
+                      custom_plot_params=custom_plot_params,
+                      add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+                      add_line_of_climato_plots=add_line_of_climato_plots,
+                      alternative_dir=alternative_dir, custom_obs_dict=ORCH_Essentials_obs,
+                      regridding=regridding,
+                      thumbnail_size=thumbnail_size)
+        
+        if do_parallel:
+            index += parallel_section(section_2D_maps, **kwargs)
+        else:
+            index += section_2D_maps(**kwargs)
     
-    kwargs = dict(models=models_essentials, reference=reference, proj=proj, season=season, variables=variables_filtered,
-                  section_title=plot_section, domain=domain,
-                  custom_plot_params=custom_plot_params,
-                  add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-                  add_line_of_climato_plots=add_line_of_climato_plots,
-                  alternative_dir=alternative_dir, custom_obs_dict=ORCH_Essentials_obs,
-                  regridding=regridding,
-                  thumbnail_size=thumbnail_size)
-    
-    if do_parallel:
-        index += parallel_section(section_2D_maps, **kwargs)
-    else:
-        index += section_2D_maps(**kwargs)
-
-
-### ---------------------------------------------------------------------------------------- #
-#kwargs = dict(models=models_MAPPER, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
-##              section_title='ORCHIDEE (Mapper comparison)', domain=domain,
-##              custom_plot_params=custom_plot_params,
-##              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
-##              alternative_dir=alternative_dir, custom_obs_dict=ORCH_Essential_obs,
-##              thumbnail_size=thumbnail_size)
-##
-##index += section_climato_2D_maps(**kwargs)
-#
-## ---------------------------------------------------------------------------------------- #
-## OLD CODE FOR TESTING PYTHON SCRIPT, NEEDS TO BE READAPTED FOR RIVER DISCHARGE
-## ---------------------------------------------------------------------------------------- #
-## retrieve data objects
-## compute  
-## + for each observation, its annual cycle (regridded into mapper's regional grid reference) and
-##   * simulation's annual cycle (regridded into mapper's regional grid reference)
-##     - branch my code and return the png
-##     - add the png to index cell 
-##   * build the index line
-## ---------------------------------------------------------------------------------------- #
-#index += open_table()  # This allows to have all figures nicely aligned across figure lines
-#
-## Create a first table line with a single element : some sub-title
-#index += line(['Diag #1 = diff by hand'])
-#
-## PRELIMINARY STEPS 
-## 1. copy models dictionary to avoid modifying the entries in the (global) models dict. `models` is usually set by datasets_setup.py
-#Wmodels = copy.deepcopy(models)
-#
-## 2. set a reference grid based on Vlad's masks
-#grid_file = '/home/ssenesi/cesmep/data/regs_360720.nc' #'./grid_file.nc'
-#grid = fds(grid_file, variable='reg_mask', period='fx')
-#
-## a) Quick regrid (a tester!!)
-## rgrd_dat = ccdo(dat, operator='remapbil,'+grid_file)
-## Syntaxe cdo:
-## cdo remapbil,gridfile.nc in.nc out.nc
-## cdo operator in.nc out.nc           
-## cscript(...)
-#
-## b) Avec fds
-## grid = fds(grid_file, variable='vargrid', period='fx')
-## rgrd_dat = regrid(dat, grid)
-#
-## c) Avec grille CDO
-## rgrd_dat = regridn(dat, cdogrid='r720x360', option='remapdis')
-#
-## 3. passing python script to C-ESM-EP as cscript
-#path = '/home/sreyes/cesmep/git/dev_comparisons/SR_ORCHIDEE_essentials/'
-#cscript('metrics', 'python '+path+'dummy.py ${agg} ${in_1} ${in_2} ${out}', format='png')
-#
-## -----------------------------------------------------------------------------------------
-#
-#for var in atlas_explorer_variables:
-# 
-#    if isinstance(var, str):
-#        variable = var
-#    if isinstance(var, dict):
-#        variable = var["variable"]
-#
-#    index += open_line()  # all figures for one variable will lay on a single line
-#    
-#    # -- Get the reference, regrid to 360x720
-#    # -----------------------------------------------------------------------------------------
-#    ref = clim_average(ds(**variable2reference(variable, my_obs=custom_obs_dict)), season)
-#    rgrd_ref = regrid(ref, grid)
-#    
-#    # -- Loop on the models 
-#    # -----------------------------------------------------------------------------------------
-#    for model in Wmodels:
-#        #
-#        # -----------------------------------------------------------------------------------------
-#        wmodel = model.copy()  # - copy the dictionary to avoid modifying the original dictionary
-#        if isinstance(var, str):
-#            wmodel["variable"] = var  # - add a variable to the dictionary
-#        if isinstance(var, dict):
-#            wmodel.update(var)
+#        ## REF AND SIMS SIDE BY SIDE
+#        kwargs = dict(models=models_essentials, reference=reference, proj=proj, season=season, variables=variables_filtered,
+#                      section_title=plot_section, domain=domain,
+#                      custom_plot_params=custom_plot_params,
+#                      add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+#                      alternative_dir=alternative_dir, custom_obs_dict=ORCH_Essential_obs,
+#                      thumbnail_size=thumbnail_size)
 #        
-#        # Avoid ambiguity on some attributes (depends on datasets_setup.py content and variable)
-##        if wmodel["project"] == "CMIP6" :
-##            wmodel["table"] = "Amon"
-##            wmodel["grid"] = "gr"
-##        if wmodel["project"] == "CMIP5" :
-##            wmodel["realm"] = "atmos"
-#        #
-#        # ==> -- Apply period manager
-#        # -----------------------------------------------------------------------------------------
-#        # ==> -- It aims at finding the last SE or last XX years available when the user provides
-#        # ==> -- clim_period='last_SE' r clim_period='last_XXY'... in model attributes.
-#        # ==> -- get_period_manager scans the existing files and find the requested period
-#        # ==> -- !!! This modifies wmodel so that it will point to the requested period
-#
-#        wmodel = get_period_manager(wmodel, diag='clim')
-#        
-#        # /// -- Get the dataset and compute the annual cycle using CliMAF functions
-#        # -----------------------------------------------------------------------------------------
-#        dat = clim_average(ds(**wmodel), season)
-#            
-#        # -- Regrid data on mask grid
-#        # -----------------------------------------------------------------------------------------
-#        rgrd_dat = regrid(dat, grid)
-#
-#        # -- Inject python code as script 
-#        # -----------------------------------------------------------------------------------------
-#        # figure_file = ORCHIDEE_metrics(cfile(rgrd_ref), cfile(rgrd_dat), agg='Global')
-#        try:
-#            figure_file = metrics(rgrd_ref, rgrd_dat, agg='Global')
-#            print("Figure output:", cfile(figure_file))
-#        except Exception as e:
-#            print("ERROR when calling metrics():", e)
-#
-##        # workaround : define a new project (not working either)
-##        ref_file = cfile(rgrd_ref)
-##        sim_file = cfile(rgrd_dat)
-##       
-##        # workaround : define a new project (not working either)
-##        metrics_input_ref = ds(project="file", variable=variable, frequency=wmodel['frequency'], period=wmodel['period'], file=ref_file)
-##        metrics_input_sim = ds(project="file", variable=variable, frequency=wmodel['frequency'], period=wmodel['period'], file=sim_file) 
-##        metrics_input_ref.kvp['file'] = ref_file
-##        metrics_input_sim.kvp['file'] = sim_file 
-##
-##        print("Resolved reference path:", cfile(metrics_input_ref))
-##        print("Resolved simulation path:", cfile(metrics_input_sim))
-##
-##        figure_file = metrics(reference=metrics_input_ref, simulation=metrics_input_sim, agg='Global')
-##        print("Output:", cfile(figure_file))
-#
-#        # -- Compute bias field
-#        # -----------------------------------------------------------------------------------------
-##        bias_field = fsub(rgrd_dat, rgrd_ref)
-##        figure_file = ORCHIDEE_metrics(cfile(bias_field), agg='Global')
-##            
-##        # ==> Use bias_field to get your scores!
-##        # /// -- Build the titles
-##        # -----------------------------------------------------------------------------------------
-##        # build_plot_title returns the model name if project=='CMIP5' otherwise
-##        # it returns the simulation name. It returns the ncycleame of the reference
-##        # if you provide a second argument ('dat1 - dat2')
-##        title = build_plot_title(wmodel, None)  
-##        LeftString = variable
-##        # As right string, finds the right key for the period (period of clim_period)
-##        RightString = build_period_str(wmodel)  
-##        CenterString = 'Bias '+season
-##        
-##        # -- Plot the amplitude of the annual cycle
-##        # -----------------------------------------------------------------------------------------
-##        plot_bias = plot(bias_field,
-##                             title=title,
-##                             gsnLeftString=LeftString,
-##                             gsnRightString=RightString,
-## ---------------------------------------------------------------------------------------- #
-##                             gsnCenterString=CenterString)#,
-##                             #**my_own_climaf_diag_plot_params[variable])
-##
-##        # ==> -- Create figure file
-##        # -----------------------------------------------------------------------
-##        figure_file = safe_mode_cfile_plot(plot_bias, safe_mode=safe_mode)
-#
-#        # ==> -- Add the plot to the figures line
-#        # -----------------------------------------------------------------------------------------
-#        index += cell("", cfile(figure_file), thumbnail=figure_size, hover=False, **alternative_dir)
-#        #
-#    # ==> -- Close the line for the variable
-#    # -----------------------------------------------------------------------------------------
-#    index += close_line()
-#    #
-## ==> -- Close the table before possibly adding a section
-## -----------------------------------------------------------------------------------------
-#index += close_table()
+#        index += section_climato_2D_maps(**kwargs)
 
+# RIVER BASINS
+# ---------------------------------------------------------------------------------------- #
+    if river_basins:
+        print('')
+        print('RIVER DISCHARGE')
+        print('')
+
+        calias('IGCM_OUT', 'basinmap', filenameVar='sechiba_history')
+        calias('IGCM_OUT', 'hydrographs', filenameVar='sechiba_history')
+ 
+        # -- Get the reference, open table
+        # ----------------------------------------------------------------------------------------- 
+        ref = cfile(ds(**ORCH_Essentials_obs['hydrographs']))
+        ref_label = ORCH_Essentials_obs['hydrographs']['customname']
+
+        hydro_paths, labels  = [], []
+        colors = {}
+        basinmap = None
+        basinmap_flag = True
+
+        Wmodels = copy.deepcopy(models_essentials)
+        
+        for var_name in ['hydrographs']:
+                
+            # -- Loop on the models 
+            # -----------------------------------------------------------------------------------------
+            for model in Wmodels:
+                wmodel_output = model.copy()
+                wmodel_analyse = {}
+                b_output_model, b_analyse_model = {}, {}
+
+                # Get hydrographs dataset
+                # remarks (2025-06-10)
+                # 1) Since routing is still in development, ORCHIDEE currentlt has three possible variable, depending on the version: 
+                # a) v4: 'routing_hydrographs_r', at OUTPUT/DA/*sechiba_routing_r.nc
+                # b) v4: an intermediate 'routing_hydrographs_r', at OUTPUT/DA/*sechiba_routing.nc
+                # c) previous versions use 'hydrographs', at Analyse/SE/*sechiba_history.nc,               
+                # However, for no apparent reason, the latter is still available in ORCH. This has to be solved somehow. 
+                #
+                # 2) Code below manages this situation by searching directly on the respective folders, by changing wmodel_output attributes. 
+                # Filename, on the other hand, is indicated through calias, which has to be redefined every time for a) and b), since variable name is the same.
+                # -----------------------------------------------------------------------------------------                
+
+                ## CASE A
+                calias('IGCM_OUT', 'routing_hydrographs_r', filenameVar='sechiba_routing_r')
+
+                wmodel_output['variable'] = 'routing_hydrographs_r'
+                wmodel_output['DIR'] = 'SRF'
+                wmodel_output['OUT'] = 'Output'
+                wmodel_output['frequency'] = 'daily'
+                wmodel_output = get_period_manager(wmodel_output, diag='ts')
+                try:
+                    dat = ds(**wmodel_output).explore('resolve')
+                except Exception as e:
+                    print(f"For {wmodel_output['customname']}, 'routing_hydrographs_r' has not been found at 'sechiba_routing_r'", e)
+                
+                ## CASE B
+                calias('IGCM_OUT', 'routing_hydrographs_r', filenameVar='sechiba_routing')
+
+                if hasattr(dat, 'listfiles') and (dat.listfiles() is None):
+                    try:
+                        dat = ds(**wmodel_output).explore('resolve')
+                    except Exception as e:
+                        print(f"For {wmodel_output['customname']}, 'routing_hydrographs_r' has not been found at 'sechiba_routing'", e)
+ 
+                ## CASE C
+                # calias for 'hydrographs' is defined above, see line 132
+                if hasattr(dat, 'listfiles') and (dat.listfiles() is None):
+                    wmodel_analyse  = model.copy()
+                    wmodel_analyse['variable'] = 'hydrographs'
+                    wmodel_analyse['DIR'] = 'SRF'
+                    wmodel_analyse['OUT'] = 'Analyse'
+                    wmodel_analyse['frequency'] = 'seasonal'
+                    
+                    try:
+                        dat = ds(**wmodel_analyse).explore('resolve')
+                    except Exception as e:
+                        print(f"For {wmodel_output['customname']}, 'hydrographs' has not been found at 'sechiba_history'", e)
+                
+                ## variable management
+                if hasattr(dat, 'listfiles') and (dat.listfiles() is not None):
+                    print(dat.listfiles())
+                    print(cfile(dat))
+
+                    hydro_paths.append(dat)
+                    labels.append(wmodel_output['customname'])
+
+                    if 'color' in wmodel_output: 
+                        colors[wmodel_output['customname']] = wmodel_output['color']
+                else:
+                    print(f"Neither 'hydrographs' nor 'routing_hydrographs_r' has been found for {wmodel_output['customname']}") 
+                print('') 
+                
+                # Get basinmap
+                # remark (2025-06-04): this variable is used for representation only 
+                # ----------------------------------------------------------------------------------------- 
+                if basinmap_flag :
+                    bmodel_output = wmodel_output.copy()
+                    bmodel_output['variable'] = 'basinmap'
+
+                    try:
+                        basin = ds(**bmodel_output).explore('resolve')
+                    except Exception as e:
+                        print(f"'basinmap' not found in OUTPUT for {wmodel_output['customname']}:", e)
+
+                    if hasattr(basin, 'listfiles') and (basin.listfiles() is None) and bool(wmodel_analyse):
+                        bmodel_analyse = wmodel_analyse.copy()
+                        bmodel_analyse['variable'] = 'basinmap'
+                        
+                        try:
+                            basin = ds(**bmodel_analyse).explore('resolve')
+                        except Exception as e:
+                            print(f"'basinmap' not found for {wmodel_output['customname']}:", e)                    
+                    
+                    if hasattr(basin, 'listfiles') and (basin.listfiles() is not None):
+                        basinmap = cfile(basin)
+                        basinmap_flag = False
+
+                        print('basinmap found !')
+                        print(basinmap)
+                        print('')
+
+        # -- Inject python code as script 
+        # -----------------------------------------------------------------------------------------
+        index += open_table()
+        index += open_line(f'River discharge (hydrographs); REF = {ref_label}') + close_line()
+        index += open_line()
+
+        if (len(hydro_paths) > 0):
+            ensemble = dict(zip(labels, hydro_paths))
+            data = cens(ensemble, order=labels) 
+            
+            if (len(colors) == len(hydro_paths)):
+                colors_sorted = [colors[c] for c in labels]
+                colornames = ' '.join(colors_sorted)
+            else:
+                colornames = None
+
+            try:
+                figure_file = river_plot(data, var=var_name, ref=ref, ref_label=ref_label, basinmap=basinmap, colors=colornames)
+                print("Figure output:", cfile(figure_file))
+            except Exception as e:
+                print("ERROR when calling river_plots():", e)
+            
+            # -- Add the plot to the figures line
+            # -----------------------------------------------------------------------------------------
+            index += cell("", cfile(figure_file), thumbnail="700*600", hover=False, **alternative_dir)
+        else:
+            index += cell("", blank_cell, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
+ 
+        # 
+        # ==> -- Close the line
+        # -----------------------------------------------------------------------------------------
+        index += close_line()
+        #
+        # ==> -- Close the table before possibly adding a section
+        # -----------------------------------------------------------------------------------------
+        index += close_table()
 
 # -----------------------------------------------------------------------------------
 # --   End
 # --
 # -----------------------------------------------------------------------------------
 
-# ------------------------------------------------------------------------------------------------------ \
-# --                                                                                                    - \
-# --                                                                                                     - \
-# -- main_C-ESM-EP.py will provide you with:                                                              - |
-# --   - the list 'models' defined in datasets_setup.py, as well as 'reference'                           - |
-# --     if use_available_period_set == True, it means that you also have Wmodels_clim and Wmodels_ts     - |
-# --     that correspond to 'models' with periods for climatologies and time series (respectively)        - |
-# --     that have already been found (if you used arguments like 'last_10Y', 'first_30Y', 'full' or '*') - |
-# --   - alternative_dir: to be used as an argument to cell(..., altdir=alternative_dir)                  - |
-# --   - the parameters from params_${component}.py (safe_mode,                                           - |
-# --   - the cesmep modules in share/cesmep_modules                                                       - |
-# --   - the default values from share/default/default_atlas_settings.py                                  - |
-# --                                                                                                      - /
-# -- Note: you can actually use an empty datasets_setup                                                  - /
-# -- and an empty params_${component}.py, and set everything from here                                  - /
-# --                                                                                                   - /
-# --                                                                                                  - /
-# ---------------------------------------------------------------------------------------------------- /
