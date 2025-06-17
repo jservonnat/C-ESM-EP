@@ -97,6 +97,7 @@ if __name__ == '__main__':
     parser.add_argument('--sim_labels', action='store', default=None, help="simulation labels, separated by a single whitespace or dollar sign '$'")
     parser.add_argument('--basinmap', action='store', default=None, help="basinmap path (used for representation only)")
     #
+    parser.add_argument('--colors', action='store', default=None, help='colors separated a single whitespace')
     parser.add_argument('--region_boxes', action='store', default=False)
     parser.add_argument('--outfig', action='store', default=None)
     
@@ -313,6 +314,11 @@ if __name__ == '__main__':
     #plot figures
     labels = [ref_label] +keep_sim_labels
 
+    if args.colors: 
+        colors = args.colors.split(' ')
+    else:
+        colors = ts_colorPalette()
+
     for idx, meta in enumerate(RIVER):
         row = idx % 3
         col = idx // 3
@@ -329,7 +335,7 @@ if __name__ == '__main__':
             )
         
         ax_ts = fig.add_subplot(gs_col[row, 0])
-        ax_ts.set_prop_cycle("color", ts_colorPalette())
+        ax_ts.set_prop_cycle("color", colors)
     
         # observations (mean)
         if (var_name in 'routing_hydrographs_r'):        

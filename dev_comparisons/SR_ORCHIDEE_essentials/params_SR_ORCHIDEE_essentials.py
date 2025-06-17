@@ -74,20 +74,11 @@ domain = dict()
 ## -- Set path to mapper folder (to be checked)
 # adapted from /net/nfs/tools/Users/SU/jservon/climaf_installs/climaf_V3.0/climaf/projects/ref_climatos_and_ts.py
 if onCiclad or onSpirit:
-    #root = "/data/jservon/Evaluation/ReferenceDatasets/"
     root_orchEVAL = "/projsu/igcmg/IGCM/SRF/ORCHIDEE_EVALUATION/"
 if atTGCC:
-    #root = "/ccc/work/cont003/igcmg/igcmg/IGCM/ReferenceDatasets/"
     root_orchEVAL = "/ccc/work/cont003/igcmg/igcmg/IGCM/SRF/ORCHIDEE_EVALUATION/"
 if atIDRIS:
-    #root = "/workgpfs/rech/psl/rpsl035/IGCM/ReferenceDatasets/"
     root_orchEVAL = "/workgpfs/rech/psl/rpsl035/IGCM/SRF/ORCHIDEE_EVALUATION/"
-if atCerfacs:
-    #root = "/data/scratch/globc/dcom/CMIP6_TOOLS/ReferenceDatasets/"
-    root_orchEVAL = "/data/scratch/globc/dcom/CMIP6_TOOLS/SRF/ORCHIDEE_EVALUATION/"
-if atCNRM:
-    #root = "/cnrm/est/COMMON/climaf/reference_datasets_from_IPSL/"
-    root_orchEVAL = ""
     
 pattern1 = root_orchEVAL +'MAPPER/v0/${variable}.${product}.360720.nc'
 pattern2 = root_orchEVAL +'MAPPER/v0/${product}.nc'
@@ -96,8 +87,7 @@ cproject('obsMAPPER', ('frequency', 'annual_cycle'), 'product', separator='%')
 dataloc(project='obsMAPPER', organization='generic', url=[pattern1, pattern2])
 cdef('variable', '*', project='obsMAPPER')
 cdef('product', '*', project='obsMAPPER')
-#cdef('frequency'   , 'monthly'      , project='obsMAPPER')
-cdef('period'      , '1980-2005'    , project='obsMAPPER')
+cdef('period'      , '1980-2005'    , project='obsMAPPER') 
 
 # ---------------------------------------------------------------------------- >
 ## ACCEPTED VARIABLES (CMIP names, if they exists)
@@ -135,30 +125,21 @@ derive("IGCM_OUT", "lai", "ccdo2", "read_lai", "maxvegetfrac", operator="vertsum
 cscript("compute_total_albedo", "cdo mulc,-1. -subc,1 -div ${in_1} ${in_2} ${out}", _var="albedo")
 derive("IGCM_OUT", 'albedo', 'compute_total_albedo', 'rss', 'rsds')
 
+#cscript("compute_mean_albedo_mapper", "cdo mulc,0.5 -add, -chname,albvis,albedo_glob  ${in_1} ${in_2} ${out}")
 cscript("compute_mean_albedo", "cdo mulc,0.5 -add ${in_1} ${in_2} ${out}", _var="albedo_glob")
 derive("IGCM_OUT", 'albedo_glob', 'compute_mean_albedo', 'albvis', 'albnir')
+derive("obsMAPPER", 'albedo_glob', 'compute_mean_albedo', 'albvis', 'albnir')
 
 # ----------------------------------------------------------------------------
-# -- REFERENCES (PART 2): derived obs 
+# -- REFERENCES (PART 2): ref dictionary (instead of ref_climatos) 
 # ---------------------------------------------------------------------------- 
-albvis_mapper = ds(project='obsMAPPER', variable='albvis', product='modis')
-albnir_mapper = ds(project='obsMAPPER', variable='albnir', product='modis')
-cscript("compute_mean_albedo_mapper", "cdo mulc,0.5 -add, -chname,albvis,albedo_glob  ${in_1} ${in_2} ${out}")
-albedo_glob = compute_mean_albedo_mapper(albvis_mapper, albnir_mapper)
-
-cproject('derived_obs', ('frequency', 'annual_cycle'), 'product', separator='%')
-dataloc(project='derived_obs', organization='generic', url=cfile(albedo_glob))
-cdef('variable', '*', project='derived_obs')
-cdef('product', '*', project='derived_obs')
-cdef('period'      , '1980-2005'    , project='derived_obs')
-
-# ----------------------------------------------------------------------------
-# ref dictionary (instead of ref_climatos) 
+# remark (2025-06-17) : albedo_glob is derived above
 ORCH_Essentials_obs = { 
     'albedo': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
     'albnir': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
     'albvis': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
-    'albedo_glob': dict(project='derived_obs', product='modis', customname='MODIS (from MAPPER)'),
+    'albedo_glob': dict(project='obsMAPPER', product='modis', customname='MODIS (from MAPPER)'),
+#    'albedo_glob': dict(project='derived_obs', product='modis', customname='MODIS (from MAPPER)'),
     'evspsbl': dict(project='obsMAPPER', product='gleam', customname='GLEAM 3.3b (from MAPPER)'),   
     'hfls': dict(project='obsMAPPER', product='jung', customname='MTE (from MAPPER)'),    
     'hfss': dict(project='obsMAPPER', product='jung', customname='MTE (from MAPPER)'),
@@ -189,15 +170,15 @@ for var in variables_list:
             
 #            if var_name == 'lai':
 #                project_specs['IGCM_OUT']['OUT'] = 'Output'
-   
-            if var_name == 'albedo':
-                project_specs['IGCM_OUT']['OUT'] = 'Output'
+
+            if (var_name == 'albedo'):
+                #project_specs['IGCM_OUT']['OUT'] = 'Output'
                 settings['line_title'] = f'Total Albedo ({var_name}) ; season = {season}'
 
-            if var_name == 'albedo_glob': 
+            if (var_name == 'albedo_glob'):
                 settings['line_title'] = f'Mean Albedo ({var_name}) ; season = {season}'
 
-            if var_name == 'evspsbl':
+            if (var_name == 'evspsbl'):
                 settings['line_title'] = f'Evapotranspiration ({var_name}) ; season = {season}'
             
         elif (var_name in carbon_budget):

@@ -37,6 +37,7 @@ from __future__ import unicode_literals, print_function, absolute_import, divisi
 
 from climaf.operators import cscript
 from climaf.classes import processDatasetArgs
+from climaf.chtml import blank_cell
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
@@ -76,10 +77,8 @@ river_basins = True
 # remark (2025-06-10)
 # This cscript receive a cens object (ensemble) and therefore, can handle labels by itself. 
 # However, the python script must receive a single-quoted string, since CLIMAF passes these labels separated by a $ sign
-#path = '/home/sreyes/cesmep/git/dev_comparisons/SR_ORCHIDEE_essentials/scripts/'
 path = os.path.dirname(os.path.abspath(__file__)) +'/dev_comparisons/SR_ORCHIDEE_essentials/scripts/'
-
-cscript('river_plot', 'python '+path+'river_discharge.py --variable ${var} --reference ${ref} --ref_label ${ref_label} --simulations "${mmin}" --sim_labels \'${labels}\' --basinmap ${basinmap} --outfig ${out}', format='png')
+cscript('river_plot', 'python '+path+'river_discharge.py --variable ${var} --reference ${ref} --ref_label ${ref_label} --simulations "${mmin}" --sim_labels \'${labels}\' --basinmap ${basinmap} --colors ${colors}  --outfig ${out}', format='png')
 
 # ---------------------------------------------------------------------------------------- #
 variables_filtered = [v for v in atlas_budget_variables if (v['variable'] in ORCH_Essentials_obs)]
@@ -131,7 +130,8 @@ for plot_section,filters in essentials.items():
         ref = cfile(ds(**ORCH_Essentials_obs['hydrographs']))
         ref_label = ORCH_Essentials_obs['hydrographs']['customname']
 
-        hydro_paths, labels = [], []
+        hydro_paths, labels  = [], []
+        colors = {}
         basinmap = None
         basinmap_flag = True
 
@@ -201,6 +201,9 @@ for plot_section,filters in essentials.items():
 
                     hydro_paths.append(dat)
                     labels.append(wmodel_output['customname'])
+
+                    if 'color' in wmodel_output: 
+                        colors[wmodel_output['customname']] = wmodel_output['color']
                 else:
                     print(f"Neither 'hydrographs' nor 'routing_hydrographs_r' has been found for {wmodel_output['customname']}") 
                 print('') 
@@ -240,12 +243,18 @@ for plot_section,filters in essentials.items():
         index += open_line(f'River discharge (hydrographs); REF = {ref_label}') + close_line()
         index += open_line()
 
-        if len(hydro_paths) > 0:
+        if (len(hydro_paths) > 0):
             ensemble = dict(zip(labels, hydro_paths))
             data = cens(ensemble, order=labels) 
+            
+            if (len(colors) == len(hydro_paths)):
+                colors_sorted = [colors[c] for c in labels]
+                colornames = ' '.join(colors_sorted)
+            else:
+                colornames = None
 
             try:
-                figure_file = river_plot(data, var=var_name, ref=ref, ref_label=ref_label, basinmap=basinmap)
+                figure_file = river_plot(data, var=var_name, ref=ref, ref_label=ref_label, basinmap=basinmap, colors=colornames)
                 print("Figure output:", cfile(figure_file))
             except Exception as e:
                 print("ERROR when calling river_plots():", e)
@@ -254,8 +263,8 @@ for plot_section,filters in essentials.items():
             # -----------------------------------------------------------------------------------------
             index += cell("", cfile(figure_file), thumbnail="700*600", hover=False, **alternative_dir)
         else:
-            pass
-
+            index += cell("", blank_cell, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
+ 
         # 
         # ==> -- Close the line
         # -----------------------------------------------------------------------------------------
