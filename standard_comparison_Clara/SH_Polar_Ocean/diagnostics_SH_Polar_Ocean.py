@@ -68,6 +68,53 @@ calias('IGCM_OUT', 'iceberg', filenameVar='grid_T')
 calias('IGCM_OUT', 'rhopoto', filenameVar='grid_T')
 
 # ---------------------------------------------------------------------------------------- #
+# -- Plotting the maps of the Atlas Explorer (atmosphere)                                          -- #
+print('--------------------------------------')
+print('-- Running Atlas Explorer           --')
+print('-- atlas_explorer_variables =       --')
+if 'atmos_variables' in locals():
+    atlas_explorer_variables = atmos_variables
+    print('-- (from atmos_variables in params) --')
+print('-> ', atlas_explorer_variables)
+print('--                                  --')
+
+# -- Period Manager
+if not use_available_period_set:
+    Wmodels = period_for_diag_manager(models, diag='atm_2D_maps')
+else:
+    Wmodels = copy.deepcopy(Wmodels_clim)
+for model in Wmodels:
+    model.update(dict(table='Amon'))
+
+# -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
+kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
+              section_title='Atmosphere Surface', domain=domain, custom_plot_params=custom_plot_params,
+              add_product_in_title=add_product_in_title, safe_mode=safe_mode,
+              add_line_of_climato_plots=add_line_of_climato_plots,
+              regridding=regridding,
+              alternative_dir=alternative_dir, custom_obs_dict=custom_obs_dict)
+if do_parallel:
+    index += parallel_section(section_2D_maps, **kwargs)
+else:
+    index += section_2D_maps(**kwargs)
+
+   
+if atlas_explorer_climato_variables:
+    # -- Update kwargs accordingly
+    kwargs.pop('add_line_of_climato_plots')
+    kwargs.pop('regridding')
+    kwargs.update(dict(variables=atlas_explorer_climato_variables, section_title='Atmosphere Surface Climatologies'))
+    #
+    if do_parallel:
+        index += parallel_section(section_climato_2D_maps, **kwargs)
+    else:
+        index += section_climato_2D_maps(**kwargs)
+
+
+# -----------------------------------------------------------------------------------
+# --   End
+
+# ---------------------------------------------------------------------------------------- #
 # -- Plotting the Ocean 2D maps                                                         -- #
 if do_ocean_2D_maps:
     print('----------------------------------')
@@ -325,6 +372,7 @@ if do_bottomTS_maps:
     # -- Declaration des scripts
     cscript('Tbot_script','python script_Tbot.py ${in_1} ${in_2} ${out}', _var='T_bottom')
     cscript('Sbot_script','python script_Sbot.py ${in_1} ${out}', _var='S_bottom')
+    #cscript('rhobot_script','python script_rhobot.py ${in_1} ${in_2} ${out}', _var='rhopot_bottom')
     #
     print('----------------------------------------------')
     print('-- Bottom ocean properties Maps --')
@@ -350,80 +398,118 @@ if do_bottomTS_maps:
         #
         season = bottom_ocean_diag[0]
         proj = bottom_ocean_diag[1]
-        #
-        # -- 1. Reference
-        # -- Check which reference will be used:
-        #       -> 'default' = the observations that we get from variable2reference()
-        #       -> or a dictionary pointing to a CliMAF dataset (without the variable)
-        variable = 'T_bottom'
-        #ref = variable2reference(variable, my_obs=custom_obs_dict)
-        #ref = ds(**custom_obs_dict[variable])
-
+        
         # -- Control the size of the thumbnail -> thumbN_size
         thumbN_size = (thumbnail_polar_size if 'SH' in proj or 'NH' in proj else thumbnail_size_global)
-
-        # -- Open the html line with the title
-        index += open_table()
-        line_title = season+' '+proj+' climato ' + varlongname(variable)+' ('+variable+')'
-        index += open_line(line_title) + close_line() + close_table()
         #
-        # -- Open the html line for the plots
-        index += open_table() + open_line('')
+   
 
-        ref = ds(**custom_obs_dict[variable])
-        #plot de la reference
-        #wref = cfile(ref, deep=True)
-        ref_Tbot_plot= plot(ref, proj=proj, color='cmocean_thermal', min=-3, max=2, delta=0.5, offset=-273.15)
-        ref_Tbot_plot_file = cfile(ref_Tbot_plot)
-        # -- Add the climatology to the line
-        #index += cell("", ref_Tbot_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-        index += cell("", ref_Tbot_plot_file, thumbnail=thumbN_size, hover=hover, **alternative_dir)
-
-
-        # -- 2. Boucle models
-        for model in Wmodels:
-            
-            wmodel = model.copy()
+        for variable in ['T_bottom', 'S_bottom']: #, 'rhopot_bottom'
     
-            wmodel.update(dict(table='Omon', grid='gn'))
-            print(wmodel)
-            #wmodel.update(dict(mesh_hgr='/data/cburgard/PREPARE_FORCING/PREPARE_CAVITY_MASKS/raw/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights_mesh_mask.nc'))
-            
-            # -- get period manager -> we use thetao to find the available period
-            wmodel['variable'] = 'thetao'
-            wmodel = get_period_manager(wmodel, diag='clim')
-            #
-            thetao_wmodel = wmodel.copy()                                                                                            
-            thetao_wmodel['variable'] = 'thetao'                                                                                     
-            thetao = ds(**thetao_wmodel) 
-            
-            so_wmodel = wmodel.copy()                                                                                                
-            so_wmodel['variable'] = 'so'                                                                                             
-            so = ds(**so_wmodel)   
-            
-            # -- T_bottom
-            Tbot = Tbot_script(thetao, so)
-            print('file Tbot '+cfile(Tbot))
-            Tbot_clim = ccdo(clim_average(Tbot, 'ANM'), operator='setmissval,1e+20')
-            print('file Tbot_clim '+cfile(Tbot_clim))
 
-            # this needs to be done before the regrid
-            #ccdo( time_average(Tbot), operator='setmissval,1e+20')
-            
-            #fixed_fields('regrid',('mesh_mask.nc','/data/igcmg/database/grids/eORCA1.2_mesh_mask.nc'))
-            
-            Tbot_rg = regrid(Tbot_clim, ref, option='remapbil')
-            print('file Tbot_rg '+cfile(Tbot_rg))
-            diff = fsub(Tbot_rg, ref)
-            print('file diff '+cfile(diff))
-            
-            #Tbot_rg = regrid(Tbot_clim, ref)  # Regrid mod to match obs
-            #diff = Tbot_rg - ref
-            diff_Tbot_plot= plot(diff, proj=proj, color='MPL_coolwarm', min=-5, max=5, delta=1)
-            #diff_Tbot_plot_file = cfile(diff_Tbot_plot)
-            index += cell("", safe_mode_cfile_plot(diff_Tbot_plot, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)                                                                                                              
-        # -- Close the line and the table of the climatos
-        close_line()
+            # -- 1. Reference
+            # -- Open the html line with the title
+            index += open_table()
+            line_title = season+' '+proj+' climato ' + varlongname(variable)+' ('+variable+')'
+            index += open_line(line_title) + close_line() + close_table()
+            #
+            # -- Open the html line for the plots
+            index += open_table() + open_line('')
+    
+            ref = ds(**custom_obs_dict[variable])
+            #plot de la reference
+            #wref = cfile(ref, deep=True)
+
+            if variable == 'T_bottom':
+                cmap='cmocean_thermal'
+                vmin = -3
+                vmax = 2
+                vdelta = 0.5
+                offs = -273.15
+            elif variable == 'S_bottom':
+                cmap='cmocean_haline'
+                vmin = 33.5
+                vmax = 35
+                vdelta = 0.25
+                offs = 0
+            elif variable == 'rhopot_bottom':
+                cmap='cmocean_dense'
+                vmin = 27.8
+                vmax = 28.5
+                vdelta = 0.2
+                offs = 1000
+            ref_varbot_plot= plot(ref, proj=proj, color=cmap, min=vmin, max=vmax, delta=vdelta, offset=offs)
+            ref_varbot_plot_file = cfile(ref_varbot_plot)
+            # -- Add the climatology to the line
+            #index += cell("", ref_Tbot_climato, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+            index += cell("", ref_varbot_plot_file, thumbnail=thumbN_size, hover=hover, **alternative_dir)
+    
+    
+            # -- 2. Boucle models
+            for model in Wmodels:
+                
+                wmodel = model.copy()
+        
+                wmodel.update(dict(table='Omon', grid='gn'))
+                print(wmodel)
+                #wmodel.update(dict(mesh_hgr='/data/cburgard/PREPARE_FORCING/PREPARE_CAVITY_MASKS/raw/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights/eORCA1.4.3_OpenSeas_OpenAllCav_ModStraights_mesh_mask.nc'))
+                
+                # -- get period manager -> we use thetao to find the available period
+                wmodel['variable'] = 'thetao'
+                wmodel = get_period_manager(wmodel, diag='clim')
+                #
+                thetao_wmodel = wmodel.copy()                                                                                            
+                thetao_wmodel['variable'] = 'thetao'                                                                                     
+                thetao = ds(**thetao_wmodel) 
+                
+                so_wmodel = wmodel.copy()                                                                                                
+                so_wmodel['variable'] = 'so'                                                                                             
+                so = ds(**so_wmodel)   
+
+                rhopoto_wmodel = wmodel.copy()                                                                                                
+                rhopoto_wmodel['variable'] = 'rhopoto'                                                                                             
+                rhopoto = ds(**rhopoto_wmodel)   
+                
+                # -- T_bottom
+                if variable == 'T_bottom':
+                    varbot = Tbot_script(thetao, so)
+                elif variable == 'S_bottom':
+                    varbot = Sbot_script(so)
+                elif variable == 'rhopot_bottom':
+                    varbot =rhobot_script(rhopoto, so)
+                print('file Tbot '+cfile(varbot))
+                varbot_clim = ccdo(clim_average(varbot, 'ANM'), operator='setmissval,1e+20')
+                print('file Tbot_clim '+cfile(varbot_clim))
+    
+                # this needs to be done before the regrid
+                #ccdo( time_average(Tbot), operator='setmissval,1e+20')
+                
+                #fixed_fields('regrid',('mesh_mask.nc','/data/igcmg/database/grids/eORCA1.2_mesh_mask.nc'))
+                
+                varbot_rg = regrid(varbot_clim, ref, option='remapbil')
+                print('file Tbot_rg '+cfile(varbot_rg))
+                diff = fsub(varbot_rg, ref)
+                print('file diff '+cfile(diff))
+                
+                #Tbot_rg = regrid(Tbot_clim, ref)  # Regrid mod to match obs
+                #diff = Tbot_rg - ref
+                if variable == 'T_bottom':
+                    vmin = -2
+                    vmax = 2
+                    vdelta = 0.25
+                elif variable == 'S_bottom':
+                    vmin = -0.5
+                    vmax = 0.5
+                    vdelta = 0.1
+                elif variable == 'rhopot_bottom':
+                    vmin = -0.5
+                    vmax = 0.5
+                    vdelta = 0.1
+                diff_varbot_plot= plot(diff, proj=proj, color='MPL_coolwarm', min=vmin, max=vmax, delta=vdelta)
+                #diff_Tbot_plot_file = cfile(diff_Tbot_plot)
+                index += cell("", safe_mode_cfile_plot(diff_varbot_plot, safe_mode=safe_mode), thumbnail=thumbN_size, hover=hover, **alternative_dir)                                                                                                              
+            # -- Close the line and the table of the climatos
+            close_line()
         #
         # -- Close the table
         index += close_table()      
@@ -432,109 +518,6 @@ if do_bottomTS_maps:
 
 
 
-do_old=False
-if do_old:
-	print('----------------------------------------------')
-	print('-- Bottom ocean properties Maps --')
-	print('-- do_bottomTS_maps = True                    --')
-	print('----------------------------------------------')
-	# -- Open the section and an html table
-	index += section("Bottom ocean properties (SH)", level=4)	
-	
-	# -- Bottom Ocean Diags -> Season and Pole
-	#if not bottom_ocean_diags:
-	bottom_ocean_diags = [('ANM', 'SH30')] #, ('JAS', 'SH30'), ('DJF', 'SH30')]
-	#
-	# -- Period Manager
-	if not use_available_period_set:
-		Wmodels = period_for_diag_manager(models, diag='bottom_ocean_maps')
-	else:
-		Wmodels = copy.deepcopy(Wmodels_clim)
-	# -- Add table
-	for model in Wmodels:
-		model.update(dict(table='Omon', grid='gn'))
-		
-		thetao = ds(variable = 'thetao', **model)
-		so = ds(variable = 'so', **model)
-		rhopoto = ds(variable = 'rhopoto', **model)
-		
-		cscript('Tbot_script','python script_Tbot.py ${in_1} ${in_2} ${out}', _var='T_bottom')     
-		Tbot = Tbot_script(thetao, so)
-		
-		cscript('Sbot_script','python script_Sbot.py ${in_1} ${out}', _var='S_bottom')
-		Sbot = Sbot_script(so)
-		
-		#cscript('rhobot_script','python script_rhobot.py ${in_1} ${in_2} ${out}', _var='rhopot_bottom')
-		#rhobot = rhobot_script(rhopoto, so)
-		## -- template de prise en compte d'obs
-		
-	# -- Loop on the bottom ocean diags: region and season
-	for bottom_ocean_diag in bottom_ocean_diags:
-		season = bottom_ocean_diag[0]
-		proj = bottom_ocean_diag[1]
-		proj = 'GLOB'
-		#
-		# -- Bottom temperature ---------------------------------------------------
-		variable = 'T_bottom'
-		# -- Check which reference will be used:
-		#       -> 'default' = the observations that we get from variable2reference()
-		#       -> or a dictionary pointing to a CliMAF dataset (without the variable)
-		if reference == 'default':
-			ref = variable2reference(variable, my_obs=custom_obs_dict)
-		else:
-			if type(reference) is list:
-				ref = reference[0]
-			else:
-				ref = reference
-		
-		# -- Control the size of the thumbnail -> thumbN_size
-		thumbN_size = (thumbnail_polar_size if 'SH' in proj or 'NH' in proj else thumbnail_size_global)
-		
-		# -- Open the html line with the title
-		index += open_table()
-		line_title = season+' '+proj+' climato ' + varlongname(variable)+' ('+variable+')'
-		index += open_line(line_title) + close_line() + close_table()
-		#
-		# -- Open the html line for the plots
-		index += open_table() + open_line('')
-		#
-		# --> Plot the climatology vs the reference
-		# -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
-		# -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
-		wref = ref.copy()
-		wref.update(dict(table='Omon', grid='gn'))
-		if 'frequency_for_annual_cycle' in wref:
-			wref.update(dict(frequency=wref['frequency_for_annual_cycle']))
-		ref_Tbot_climato = plot_climato(variable, wref, season, proj, custom_plot_params=custom_plot_params,
-                                       safe_mode=safe_mode, regrid_option='remapdis')
-		#
-		# -- Add the climatology to the line
-		index += cell("", ref_Tbot_climato, thumbnail=thumbN_size,
-                      hover=hover, **alternative_dir)
-        #
-		for model in Wmodels:
-			# -- This is a trick if the model outputs for the atmosphere and the ocean are yearly
-			# -- then we need to set another frequency for the diagnostics needing monthly or seasonal outputs
-			wmodel = model.copy()
-			wmodel.update(dict(table='Omon', grid='gn'))
-			if 'frequency_for_annual_cycle' in wmodel:
-				wmodel.update(dict(frequency=wmodel['frequency_for_annual_cycle']))
-			print('wmodel = ')
-			Tbot_climato = plot_climato(variable, wmodel, season, proj, custom_plot_params=custom_plot_params,
-                                       safe_mode=safe_mode, regrid_option='remapdis')
-			index += cell("", Tbot_climato, thumbnail=thumbN_size,
-                          hover=hover, **alternative_dir)
-                          
-        # -- Close the line and the table of the climatos
-		close_line()
-        #
-        # -- Close the table
-		index += close_table()
-
-	#derive('IGCM_OUT','T_bottom','Tbot_script','thetao','so')
-	#T_bottom = ds(variable = 'T_bottom', **req_dict)
-	
-	
 
         
 # ---

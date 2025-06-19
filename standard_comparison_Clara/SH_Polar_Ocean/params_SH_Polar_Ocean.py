@@ -98,10 +98,40 @@ if AtlasTitle != "NONE":
 # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
 season = 'ANM'
 # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-proj = 'SH55'
+proj = 'SH60'
 # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
 # domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = dict(lonmin=0, lonmax=360, latmin=-90, latmax=-55)
+
+# ---------------------------------------------------------------------------- >
+# -- SH Polar Ocean Atmosphere diagnostics
+# -- This section is based on the same mechanisms as Atlas Explorer; it is
+# -- thus possible to use the functionalities (python dictionaries to add options
+# -- with a variable)
+# ---------------------------------------------------------------------------- >
+my_seasons = ['ANM', 'DJF', 'JJA']
+atlas_explorer_variables_list = ['tas']
+
+atlas_explorer_variables = []
+for var in atlas_explorer_variables_list:
+    for seas in my_seasons:
+        atlas_explorer_variables.append(dict(variable=var, season=seas, table='Amon',
+                                             project_specs=dict(
+                                                 IGCM_OUT=dict(DIR='ATM'),
+                                             ),
+                                             ))
+
+# -- Choose the regridding (explicit ; can also be used in the variable dictionary)
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
+
+# -- Display full climatology maps =
+# -- Use this variable as atlas_explorer_variables to activate the climatology maps
+atlas_explorer_climato_variables = None
+
+# -- Activate the parallel execution of the plots
+do_parallel = False
+
+period_manager_test_variable = 'tas'
 
 # ---------------------------------------------------------------------------- >
 # -- SH Polar Ocean variables
@@ -117,7 +147,7 @@ liste_seasons_ocean = ['ANM', 'DJF', 'JAS']
 liste_seasons_seaice = ['ANM', 'September', 'February']                                                                                             
                                                                                      
 ocean_2D_variables = []                                                                                                           
-for var in ['tos']:      #      , 'sos', 'iceshelf', 'iceberg'                                                                                   
+for var in ['tos','sos']:      #      , 'sos', 'iceshelf', 'iceberg'                                                                                   
     for my_season in liste_seasons_ocean:                                                                                               
         ocean_2D_variables.append(dict(variable=var, season=my_season, table='Omon', grid='gn',                                   
                                        project_specs=dict(                                                                        
@@ -134,13 +164,13 @@ for var in ['tos']:      #      , 'sos', 'iceshelf', 'iceberg'
 #                                       ))
 
 # -- Mixed Layer Depth
-do_MLD_maps = False  # -> [NEMO Atlas] Maps of Mixed Layer Depth
+do_MLD_maps = True  # -> [NEMO Atlas] Maps of Mixed Layer Depth
 
 # ---------------------------------------------------------------------------- >
 # -- White Ocean : Sea Ice diagnostics
 # ---------------------------------------------------------------------------- >
 # -> [NEMO Atlas] Sea ice plots: sea ice concentration and thickness, relative to obs
-do_seaice_maps = False
+do_seaice_maps = True
 # do_seaice_annual_cycle = True    # -> [NEMO Atlas] Annual cycle of the sea ice volume in both hemispheres
 # ---------------------------------------------------------------------------- >
 
