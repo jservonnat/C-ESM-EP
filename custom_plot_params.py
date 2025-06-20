@@ -69,6 +69,19 @@ dict_plot_params = {
         'default': {'units': 'degC', 'color': 'BlueWhiteOrangeRed', 'offset': -273.15},
         'full_field': {'colors': ranges_to_string(ranges=[[-40, 0, 10], [0, 25, 5]])},
         'bias': {'min': -5, 'max': 5, 'delta': 1, 'offset': 0},
-        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}}
+        'model_model': {'min': -10, 'max': 10, 'delta': 1, 'offset': 0}},
 
-}
+    'iceshelf': {
+            'default': {'units': 'kg/m2/s', 'color': 'CBR_wet'}},
+
+    'iceberg': {
+            'default': {'units': 'kg/m2/s', 'color': 'CBR_wet'}},
+
+    'T_bottom': {
+            'default': {'units': 'degC', 'color': 'cmocean_thermal'}},
+    'S_bottom': {
+            'default': {'units': 'degC', 'color': 'cmocean_haline'}},
+    'rhopot_bottom': {
+            'default': {'units': 'kg/m3', 'color': 'cmocean_dense'}},
+    
+    }
