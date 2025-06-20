@@ -53,7 +53,7 @@ def build_period_str(dat):
     else:
         ds_dat = dat
     tmp_period = str(ds_dat.period)
-    if 'clim_period' in ds_dat.kvp and str(ds_dat.period) == 'fx':
+    if 'clim_period' in ds_dat.kvp and tmp_period == 'fx':
         tmp_period = ds_dat.kvp['clim_period']
     if 'years' in ds_dat.kvp and ds_dat.period == 'fx':
         tmp_period = ds_dat.kvp['years']
