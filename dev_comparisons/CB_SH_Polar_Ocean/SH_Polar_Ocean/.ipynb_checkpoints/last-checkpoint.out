@@ -1,0 +1,37 @@
+debug    : TMPDIR found: /scratchu/cburgard/atlas_explorer
+debug    : Create temporary dir /scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2
+debug    : CDO command init: cdo -O
+debug    : Alias and variable considered: ['so', 'so', '1', '0'] -- so
+debug    : Region considered: None
+debug    : Units considered: None
+debug    : Missing values considered: None
+debug    : Period considered: 1930-01-01T00:00:00,1979-12-31T23:59:00
+debug    : Operator considered: None
+debug    : Command launched cdo -O -selname,so -expr,so=so*1+0 -seldate,1930-01-01T00:00:00,1979-12-31T23:59:00 /scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2/CM70-ico-BOOST100-CLD-RS_18500101_19491231_1M_so.nc /scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2/tmp_CM70-ico-BOOST100-CLD-RS_18500101_19491231_1M_so.nc
+debug    : Time at launch 1750085030.2514758
+debug    : cdi  warning (cdfScanVarAttr): NetCDF: Variable not found - bounds_nav_lat
+cdi  warning (find_time_vars): Found more than one time variable, skipped variable time_centered!
+cdi  warning (cdfInqContents): Coordinates variable time_centered can't be assigned!
+
+debug    : Time at end 1750085152.960066
+debug    : Command launched cdo -O -selname,so -expr,so=so*1+0 -seldate,1930-01-01T00:00:00,1979-12-31T23:59:00 /scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2/CM70-ico-BOOST100-CLD-RS_19500101_19791231_1M_so.nc /scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2/tmp_CM70-ico-BOOST100-CLD-RS_19500101_19791231_1M_so.nc
+debug    : Time at launch 1750085153.0049305
+debug    : cdo(2) seldate: Open failed on >/scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2/CM70-ico-BOOST100-CLD-RS_19500101_19791231_1M_so.nc<
+                Unsupported file type
+
+debug    : Time at end 1750085930.9743593
+Traceback (most recent call last):
+  File "/net/nfs/tools/Users/SU/jservon/climaf_installs/V3.1_IPSL12/climaf/../scripts/mcdo.py", line 499, in <module>
+    main(**kwargs)
+  File "/net/nfs/tools/Users/SU/jservon/climaf_installs/V3.1_IPSL12/climaf/../scripts/mcdo.py", line 326, in change_dir
+    func(**kwargs)
+  File "/net/nfs/tools/Users/SU/jservon/climaf_installs/V3.1_IPSL12/climaf/../scripts/mcdo.py", line 452, in main
+    command_succeed = call_subprocess(cdo_command, allow_seldate_failure=seldate_is_first)
+  File "/net/nfs/tools/Users/SU/jservon/climaf_installs/V3.1_IPSL12/climaf/../scripts/mcdo.py", line 266, in call_subprocess
+    raise subprocess.CalledProcessError(
+subprocess.CalledProcessError: Command 'cdo -O -selname,so -expr,so=so*1+0 -seldate,1930-01-01T00:00:00,1979-12-31T23:59:00 /scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2/CM70-ico-BOOST100-CLD-RS_19500101_19791231_1M_so.nc /scratchu/cburgard/atlas_explorer/climaf_mcdo7d4kygj2/tmp_CM70-ico-BOOST100-CLD-RS_19500101_19791231_1M_so.nc' returned non-zero exit status 1.
+
+
+stdout and stderr of script call :
+	 /net/nfs/tools/Users/SU/jservon/climaf_installs/V3.1_IPSL12/climaf/../scripts/mcdo.py  --output_file="/scratchu/cburgard/atlas_explorer/34/78f2540e8e7758a044fea7e4adb7ea0ff1a988e4f4f3d902cda8eb_3552910.nc" --var="so" --period="1930-01-01T00:00:00,1979-12-31T23:59:00"  --alias="so,so,1,0"   /thredds/tgcc/store/p86caub/IPSLCM7/DEVT/pdControl/CM70-ico-BOOST100-CLD-RS/OCE/Analyse/TS_MO/CM70-ico-BOOST100-CLD-RS_18500101_19491231_1M_so.nc /thredds/tgcc/store/p86caub/IPSLCM7/DEVT/pdControl/CM70-ico-BOOST100-CLD-RS/OCE/Analyse/TS_MO/CM70-ico-BOOST100-CLD-RS_19500101_19791231_1M_so.nc 
+

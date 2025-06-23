@@ -1,0 +1,5 @@
+
+
+cd /home/cburgard/SCRIPTS/C-ESM-EP/standard_comparison_Clara/SH_Polar_Ocean ;
+
+sbatch --job-name=SH_Polar_Ocean_standard_comparison_Clara_C-ESM-EP  --mem=40000 --time=480 --partition=zen16 --export=ALL,component=SH_Polar_Ocean,comparison=standard_comparison_Clara,WD=${PWD},cesmep_frontpage=https://thredds-su.ipsl.fr/thredds/fileServer/ipsl_thredds/cburgard/C-ESM-EP/standard_comparison_Clara_cburgard/C-ESM-EP_standard_comparison_Clara.html,CESMEP_CLIMAF_CACHE=/scratchu/cburgard/atlas_explorer --ntasks=1 ../../job_C-ESM-EP.sh
