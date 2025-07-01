@@ -27,7 +27,6 @@ from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootd
 try:
     from libIGCM_fixed_settings import AtlasPath, AtlasTitle
 except:
-    #print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
 
@@ -328,10 +327,17 @@ index = index.replace('CliMAF documentation',
                       'Back to C-ESM-EP frontpage of comparison: '+comparison)
 
 # -- Write the atlas html file
+if interactive_selection:
+    mapper_style_sheet = main_cesmep_path + "/share/fp_template/mapper.css"
+    mapper_script = main_cesmep_path + "/share/fp_template/mapper.js"
+    os.system(f'cp {mapper_style_sheet} {mapper_script} {atlas_dir}')
+    index = mapper_page
+    
 outfile = atlas_dir + "/" + index_name
 print('outfile = ', outfile)
 with open(outfile, "w") as filout:
     filout.write(index)
+
 
 blabla = None
 if onSpirit:
@@ -341,7 +347,7 @@ if onSpirit:
         # -- thredds directory (web server)
         threddsdir = str.replace(atlas_dir, 'scratchu', 'thredds/ipsl')
         os.system('rm -rf '+threddsdir)
-        th_dir = str.replace(threddsdir, '/'+component, '')
+        th_dir = os.path.dirname(threddsdir)
         if not os.path.isdir(th_dir):
             os.makedirs(th_dir)
         os.system('cp -r '+atlas_dir+' '+th_dir)
@@ -355,7 +361,7 @@ if onSpirit:
         print("Available at this address "+root_url +
               outfile.replace(atlas_dir, alt_dir_name))
     else:
-        print("Index available at here: "+outfile)
+        print("Index available here: "+outfile)
 
 #
 

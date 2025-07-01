@@ -53,12 +53,8 @@ models = [
              customname='ICOBOOST100',
              color='red'
              ),
-
-
-    #/data/lolivera/IGCM_OUT/OL2/TEST/secsto/FG2nd.siberia.10mHF
-    #/data/lolivera/IGCM_OUT/OL2/TEST/secsto/FG2nd.siberia.30mHF
-
     ]
+
 root = '/thredds/tgcc/store'
 #
 # -- Provide a set of common keys to the elements of models

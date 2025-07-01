@@ -70,7 +70,12 @@ def base_variable_of_derived_variable(tested_variable, project='*', ratio=None):
         tested_variable = base_var
     # Special case : variables defined as ratio of (time averaged) variables
     if ratio is not None:
-        tested_variable = ratio.split("/")[0]
+        if type(ratio) is str:
+            # e.g. "evap/precip"
+            tested_variable = ratio.split('/')[0]
+        elif type(ratio) is list:
+            # e.g. [ ("npp",{}), ("gpp_srf",{"DIR":"SRF"})] 
+            tested_variable = ratio[0][0]
     return tested_variable
 
 
@@ -108,6 +113,7 @@ def frequency_manager_for_diag(model, diag='TS'):
 
 
 def get_period_manager(dat_dict, diag=None, ratio=None):
+    clogger.info("\nEntering get_period_manager")
     #
     # Garde fou: if frequency is missing in dat_dict, we use the default value (monthly most of the time)
     if 'frequency' not in dat_dict:
@@ -163,7 +169,7 @@ def get_period_manager(dat_dict, diag=None, ratio=None):
                     period = 'No period nor ts_period provided'
                     print(period, 'in ', dat_dict)
     #
-    print('dat_dict before .resolve ', dat_dict)
+    #print('dat_dict before .resolve ', dat_dict)
     # -- request for all the files
     req_dict = dat_dict.copy()
     #
@@ -180,16 +186,7 @@ def get_period_manager(dat_dict, diag=None, ratio=None):
         if period.upper() in ['FULL', '*'] \
            or 'LAST_' in period.upper() \
            or 'FIRST_' in period.upper():
-            # -- Use ds.explore method to find the available period
-            #try:
-            #    req = ds(**req_dict).explore('resolve')
-            #    print('req.kvp = ', req.kvp)
-            #    dat_dict['period'] = str(req.kvp['period'])
-            #except:
-            #    print('Error in get_period_manager => No File found for ', req_dict)
-            #    if tested_variable != req_dict['variable']:
-            #        print('Initially you asked for variable ', tested_variable)
-            req = ds(**req_dict).explore('resolve')
+            req=ds(**req_dict) # this resolve for period, automatically
             if req.baseFiles():
                 dat_dict['period'] = str(req.kvp['period'])
             else:
@@ -197,7 +194,6 @@ def get_period_manager(dat_dict, diag=None, ratio=None):
                 #print(cfile(req))
                 if tested_variable != req_dict['variable']:
                     print('Initially you asked for variable ', tested_variable)
-
         else:
             dat_dict.update(dict(period=period))
     if clim_period and dat_dict['frequency'] in ['annual_cycle', 'seasonal']:
@@ -216,6 +212,7 @@ def get_period_manager(dat_dict, diag=None, ratio=None):
             if clim_period.upper() in ['FIRST', 'FIRST_SE']:
                 dat_dict['clim_period'] = first_SE
     #
+    clogger.info("\nExiting get_period_manager")
     return dat_dict
 
 

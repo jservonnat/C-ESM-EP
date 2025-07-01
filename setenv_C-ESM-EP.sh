@@ -10,6 +10,11 @@
 # --     Contact: jerome.servonnat__at__lsce.ipsl.fr
 # --
 # -------------------------------------------------------- >
+if [ -z $BASH_ARGV ] ; then
+    echo "This script must be sourced. Type "
+    echo "  . $0"
+    exit
+fi
 date
 directory_of_this_script=$(cd $(dirname $BASH_ARGV); pwd)
 
@@ -65,7 +70,7 @@ fi
 # --> On Spirit
 if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then 
     if [[ $(uname -n) == spirit* ]] ; then
-	emodule=${CESMEP_CLIMAF_MODULE:-env20240920_climafV3.1_IPSL9}
+	emodule=${CESMEP_CLIMAF_MODULE:-env20240920_climafV3.1_IPSL15}
 	if [ ${emodule:0:1} != "/" ]; then
 	    prefix=/net/nfs/tools/Users/SU/modulefiles/jservon/climaf
 	    emodule=$prefix/$emodule
@@ -73,7 +78,7 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	echo Loading module $emodule for CliMAF and C-ESM-EP
 	set +x
 	module purge
-	module load $emodule
+	module load $emodule || exit
 	# If one wants to use an aternate CLiMAF version
 	#export PYTHONPATH=~/climaf_installs/climaf_running:$PYTHONPATH
     else

@@ -64,10 +64,15 @@ from locations import path_to_cesmep_output_rootdir, \
 try:
     from libIGCM_fixed_settings import AtlasPath, AtlasTitle
 except:
-    print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
 
+if AtlasPath != os.path.basename(AtlasPath):
+    AtlasBasename = os.path.basename(AtlasPath)
+    AtlasPath = os.path.dirname(AtlasPath)
+else:
+    AtlasBasename = None
+    
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
 from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs

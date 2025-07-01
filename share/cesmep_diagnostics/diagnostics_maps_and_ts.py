@@ -4,7 +4,7 @@
 # Code for
 
 from custom_plot_params import dict_plot_params as custom_plot_params
-from orchidee_variables_and_functions import mapper_map_filename, mapper_ts_filename
+from CM_atlas import mapper
     
 # Build a dict of map specification by combining 5 sources
 def build_map_specs(variables_setup, variables_specific, common_plot_params,
@@ -14,7 +14,7 @@ def build_map_specs(variables_setup, variables_specific, common_plot_params,
         variables_per_category[category] = []
         for variable in variables_setup[category]['variables']:
             var_dict = {'variable' : variable}
-            pspecs = copy.deepcopy(variables_setup[category].get('specs',None))
+            pspecs = copy.deepcopy(variables_setup[category].get('specs',{}))
             var_dict.update({'project_specs' : pspecs})
             if variable in special_project_specs :
                 var_dict['project_specs'].update(special_project_specs[variable])
@@ -32,8 +32,8 @@ def build_time_series_specs(category, variables_setup, variables_specifics,
                             special_project_specs, time_series_setup,
                             common_ts_plot_params, regions, regions_file) :
 
-    # From NetCDF 'regions_file', returns the 'reg_label' value for
-    # region which 'reg_id' is 'region', assuming both share coordinate 'reg'
+    # From NetCDF 'regions_file', returns the pair, 'reg_number','reg_label' value for
+    # region which 'reg_id' is 'region', assuming they share coordinate 'reg'
     def ts_get_region_label(region, regions_file):
         with xr.open_dataset(regions_file) as rf:
             for reg in rf.reg.values :
@@ -46,7 +46,7 @@ def build_time_series_specs(category, variables_setup, variables_specifics,
     for variable in variables_setup[category]['variables']:
         spec = dict(variable=variable,
                     project_specs=copy.deepcopy(
-                        variables_setup[category].get('specs',None)))
+                        variables_setup[category].get('specs',{})))
         if variable in special_project_specs:
             spec['project_specs'].update(special_project_specs[variable])
         for common_key in common_ts_plot_params:
@@ -72,7 +72,11 @@ def build_time_series_specs(category, variables_setup, variables_specifics,
 #-------------------------------------------------------------------------------------
 
 if atlas_head_title is None:
-    atlas_head_title = 'Mapper - maps part'
+    atlas_head_title = 'Maps and TS'
+# When driven by libIGCM, an additional title may be provided by config.card
+if AtlasTitle != "NONE":
+    atlas_head_title += " - " + AtlasTitle
+    
 
 # -- Period Manager
 if not use_available_period_set:
@@ -80,17 +84,26 @@ if not use_available_period_set:
 else:
     Wmodels = copy.deepcopy(Wmodels_clim)
 
+if interactive_selection:
+    # Activate relevant filename scheme 
+    map_filename_func = mapper.mapper_map_filename
+    ts_filename_func = mapper.mapper_ts_filename
+    mapper_page = mapper.build_mapper_page(models, variables_setup, \
+                    case_toggles, seasons, ts_frequencies, ts_regions, \
+                    ts_regions_file,  custom_obs_dict, variables_specifics,\
+                    atlas_head_title)
+
 # -- Add table. To be re-scrutinized
 #for model in Wmodels:
 #    model.update(dict(table='Lmon'))
 
-# -- This diag is yet validated only for CMIP6 and IGCM_OUT !
+# -- This diag is yet validated only for IGCM_OUT !
 for model in Wmodels.copy():
-    if 'IGCM' not in model['project'] and model['project'] not in 'CMIP6':
+    if 'IGCM' not in model['project'] :
         print('removing Model %s, for which project (%s) this diag has not been validated yet'%(model,model['project']))
         Wmodels.remove(model)
 
-print('Wmodels=',Wmodels)
+#print('Wmodels=',Wmodels)
 
 
 # -- Init html index
@@ -98,13 +111,13 @@ index = header(atlas_head_title, style_file=style_file)
 
 index += section('Maps', level=1)
 
-# Common args for climato_* functions
+# Common args for all climato_* functions calls
 args_rest = dict(domain=domain,
-               add_product_in_title=add_product_in_title,
-               custom_plot_params=custom_plot_params, shade_missing=True,
-               safe_mode=safe_mode, alternative_dir=alternative_dir,
-               custom_obs_dict=custom_obs_dict, thumbnail_size=thumbnail_size,
-               filename_func=mapper_map_filename)
+                 add_product_in_title=add_product_in_title,
+                 custom_plot_params=custom_plot_params, shade_missing=True,
+                 safe_mode=safe_mode, alternative_dir=alternative_dir,
+                 custom_obs_dict=custom_obs_dict, thumbnail_size=thumbnail_size,
+                 filename_func=map_filename_func)
 
 # -- Create dicts of variables, listed by category, applying 
 # -- all spec sources (setup, common_plot_params, special_projet_specs, ...)
@@ -163,7 +176,7 @@ if case_toggles['time_series']:
     # in share/cesmep_diagnostics)
     ts_diag_file = None
     here = os.path.split(diagnostics_file)[0]
-    for loc in [ "./", here, here + "/../../share/cesmep_diagnostics"]:
+    for loc in [ "./", here, main_cesmep_path+"/share/cesmep_diagnostics"]:
         fic = loc + "/diagnostics_MainTimeSeries.py"
         if os.path.isfile(fic):
             ts_diag_file = fic
@@ -171,11 +184,9 @@ if case_toggles['time_series']:
     if ts_diag_file is None:
         print("No ts_diag_file found")
         exit(1)
-    print("Now executing TS diag with code %s" % ts_diag_file)
+    print("Using TS diag with code at: %s" % ts_diag_file)
         
-    # Set some variables usable by the time series code
     do_main_time_series = True
-    ts_filename_func = mapper_ts_filename
     
     for category in variables_setup.keys():
         index += section(category, level=2)
@@ -183,9 +194,10 @@ if case_toggles['time_series']:
             category, variables_setup, variables_specifics,
             special_project_specs, time_series_setup, common_ts_plot_params,
             ts_regions, ts_regions_file)
-        print('time_series_specs=',time_series_specs)
+        #print('time_series_specs=',time_series_specs)
         
         for frequency_for_ts in ts_frequencies:
             index += section("Time Series - %s - %s"%(category,frequency_for_ts),
                              level=4)
             exec(open(ts_diag_file).read())
+
