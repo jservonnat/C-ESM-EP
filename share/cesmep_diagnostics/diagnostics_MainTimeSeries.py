@@ -5,6 +5,9 @@
 # -- Python 2 <-> 3 compatibility ---------------------------------------------------------
 from __future__ import unicode_literals, print_function, absolute_import, division
 import inspect
+import hashlib
+import shutil
+
 from climaf.plot.varlongname import varlongname
 # Note : the code sequences which are driven by a test like :
 #        if ts_frequency in locals():
@@ -36,21 +39,69 @@ def ts_adapt_frequency(dat, from_freq, to_freq, data_name):
         rep = dat
     return rep
 
+def contfrac_filename(spec):
+    """Compute a suitable filename for caching the continental fraction:
+    That name allows to distinguish simulations, but does not use the
+    variable name nor the period of SPEC
+
+    """
+    kw = spec.copy()
+    kw['variable'] = 'contfrac'
+    kw['period']="1900" # Value doesn't matter, but avoid * for later ds()
+    kw.pop('clim_period',None); kw.pop('ts_period',None)
+    kw.pop('ENSO_ts_period',None); kw.pop('DIR',None); kw.pop('OUT',None)
+    name = repr(ds(**kw))
+    vhash = hashlib.sha224(name.encode("utf-8")).hexdigest()[0:12]
+    filename = env.environment.cachedirs[0] + "/contfrac_" + vhash + ".nc"
+    clogger.debug("contfrac_filename = %s for %s"%(filename, name))
+    return filename
+
+
 def ts_get_contfrac(spec):
-    """ Returns a CliMAF dataset representing the continental fraction
-    for the dataset (which is provided as a dictionnary of attributes SPEC)"""
+    """
+    Returns a CliMAF dataset representing the continental fraction
+    for the dataset which is provided as SPEC, a dictionnary of attributes
+    """
         
     # TBD : test if data can be found
+    clogger.info("entering ts_get_contfrac with ",spec)
     contfrac = copy.deepcopy(spec)
     if contfrac['project'] in ['CMIP6', 'CMIP5' ]:
         contfrac['table'] = 'Lmon'
         contfrac['variable'] = 'sftlf'
+        return(ds(**contfrac))
     elif contfrac['project'] in ['IGCM_OUT' ]:
-        contfrac['variable'] = 'CONTFRAC'
-        contfrac['DIR'] = 'SBG'
+        contfrac_file = contfrac_filename(spec)
+        # Check if contfrac is cached for this simulation
+        if os.path.exists(contfrac_file):
+            return fds(contfrac_file, variable='Contfrac')
+        # Create contfrac dataset, extracting it from some SRF variables
+        contfrac['DIR'] = 'SRF'
+        lvariables = [ 'evap', 'tair' ]
+        for facet in cprojects['IGCM_OUT'].facets:
+            contfrac.setdefault(facet,"*")
+        for variable in lvariables:
+            contfrac['variable'] = variable
+            try:
+                #clogger.info("ds with dic=%s"%contfrac)
+                files = ds(**contfrac).baseFiles()
+            except:
+                continue
+            else:
+                if not files:
+                    continue
+                # The dirty way to extract Contfrac
+                fic = files.split(" ")[0]
+                cds = fds(fic, variable='Contfrac')
+                cds_file = cfile(ccdo(cds, operator='mulc,1'))
+                shutil.copy(cds_file, contfrac_file)
+                return fds(contfrac_file, variable='Contfrac')
+        raise ValueError("Cannot find a continental fraction for "+\
+                         "IGCM_OUT using variables %s for %s" %
+                         (lvariables,contfrac))
     else:
-        raise ValueError("Cannot find a continental fraction for project %s"%contfrac['project'])
-    return(ds(**contfrac))
+        raise ValueError("Cannot find a continental fraction for project %s"%
+                         contfrac['project'])
 
 if do_main_time_series:
     print('-- time_series_specs =         --')
@@ -144,7 +195,6 @@ if do_main_time_series:
                     dataset_dict = get_period_manager(dataset_dict, diag='clim')
                     highlight_period.append(build_period_str(dataset_dict))
 
-            units = None
             for dataset_dict in WWmodels_ts:
                 #
                 wdataset_dict = dataset_dict.copy()
@@ -172,7 +222,6 @@ if do_main_time_series:
                 #
                 # -- Build a dataset name
                 mem_name = build_plot_title(wdataset_dict)
-                names_ens.append(mem_name)
                 #
                 # Change data frequency if needed
                 if "frequency_for_ts" in locals():
@@ -193,14 +242,19 @@ if do_main_time_series:
                 ts_dat = operation( dat, **time_series.get('operation_kwargs',{}),
                                     **okwarg)
                 if 'global_sum_scale' in time_series:
-                    ts_dat = ccdo(ts_dat, operator='mulc,%g' % time_series['global_sum_scale'][0])
+                    ts_dat = ccdo(ts_dat, operator='mulc,%g' % float(time_series['global_sum_scale'][0]))
                 #
-                # -- Add to the ensemble for plot
-                #print("Dat_fic=",cfile(ts_dat))
-                ens_ts_dict.update({mem_name: ts_dat})
+                # -- Add to the ensemble for plot, but only if accessing the data is OK
+                try:
+                    cfile(ts_dat)
+                except:
+                    clogger.error("Cannot create time series for %s and %s"%(mem_name,time_series['variable']))
+                else:
+                    ens_ts_dict.update({mem_name: ts_dat})
+                    names_ens.append(mem_name)
                 #
-                if units is None:
-                    units = climaf.functions.read_dataset_attribute(ts_dat,"units","?",safe_mode)
+            if len(set(names_ens)) == 0 :
+                clogger.error("No data available across all models for %s"%time_series['variable'])
             #
             # -- Finalize the CliMAF ensemble
             # -> Test if we have duplicates in names_ens => will produce problems in the ensemble
@@ -238,16 +292,10 @@ if do_main_time_series:
                 p.update(title = ts_region_name)
             #
             # -- Do the plot
-            #print('ens_ts = ', ens_ts)
-            #print('p = ', p)
             if "ylabel" not in p:
                 p['ylabel'] = time_series['variable'] #+ ' ' + varlongname(time_series['variable'])
-            if 'global_sum_scale' in time_series:
-                p['ylabel'] =  p['ylabel'] + " (%s)"%time_series['global_sum_scale'][1]
-            else:
-                p['ylabel'] =  p['ylabel'] + " (%s)"%units
             myplot =  ts_plot(ens_ts, **p)
-            cdrop(myplot)
+            #cdrop(myplot)
             #
             # ==> -- Add the plot to the plots line 
             # ----------------------------------------------------------------------------
@@ -261,7 +309,8 @@ if do_main_time_series:
                 print("ts_thumbN_size from fig_size",ts_thumbN_size)
 
             cell_args = alternative_dir.copy()
-            if "ts_filename_func" in locals() and 'ts_region_name' in locals():
+            if "ts_filename_func" in locals() and ts_filename_func and \
+               'ts_region_name' in locals():
                 cell_args.update(target_filename =
                     ts_filename_func(ts_region, time_series['variable'], frequency_for_ts))
             index += cell("", safe_mode_cfile_plot(myplot, safe_mode=safe_mode),

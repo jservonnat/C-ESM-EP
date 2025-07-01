@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- >
-from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs, onObelix
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs #, onObelix
 from CM_atlas import *
 
 

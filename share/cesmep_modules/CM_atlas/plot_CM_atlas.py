@@ -140,6 +140,7 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
     scale = 1.
     offset = 0.
     title = None
+    units = None
     project_specs = None
     ratio = None
     if isinstance(var, dict):
@@ -227,6 +228,9 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
         if 'title' in wvar:
             title = wvar['title']
             wvar.pop('title')
+        if 'units' in wvar:
+            units = wvar['units']
+            wvar.pop('units')
         if 'display_bias_corr_rmse' in wvar:
             wvar.pop('display_bias_corr_rmse')
         ratio = wvar.get('ratio',None)
@@ -287,8 +291,8 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
         if wdat_dict['project'] in project_specs:
             wdat_dict.update(project_specs[wdat_dict['project']])
     #
-    # -- Apply get_period_manager
-    wdat_dict = get_period_manager(wdat_dict, diag='clim', ratio=ratio)
+    # -- Apply get_period_manager. NO : alreaduy done upstream
+    #wdat_dict = get_period_manager(wdat_dict, diag='clim', ratio=ratio)
     print('wdat_dict in plot_climato = ', wdat_dict)
     print('wvar in plot_climato = ', wvar)
     #
@@ -371,35 +375,21 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
     else:
         title = replace_keywords_with_values(wdat_dict, title)
         #
+    variable_str = variable
+    if units is not None:
+        variable_str += " [%s] "%units
     # -- Min, max et mean of the field
     if display_field_stats:
-        if safe_mode:
-            try:
-                field_min = '%s' % (
-                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmin'))[0][0][0]) * scale + offset)))
-                field_max = '%s' % (
-                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmax'))[0][0][0]) * scale + offset)))
-                field_mean = '%s' % (
-                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmean'))[0][0][0]) * scale + offset)))
-                if global_sum_scale :
-                    global_sum = float(cMA(ccdo(climato_dat, operator='fldint'))[0][0][0]) * scale + offset
-                    global_sum *= global_sum_scale[0]
-                    global_sum_string = "; sum=%.3g %s"%(global_sum, global_sum_scale[1])
-                else:
-                    global_sum_string = ""
-                minmaxmean_str = variable + ' min=' + field_min + ' ; max=' + field_max + \
-                    ' ; mean=' + field_mean + global_sum_string  
-                p.update(dict(gsnLeftString=minmaxmean_str,
-                              gsnCenterString=' ',
-                              gsnRightString=season))
-                title += ' ' + tmp_period
-            except:
-                print('----> display_field_stats failed')
+        minmaxmean_str = variable_str + field_stats(climato_dat,scale,offset,global_sum_scale)
+        p.setdefault("gsnLeftString",  minmaxmean_str)
+        p.setdefault("gsnCenterString", ' ')
+        p.setdefault("gsnRightString", season)
+        title += ' ' + tmp_period
     else:
         # -- Set the left, center and right strings of the plot
-        p.update(dict(gsnLeftString=tmp_period,
-                      gsnCenterString=variable,
-                      gsnRightString=season))
+        p.setdefault("gsnLeftString", tmp_period)
+        p.setdefault("gsnCenterString", variable_str)
+        p.setdefault("gsnRightString",season)
     #
     # -- If the variable is 3d, add the plotting parameters that are specific to the
     # -- zonal mean fields
@@ -486,7 +476,7 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
         largs = largs + [ vectors_field_u, vectors_field_v ]
     myplot = plot(*largs, **p)
     #
-    print('climato_dat  = ', climato_dat)
+    #print('climato_dat  = ', climato_dat)
     # -- If the user doesn't want to do the cfile within plot_climato, set do_cfile=False
     # -- Otherwise we check if the plot has been done successfully.
     # -- If not, the user can set safe_mode=False and clog('debug') to debug.
@@ -512,6 +502,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     print('var = ', var)
     scale = 1.
     offset = 0.
+    units = None
     grid = None
     table = None
     realm = None
@@ -550,6 +541,8 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         if 'offset' in wvar:
             offset = wvar['offset']
             wvar.pop('offset')
+        if 'units' in wvar:
+            units = wvar['units']
         if 'zonmean_variable' in wvar:
             zonmean_variable = wvar['zonmean_variable']
             wvar.pop('zonmean_variable')
@@ -884,35 +877,23 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
                 else:
                     p[options] = options_value
     #
+    variable_str = variable
+    if units is not None:
+        variable_str += " [%s] "%units
+    #
     # -- Min, max et mean of the field
     if display_field_stats:
-        if safe_mode:
-            try:
-                field_min = '%s' % (
-                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmin'))[0][0][0]) * scale + offset)))
-                field_max = '%s' % (
-                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmax'))[0][0][0]) * scale + offset)))
-                field_mean = '%s' % (
-                    float('%.3g' % (float(cMA(ccdo(climato_dat, operator='fldmean'))[0][0][0]) * scale + offset)))
-                if global_sum_scale :
-                    global_sum = float(cMA(ccdo(climato_dat, operator='fldint'))[0][0][0]) * scale + offset
-                    global_sum *= global_sum_scale[0]
-                    global_sum_string = "; sum=%.3g (%s)"%(global_sum, global_sum_scale[1])
-                else:
-                    global_sum_string = ""
-                minmaxmean_str = variable + ' min=' + field_min + ' ; max=' + field_max + \
-                    ' ; mean=' + field_mean + global_sum_string  
-                p.update(dict(gsnLeftString=minmaxmean_str,
-                              gsnCenterString=' ',
-                              gsnRightString=season))
-                title += ' ' + tmp_period
-            except:
-                print('----> display_field_stats failed')
+        minmaxmean_str = variable_str + \
+            field_stats(bias,scale,offset,global_sum_scale)
+        p.setdefault("gsnLeftString", minmaxmean_str)
+        p.setdefault("gsnCenterString", ' ')
+        p.setdefault("gsnRightString", season)
+        title += ' ' + tmp_period
     else:
         # -- Set the left, center and right strings of the plot
-        p.update(dict(gsnLeftString=tmp_period,
-                      gsnCenterString=variable,
-                      gsnRightString=season))
+        p.setdefault("gsnLeftString", tmp_period)
+        p.setdefault("gsnCenterString", variable_str)
+        p.setdefault("gsnRightString", season)
     #
     # # -- Set the left, center and right strings of the plot
     # if not 'gsnLeftString' in p:
@@ -1203,8 +1184,8 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
             #
             # -- Start the line with the title
             if not line_title:
-                wline_title = varlongname(
-                    variable) + ' (' + variable + ') ; season = ' + season
+                wline_title = var.get("longname", varlongname(variable)) +\
+                                      ' (' + variable + ') ; season = ' + season
             else:
                 wline_title = line_title
             # -- Add the reference to the title of the line:
@@ -1397,8 +1378,8 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
             #
             # -- Start the line with the title
             if not line_title:
-                wline_title = varlongname(
-                    variable) + ' (' + variable + ') ; season = ' + season
+                wline_title = var.get("longname", varlongname(variable)) +\
+                                      ' (' + variable + ') ; season = ' + season
             else:
                 wline_title = line_title
             # -- Add the reference to the title of the line:
@@ -1861,31 +1842,47 @@ def section_zonal_profiles(
 
 def compute_climatology(dat_dict, season, specs_dict, do_cfile=False, safe_mode=False):
     """ Compute the climatology of the dataset represented by DAT_DICT,
-    either directly if the datset variable is a 'simple' one, or in a
+    either directly if the dataset variable is a 'simple' one, or in a
     more intricated way, i.e. by first computing climatology of component
     variables. This currently applies to variables defined as a ratio of two
     variables, which are identified by the occurrence of key "ratio" in dict
     SPECS_DICT"""
 
+    clogger.info('\nEntering compute_climatology with dat_dict=%s'%dat_dict)
+
     if "ratio" in specs_dict:
 
         specs = copy.deepcopy(specs_dict)
-        numer, denom = specs.pop('ratio').split('/')
+        ratio_specs = specs.pop('ratio')
+        #print("ratio_specs=",ratio_specs)
+        if type(ratio_specs) is str:
+            # e.g. "evap/precip"
+            numer, denom = ratio_specs.split('/')
+        elif type(ratio_specs) is list:
+            # e.g. [ ("npp",{}), ("gpp_srf",{"DIR":"SRF"})] 
+            numer = ratio_specs[0][0]
+            denom = ratio_specs[1][0]
         threshold = float(specs_dict['ratio_threshold'])
         
         # -- Compute the seasonal climatologies
         numer_dict = copy.deepcopy(dat_dict)
         numer_dict['variable'] = numer
+        if type(ratio_specs) is list:
+            numer_dict.update(ratio_specs[0][1])
         numer_ds = compute_climatology(numer_dict, season, specs, do_cfile, safe_mode)
 
         denom_dict = copy.deepcopy(dat_dict)
         denom_dict['variable'] = denom
+        if type(ratio_specs) is list:
+            denom_dict.update(ratio_specs[1][1])
         denom_ds = compute_climatology(denom_dict, season, specs, do_cfile, safe_mode)
 
         # Apply threshold to denominator
         denom_ds = ccdo(denom_ds, operator = 'setvrange,%g,1.E+100'%threshold)
         # Compute ratio
         climato = ccdo2(numer_ds, denom_ds, operator='div')
+
+        #print("ratio\nnum=%s,\nden=%s"%(numer_ds,denom_ds))
         return climato
         
     else:
@@ -1902,3 +1899,28 @@ def compute_climatology(dat_dict, season, specs_dict, do_cfile=False, safe_mode=
         climato = clim_average(ds_dat, season)
         return climato
     
+
+def field_stat(dat,operation,scale=1.,offset=0.,other_scale=1.):
+    try :
+        fstat = float(cMA(ccdo(dat, operator=operation))[0][0][0])
+        rep = '%.3g' % ((fstat * scale + offset) * other_scale)
+    except:
+        clogger.error("Issue computing %s on %s (os=%g) %s"%\
+                      (operation,repr(dat),other_scale,type(other_scale)))
+        rep='?'
+    return rep
+
+def field_stats(dat,scale,offset,global_scale=None):
+    field_min = field_stat(dat,'fldmin',scale,offset)
+    field_max = field_stat(dat,'fldmax',scale,offset)
+    field_mean = field_stat(dat,'fldmean',scale,offset)
+    if global_scale :
+        global_sum = field_stat(dat,'fldint',scale,offset,float(global_scale[0]))
+        #rescaled = rescale(dat,scale=scale*float(global_scale[0]),offset=offset)
+        #global_sum = field_stat(rescaled,'fldint')
+        global_sum_string = "; sum=%s %s"%(global_sum, global_scale[1])
+    else:
+        global_sum_string = ""
+    minmaxmean_str = ' min=' + field_min + ' ; max=' + field_max + \
+            ' ; mean=' + field_mean + global_sum_string
+    return minmaxmean_str

@@ -67,6 +67,12 @@ except:
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
 
+if AtlasPath != os.path.basename(AtlasPath):
+    AtlasBasename = os.path.basename(AtlasPath)
+    AtlasPath = os.path.dirname(AtlasPath)
+else:
+    AtlasBasename = None
+    
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
 from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs

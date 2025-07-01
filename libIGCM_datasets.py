@@ -84,7 +84,7 @@ else:
 # ---------------------------------------------------------------------------- >
 if atTGCC:
     root = '/ccc/store/cont003/gencmip6'
-    gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+    gridpath = '/ccc/work/cont003/igcmg/igcmg/database/grids/'
 elif atIDRIS:
     root = '/gpfsstore/rech/psl'
     gridpath = '/gpfswork/rech/psl/commun/database/grids'

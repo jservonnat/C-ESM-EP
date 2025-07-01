@@ -212,7 +212,7 @@ for comp in $(cd $comparison ; ls ) ; do
 	SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
 	    [[ $Components = *,ATM,* ]] && add=true ;;
 
-	ORCHIDEE )
+	ORCHIDEE | orchidee )
 	    [[ $Components = *,SRF,* || $Components = *,OOL,* ]] && add=true ;;
 
 	NEMO_main | NEMO_zonmean | NEMO_depthlevels | ENSO)
