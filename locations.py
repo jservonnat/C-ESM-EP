@@ -16,12 +16,16 @@ import os
 # utility script, because CliMAF is available through a docker container,
 # and we would like to avoid using this slightly heavy procedure
 # when executing this script
+HostName = os.uname()[1].strip().lower()
 if os.path.exists('/ccc') and not(os.path.exists('/data')):
     atCNRM = onCiclad = onSpirit = atCerfacs = atIDRIS = onObelix = False
     atTGCC = atIPSL = True
 elif os.path.exists('/gpfsdswork'):
     atCNRM = onCiclad = onSpirit = atCerfacs = atTGCC = onObelix = False
     atIDRIS = atIPSL = True
+elif HostName.startswith('obelix') :
+    atCNRM = onCiclad = onSpirit = atCerfacs = atIDRIS = atTGCC = False
+    onObelix = atIPSL = True
 
 else:
     from env.site_settings import atCNRM, onCiclad, onSpirit, \
@@ -62,7 +66,7 @@ if atCNRM:
     path_to_cesmep_output_rootdir_on_web_server = None
 
 # -- Ciclad
-if onCiclad:
+elif onCiclad:
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we store all the C-ESM-EP comparisons
     path_to_cesmep_output_rootdir = '/thredds/ipsl/'+username
@@ -78,7 +82,7 @@ if onCiclad:
     climaf_cache = '/scratchu/' + username + '/atlas_explorer'
 
 # -- Spirit
-if onSpirit:
+elif onSpirit:
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we generate all the C-ESM-EP comparisons (later moved to thredds)
     path_to_cesmep_output_rootdir = '/scratchu/' + \
@@ -93,7 +97,7 @@ if onSpirit:
     climaf_cache = '/scratchu/' + username + '/atlas_explorer'
 
 # -- Obelix
-if onObelix:
+elif onObelix:
     # -- path_to_cesmep_output_rootdir is the location of the root output directory
     # -- where we generate all the C-ESM-EP comparisons (later moved to thredds)
     path_to_cesmep_output_rootdir = '/home/scratch01/' + username  
@@ -109,7 +113,7 @@ if onObelix:
     
 
 # -- TGCC
-if atTGCC:
+elif atTGCC:
     # Components outputs will be temporarily on scratchdir, and
     # ultimately copied on workdir, with a hard link on the thredds
     # (using thredds_cp)
@@ -127,7 +131,7 @@ if atTGCC:
     climaf_cache = scratch + '/cache_atlas_explorer'
 
 # -- IDRIS
-if atIDRIS:
+elif atIDRIS:
     # Components outputs will be temporarily on scratchdir, and
     # ultimately copied on workdir, with a hard link on the thredds
     # (using thredds_cp)
@@ -142,7 +146,7 @@ if atIDRIS:
 
 
 # At Cerfacs
-if atCerfacs:
+elif atCerfacs:
     # On scylla
     if os.path.exists('/data/scratch/globc'):
         # Climaf Cache location - used for launching batch jobs in run_C-ESM-EP.py
@@ -182,6 +186,10 @@ if atCerfacs:
         root_url_to_cesmep_outputs = 'file://'+path_to_cesmep_output_rootdir
         #
         path_to_cesmep_output_rootdir_on_web_server = None
+
+else:
+    raise ValueError("Unknown host "+ HostName)
+                     
 
 
 # Override climaf_cache with env variable CESMEP_CLIMAF_CACHE if (really) set

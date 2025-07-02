@@ -41,8 +41,12 @@ else
   echo '$comparison=' $comparison
   echo '$component=' $component
   echo '$cesmep_frontpage=' $cesmep_frontpage
-  comparison_dir=$(cd ..;pwd)
-  echo '$WD=' $WD
+  if [ -z "$MUST_CD_ON_OBELIX" ]; then 
+      comparison_dir=$(cd ..;pwd)
+  else
+      comparison_dir=$MUST_CD_ON_OBELIX
+  fi
+  echo 'WD=' $WD
   if [[ -n ${WD} ]]; then
      cd $WD
   fi

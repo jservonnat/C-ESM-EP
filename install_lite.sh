@@ -39,7 +39,9 @@ if [ -d $target ] ; then
 	    echo "OK"
 	    ;;
 	non|NON|n|no|NO|*)
+	    echo "-------------------------------------------"
 	    echo "No C-ESM-EP install !"
+	    echo "-------------------------------------------"
 	    exit 9
 	    ;;
     esac

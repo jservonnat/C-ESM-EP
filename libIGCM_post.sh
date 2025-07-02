@@ -12,6 +12,8 @@
 
 #set -x
 
+[ $# -eq 0 -o "$1" = "-h" ]  && echo $(basename $0) begin end [component] && exit
+
 begin=${1?Please provide begin year of the period to process}
 end=${2?Please provide end year of the period to process}
 component=$3 # For tests purpose only

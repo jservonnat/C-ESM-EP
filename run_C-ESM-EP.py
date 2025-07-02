@@ -520,9 +520,9 @@ for component in job_components:
 
     # -- Specify the job script (only for Parallel coordinates)
     if component not in metrics_components:
-        job_script = 'job_C-ESM-EP.sh'
+        job_script = ' ../../job_C-ESM-EP.sh'
     else:
-        job_script = 'job_PMP_C-ESM-EP.sh'
+        job_script = ' ../../job_PMP_C-ESM-EP.sh'
     #
     # -- Build the command line and submit the job
     # ---------------------------------------------------
@@ -555,8 +555,8 @@ for component in job_components:
             ' ; ccc_msub' + add_email +\
             ' -r ' + jobname + ' -o ' + jobname + '_%I.out' + ' -e ' + jobname + '_%I.out' +\
             ' -n ' + nprocs + f' -Q {QOS} -A ' + account +\
-            ' -m store,work,scratch ' + ' -q ' + queue + ' -T ' + f'{time*60}' +\
-            ' ../../' + job_script
+            ' -m store,work,scratch ' + ' -q ' + queue + ' -T ' + f'{time*60} ' +\
+            job_script
         # -- Submit job and record jobid in a file
         if do_print:
             exitcode, output = getstatusoutput(cmd)
@@ -633,7 +633,7 @@ for component in job_components:
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'sbatch --job-name=' + jobname + ' ' + job_options + \
             account_options + env_variables + parallel_instructions + \
-            ' ../../' + job_script
+            ' ' + job_script
 
         # -- Submit job
         if do_print:
@@ -656,22 +656,33 @@ for component in job_components:
                 check_output(error_job, shell=True)
 
     #
-    if atCNRM:
+    if atCNRM or onObelix:
         variables = 'component=' + component
         variables += ',comparison=' + comparison
         variables += ',WD=$(pwd)'
         variables += ',cesmep_frontpage=' + frontpage_address
         variables += ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache
-        #
-        mail = ''
-        if email is not None:
-            mail = ' --mail-type=END --mail-user=%s' % email
 
-        # at CNRM, we use sqsub on PCs for launching on aneto; env vars are sent using arg '-e'
-        cmd = '\n\t cd ' + submitdir + ' ; \n\n' + \
-              '\t sqsub \\\n\t\t-e \"' + variables + '\"' + \
-              ' \\\n\t\t-b "--partition=P8HOST --job-name=' + jobname + \
-              ' --time=03:00:00 --nodes=1' + mail + ' " \\\n\t\t../../' + job_script
+        if atCNRM:
+            #
+            mail = ''
+            if email is not None:
+                mail = ' --mail-type=END --mail-user=%s' % email
+            # at CNRM, we use sqsub on PCs for launching on aneto; env
+            # vars are sent using arg '-e'
+            cmd = '\n\t cd ' + submitdir + ' ; \n\n' + \
+                '\t sqsub \\\n\t\t-e \"' + variables + '\"' + \
+                ' \\\n\t\t-b "--partition=P8HOST --job-name=' + jobname + \
+                ' --time=03:00:00 --nodes=1' + mail + ' " \\\n\t\t' + job_script
+        elif onObelix:
+            mail = ''
+            if email is not None:
+                mail = ' -m e -M %s ' % email
+            if not queue:
+                queue = "medium"
+            variables += f',MUST_CD_ON_OBELIX={submitdir}/..'
+            cmd = f' cd {submitdir} ; qsub -N {jobname} -v "{variables}"'
+            cmd += f' -q {queue} -j oe ' + mail + job_script
 
         if do_print:
             exitcode, output = getstatusoutput(cmd)
@@ -679,13 +690,20 @@ for component in job_components:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
             else:
-                jobid = output.split(' ')[3]
+                if atCNRM:
+                    jobid = output.split(' ')[3]
+                elif onObelix:
+                    jobid = output[1:]
                 with open(launched_jobs, "a") as lj:
                     lj.write(jobid+"\n")
-                error_job = f' cd {submitdir}; ' + \
-                    f'sqsub -b \"--partition=P8HOST -d afternotok:{jobid}\" ' + \
-                    f'-e \"atlas_pathfilename={atlas_pathfilename},' + variables + '\"' + \
-                    ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n'
+                variables += ',atlas_pathfilename='+atlas_pathfilename
+                error_job = f' cd {submitdir}; ' 
+                if atCNRM :
+                    error_job += f'sqsub -b \"--partition=P8HOST -d afternotok:{jobid}\" ' + \
+                        f'-e \"{variables}\"' 
+                elif onObelix:
+                    error_job += f'qsub -v "{variables}" -q {queue} -W depend=afternotok:{jobid}'
+                error_job += ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n'
                 check_output(error_job, shell=True)
 
     if atCerfacs:
@@ -698,7 +716,7 @@ for component in job_components:
                 ' ; export cesmep_frontpage=' + frontpage_address +\
                 ' ; export CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache + \
                 ' ; sbatch --job-name=CESMEP --partition=prod --nodes=1 --ntasks-per-node=1 ' + \
-                ' --output=cesmep.o --error=cesmep.e -w gsa4 ../../' + job_script
+                ' --output=cesmep.o --error=cesmep.e -w gsa4 ' + job_script
             print(cmd)
             check_output(cmd, shell=True)
 
