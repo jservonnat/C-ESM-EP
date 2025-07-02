@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- >
-from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs #, onObelix
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs, onObelix
 from CM_atlas import *
 
 
@@ -59,28 +59,67 @@ models = [
     #/data/lolivera/IGCM_OUT/OL2/TEST/secsto/FG2nd.siberia.30mHF
 
     ]
-root = '/thredds/tgcc/store'
-#
-# -- Provide a set of common keys to the elements of models
-# ---------------------------------------------------------------------------- >
-common_keys = dict(
-    root=root,
-    login='*',
-    frequency='monthly',
-    clim_period='last_30Y',
-    ts_period='full',
-    ENSO_ts_period='last_80Y',
-    mesh_hgr=gridpath + 'eORCA1.2_mesh_mask_glo.nc',
-    gridfile=gridpath + 'eORCA1.1_grid.nc',
-    varname_area='area',
-)
-#
-for model in models:
-    if model['project'] == 'IGCM_OUT':
-        for key in common_keys:
-            if key not in model:
-                model.update({key: common_keys[key]})
-                
+    # -- We don't have access to the CMIP5 archive at TGCC; we remove them from the list models
+    if atTGCC or onObelix:
+        models.pop(2)
+        root = '/ccc/store/cont003/gencmip6'
+    if onSpirit:
+        root = '/thredds/tgcc/store'
+
+        
+if onObelix:
+    models = [
+        dict(project='IGCM_OUT',
+             root = '/home/scratch01', 
+             login='vbastri',
+             model='IGCM_OUT/OL2',
+             experiment='ORC3v8120',
+             status='TEST',
+             OUT='Output',
+             simulation='FGH.20Y',
+             #clim_period='2001-2020',
+             clim_period='2001-2002',
+             #customname='CM61-LR-hist-01 *',
+             color='red'
+             ),
+        # /home/orchideeshare/repository/IGCM_OUT/OL2/PROD/ORC4tag42/FGH.CRUJRA.tag42
+        dict(project='IGCM_OUT',
+             root = '/home/orchideeshare', 
+             login='repository',
+             model='IGCM_OUT/OL2',
+             experiment='ORC4tag42',
+             status='PROD',
+             OUT='Output',
+             simulation='FGH.CRUJRA.tag42',
+             clim_period='2001-2002',  #dispo : '1901-2020'
+             #customname='CM61-LR-hist-01 *',
+             color='blue'
+             ),
+        ]
+    
+
+if atIPSL:
+    #
+    # -- Provide a set of common keys to the elements of models
+    # ---------------------------------------------------------------------------- >
+    common_keys = dict(
+        root=root,
+        login='*',
+        frequency='monthly',
+        clim_period='last_30Y',
+        ts_period='full',
+        ENSO_ts_period='last_80Y',
+        mesh_hgr=gridpath + 'eORCA1.2_mesh_mask_glo.nc',
+        gridfile=gridpath + 'eORCA1.1_grid.nc',
+        varname_area='area',
+    )
+    #
+    for model in models:
+        if model['project'] == 'IGCM_OUT':
+            for key in common_keys:
+                if key not in model:
+                    model.update({key: common_keys[key]})
+
 
 # -- Find the last available common period to all the datasets
 # -- with clim_period = 'common_clim_period'

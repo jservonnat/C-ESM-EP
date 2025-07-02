@@ -1,3 +1,4 @@
+#!/bin/bash
 #set +x
 #set -e
 
@@ -79,12 +80,32 @@ if [[ -d "/data" && -d "/thredds/ipsl" && ! -d "/scratch/globc"  ]] ; then
 	set +x
 	module purge
 	module load $emodule || exit
-	# If one wants to use an aternate CLiMAF version
+	# If one wants to use an alternate CLiMAF version
 	#export PYTHONPATH=~/climaf_installs/climaf_running:$PYTHONPATH
     else
 	echo "C-ESM-EP is not maintained on system $(uname -n)"
 	exit 1
     fi
+fi
+
+# Obelix at LSCE
+if [[ -d "/home/orchideeshare/"  ]] ; then
+    # We are using a conda environment
+
+    # Initialize the current bash shell
+    export MAMBA_ROOT_PREFIX=/home/orchideeshare/igcmg/Tools/miniforge3
+    source $MAMBA_ROOT_PREFIX/etc/profile.d/conda.sh
+
+    # Activate the relevant environment
+    echo -n "Loading the conda environment may take up to 15s on obelix..."
+    conda activate 20250128
+    echo
+
+    # Set which CliMAF is used
+    export CLIMAF=/home/orchideeshare/igcmg/Tools/cesmep/climaf_code
+    # One may change the CliMAF version used:
+    export CLIMAF=~/climaf
+    export PYTHONPATH=$CLIMAF:$PYTHONPATH
 fi
 
 # --> At CNRM
