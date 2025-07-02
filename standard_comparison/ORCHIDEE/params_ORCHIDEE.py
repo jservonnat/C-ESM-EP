@@ -27,6 +27,7 @@
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 from custom_plot_params import dict_plot_params as custom_plot_params
+from env.site_settings import onObelix
 
 
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
@@ -210,7 +211,8 @@ do_ORCHIDEE_Carbon_Budget_climatology_maps = True  # -> [ORCHIDEE Atlas
 cscript('select_veget_types', 'ncks ${selection} -v ${var} ${in} ${out}')
 
 # -- GPP total ready for comparison with obs
-calias("IGCM_CMIP6", 'gpptot', 'gpp')
+if not onObelix:
+    calias("IGCM_CMIP6", 'gpptot', 'gpp')
 calias("IGCM_OUT", 'cfracgpp', 'gpp', filenameVar='stomate_ipcc_history')
 derive("IGCM_OUT", 'gpptot', 'divide', 'cfracgpp', 'Contfrac')
 # -> alias for the obs

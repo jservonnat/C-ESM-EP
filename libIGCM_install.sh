@@ -39,10 +39,10 @@ dir=$(cd $(dirname $0); pwd)
 
 crack_path ()
 # Derive a set of parameters from a simulation output's path, possibly with period suffix, as e.g.
-# /ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/TS_MO/1980-2005
 {
     path=$1
     if [ $Center = TGCC ] ; then 
+	# /ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/TS_MO/1980-2005
 	root=$(echo $path | cut -d / -f 1-5)
 	rest=$(echo $path | cut -d / -f 6-)
     elif [[ $Center == spirit* ]] ; then 
@@ -52,13 +52,17 @@ crack_path ()
 	#ex: /lustre/fsstor/projects/rech/psl/upe47jz/IGCM_OUT/OL2/DEVT/secsto/MyPostExp2
 	root=$(echo $path | cut -d / -f 1-6)
 	rest=$(echo $path | cut -d / -f 7-)
+    elif [ $Center = LSCE ] ; then  #actually : obelix
+	#ex: /home/scratch01/ssenesi/IGCM_OUT/OL2/TEST/ORC3v8120/FGH.20Y
+	root=$(echo $path | cut -d / -f 1-3)
+	rest=$(echo $path | cut -d / -f 4-)
     else
 	echo "Unkown Center $Center"
 	exit 1
     fi
     login=$(echo $rest | cut -d / -f 1)
     tagname=$(echo $rest | cut -d / -f 3)
-    [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagname
+    [[ $Center == spirit* ]] || [[ $Center == LSCE ]] && tagname="IGCM_OUT"/$tagname
     spacename=$(echo $rest | cut -d / -f 4)
     exptype=$(echo $rest | cut -d / -f 5)
     experimentname=$(echo $rest | cut -d / -f 6)
@@ -106,10 +110,6 @@ elif [ $ConfigCesmep = Pack -o $ConfigCesmep = AtEnd ]; then
 else
     echo "Internal ERROR - ConfigCesmep value unknown : $ConfigCesmep"
     exit 6
-fi
-
-if [ $ConfigCesmep = SE ]; then
-    CesmepInputFrequency=seasonal  # xxx peut sauter après maj de libIGCM
 fi
 
 # Create comparison's parameters file and set part which is fixed along run
@@ -239,9 +239,11 @@ fi
 
 # Compute location for C-ESM-EP CliMAF cache, 
 case $Center in
-    TGCC) cacheroot=$CCCSCRATCHDIR ;;
-    IDRIS) cacheroot=$SCRATCH ;;
-    spirit*) cacheroot=/scratchu/$USER ;;
+    TGCC)    cacheroot=$CCCSCRATCHDIR ;;
+    IDRIS)   cacheroot=$SCRATCH ;;
+    spirit*) cacheroot=$SCRATCH ;;
+    LSCE)    cacheroot=/home/scratch01/$USER ;;
+    *)       echo "Unkown Center $Center"; exit 1 ;;
 esac    
 cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
 
