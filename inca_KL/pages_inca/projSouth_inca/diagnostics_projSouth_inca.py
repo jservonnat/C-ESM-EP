@@ -75,7 +75,7 @@ else:
 
 # -- Store all the arguments taken by section_2D_maps in a kwargs dictionary
 kwargs = dict(models=Wmodels, reference=reference, proj=proj, season=season, variables=atlas_explorer_variables,
-              section_title='Atmosphere South projection (at 200 hPa)', domain=domain, custom_plot_params=custom_plot_params,
+              section_title='Atmosphere South projection (at 200 hPa)', domain=domain, custom_plot_params=my_dict_plot_params,
               add_product_in_title=add_product_in_title, safe_mode=safe_mode,
               add_line_of_climato_plots=add_line_of_climato_plots,
               regridding=regridding,

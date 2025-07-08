@@ -23,6 +23,7 @@
 # --------------------------------------------------------------------------------------------- /
 
 from custom_plot_params import dict_plot_params as custom_plot_params
+from climaf.utils import ranges_to_string
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
@@ -37,10 +38,10 @@ clean_cache = False
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
-nprocs = 32
+nprocs = 8
 # memory = 20 # in gb
 # queue = 'days3'
-time = 600 # minutes
+time = 240 # minutes
 # QOS = 'test'
 
 
@@ -57,7 +58,7 @@ time = 600 # minutes
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "INCA - Atmosphere Zonal Mean"
+atlas_head_title = "INCA - Zonal Mean"
 
 
 # -- Set the overall season, region and geographical domain
@@ -78,30 +79,34 @@ domain = {}
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-atlas_explorer_variables_list = [
-    dict(variable='vmrn2o', y='log'), 
-    dict(variable='vmro3', y='log'), 
-    dict(variable='vmrch4', y='log'),
-    dict(variable='vmrco', y='log'),
-    dict(variable='vmrh2o', y='log'), 
-    dict(variable='vmrnox', y='log'), 
-    dict(variable='vmrhno3', y='log'), 
-    dict(variable='vmrhcl', y='log'), 
-    dict(variable='vmrclono2', y='log'), 
-    dict(variable='vmrclo', y='log'), 
-    dict(variable='vmrn2o5', y='log'), 
-]
+atlas_explorer_variables_list = ['vmrn2o', 'vmro3', 'vmrch4', 'vmrco', 'vmrh2o', 'vmrnox',
+                                'vmrhno3', 'vmrhcl', 'vmrclono2', 'vmrclo', 'vmrn2o5',
+                                ]
+
+my_title = {'vmrn2o'  : 'Volume Mixing Ratio of N2O',
+            'vmro3'   : 'Volume Mixing Ratio of O3',
+            'vmrch4'  : 'Volume Mixing Ratio of CH4',
+            'vmrco'   : 'Volume Mixing Ratio of CO',
+            'vmrh2o'  : 'Volume Mixing Ratio of H2O',
+            'vmrnox'  : 'Volume Mixing Ratio of NOx',
+            'vmrhno3' : 'Volume Mixing Ratio of HNO3',
+            'vmrhcl'  : 'Volume Mixing Ratio of HCl',
+            'vmrclono2':'Volume Mixing Ratio of ClONO2',
+            'vmrclo'  : 'Volume Mixing Ratio of ClO',
+            'vmrn2o5' : 'Volume Mixing Ratio of N2O5'}
+
 atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
     if isinstance(var, dict):
         tmpvar = var.copy()
-        tmpvar.update(dict(add_climato_contours=False, zonmean_variable=True))
+        tmpvar.update(dict(add_climato_contours=False, zonmean_variable=True, 
+            y='log',line_title=my_title[var]))
         atlas_explorer_variables.append(tmpvar)
     else:
         atlas_explorer_variables.append(
-            dict(variable=var, add_climato_contours=False, zonmean_variable=True))
+            dict(variable=var, add_climato_contours=False, zonmean_variable=True, 
+                y='log', line_title=my_title[var]))
 
-#calias("GES_comp", 'vmr', 'vmrn2o', filenameVar='inca_ges')
 calias("IGCM_OUT", 'vmrch4', scale=1e6, filenameVar='inca_species')
 calias("IGCM_OUT", 'vmrn2o', scale=1e9, filenameVar='inca_species')
 calias("IGCM_OUT", 'vmrco',  scale=1e6, filenameVar='inca_species')
@@ -126,13 +131,21 @@ for var in atlas_explorer_variables:
     ),
     ))
 
+my_dict_plot_params = {}
+for var in atlas_explorer_variables_list:
+    if var in ['vmrch4', 'vmrco', 'vmro3','vmrnh3']: # change units
+        my_dict_plot_params[var] = {'default': {'gsnCenterString':'units: ppm', 'color':'BlAqGrYeOrRe'},
+            'bias': {'color':'matlab_hot'},
+            'model_model': {'color':'BlueYellowRed'} }
+    else:
+        my_dict_plot_params[var] = {'default': {'gsnCenterString':'units: ppb', 'color':'BlAqGrYeOrRe'},
+            'bias': {'color':'matlab_hot'},
+            'model_model': {'color':'BlueYellowRed'} }
+
 # -- Display full climatology maps =
 # -- Use this variable as atlas_explorer_variables to activate the climatology maps
 atlas_explorer_climato_variables = None
-
-# -- Activate the parallel execution of the plots
-do_parallel = False
-
+add_line_of_climato_plots=True
 
 period_manager_test_variable = 'ua'
 
@@ -148,6 +161,7 @@ thumbnail_size = "250*250"
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
+add_line_of_climato_plots=True
 
 
 # -- Name of the html file

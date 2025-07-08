@@ -187,78 +187,24 @@ if atCerfacs:
 if onCiclad or atTGCC or onSpirit:
     models = [
 
-        # dict(project='IGCM_OUT',
-        #      login='lurtont',
-        #      model='IPSLCM6',
-        #      experiment='historical',
-        #      simulation='CM61-LR-hist-01',
-        #      clim_period='1980-2005',
-        #      customname='CM61-LR-hist-01 *',
-        #      color='red'
-        #      ),
-
-        # dict(project='IGCM_OUT',
-        #      login='lurtont',
-        #      model='IPSLCM6',
-        #      experiment='historical',
-        #      simulation='CM61-LR-hist-01',
-        #      frequency='monthly',
-        #      clim_period='last_10Y',
-        #      customname='CM61-LR-hist-01 last_10Y',
-        #      color='blue',
-        #      ),
-
-        # dict(project='CMIP5',
-        #      model='IPSL-CM5A-MR',
-        #      experiment='historical',
-        #      frequency='monthly',
-        #      period='1980-2005',
-        #      version='latest',
-        #      customname='CMIP5 IPSL-CM5A-MR'
-        #      ),
-
-        # dict(project='CMIP6',
-        #      model='IPSL-CM6A-LR',
-        #      experiment='historical',
-        #      frequency='monthly',
-        #      period='1980-2005',
-        #      realization='r2i1p1f1',
-        #      version='latest'
-        #      ),
-
         dict(project='IGCM_OUT',
              login='p24cozic',
-             model='LMDZORINCA',
-             experiment='NMHC_AER_S',
+             model='LMDZORINCA', experiment='NMHC_AER_S',
              simulation='NAS.VLR.L5341.I1199.xios2',
+             status='DEVT', OUT='Output', DIR='CHM',
              frequency='daily',
-             OUT='Output',
-             DIR='CHM',
-             status='DEVT',
              clim_period='2006_2006',
-             customname='runAnne',
              color='red',
              ),
 
-#        dict(project='IGCM_OUT',
-#             login='p86caub',
-#             model='IPSLCM7',
-#             experiment='pdControl',
-#             simulation='CM70-ico-O4-BOOST100',
-#             clim_period='1880_1889',
-#             customname='ICOBOOST100',
-#             color='red'
-#             ),
-#
-#        dict(project='IGCM_OUT',
-#             login='p86caub',
-#             model='IPSLCM7',
-#             experiment='pdControl',
-#             simulation='CM70-ico-O4-BOOST100',
-#             clim_period='last_5Y',
-#             customname='ICOBOOST100_L5',
-#             color='red'
-#             ),
+        dict(project='IGCM_OUT',
+            login='p24haug', root='/ccc/store/cont003/gen2201',
+            model='LMDZORINCA', experiment='NMHC_AER_S', simulation='AMMONIA-STDa',
+            status='PROD', OUT='Output', DIR='CHM',
+            ave_length='DA', frequency='daily', 
+            period='20150101_20151231',
+            ),
+
     ]
     if atTGCC:
         # CMIP5 and CMIP6 data are not readable by everyone there...
@@ -311,12 +257,15 @@ if common_clim_period:
 # --       differences relative to the first simulation of the list 'models'
 #reference = 'default'
 
-reference = dict(project='IGCM_OUT', DIR='CHM', model='LMDZORINCA', experiment='NMHC_AER_S', simulation='AMMONIA-STDa', OUT='Output',
-                 status='PROD', login='p24haug', root='/ccc/store/cont003/gen2201', ave_length='DA',
-                 frequency='daily', 
-                 period='20150101_20151231',
-                 customname='runDidier'
+reference = dict(project='IGCM_OUT', 
+                 login='laurentk', root='/ccc/store/cont003/gen0826',
+                 model='LMDZORINCA', experiment='NMHC_AER_S', simulation='NAS.daily',
+                 OUT='Output', DIR = 'CHM', status='DEVT', 
+                 ave_length='DA', frequency='daily', 
+                 period='20060101_20061231',
+                 customname='runDaily'
                 )
+        )
 
 # -- Declare a 'CMIP5_bis' CliMAF project (a replicate of the CMIP5 project)
 # ---------------------------------------------------------------------------- >

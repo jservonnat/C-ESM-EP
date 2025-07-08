@@ -25,6 +25,7 @@
 
 from custom_plot_params import dict_plot_params as custom_plot_params
 from climaf.operators_derive import derive
+from climaf.utils import ranges_to_string
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
@@ -41,10 +42,10 @@ routine_cache_cleaning = [dict(age='+20')]
 
 # -- Parallel and memory instructions
 do_parallel = False
-nprocs = 32
-# memory = 20 # in gb
+nprocs = 16
+memory = 20 # in gb
 # queue = 'days3'
-time = 360 # minutes
+time = 420 # minutes
 # QOS = 'test'
 
 
@@ -60,7 +61,7 @@ time = 360 # minutes
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "INCA - Atmosphere Upper Troposphere"
+atlas_head_title = "INCA - Upper Troposphere"
 
 
 # -- Set the overall season, region and geographical domain
@@ -73,7 +74,6 @@ proj = 'Robinson' #'GLOB'
 # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
 # domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = {}
-
 
 # ---------------------------------------------------------------------------- >
 # -- Atmosphere diagnostics
@@ -89,34 +89,47 @@ my_title = {'vmro3_ut':'Volume Mixing Ratio of O3 at 200 hPa',
         'vmrh2o_ut':'Volume Mixing Ratio of H2O at 200 hPa',
         'vmrco_ut':'Volume Mixing Ratio of CO at 200 hPa'}
 
+# -- Project Specs
 atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
     for seas in my_seasons:
-        atlas_explorer_variables.append(dict(variable=var, season=seas, color='BlueYellowRed',line_title=my_title[var],
+        atlas_explorer_variables.append(dict(variable=var, season=seas, color='BlAqGrYeOrRe',line_title=my_title[var],
                                              project_specs=dict(
                                                  IGCM_OUT=dict(DIR='CHM'),
                                              ),
-        ##                                     ))
-        ##atlas_explorer_variables.append(dict(variable=var, season=seas
                                              ))
 
-# -- Project Specs
-##for var in atlas_explorer_variables:
-##    var.update(dict(
-##        table='Amon', project_specs=dict(
-##            IGCM_OUT=dict(DIR='CHM'),
-##        ),
-##    ))
+my_dict_plot_params = {
+        'vmro3_ut': {'default':{'gsnCenterString':'units: ppbv', 'scale':1e9, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'colors': ranges_to_string(ranges=[0, 700, 25])},
+            'bias': {'colors': ranges_to_string(ranges=[-0.25, 0.25, 0.02], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-0.25, 0.25, 0.02], sym=True)},
+                    },
+        'vmrnox_ut': {'default':{'gsnCenterString':'units: ppbv', 'scale':1e9, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'colors': ranges_to_string(ranges=[0, 0.4, 0.02])},
+            'bias': {'colors': ranges_to_string(ranges=[-0.2, 0.2, 0.02], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-0.2, 0.2, 0.02], sym=True)},
+                    },
+        'vmrh2o_ut': {'default':{'gsnCenterString':'units: ppbv', 'scale':1e9, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'colors': ranges_to_string(ranges=[0, 2, 0.1])},
+            'bias': {'colors': ranges_to_string(ranges=[-5, 5, 0.5], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-5, 5, 0.5], sym=True)},
+                    },
+        'vmrco_ut': {'default':{'gsnCenterString':'units: ppbv', 'scale':1e9, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'colors': ranges_to_string(ranges=[0, 150, 10])},
+            'bias': {'colors': ranges_to_string(ranges=[-30, 30, 4], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-30, 30, 4], sym=True)},
+                    },
+        }
 
-calias("IGCM_OUT", 'area', filenameVar='inca_emi')
 
-calias("IGCM_OUT", 'vmrh2o', scale=1e9, filenameVar='inca_species')
-calias("IGCM_OUT", 'vmrco',  scale=1e6, filenameVar='inca_species')
-calias("IGCM_OUT", 'vmro3',  scale=1e6, filenameVar='inca_species')
-calias("IGCM_OUT", 'vmrno',  scale=1e9, filenameVar='inca_species')
-calias("IGCM_OUT", 'vmrno2', scale=1e9, filenameVar='inca_species')
+# all units = ppbv
+calias("IGCM_OUT", 'vmrh2o', filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrco',  filenameVar='inca_species')
+calias("IGCM_OUT", 'vmro3',  filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrno',  filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrno2', filenameVar='inca_species')
 
-# -- Atmospheric Variables on vertical levels
 for tmpvar in ['vmrh2o', 'vmrnox', 'vmrco', 'vmro3']:
     derive('*', tmpvar + '_ut', 'ccdo', tmpvar, operator='intlevel,20000')
 
@@ -127,10 +140,7 @@ regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
 
 # -- Display full climatology maps =
 # -- Use this variable as atlas_explorer_variables to activate the climatology maps
-atlas_explorer_climato_variables = atlas_explorer_variables
-
-# -- Activate the parallel execution of the plots
-do_parallel = False
+atlas_explorer_climato_variables = False #atlas_explorer_variables
 
 period_manager_test_variable = 'emin2o'
 # ---------------------------------------------------------------------------- >
@@ -145,7 +155,7 @@ period_manager_test_variable = 'emin2o'
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
+add_line_of_climato_plots=True
 
 # -- Name of the html file
 # -- if index_name is set to None, it will be build as user_comparisonname_season
