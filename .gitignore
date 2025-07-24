@@ -9,6 +9,8 @@
 /*/*/*_comparison_C-ESM-EP_*
 /*/*/copy_html_error_page.sh.e*
 slurm-*.out
+*_comparison_C-ESM-EP.o*
 /test_comparison
 /*/launched_jobs
 /*/mailjob
+libIGCM_post.out

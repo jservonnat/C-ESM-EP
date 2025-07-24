@@ -1,3 +1,7 @@
+# Module for generating an html page 'a la Mapper', based on companion
+# script mapper.js. It provides 2 functions for generating filenames
+# for maps and timeseries images, compatible with mapper.js conventions
+
 def mapper_simu_name(simu):
     if type(simu) is dict:
         if 'customname' in simu :
@@ -14,7 +18,8 @@ def mapper_simu_name(simu):
         return simu
 
 # A function for computing a map image filename based on some parameters
-# that define its content. It mimics Mappers's convention
+# that define its content. It mimics Mappers's convention. Returned value
+# has no extension
 def mapper_map_filename(simu1, simu2, variable, season):
     # This is also an example of the interface for a function provided as
     # argument to cesmep_diagnostics.CM_atlas.plot_CM_atlas.section_2D(),
@@ -27,6 +32,7 @@ def mapper_map_filename(simu1, simu2, variable, season):
 
 # A function for computing a times_series image filename based on some
 # parameters that define its content. It mimics Mappers's convention
+# Returned value has no extension
 def mapper_ts_filename(region, variable, frequency):
     abbrev = { 'yearly' : 'y', "annual_cycle" : 's' , "monthly" : 'm' }
     return variable + '_' + abbrev[frequency] + '_' + region
@@ -36,8 +42,8 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons, ts_frequen
                       ts_regions, ts_regions_file,  custom_obs_dict,
                       variables_specifics, title ):
     # We want to build a page like that :
-    #     <html>
     
+    # <html>
     # <head>
     # <title>CESMEP</title>
     # <script type="text/javascript">
@@ -76,7 +82,7 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons, ts_frequen
     #                ...
     #                "lai" : "Leaf Area Index"};
     # </script>
-    # <script src="interf.js"></script> 
+    # <script src="mapper.js"></script> 
     # <link rel="stylesheet" href="interf.css">
     
     # </head>

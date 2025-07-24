@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------------------- >
-from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs #, onObelix
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs, onObelix
 from CM_atlas import *
 
 
@@ -56,6 +56,39 @@ models = [
     ]
 
 root = '/thredds/tgcc/store'
+
+if onObelix:
+    models = [
+        dict(project='IGCM_OUT',
+             root = '/home/scratch01', 
+             login='vbastri',
+             model='IGCM_OUT/OL2',
+             experiment='ORC3v8120',
+             status='TEST',
+             OUT='Output',
+             simulation='FGH.20Y',
+             #clim_period='2001-2020',
+             clim_period='2001-2002',
+             ts_period='2001-2010',
+             #customname='CM61-LR-hist-01 *',
+             color='red'
+             ),
+        # /home/orchideeshare/repository/IGCM_OUT/OL2/PROD/ORC4tag42/FGH.CRUJRA.tag42
+        dict(project='IGCM_OUT',
+             root = '/home/orchideeshare', 
+             login='repository',
+             model='IGCM_OUT/OL2',
+             experiment='ORC4tag42',
+             status='PROD',
+             OUT='Output',
+             simulation='FGH.CRUJRA.tag42',
+             clim_period='2001-2002',  #dispo : '1901-2020'
+             ts_period='2001-2010',
+             #customname='CM61-LR-hist-01 *',
+             color='blue'
+             ),
+        ]
+
 #
 # -- Provide a set of common keys to the elements of models
 # ---------------------------------------------------------------------------- >

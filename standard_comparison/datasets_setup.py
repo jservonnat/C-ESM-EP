@@ -114,13 +114,13 @@ if onCiclad or atTGCC or onSpirit:
              color='red'
              ),
     ]
-    if atTGCC:
-        # CMIP5 and CMIP6 data are not readable by everyone there...
-        alt_models = [ m for m in models if 'CMIP' not in m['project']]
-        models = alt_models
-        root = '/ccc/store/cont003/gencmip6'
-    if onSpirit:
-        root = '/thredds/tgcc/store'
+if atTGCC:
+    root = '/ccc/store/cont003/gencmip6'
+    # -- We don't have access to the CMIP archive at TGCC;
+    # we remove them from the list models
+    models = [ m for m in models if not m['project'].startswith('CMIP') ]
+if onSpirit:
+    root = '/thredds/tgcc/store'
 
         
 if onObelix:

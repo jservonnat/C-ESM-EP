@@ -62,7 +62,7 @@ import re
 from locations import path_to_cesmep_output_rootdir, \
     path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs, climaf_cache
 try:
-    from libIGCM_fixed_settings import AtlasPath, AtlasTitle
+    from libIGCM_settings import AtlasPath, AtlasTitle
 except:
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
@@ -359,15 +359,15 @@ if AtlasPath != "NONE":
     suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
 else:
     try:
-        from libIGCM_fixed_settings import TagName, SpaceName, OUT
+        from libIGCM_settings import TagName, SpaceName, OUT
     except:
         suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
     else:
         try:
-            from libIGCM_fixed_settings import JobName, ExperimentName
+            from libIGCM_settings import JobName, ExperimentName
         except:
             # Odd syntax from an old version of CESMEP. To me removed at some date...
-            from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
+            from libIGCM_settings import ExperimentName as JobName, ExpType as ExperimentName
         suffix_to_comparison = f'/C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
 
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
