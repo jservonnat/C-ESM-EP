@@ -59,12 +59,13 @@ models = [
     #/data/lolivera/IGCM_OUT/OL2/TEST/secsto/FG2nd.siberia.30mHF
 
     ]
-    # -- We don't have access to the CMIP5 archive at TGCC; we remove them from the list models
-    if atTGCC or onObelix:
-        models.pop(2)
-        root = '/ccc/store/cont003/gencmip6'
-    if onSpirit:
-        root = '/thredds/tgcc/store'
+if atTGCC:
+    root = '/ccc/store/cont003/gencmip6'
+    # -- We don't have access to the CMIP archive at TGCC;
+    # we remove them from the list models
+    models = [ m for m in models if not m['project'].startswith('CMIP') ]
+if onSpirit:
+    root = '/thredds/tgcc/store'
 
         
 if onObelix:

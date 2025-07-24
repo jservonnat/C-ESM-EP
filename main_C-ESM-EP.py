@@ -25,7 +25,7 @@ from CM_atlas import *
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
 try:
-    from libIGCM_fixed_settings import AtlasPath, AtlasTitle
+    from libIGCM_settings import AtlasPath, AtlasTitle
 except:
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
@@ -155,15 +155,15 @@ if AtlasPath != "NONE":
     suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
 else:
     try:
-        from libIGCM_fixed_settings import TagName, SpaceName, OUT
+        from libIGCM_settings import TagName, SpaceName, OUT
     except:
         suffix_to_comparison = 'C-ESM-EP/' + comparison + '_' + user_login + '/'
     else:
         try:
-            from libIGCM_fixed_settings import JobName, ExperimentName
+            from libIGCM_settings import JobName, ExperimentName
         except:
             # Odd syntax from an old version of CESMEP. To me removed at some date...
-            from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
+            from libIGCM_settings import ExperimentName as JobName, ExpType as ExperimentName
         suffix_to_comparison = f'C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
 
     # -- Location of the directory where we will store the results of the atlas
@@ -345,12 +345,13 @@ if onSpirit or onObelix:
         # -- thredds directory (web server)
         threddsdir = atlas_dir.replace(path_to_cesmep_output_rootdir,
                                        path_to_cesmep_output_rootdir_on_web_server)
-        os.system('rm -rf '+threddsdir)
+        os.system('rm -rf ' + threddsdir)
         th_dir = os.path.dirname(threddsdir)
         if not os.path.isdir(th_dir):
             os.makedirs(th_dir)
-        os.system('cp -r '+atlas_dir+' '+th_dir)
-        print("index copied in : "+threddsdir)
+        os.system('cp -r '+ atlas_dir + ' ' + th_dir)
+        os.system('rm -rf '+ atlas_dir)
+        print("Atlas moved to : " + threddsdir)
         
         # -- and print the url of the atlas
         print("Available at this address " + \

@@ -16,10 +16,16 @@ atlas_head_title = "Orchidee"
 # What type of figures should we plot
 # ---------------------------------------------------------------------------- 
 case_toggles = {
-    'maps'       : False,       # Plain climatology maps
+    'maps'       : True,       # Plain climatology maps
+    'anomalies'  : True,       # Maps of differences with climatology 
+    'diffs'      : True,        # Maps of differences with first simulation
+    'time_series': True,       # Time series of basin-integrated variables
+}
+tcase_toggles = {
+    'maps'       : True,       # Plain climatology maps
     'anomalies'  : False,       # Maps of differences with climatology 
     'diffs'      : False,        # Maps of differences with first simulation
-    'time_series': True,       # Time series of basin-integrated variables
+    'time_series': False,       # Time series of basin-integrated variables
 }
 
 # Which variables to plot, grouped by category. 
@@ -45,7 +51,7 @@ variables_setup = {
     }
 
 # For test purposes
-variables_setup = {
+tvariables_setup = {
     "Test_category": {
         'variables' : [ 'fluxlat', ],
     }
@@ -71,11 +77,18 @@ variables_setup = {
 
 variables_specifics = {
     # Here, mainly fed by init_orchidee_variables(), see below
+    
+    # Some examples :
     # "fluxlat" : { "units" : "W/m**2"},
     # "cLitter" : { "global_sum_scale" : ("1E-12" , "PgC")},
-    # "ratio_ep" : { "ratio": "evap/precip", "ratio_threshold": "1E-3" , "longname": "Evapotranspiration-Precipitation Ratio" }
-    # An advanced definition of a ratio, for providing additional info for the denominator variable :
-    #  ratio_ng" : { "ratio": [ ("npp",{}), ("gpp_srf",{"DIR":"SRF"})] , "ratio_threshold": "1E-8" , "longname": "NPP-GPP Ratio" },
+    
+    # "ratio_ep" : { "ratio": "evap/precip", "ratio_threshold": "1E-3" ,
+    #                "longname": "Evapotranspiration-Precipitation Ratio" }
+    
+    # An advanced definition of a ratio, for providing additional info
+    # for the denominator variable :
+    #  ratio_ng" : { "ratio": [ ("npp",{}), ("gpp_srf",{"DIR":"SRF"})] ,
+    #                "ratio_threshold": "1E-8" , "longname": "NPP-GPP Ratio" },
 
 }
 
@@ -205,7 +218,7 @@ orchidee_definitions.declare_orchidee_alias_for_observations()
 # Technical settings
 #------------------------------------------------------------------------------------
 mdebug = False
-mdebug = True
+#mdebug = True
 if mdebug :
     # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
     verbose = 'debug'

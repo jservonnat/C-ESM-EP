@@ -1436,7 +1436,7 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
                     if filename_func is not None :
                         alternative_dir.update(
                             target_filename = filename_func(model, None, variable, season))
-                    print('alternative_dir = ',alternative_dir)
+                    #print('alternative_dir = ',alternative_dir)
                     index += cell("", model_climato, thumbnail=thumbN_size,
                                   hover=hover, **alternative_dir)
                 else:
