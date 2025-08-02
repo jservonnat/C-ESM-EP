@@ -159,12 +159,15 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons, ts_frequen
 
     oseasons = []
     if 'ANM' in seasons : oseasons.append('ye')
-    if len([ s != 'ANM' for s in seasons ]) > 1 : oseasons.append('3m')
+    if len([ s for s in seasons if s != 'ANM' ]) > 1 : oseasons.append('3m')
     oseasons.extend([ s.lower() for s in seasons if s != 'ANM' ])
     page += plist("map_freqs", oseasons)
     
     page += plist("ts_freqs", ts_frequencies, translate)
-    page += plist("mods", [mod for mod in case_toggles if case_toggles[mod] and mod != "time_series"],translate)
+    mods = [mod for mod in case_toggles if case_toggles[mod] and mod != "time_series"]
+    if 'diffs' in mods and len(models) < 2 :
+        mods.remove('diffs')
+    page += plist("mods", mods, translate)
     page += plist("regs", ts_regions, translate)
     page += plist("vars", { category: entry['variables'] for category,entry in variables_setup.items()}, crlf=True)
     # Must build obs_dict

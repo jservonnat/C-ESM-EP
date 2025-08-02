@@ -90,21 +90,38 @@ fi
 
 # Obelix at LSCE
 if [[ -d "/home/orchideeshare/"  ]] ; then
+    
     # We are using a conda environment
+    export ENV=/home/orchideeshare/igcmg/Tools/miniforge3/envs/20250128
+    export PATH=$ENV/bin:$ENVS/../../bin:$PATH
+    export LD_LIBRARY_PATH=$ENV/lib:$LD_LIBRARY_PATH
+    export NCARG_ROOT=$ENV
+    export PROJ_DATA=$ENV/proj
+    export PYPROJ_GLOBAL_CONTEXT=ON
+    export HDF5_DISABLE_VERSION_CHECK=1
 
-    # Initialize the current bash shell
-    export MAMBA_ROOT_PREFIX=/home/orchideeshare/igcmg/Tools/miniforge3
-    source $MAMBA_ROOT_PREFIX/etc/profile.d/conda.sh
+    # One could design a module 'cesmep' reproducing the sequence above
+    # Next 3 lines would then be useful
+    #
+    #. /usr/share/Modules/init/ksh # Acces to module command
+    #module purge
+    #module load cesmep
 
+    # Next sequence, which uses conda.sh and conda activate, also works
+    #
+    # Initialize the current bash shell 
+    #export MAMBA_ROOT_PREFIX=/home/orchideeshare/igcmg/Tools/miniforge3
+    #source $MAMBA_ROOT_PREFIX/etc/profile.d/conda.sh
     # Activate the relevant environment
-    echo -n "Loading the conda environment may take up to 15s on obelix..."
-    conda activate 20250128
-    echo
+    #echo -n "Activating the conda environment may take up to 15s on obelix..."
+    #conda activate 20250128
+    #echo
 
     # Set which CliMAF is used
     export CLIMAF=/home/orchideeshare/igcmg/Tools/cesmep/climaf_code
     # One may change the CliMAF version used:
     export CLIMAF=~/climaf
+    
     export PYTHONPATH=$CLIMAF:$PYTHONPATH
 fi
 

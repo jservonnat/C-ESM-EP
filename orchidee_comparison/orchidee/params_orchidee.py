@@ -1,5 +1,8 @@
-# Parameters file for driving an atlas showing maps and time series It
-# is applicable to any component.
+# Parameters file for driving an atlas showing maps and time series,
+# with an 'interactive' html page (i.e. allowing selection of what is
+# displayed)
+
+# It is applicable to any component.
 
 # Here, we apply it to Orchidee variables, and using Orchidee variable
 # names rather than CMIP names. We make use of data and functions
@@ -21,6 +24,7 @@ case_toggles = {
     'diffs'      : True,        # Maps of differences with first simulation
     'time_series': True,       # Time series of basin-integrated variables
 }
+# For test purposes
 tcase_toggles = {
     'maps'       : True,       # Plain climatology maps
     'anomalies'  : False,       # Maps of differences with climatology 
@@ -152,10 +156,8 @@ ts_regions = [ 'g', 'n', 't'  ]
 # For reference, the list of reg_id and region names for a MAPPER file
 # g (global), n (northern land), t (tropical land), s (southern land), amnbo (america north boreal), amnte (america north temperate), amstr (america south tropical), amste (america south temperate), eu (europe), asbo (asia boreal), aste (asia temperate), astr (asia tropical), afn (africa north), afs (africa south), auzea (australia & new zealand)
 
-# frequencies on which to integrate. Can be monthly (useless), yearly, and annual_cycle
+# frequencies on which to integrate. Can be monthly, yearly, and annual_cycle
 ts_frequencies = [ 'yearly', 'annual_cycle']
-#ts_frequencies = [ 'annual_cycle' ]
-#ts_frequencies = [ 'yearly' ]
 
 # Size for the time series images in image arrays
 ts_thumbnail_size = '220*200'
@@ -165,7 +167,6 @@ ts_thumbnail_size = '220*200'
 # (see https://climaf.readthedocs.io/en/master/scripts/ensemble_ts_plot.html)
 common_ts_plot_params = dict(
     title="Title",
-    #xlabel='years',
     year_delta=1, # Interval between x labels
     tick_size=12, # Size of x labels
     lw=1,
@@ -220,7 +221,8 @@ orchidee_definitions.declare_orchidee_alias_for_observations()
 mdebug = False
 #mdebug = True
 if mdebug :
-    # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
+    # -- Set the verbosity of CliMAF (minimum is 'critical',
+    # -- maximum is 'debug', intermediate -> 'warning')
     verbose = 'debug'
     # -- Safe Mode (set to False and verbose='debug' if you want to debug)
     safe_mode = False
