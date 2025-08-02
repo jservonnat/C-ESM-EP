@@ -1,7 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Code for
+# S.Sénési - 2025
+
+# Code for creating an atlas showing maps and time series,
+# with an 'interactive' html page (i.e. allowing selection of what is
+# displayed).
+
+# Variables are grouped in user-defined categories
+
+# Maps come in three flavors : plain climatologies, anomalies, and
+# differences vs. first simulation.
+
+# Time series are spatially integrated over a choice of basins
+# described by an auxiliary file
+
+# Best doc yet is the example of use by component 'orchidee'. See
+# params_orchidee.py
+
+# -- This diag is yet validated only for IGCM_OUT !
 
 from custom_plot_params import dict_plot_params as custom_plot_params
 from CM_atlas import mapper
@@ -102,9 +119,6 @@ for model in Wmodels.copy():
     if 'IGCM' not in model['project'] :
         print('removing Model %s, for which project (%s) this diag has not been validated yet'%(model,model['project']))
         Wmodels.remove(model)
-
-#print('Wmodels=',Wmodels)
-
 
 # -- Init html index
 index = header(atlas_head_title, style_file=style_file)

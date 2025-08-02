@@ -49,12 +49,11 @@ if [ -d $target ] ; then
     rm -fR $target
 fi
 mkdir -p $target
-
 # Copy the comparison subdir
 if [ -d $cesmep_dir/$comparison ] ; then
     comparison_dir=$cesmep_dir
 elif [ -d $comparison ] ; then
-    comparison=$(realname $comparison)
+    comparison=$(realpath $comparison)
     comparison_dir=$(dirname $comparison)
     comparison=$(basename $comparison)
 else
@@ -62,7 +61,9 @@ else
     exit 1
 fi
 (cd $comparison_dir ; tar -chf - --exclude=*.out --exclude=*~ --exclude=climaf.log \
-     --exclude=job.in  --exclude=cesmep_atlas_style_css $comparison) | \
+     --exclude=job.in  --exclude=cesmep_atlas_style_css --exclude=*_C-ESM-EP.o* \
+     --exclude=__pycache__ \
+      $comparison) | \
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 

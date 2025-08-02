@@ -679,7 +679,7 @@ for component in job_components:
             if email is not None:
                 mail = ' -m e -M %s ' % email
             if not queue:
-                queue = "medium"
+                queue = "mediump"
             variables += f',MUST_CD_ON_OBELIX={submitdir}/..'
             cmd = f' cd {submitdir} ; qsub -N {jobname} -v "{variables}"'
             cmd += f' -q {queue} -j oe ' + mail + job_script
