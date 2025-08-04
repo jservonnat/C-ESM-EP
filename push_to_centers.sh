@@ -29,7 +29,7 @@ locations="
     "
 
 locations="
-    ssenesi@o:/home/orchideeshare/igcmg/cesmep_next
+    ssenesi@o:/home/orchideeshare/igcmg/Tools/cesmep/$version
     "
 
 set -e
@@ -43,7 +43,7 @@ for loc in $locations; do
     cat $tarfile | \
 	ssh $machine "(mkdir -p $dir; cd $dir; tar -xf - ; echo $version $commit $(date) >> versions)" \
 	    2> >(grep -v key_.*_blob >&2)
-    if [[ $machine = *spirit* ]] ; then
+    if [[ $machine = *spirit* ]] || [[ $machine = obelix* ]] ; then
 	ssh $machine "cd $dir/..; rm cesmep_for_libIGCM; ln -sf $version cesmep_for_libIGCM" \
 	    2> >(grep -v key_.*_blob >&2)
     fi
