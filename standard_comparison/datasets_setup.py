@@ -14,45 +14,66 @@ if atTGCC:
 if atCNRM:
     gridpath = '/cnrm/est/COMMON/C-ESM-EP/grids/'
 
-# -- Setup the models list
-# --> case atCNRM:
-if atCNRM:
-    models = [
-
-        dict(project='CMIP5', model='CNRM-CM5', experiment='piControl',
-             frequency='monthly', period='1850-1853', version="*",
-             customname='CNRM-CM5-hist'
-             ),
-        dict(project='CMIP6', model='CNRM-CM6-1', experiment='piControl',
-             frequency='monthly', period='1950-1953',
-             customname='CNRM-CM6-control'
-             ),
-
-    ]
-    for model in models:
-        if model['model'] == 'CNRM-CM6-1' or model['model'] == 'CNRM-ESM2-1':
-            model['gridfile'] = gridpath+'ORCA1_mesh_zgr.nc'
-            model['mesh_hgr'] = gridpath+'ORCA1_mesh_hgr.nc'
-
-if atCerfacs:
-    models = [
-
-        # Sorte de dataset mais que avec les attributs communs a toutes les variables et simus
-        dict(project='PRIMAVERA', model='CNRM-CM6-1', simulation='spinup-1950',
-             realization='r1i1p1f2', period='1950-1979', frequency='monthly',
-             customname='CNRM-CM6-1_spinup-1950_r1i1p1f2'
-             ),
-
-        # dict(project='CMIP6', model='CNRM-CM6-1', experiment='abrupt-4xCO2',
-        #      frequency='monthly', period='1850-1853',
-        #      customname='CNRM-CM6-abrupt'
-        #      ),
-
-    ]
-
 
 # --> case onCiclad or atTGCC:
-if onCiclad or atTGCC or onSpirit:
+models = [
+
+    # dict(project='IGCM_OUT',
+    #      login='lurtont',
+    #      model='IPSLCM6',
+    #      experiment='historical',
+    #      simulation='CM61-LR-hist-01',
+    #      clim_period='1980-2005',
+    #      customname='CM61-LR-hist-01 *',
+    #      color='red',
+    #      ts_period='1980-1989',
+    #      ),
+    
+    # dict(project='CMIP6',
+    #      model='IPSL-CM6A-LR',
+    #      experiment='historical',
+    #      frequency='monthly',
+    #      period='1980-2005',
+    #      realization='r2i1p1f1',
+    #      version='latest'
+    #      ),
+
+    dict(project='IGCM_OUT',
+              root='/data',
+              login='ssenesi',
+              model='IGCM_OUT/OL2',
+              status='TEST',
+              experiment='cesmep',
+              simulation='FG2C',
+              frequency='monthly',
+              OUT='*',
+              ts_period='full',
+              ),
+    dict(project='IGCM_OUT',
+             login='p86caub',
+             model='IPSLCM7',
+             experiment='pdControl',
+             simulation='CM70-ico-O4-BOOST100',
+             clim_period='1880_1889',
+             customname='ICOBOOST100',
+             color='red'
+             ),
+
+
+    #/data/lolivera/IGCM_OUT/OL2/TEST/secsto/FG2nd.siberia.10mHF
+    #/data/lolivera/IGCM_OUT/OL2/TEST/secsto/FG2nd.siberia.30mHF
+
+    ]
+if atTGCC:
+    root = '/ccc/store/cont003/gencmip6'
+    # -- We don't have access to the CMIP archive at TGCC;
+    # we remove them from the list models
+    models = [ m for m in models if not m['project'].startswith('CMIP') ]
+if onSpirit:
+    root = '/thredds/tgcc/store'
+
+        
+if onObelix:
     models = [
 
         # dict(project='IGCM_OUT',
@@ -103,7 +124,7 @@ if onCiclad or atTGCC or onSpirit:
              customname='ICOBOOST100',
              color='red'
              ),
-
+        # /home/orchideeshare/repository/IGCM_OUT/OL2/PROD/ORC4tag42/FGH.CRUJRA.tag42
         dict(project='IGCM_OUT',
              login='p86caub',
              model='IPSLCM7',
