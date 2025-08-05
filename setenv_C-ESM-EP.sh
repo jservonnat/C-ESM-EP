@@ -91,7 +91,7 @@ fi
 # Obelix at LSCE
 if [[ -d "/home/orchideeshare/"  ]] ; then
     
-    # We are using a conda environment
+    # We are using a conda environment, only by setting some env variables
     export ENV=/home/orchideeshare/igcmg/Tools/miniforge3/envs/20250128
     export PATH=$ENV/bin:$ENVS/../../bin:$PATH
     export LD_LIBRARY_PATH=$ENV/lib:$LD_LIBRARY_PATH
@@ -107,7 +107,8 @@ if [[ -d "/home/orchideeshare/"  ]] ; then
     #module purge
     #module load cesmep
 
-    # Next sequence, which uses conda.sh and conda activate, also works
+    # Next sequence, which uses conda.sh and conda activate, would also
+    # works but take circa 15s on Obelix
     #
     # Initialize the current bash shell 
     #export MAMBA_ROOT_PREFIX=/home/orchideeshare/igcmg/Tools/miniforge3
@@ -120,7 +121,7 @@ if [[ -d "/home/orchideeshare/"  ]] ; then
     # Set which CliMAF is used
     export CLIMAF=/home/orchideeshare/igcmg/Tools/cesmep/climaf_code
     # One may change the CliMAF version used:
-    export CLIMAF=~/climaf
+    #export CLIMAF=~/climaf
     
     export PYTHONPATH=$CLIMAF:$PYTHONPATH
 fi

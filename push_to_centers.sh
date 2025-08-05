@@ -25,12 +25,12 @@ locations="
     senesis@irene-fr.ccc.cea.fr:/ccc/cont003/home/igcmg/igcmg/Tools/cesmep
     upe47jz@jean-zay.idris.fr:/gpfswork/rech/psl/commun/Tools/cesmep
     ssenesi@spirit2.ipsl.fr:/net/nfs/tools/Users/SU/jservon/cesmep_installs/$version
-    ssenesi@o:/home/orchideeshare/igcmg/cesmep_next
+    ssenesi@obelix:/home/orchideeshare/igcmg/Tools/cesmep/$version
     "
 
-locations="
-    ssenesi@o:/home/orchideeshare/igcmg/Tools/cesmep/$version
-    "
+#locations="
+#    ssenesi@obelix:/home/orchideeshare/igcmg/Tools/cesmep/$version
+#    "
 
 set -e
 tarfile=$(mktemp cesmep_archive.$version.XXXX.tar)
@@ -38,13 +38,15 @@ git archive $remote_repo -o $tarfile --format=tar $version
 commit=$(cat $tarfile | git get-tar-commit-id)
 for loc in $locations; do
     machine=${loc%:*}
+    machine=${machine#*@}
     dir=${loc#*:}
     echo "Pushing to $machine"
     cat $tarfile | \
 	ssh $machine "(mkdir -p $dir; cd $dir; tar -xf - ; echo $version $commit $(date) >> versions)" \
 	    2> >(grep -v key_.*_blob >&2)
+    set -x
     if [[ $machine = *spirit* ]] || [[ $machine = obelix* ]] ; then
-	ssh $machine "cd $dir/..; rm cesmep_for_libIGCM; ln -sf $version cesmep_for_libIGCM" \
+	ssh $machine "cd $dir/..; rm -f cesmep_for_libIGCM; ln -sf $version cesmep_for_libIGCM" \
 	    2> >(grep -v key_.*_blob >&2)
     fi
 done
