@@ -92,3 +92,4 @@ dict_plot_params = {
             'default': {'units': 'kg/m3', 'color': 'cmocean_dense'}},
     
     }
+}

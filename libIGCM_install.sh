@@ -141,12 +141,13 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	# DataPathLogin =      # user login showing in the data path 
 	# DataPathJobName =    # needed only if you changed w.r.t.the initial config.card
 	EOF
-set -x
 if [ $CesmepDataPathRoot ] ; then
-    sed -i -e "s/# DataPathRoot.*/DataPathRoot = \"$CesmepDataPathRoot\"/" $comparison/libIGCM_fixed_settings.py
+    sed -i -e "s/# DataPathRoot.*/DataPathRoot = \"${CesmepDataPathRoot%/}\"/" $comparison/libIGCM_fixed_settings.py
+    RSAVE=${RSAVE/$Root/$CesmepDataPathRoot}
 fi
 if [ $CesmepDataPathLogin ] ; then
     sed -i -e "s/# DataPathLogin.*/DataPathLogin = \"$CesmepDataPathLogin\"/" $comparison/libIGCM_fixed_settings.py
+    RSAVE=${RSAVE/$Login/$CesmepDataPathLogin}
 fi
 
 # Install a dedicated datasets_setup file
