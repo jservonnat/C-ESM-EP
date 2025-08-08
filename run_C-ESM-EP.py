@@ -69,9 +69,10 @@ except:
 
 if AtlasPath != os.path.basename(AtlasPath):
     AtlasBasename = os.path.basename(AtlasPath)
-    AtlasPath = os.path.dirname(AtlasPath)
+    AtlasDirname = os.path.dirname(AtlasPath)+"/"
 else:
-    AtlasBasename = None
+    AtlasBasename = AtlasPath
+    AtlasDirname = ""
     
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
@@ -342,7 +343,13 @@ for new_html_line in new_html_lines:
     new_html = new_html + new_html_line + '\n'
 
 # -> Save as the html file that will be copied on the web server
-frontpage_html = 'C-ESM-EP_' + comparison + '.html'
+if AtlasBasename == "NONE":
+    frontpage_html = 'C-ESM-EP_' + comparison + '.html'
+else:
+    frontpage_html = AtlasBasename
+    if not frontpage_html.endswith('.html'):
+        frontpage_html += ".html"
+    
 with open(frontpage_html, "w") as filout:
     filout.write(new_html)
 
@@ -355,8 +362,8 @@ if not path_to_cesmep_output_rootdir_on_web_server:
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
 
-if AtlasPath != "NONE":
-    suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
+if AtlasBasename != "NONE":
+    suffix_to_comparison = f'/C-ESM-EP/{AtlasDirname}'
 else:
     try:
         from libIGCM_settings import TagName, SpaceName, OUT
