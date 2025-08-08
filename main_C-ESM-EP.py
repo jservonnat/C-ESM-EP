@@ -30,6 +30,13 @@ except:
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
 
+if AtlasPath != os.path.basename(AtlasPath):
+    AtlasBasename = os.path.basename(AtlasPath)
+    AtlasDirname = os.path.dirname(AtlasPath)+"/"
+else:
+    AtlasBasename = AtlasPath
+    AtlasDirname = ""
+
 #csync(True)
 
 # -----------------------------------------------------------------------------------
@@ -151,8 +158,8 @@ except:
     publish = True
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
-if AtlasPath != "NONE":
-    suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
+if AtlasBasename != "NONE":
+    suffix_to_comparison = f'C-ESM-EP/{AtlasDirname}'
 else:
     try:
         from libIGCM_settings import TagName, SpaceName, OUT

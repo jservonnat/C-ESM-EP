@@ -76,7 +76,7 @@ if CesmepPeriod != 0:
 else:
     clim_period = "%d_%d" % (YearBegin, data_end)
     common.update(clim_period=clim_period,
-                  customname=JobName + ' ' + clim_period)
+                  customname=JobName + '_' + clim_period)
     models.append(common)
 
 #
