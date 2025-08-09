@@ -253,8 +253,6 @@ if do_main_time_series:
                     ens_ts_dict.update({mem_name: ts_dat})
                     names_ens.append(mem_name)
                 #
-            if len(set(names_ens)) == 0 :
-                clogger.error("No data available across all models for %s"%time_series['variable'])
             #
             # -- Finalize the CliMAF ensemble
             # -> Test if we have duplicates in names_ens => will produce problems in the ensemble
@@ -294,7 +292,11 @@ if do_main_time_series:
             # -- Do the plot
             if "ylabel" not in p:
                 p['ylabel'] = time_series['variable'] #+ ' ' + varlongname(time_series['variable'])
-            myplot =  ts_plot(ens_ts, **p)
+            if len(set(names_ens)) == 0 :
+                clogger.error("No data available across all models for %s"%time_series['variable'])
+                myplot = None
+            else:
+                myplot =  ts_plot(ens_ts, **p)
             #cdrop(myplot)
             #
             # ==> -- Add the plot to the plots line 
@@ -306,7 +308,7 @@ if do_main_time_series:
                 fig_sizes = str.split(fig_size, '*')
                 ts_thumbN_size = str(int(fig_sizes[0])*75) +\
                     '*' + str(int(fig_sizes[1])*75)
-                print("ts_thumbN_size from fig_size",ts_thumbN_size)
+                #print("ts_thumbN_size from fig_size",ts_thumbN_size)
 
             cell_args = alternative_dir.copy()
             if "ts_filename_func" in locals() and ts_filename_func and \
