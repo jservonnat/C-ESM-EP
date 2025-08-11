@@ -227,24 +227,41 @@ if onCiclad or atTGCC or onSpirit:
         #      ),
 
         dict(project='IGCM_OUT',
+               login='p86caub',
+               model='IPSLCM7',
+               experiment='pdControl',
+               simulation='CM711-ico-O2-pd-02' ,
+               frequency='monthly',
+               clim_period='1930_1939',
+               ts_period='1930_1939',
+               customname='pdControl-IPSLCM7',
+               color='green',
+               gridfile='/home/ggachon/eORCA1.4.2_grid.nc',
+               msftyz_lat_file='/home/ggachon/latitude_msftyz_1.4.2.nc'
+               ),
+#        dict(project='IGCM_OUT',
+#               login='p86fair',
+#               model='IPSLCM6',
+#               experiment='pdControl',
+#               simulation='IPSLCM6.2-LR-pd-QUEST-01' ,
+#               frequency='monthly',
+#               clim_period='1940_1949',
+#               ts_period='1940_1949',
+#               customname='pdControl-IPSLCM6',
+#               color='blue',
+#               gridfile='/home/ggachon/eORCA1.2_grid.nc',
+#               msftyz_lat_file='/home/ggachon/latitude_msftyz_1.2.nc'
+#               ),
+        dict(project='IGCM_OUT',
              login='p86caub',
              model='IPSLCM7',
              experiment='pdControl',
              simulation='CM70-ico-O4-BOOST100',
              clim_period='1880_1889',
              customname='ICOBOOST100',
-             color='red'
-             ),
-
-        dict(project='IGCM_OUT',
-             login='p86caub',
-             model='IPSLCM7',
-             experiment='pdControl',
-             simulation='CM70-ico-O4-BOOST100',
-             clim_period='last_5Y',
-             customname='ICOBOOST100_L5',
-             color='red'
-             ),
+             color='orange',
+             gridfile='/home/ggachon/eORCA1.4.2_grid.nc',
+             msftyz_lat_file='/home/ggachon/latitude_msftyz_1.4.2.nc'
     ]
     if atTGCC:
         # CMIP5 and CMIP6 data are not readable by everyone there...
