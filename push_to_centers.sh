@@ -28,9 +28,9 @@ locations="
     ssenesi@obelix:/home/orchideeshare/igcmg/Tools/cesmep/$version
     "
 
-#locations="
-#    ssenesi@obelix:/home/orchideeshare/igcmg/Tools/cesmep/$version
-#    "
+tlocations="
+    ssenesi@obelix:/home/orchideeshare/igcmg/Tools/cesmep/$version
+    "
 
 set -e
 tarfile=$(mktemp cesmep_archive.$version.XXXX.tar)
@@ -44,7 +44,6 @@ for loc in $locations; do
     cat $tarfile | \
 	ssh $machine "(mkdir -p $dir; cd $dir; tar -xf - ; echo $version $commit $(date) >> versions)" \
 	    2> >(grep -v key_.*_blob >&2)
-    set -x
     if [[ $machine = *spirit* ]] || [[ $machine = obelix* ]] ; then
 	ssh $machine "cd $dir/..; rm -f cesmep_for_libIGCM; ln -sf $version cesmep_for_libIGCM" \
 	    2> >(grep -v key_.*_blob >&2)

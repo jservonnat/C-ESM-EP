@@ -220,14 +220,15 @@ orchidee_definitions.declare_orchidee_alias_for_observations()
 #------------------------------------------------------------------------------------
 mdebug = False
 #mdebug = True
+
+# -- Safe Mode 
+safe_mode = not mdebug
+
+# -- Set the verbosity of CliMAF (debug < info < warning < error <  critical)
 if mdebug :
-    # -- Set the verbosity of CliMAF (minimum is 'critical',
-    # -- maximum is 'debug', intermediate -> 'warning')
     verbose = 'debug'
-    # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-    safe_mode = False
 else:
-    verbose = 'error' ;     safe_mode = True
+    verbose = 'error' 
     
 # -- Set to True to clean the CliMAF cache
 clean_cache = False
@@ -243,5 +244,5 @@ do_parallel = False
 # time = 480 # minutes
 # QOS = 'test'
 
-# Should we activate an interactive selection (a la Mapper) in html pages
+# Should we activate interactive selection (a la Mapper) in html pages
 interactive_selection = True

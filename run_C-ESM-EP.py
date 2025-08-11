@@ -363,7 +363,7 @@ if not path_to_cesmep_output_rootdir_on_web_server:
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
 
 if AtlasBasename != "NONE":
-    suffix_to_comparison = f'/C-ESM-EP/{AtlasDirname}'
+    suffix_to_comparison = f'C-ESM-EP/{AtlasDirname}'
 else:
     try:
         from libIGCM_settings import TagName, SpaceName, OUT
@@ -380,14 +380,14 @@ else:
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
 #  -> path_to_comparison_outdir = path to the comparison directory
 #     (containing the frontpage and all atlas subdirectories)
-path_to_comparison_outdir = path_to_cesmep_output_rootdir + suffix_to_comparison
+path_to_comparison_outdir = path_to_cesmep_output_rootdir + "/" + suffix_to_comparison
 
 # -- Path to the directories actually accessible from the web
 path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
-    suffix_to_comparison
+    "/" + suffix_to_comparison
 
 # -- URL  to the comparison
-comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
+comparison_url = root_url_to_cesmep_outputs + "/" + suffix_to_comparison
 
 # -- URL to C-ESM-EP frontpage
 frontpage_address = comparison_url + frontpage_html
