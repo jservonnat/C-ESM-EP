@@ -185,7 +185,7 @@ if [ $CesmepReferences != NONE ]; then
 		    simulation  = "$RefExperiment",
 		    frequency   = "$RefFreq",
 		    OUT         = "$RefOut",
-		    ts_period   = 'full',
+		    ts_period   = '$RefPeriod',
 		    clim_period = "$RefPeriod",
 		    custom_name = "${RefExperiment}_${RefPeriod}"
 		    ),

@@ -2,18 +2,25 @@
 # script mapper.js. It provides 2 functions for generating filenames
 # for maps and timeseries images, compatible with mapper.js conventions
 
+from env.clogging import clogger
+
 def mapper_simu_name(simu):
     if type(simu) is dict:
         if 'customname' in simu :
             return simu['customname']
         elif 'product' in simu :
             return simu['product']
+        elif simu.get('project',None) == 'ref_climatos':
+            return 'ref_climato_no_product'
         elif simu.get('project',None) in ['IGCM_OUT']:
             return simu['simulation']
         elif simu.get('project',None) in [ 'CMIP6', 'CMIP5' ]:
             return simu['experiment']
-        else :
+        elif 'experiment' in simu :
             return simu['experiment']
+        else:
+            clogger.error("Cannot derive a simu name for " + str(simu))
+            return('Unknown_simu_name')
     else:
         return simu
 
@@ -38,9 +45,9 @@ def mapper_ts_filename(region, variable, frequency):
     return variable + '_' + abbrev[frequency] + '_' + region
 
 
-def build_mapper_page(models, variables_setup, case_toggles, seasons, ts_frequencies,
-                      ts_regions, ts_regions_file,  custom_obs_dict,
-                      variables_specifics, title ):
+def build_mapper_page(models, variables_setup, case_toggles, seasons,
+                      ts_frequencies, ts_regions, ts_regions_file,
+                      custom_obs_dict, variables_specifics, title, references ):
     # We want to build a page like that :
     
     # <html>
@@ -171,8 +178,20 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons, ts_frequen
     page += plist("regs", ts_regions, translate)
     page += plist("vars", { category: entry['variables'] for category,entry in variables_setup.items()}, crlf=True)
     # Must build obs_dict
-    obs_dict = { variable : custom_obs_dict[variable]['product'] for variable in custom_obs_dict \
-                 if any([ (variable in entry['variables']) for entry in variables_setup.values() ]) }
+    obs_dict = dict()
+    for entry in variables_setup.values():
+        for variable in entry['variables']:
+            refs = list()
+            for reference in references:
+                if reference == 'default':
+                    if variable in custom_obs_dict:
+                        name = custom_obs_dict[variable]['product']
+                    else:
+                        name = "No_se"
+                else:
+                    name = mapper_simu_name(reference)
+                refs.append(name)
+            obs_dict[variable] = refs
     page += plist("obs", obs_dict, crlf=True)
     labels = { 
         "map" : "Maps",

@@ -1129,52 +1129,15 @@ def section_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', variable
         else:
             variable = var
         #
-        # -- Loop on the references => the user can provide multiple references per variable
-        var_references = []
-        if not isinstance(wreference, list):
-            wreference = [wreference]
-        print('wreference => ', wreference)
-        for ref in wreference:
-            if ref == 'default':
-                var_references.append(ref)
-            else:
-                if isinstance(ref, dict):
-                    if 'variable' not in ref:
-                        var_references.append(ref)
-                    else:
-                        if ref['variable'] == variable:
-                            if 'reference' in ref:
-                                ref_list = ref['reference']
-                                if not isinstance(ref_list, list):
-                                    ref_list = [ref_list]
-                                var_references = var_references + ref_list
-                        else:
-                            ref.pop('variable')
-                            var_references.append(ref)
-        #
+        # Plot references
+        var_references = select_var_references(variable, reference)
         print('var_references = ', var_references)
         for wref in var_references:
             #
-            print('Reference wref = ', wref)
             # -- Get the reference (model or obs, reanalysis)
-            if wref == 'default':
-                ref = variable2reference(variable, my_obs=custom_obs_dict)
-                if not ref:
-                    ref = dict(project='ref_climatos',
-                               frequency='seasonal', table='Amon')
-                if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
-                    ref.update(dict(product='CERES'))
-            else:
-                ref = wref.copy()
-                ref['variable'] = variable
-                if 'table' in var:
-                    ref['table'] = var['table']
-                if 'grid' in var:
-                    ref['grid'] = var['grid']
-                if project_specs:
-                    if ref['project'] in project_specs:
-                        ref.update(project_specs[ref['project']])
-                ref = get_period_manager(ref, diag='clim', ratio=ratio)
+            print('Reference wref = ', wref)
+            ref = process_var_reference(wref, variable, custom_obs_dict, var,
+                                        project_specs, ratio)
             #
             print('custom_obs_dict = ', custom_obs_dict)
             print('ref in plot_climato = ', ref)
@@ -1327,51 +1290,19 @@ def section_climato_2D_maps(models=[], reference=[], proj='GLOB', season='ANM', 
         else:
             variable = var
         #
-        # -- Loop on the references => the user can provide multiple references per variable
-        var_references = []
-        #
         if not reference:
             reference = models[0]
             models.remove(models[0])
         #
-        if not isinstance(reference, list):
-            reference = [reference]
-        for ref in reference:
-            if ref == 'default':
-                var_references.append(ref)
-            else:
-                if isinstance(ref, dict):
-                    if 'variable' not in ref:
-                        var_references.append(ref)
-                    else:
-                        if ref['variable'] == variable:
-                            if 'reference' in ref:
-                                ref_list = ref['reference']
-                                if not isinstance(ref_list, list):
-                                    ref_list = [ref_list]
-                                var_references = var_references + ref_list
-                        else:
-                            ref.pop('variable')
-                            var_references.append(ref)
-
+        var_references = select_var_references(variable, reference)
         #
         for wref in var_references:
+            
             #
-            print('Reference wref = ', wref)
             # -- Get the reference (model or obs, reanalysis)
-            if wref == 'default':
-                ref = variable2reference(variable, my_obs=custom_obs_dict)
-                if not ref:
-                    ref = dict(project='ref_climatos')
-                if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
-                    ref.update(dict(product='CERES'))
-            else:
-                ref = wref.copy()
-                ref.update(dict(variable=variable))
-                if project_specs:
-                    if ref['project'] in project_specs:
-                        ref.update(project_specs[ref['project']])
-                ref = get_period_manager(ref, diag='clim', ratio=ratio)
+            print('Reference wref = ', wref)
+            ref = process_var_reference(wref, variable, custom_obs_dict, var,
+                                        project_specs, ratio)
             #
             # -- Open the html table of this section
             index += open_table()
@@ -1924,3 +1855,59 @@ def field_stats(dat,scale,offset,global_scale=None):
     minmaxmean_str = ' min=' + field_min + ' ; max=' + field_max + \
             ' ; mean=' + field_mean + global_sum_string
     return minmaxmean_str
+
+def select_var_references(variable, reference):
+    # Provides a list of references based on the content in
+    # arg 'reference'. If it is a dict, for each entry, if it
+    # specifically concerns the variable, and has an entry
+    # 'reference', this latter entry is used. Otherwise the entry in
+    # arg 'reference' is used
+    var_references = []
+    if not isinstance(reference, list):
+        reference = [reference]
+    #print('reference => ', reference)
+    for ref in reference:
+        if ref == 'default':
+            var_references.append('default')
+        else:
+            if isinstance(ref, dict):
+                if 'variable' not in ref:
+                    var_references.append(ref)
+                else:
+                    if ref['variable'] == variable:
+                        if 'reference' in ref:
+                            ref_list = ref['reference']
+                            if not isinstance(ref_list, list):
+                                ref_list = [ref_list]
+                            var_references = var_references + ref_list
+                    else:
+                        ref.pop('variable')
+                        var_references.append(ref)
+    return var_references
+
+def process_var_reference(wref, variable, custom_obs_dict, var, project_specs, ratio):
+    # Interpret and complement a reference 'wref' using:
+    #   - custom_obs_dict if 'wref' is 'default'
+    #   - dicts 'project_specs' and 'var' otherwise (and also invokes get_period_manager)
+    
+    if wref == 'default':
+        ref = variable2reference(variable, my_obs=custom_obs_dict)
+        if not ref:
+            ref = dict(project='ref_climatos',
+                       frequency='seasonal', table='Amon')
+            if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
+                ref.update(dict(product='CERES'))
+    else:
+        ref = wref.copy()
+        ref['variable'] = variable
+        # Copy table and grid : this was orginally not active in
+        # section_climato_2D_maps...
+        if 'table' in var:
+            ref['table'] = var['table']
+        if 'grid' in var:
+            ref['grid'] = var['grid']
+        if project_specs:
+            if ref['project'] in project_specs:
+                ref.update(project_specs[ref['project']])
+        ref = get_period_manager(ref, diag='clim', ratio=ratio)
+    return(ref)

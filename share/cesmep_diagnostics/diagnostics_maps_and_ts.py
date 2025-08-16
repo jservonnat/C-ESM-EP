@@ -105,10 +105,11 @@ if interactive_selection:
     # Activate relevant filename scheme 
     map_filename_func = mapper.mapper_map_filename
     ts_filename_func = mapper.mapper_ts_filename
+    # Build html page
     mapper_page = mapper.build_mapper_page(models, variables_setup, \
                     case_toggles, seasons, ts_frequencies, ts_regions, \
                     ts_regions_file,  custom_obs_dict, variables_specifics,\
-                    atlas_head_title)
+                    atlas_head_title, reference)
 
 # -- Add table. To be re-scrutinized
 #for model in Wmodels:
@@ -154,20 +155,7 @@ for category in map_specs.keys() :
                 copy.deepcopy(map_specs[category]), title1, **args_rest)
         #
         if case_toggles['anomalies']:
-            title1 = category + ' - Anomalies (i.e. vs obs)'
-            #
-            # Create a specs list for those variables which have a reference
-            vars_with_ref = copy.deepcopy(map_specs[category])
-            if reference == 'default' or 'default' in reference:
-                for one_var in map_specs[category]:
-                    try:
-                        ref=variable2reference(one_var['variable'],
-                                               my_obs=custom_obs_dict)
-                        cfile(ds(**ref))
-                    except:
-                        print('No obs for ', one_var['variable'])
-                        vars_with_ref.remove(one_var)
-            #
+            title1 = category + ' - Anomalies (i.e. vs obs and/or other reference)'
             index += section_2D_maps(
                 copy.deepcopy(Wmodels), reference, proj, season,
                 vars_with_ref, title1, **args_rest)
