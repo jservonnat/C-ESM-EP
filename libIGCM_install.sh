@@ -39,10 +39,10 @@ dir=$(cd $(dirname $0); pwd)
 
 crack_path ()
 # Derive a set of parameters from a simulation output's path, possibly with period suffix, as e.g.
-# /ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/TS_MO/1980-2005
 {
     path=$1
     if [ $Center = TGCC ] ; then 
+	# /ccc/store/cont003/gencmip6/lurtont/IGCM_OUT/IPSLCM6/PROD/historical/CM61-LR-hist-01/*/Analyse/TS_MO/1980-2005
 	root=$(echo $path | cut -d / -f 1-5)
 	rest=$(echo $path | cut -d / -f 6-)
     elif [[ $Center == spirit* ]] ; then 
@@ -52,13 +52,17 @@ crack_path ()
 	#ex: /lustre/fsstor/projects/rech/psl/upe47jz/IGCM_OUT/OL2/DEVT/secsto/MyPostExp2
 	root=$(echo $path | cut -d / -f 1-6)
 	rest=$(echo $path | cut -d / -f 7-)
+    elif [ $Center = LSCE ] ; then  #actually : obelix
+	#ex: /home/scratch01/ssenesi/IGCM_OUT/OL2/TEST/ORC3v8120/FGH.20Y
+	root=$(echo $path | cut -d / -f 1-3)
+	rest=$(echo $path | cut -d / -f 4-)
     else
 	echo "Unkown Center $Center"
 	exit 1
     fi
     login=$(echo $rest | cut -d / -f 1)
     tagname=$(echo $rest | cut -d / -f 3)
-    [[ $Center == spirit* ]] && tagname="IGCM_OUT"/$tagname
+    [[ $Center == spirit* ]] || [[ $Center == LSCE ]] && tagname="IGCM_OUT"/$tagname
     spacename=$(echo $rest | cut -d / -f 4)
     exptype=$(echo $rest | cut -d / -f 5)
     experimentname=$(echo $rest | cut -d / -f 6)
@@ -108,10 +112,6 @@ else
     exit 6
 fi
 
-if [ $ConfigCesmep = SE ]; then
-    CesmepInputFrequency=seasonal  # xxx peut sauter après maj de libIGCM
-fi
-
 # Create comparison's parameters file and set part which is fixed along run
 cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	root           = '$Root'
@@ -141,11 +141,13 @@ cat <<-EOF > $comparison/libIGCM_fixed_settings.py
 	# DataPathLogin =      # user login showing in the data path 
 	# DataPathJobName =    # needed only if you changed w.r.t.the initial config.card
 	EOF
-if [ $DataPathRoot ] ; then
-    sed -i -e "s/# DataPathRoot.*/DataPathRoot = \"$DataPathRoot\"" $comparison/libIGCM_fixed_settings.py
+if [ $CesmepDataPathRoot ] ; then
+    sed -i -e "s/# DataPathRoot.*/DataPathRoot = \"${CesmepDataPathRoot%/}\"/" $comparison/libIGCM_fixed_settings.py
+    RSAVE=${RSAVE/$Root/$CesmepDataPathRoot}
 fi
-if [ $DataPathLogin ] ; then
-    sed -i -e "s/# DataPathLogin.*/DataPathLogin = \"$DataPathLogin\"/" $comparison/libIGCM_fixed_settings.py
+if [ $CesmepDataPathLogin ] ; then
+    sed -i -e "s/# DataPathLogin.*/DataPathLogin = \"$CesmepDataPathLogin\"/" $comparison/libIGCM_fixed_settings.py
+    RSAVE=${RSAVE/$Login/$CesmepDataPathLogin}
 fi
 
 # Install a dedicated datasets_setup file
@@ -183,7 +185,7 @@ if [ $CesmepReferences != NONE ]; then
 		    simulation  = "$RefExperiment",
 		    frequency   = "$RefFreq",
 		    OUT         = "$RefOut",
-		    ts_period   = 'full',
+		    ts_period   = '$RefPeriod',
 		    clim_period = "$RefPeriod",
 		    custom_name = "${RefExperiment}_${RefPeriod}"
 		    ),
@@ -212,7 +214,7 @@ for comp in $(cd $comparison ; ls ) ; do
 	SH_Polar_Atmosphere_StdPressLev | SH_Polar_Atmosphere_Surface)
 	    [[ $Components = *,ATM,* ]] && add=true ;;
 
-	ORCHIDEE )
+	ORCHIDEE | orchidee )
 	    [[ $Components = *,SRF,* || $Components = *,OOL,* ]] && add=true ;;
 
 	NEMO_main | NEMO_zonmean | NEMO_depthlevels | ENSO)
@@ -239,9 +241,11 @@ fi
 
 # Compute location for C-ESM-EP CliMAF cache, 
 case $Center in
-    TGCC) cacheroot=$CCCSCRATCHDIR ;;
-    IDRIS) cacheroot=$SCRATCH ;;
-    spirit*) cacheroot=/scratchu/$USER ;;
+    TGCC)    cacheroot=$CCCSCRATCHDIR ;;
+    IDRIS)   cacheroot=$SCRATCH ;;
+    spirit*) cacheroot=$SCRATCH ;;
+    LSCE)    cacheroot=/home/scratch01/$USER ;;
+    *)       echo "Unkown Center $Center"; exit 1 ;;
 esac    
 cache=$cacheroot/cesmep_climaf_caches/${ExperimentName}_${TagName}_${ExpType}_${SpaceName}_${OUT}
 

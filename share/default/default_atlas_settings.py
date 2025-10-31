@@ -100,3 +100,14 @@ thumbnail_monsoon_pr_anncyc_size = '375*600'
 
 regrid_ref_on_model=False
 regridding = 'model_on_ref'
+
+# A function used by plot_CM_atlas.section* function to compute a name for the map plot files
+# If not None, it receives arguments: simu1, simu2 (ref), variable, season
+map_filename_func = None
+# Same for time series plot filename
+# If not None, it receives arguments: region, variable, frequency
+ts_filename_func = None
+
+# A toggle for activating 'a la Mapper' interactive selection
+interactive_selection = False
+

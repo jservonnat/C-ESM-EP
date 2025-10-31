@@ -1,0 +1,57 @@
+.activeMode {
+    font: 14px Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    color: #ffffff;
+    background-color: #afb42b;
+    line-height: 28px;
+    width: 150px;
+    cursor: pointer;
+}
+.inactiveMode {
+    font: 14px Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    color: #666666;
+    background-color: #f0f4c3;
+    line-height: 28px;
+    width: 150px;
+    cursor: pointer;
+}
+.interfHeader {
+    font: 10px Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle;
+    color: #666666;
+    line-height: 28px;
+}
+.tableHeader {
+    font: 18px Verdana, Arial, Helvetica, sans-serif;
+    height: 40px;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #6633CC;
+    padding: 0 10px;
+}
+.imgSelected {
+    border: 2px solid red;
+}
+#overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+#zoomedImage {
+    max-width: 90vw;
+    max-height: 90vh;
+}
+#myconsole {
+    font: 12px Verdana, Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    color: #FF0000;
+}

@@ -17,7 +17,7 @@ import copy
 import subprocess
 from optparse import OptionParser
 #
-from env.site_settings import onSpirit, atTGCC, atCNRM, atIDRIS
+from env.site_settings import onSpirit, atTGCC, atCNRM, atIDRIS, onObelix
 from climaf.api import *
 from climaf.chtml import *
 #
@@ -25,11 +25,17 @@ from CM_atlas import *
 from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootdir_on_web_server, \
     root_url_to_cesmep_outputs
 try:
-    from libIGCM_fixed_settings import AtlasPath, AtlasTitle
+    from libIGCM_settings import AtlasPath, AtlasTitle
 except:
-    #print("Your libIGCM version doesn't support parameters CesmepAtlasPath and CesmepAtlasTitle")
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
+
+if AtlasPath != os.path.basename(AtlasPath):
+    AtlasBasename = os.path.basename(AtlasPath)
+    AtlasDirname = os.path.dirname(AtlasPath)+"/"
+else:
+    AtlasBasename = AtlasPath
+    AtlasDirname = ""
 
 #csync(True)
 
@@ -152,19 +158,19 @@ except:
     publish = True
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
-if AtlasPath != "NONE":
-    suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
+if AtlasBasename != "NONE":
+    suffix_to_comparison = f'C-ESM-EP/{AtlasDirname}'
 else:
     try:
-        from libIGCM_fixed_settings import TagName, SpaceName, OUT
+        from libIGCM_settings import TagName, SpaceName, OUT
     except:
         suffix_to_comparison = 'C-ESM-EP/' + comparison + '_' + user_login + '/'
     else:
         try:
-            from libIGCM_fixed_settings import JobName, ExperimentName
+            from libIGCM_settings import JobName, ExperimentName
         except:
             # Odd syntax from an old version of CESMEP. To me removed at some date...
-            from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
+            from libIGCM_settings import ExperimentName as JobName, ExpType as ExperimentName
         suffix_to_comparison = f'C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
 
     # -- Location of the directory where we will store the results of the atlas
@@ -178,7 +184,7 @@ atlas_url = atlas_dir.replace(
 
 # -- We create the atlas directory if it doesn't exist, or remove the figures
 # -----------------------------------------------------------------------------------
-if atCNRM or atTGCC or onSpirit or atIDRIS:
+if atCNRM or atTGCC or onSpirit or atIDRIS or onObelix:
     if not os.path.isdir(atlas_dir):
         os.makedirs(atlas_dir)
     else:
@@ -328,34 +334,38 @@ index = index.replace('CliMAF documentation',
                       'Back to C-ESM-EP frontpage of comparison: '+comparison)
 
 # -- Write the atlas html file
+if interactive_selection:
+    mapper_style_sheet = main_cesmep_path + "/share/fp_template/mapper.css"
+    mapper_script = main_cesmep_path + "/share/fp_template/mapper.js"
+    os.system(f'cp {mapper_style_sheet} {mapper_script} {atlas_dir}')
+    index = mapper_page
+    
 outfile = atlas_dir + "/" + index_name
 print('outfile = ', outfile)
 with open(outfile, "w") as filout:
     filout.write(index)
 
-blabla = None
-if onSpirit:
+if onSpirit or onObelix:
     if publish:
         # -- Copy on thredds...
-        # ----------------------------------------------------------------------------------------------
+        # -----------------------------------------------------------------------------
         # -- thredds directory (web server)
-        threddsdir = str.replace(atlas_dir, 'scratchu', 'thredds/ipsl')
-        os.system('rm -rf '+threddsdir)
-        th_dir = str.replace(threddsdir, '/'+component, '')
+        threddsdir = atlas_dir.replace(path_to_cesmep_output_rootdir,
+                                       path_to_cesmep_output_rootdir_on_web_server)
+        os.system('rm -rf ' + threddsdir)
+        th_dir = os.path.dirname(threddsdir)
         if not os.path.isdir(th_dir):
             os.makedirs(th_dir)
-        os.system('cp -r '+atlas_dir+' '+th_dir)
-        print("index copied in : "+threddsdir)
-    
-        alt_dir_name = threddsdir.replace(
-            '/thredds/ipsl', '/thredds/fileServer/ipsl_thredds')
-        root_url = "https://thredds-su.ipsl.fr"
-    
-        # -- and return the url of the atlas
-        print("Available at this address "+root_url +
-              outfile.replace(atlas_dir, alt_dir_name))
+        os.system('cp -r '+ atlas_dir + ' ' + th_dir)
+        os.system('rm -rf '+ atlas_dir)
+        print("Atlas moved to : " + threddsdir)
+        
+        # -- and print the url of the atlas
+        print("Available at this address " + \
+              outfile.replace(path_to_cesmep_output_rootdir,
+                              root_url_to_cesmep_outputs))
     else:
-        print("Index available at here: "+outfile)
+        print("Index available here: "+outfile)
 
 #
 
@@ -406,8 +416,6 @@ if atTGCC or atIDRIS:
     else:
         print('Index available at : ' + outfile)
         
-
-if atTGCC or atIDRIS :
     print("The atlas is ready as ", index_name.replace(
         atlas_dir, path_to_comparison_outdir_workdir_hpc))
 else:

@@ -62,14 +62,21 @@ import re
 from locations import path_to_cesmep_output_rootdir, \
     path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs, climaf_cache
 try:
-    from libIGCM_fixed_settings import AtlasPath, AtlasTitle
+    from libIGCM_settings import AtlasPath, AtlasTitle
 except:
     AtlasPath = "NONE"
     AtlasTitle = "NONE"
 
+if AtlasPath != os.path.basename(AtlasPath):
+    AtlasBasename = os.path.basename(AtlasPath)
+    AtlasDirname = os.path.dirname(AtlasPath)+"/"
+else:
+    AtlasBasename = AtlasPath
+    AtlasDirname = ""
+    
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
-from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs
+from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs, onObelix
 
 if onCiclad:
     print("Ciclad is nor more supported")
@@ -336,7 +343,13 @@ for new_html_line in new_html_lines:
     new_html = new_html + new_html_line + '\n'
 
 # -> Save as the html file that will be copied on the web server
-frontpage_html = 'C-ESM-EP_' + comparison + '.html'
+if AtlasBasename == "NONE":
+    frontpage_html = 'C-ESM-EP_' + comparison + '.html'
+else:
+    frontpage_html = AtlasBasename
+    if not frontpage_html.endswith('.html'):
+        frontpage_html += ".html"
+    
 with open(frontpage_html, "w") as filout:
     filout.write(new_html)
 
@@ -349,32 +362,32 @@ if not path_to_cesmep_output_rootdir_on_web_server:
 
 # -- C-ESM-EP tree from the C-ESM-EP output rootdir
 
-if AtlasPath != "NONE":
-    suffix_to_comparison = f'/C-ESM-EP/{AtlasPath}/'
+if AtlasBasename != "NONE":
+    suffix_to_comparison = f'C-ESM-EP/{AtlasDirname}'
 else:
     try:
-        from libIGCM_fixed_settings import TagName, SpaceName, OUT
+        from libIGCM_settings import TagName, SpaceName, OUT
     except:
-        suffix_to_comparison = '/C-ESM-EP/' + comparison + '_' + user_login + '/'
+        suffix_to_comparison = 'C-ESM-EP/' + comparison + '_' + user_login + '/'
     else:
         try:
-            from libIGCM_fixed_settings import JobName, ExperimentName
+            from libIGCM_settings import JobName, ExperimentName
         except:
             # Odd syntax from an old version of CESMEP. To me removed at some date...
-            from libIGCM_fixed_settings import ExperimentName as JobName, ExpType as ExperimentName
-        suffix_to_comparison = f'/C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
+            from libIGCM_settings import ExperimentName as JobName, ExpType as ExperimentName
+        suffix_to_comparison = f'C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
 
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
 #  -> path_to_comparison_outdir = path to the comparison directory
 #     (containing the frontpage and all atlas subdirectories)
-path_to_comparison_outdir = path_to_cesmep_output_rootdir + suffix_to_comparison
+path_to_comparison_outdir = path_to_cesmep_output_rootdir + "/" + suffix_to_comparison
 
 # -- Path to the directories actually accessible from the web
 path_to_comparison_on_web_server = path_to_cesmep_output_rootdir_on_web_server + \
-    suffix_to_comparison
+    "/" + suffix_to_comparison
 
 # -- URL  to the comparison
-comparison_url = root_url_to_cesmep_outputs + suffix_to_comparison
+comparison_url = root_url_to_cesmep_outputs + "/" + suffix_to_comparison
 
 # -- URL to C-ESM-EP frontpage
 frontpage_address = comparison_url + frontpage_html
@@ -410,7 +423,7 @@ if len(job_components) == 0 and argument != 'None':
 
 # -- Loop on the components and edit the html file with pysed
 if argument.lower() not in ['url', 'clean']:
-    if onSpirit or atCNRM:
+    if onSpirit or atCNRM or onObelix:
         target = path_to_comparison_outdir
     elif atTGCC or atIDRIS:
         target = path_to_comparison_outdir_workdir_tgcc
@@ -514,9 +527,9 @@ for component in job_components:
 
     # -- Specify the job script (only for Parallel coordinates)
     if component not in metrics_components:
-        job_script = 'job_C-ESM-EP.sh'
+        job_script = ' ../../job_C-ESM-EP.sh'
     else:
-        job_script = 'job_PMP_C-ESM-EP.sh'
+        job_script = ' ../../job_PMP_C-ESM-EP.sh'
     #
     # -- Build the command line and submit the job
     # ---------------------------------------------------
@@ -549,8 +562,8 @@ for component in job_components:
             ' ; ccc_msub' + add_email +\
             ' -r ' + jobname + ' -o ' + jobname + '_%I.out' + ' -e ' + jobname + '_%I.out' +\
             ' -n ' + nprocs + f' -Q {QOS} -A ' + account +\
-            ' -m store,work,scratch ' + ' -q ' + queue + ' -T ' + f'{time*60}' +\
-            ' ../../' + job_script
+            ' -m store,work,scratch ' + ' -q ' + queue + ' -T ' + f'{time*60} ' +\
+            job_script
         # -- Submit job and record jobid in a file
         if do_print:
             exitcode, output = getstatusoutput(cmd)
@@ -627,7 +640,7 @@ for component in job_components:
         cmd = '\n\ncd ' + submitdir + ' ;\n\n'\
             'sbatch --job-name=' + jobname + ' ' + job_options + \
             account_options + env_variables + parallel_instructions + \
-            ' ../../' + job_script
+            ' ' + job_script
 
         # -- Submit job
         if do_print:
@@ -650,22 +663,33 @@ for component in job_components:
                 check_output(error_job, shell=True)
 
     #
-    if atCNRM:
+    if atCNRM or onObelix:
         variables = 'component=' + component
         variables += ',comparison=' + comparison
         variables += ',WD=$(pwd)'
         variables += ',cesmep_frontpage=' + frontpage_address
         variables += ',CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache
-        #
-        mail = ''
-        if email is not None:
-            mail = ' --mail-type=END --mail-user=%s' % email
 
-        # at CNRM, we use sqsub on PCs for launching on aneto; env vars are sent using arg '-e'
-        cmd = '\n\t cd ' + submitdir + ' ; \n\n' + \
-              '\t sqsub \\\n\t\t-e \"' + variables + '\"' + \
-              ' \\\n\t\t-b "--partition=P8HOST --job-name=' + jobname + \
-              ' --time=03:00:00 --nodes=1' + mail + ' " \\\n\t\t../../' + job_script
+        if atCNRM:
+            #
+            mail = ''
+            if email is not None:
+                mail = ' --mail-type=END --mail-user=%s' % email
+            # at CNRM, we use sqsub on PCs for launching on aneto; env
+            # vars are sent using arg '-e'
+            cmd = '\n\t cd ' + submitdir + ' ; \n\n' + \
+                '\t sqsub \\\n\t\t-e \"' + variables + '\"' + \
+                ' \\\n\t\t-b "--partition=P8HOST --job-name=' + jobname + \
+                ' --time=03:00:00 --nodes=1' + mail + ' " \\\n\t\t' + job_script
+        elif onObelix:
+            mail = ''
+            if email is not None:
+                mail = ' -m e -M %s ' % email
+            if not queue:
+                queue = "mediump"
+            variables += f',MUST_CD_ON_OBELIX={submitdir}/..'
+            cmd = f' cd {submitdir} ; qsub -N {jobname} -v "{variables}"'
+            cmd += f' -q {queue} -j oe ' + mail + job_script
 
         if do_print:
             exitcode, output = getstatusoutput(cmd)
@@ -673,13 +697,20 @@ for component in job_components:
                 print(f"\n\nIssue submitting that job:{cmd}\n\n{output}\n")
                 all_submits_OK = False
             else:
-                jobid = output.split(' ')[3]
+                if atCNRM:
+                    jobid = output.split(' ')[3]
+                elif onObelix:
+                    jobid = output[1:]
                 with open(launched_jobs, "a") as lj:
                     lj.write(jobid+"\n")
-                error_job = f' cd {submitdir}; ' + \
-                    f'sqsub -b \"--partition=P8HOST -d afternotok:{jobid}\" ' + \
-                    f'-e \"atlas_pathfilename={atlas_pathfilename},' + variables + '\"' + \
-                    ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n'
+                variables += ',atlas_pathfilename='+atlas_pathfilename
+                error_job = f' cd {submitdir}; ' 
+                if atCNRM :
+                    error_job += f'sqsub -b \"--partition=P8HOST -d afternotok:{jobid}\" ' + \
+                        f'-e \"{variables}\"' 
+                elif onObelix:
+                    error_job += f'qsub -v "{variables}" -q {queue} -W depend=afternotok:{jobid}'
+                error_job += ' ../../share/fp_template/copy_html_error_page.sh >/dev/null 2>&1 \n'
                 check_output(error_job, shell=True)
 
     if atCerfacs:
@@ -692,7 +723,7 @@ for component in job_components:
                 ' ; export cesmep_frontpage=' + frontpage_address +\
                 ' ; export CESMEP_CLIMAF_CACHE=' + cesmep_climaf_cache + \
                 ' ; sbatch --job-name=CESMEP --partition=prod --nodes=1 --ntasks-per-node=1 ' + \
-                ' --output=cesmep.o --error=cesmep.e -w gsa4 ../../' + job_script
+                ' --output=cesmep.o --error=cesmep.e -w gsa4 ' + job_script
             print(cmd)
             check_output(cmd, shell=True)
 
@@ -742,7 +773,7 @@ if argument.lower() not in ['url', 'clean']:
             cmd += ' ; rm ' + frontpage_html
             check_output(cmd, shell=True)
     #
-    if onSpirit or atCNRM or atCerfacs :
+    if onSpirit or atCNRM or atCerfacs or onObelix:
         if publish:
             cmd = f'mv -f {frontpage_html} {path_to_comparison_on_web_server}'
         else:
@@ -764,7 +795,7 @@ if argument.lower() not in ['url', 'clean']:
                     'CESMEP_bandeau.png '
                 cmd = rmcmd + ';mfthredds -d  ' + path_to_comparison_on_web_server + ' ' + \
                     path_to_comparison_outdir_workdir_tgcc + 'CESMEP_bandeau.png '
-        if onSpirit or atCNRM or atCerfacs or atIDRIS:
+        if onSpirit or atCNRM or atCerfacs or atIDRIS or onObelix:
             cmd = 'cp -f share/fp_template/CESMEP_bandeau.png '
             if publish :
                 cmd += path_to_comparison_on_web_server
