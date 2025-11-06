@@ -106,11 +106,11 @@ atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
     if isinstance(var, dict):
         tmpvar = var.copy()
-        tmpvar.update(dict(add_climato_contours=True))
+        tmpvar.update(dict(add_climato_contours=True, zonmean_variable=True))
         atlas_explorer_variables.append(tmpvar)
     else:
         atlas_explorer_variables.append(
-            dict(variable=var, add_climato_contours=True))
+            dict(variable=var, add_climato_contours=True, zonmean_variable=True))
 
 # -- Project Specs
 for var in atlas_explorer_variables:

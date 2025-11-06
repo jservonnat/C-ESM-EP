@@ -181,7 +181,7 @@ def plot_sic_climato_with_ref(variable, model, ref, season, proj, add_product_in
     p = plot_params(variable, 'full_field', custom_plot_params=custom_plot_params)
     #
     # -- Add the contour of the ref (sic = 15)
-    p.update(dict(contours=15))
+    p.update(dict(contours="15"))
     #
     # -- Set the left, center and right strings of the plot
     p.update(dict(gsnLeftString=tmp_period,
