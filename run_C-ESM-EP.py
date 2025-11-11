@@ -61,11 +61,15 @@ import getpass
 import re
 from locations import path_to_cesmep_output_rootdir, \
     path_to_cesmep_output_rootdir_on_web_server, root_url_to_cesmep_outputs, climaf_cache
+
 try:
     from libIGCM_settings import AtlasPath, AtlasTitle
 except:
-    AtlasPath = "NONE"
-    AtlasTitle = "NONE"
+    try:
+        from settings import AtlasPath, AtlasTitle
+    except:
+        AtlasPath = "NONE"
+        AtlasTitle = "NONE"
 
 if AtlasPath != os.path.basename(AtlasPath):
     AtlasBasename = os.path.basename(AtlasPath)

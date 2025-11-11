@@ -16,3 +16,10 @@ account = None
 # Should we publish the atlas to an http capable location such as
 # thredds-su.ipsl.fr/thredds.   
 publish = True
+
+# Where should we create the atlas, and with which title. The values
+# here are not used when running through libIGCM. Value "NONE" will lead
+# to use a default value.
+# Path is relative to $WORKDIR/C-ESM-EP/. Default is <comparison>_<user>
+AtlasPath = "plotmap_valid/plotmap/plotmap.html"
+AtlasTitle = "Plotmap validation. Here using plotmap"

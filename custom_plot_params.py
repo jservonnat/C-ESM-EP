@@ -77,7 +77,7 @@ dict_plot_params = {
         #'full_field': {'colors': '0 0.1 0.5 1 2 3 4 5 6 7 8 9 10'},
         'bias': {'min': -1, 'max': 1},
         'model_model': {'min': -1, 'max': 1},
-
+    },
     'iceshelf': {
             'default': {'units': 'kg/m2/s', 'color': 'CBR_wet'}},
 
@@ -91,5 +91,4 @@ dict_plot_params = {
     'rhopot_bottom': {
             'default': {'units': 'kg/m3', 'color': 'cmocean_dense'}},
     
-    }
 }

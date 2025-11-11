@@ -34,7 +34,7 @@ from custom_obs_dict import custom_obs_dict
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
-# -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
+# -- Set the verbosity of CliMAF ('critical'< 'error' < 'warning' < 'info' < 'debug')
 verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
 safe_mode = True
@@ -191,3 +191,4 @@ calias("IGCM_OUT", 'ta', 'temp', filenameVar='histmth')
 calias("IGCM_OUT", 'hur', 'rhum', filenameVar='histmth')
 calias("IGCM_OUT", 'zg', 'geoph', filenameVar='histmth')
 calias("IGCM_OUT", 'hus', 'ovap', filenameVar='histmth')
+

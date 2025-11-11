@@ -27,8 +27,11 @@ from locations import path_to_cesmep_output_rootdir, path_to_cesmep_output_rootd
 try:
     from libIGCM_settings import AtlasPath, AtlasTitle
 except:
-    AtlasPath = "NONE"
-    AtlasTitle = "NONE"
+    try:
+        from settings import AtlasPath, AtlasTitle
+    except:
+        AtlasPath = "NONE"
+        AtlasTitle = "NONE"
 
 if AtlasPath != os.path.basename(AtlasPath):
     AtlasBasename = os.path.basename(AtlasPath)
@@ -38,6 +41,14 @@ else:
     AtlasDirname = ""
 
 #csync(True)
+
+import env    
+try:
+    # For the time being, the C-ESM-EP is not validated when CliMAF  
+    # version performs automatic check of dataset's period vs files
+    env.environment.data_check = False
+except:
+    pass
 
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:

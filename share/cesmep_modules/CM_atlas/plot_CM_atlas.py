@@ -17,6 +17,7 @@ import shutil
 import getpass
 from climaf.plot.ocean_plot_params import dict_plot_params as ocean_plot_params
 from climaf.chtml import blank_cell
+from climaf.period import cperiod
 
 StringFontHeight = 0.019
 
@@ -49,11 +50,12 @@ def is3d(variable):
 
 def build_period_str(dat):
     if isinstance(dat, dict):
-        ds_dat = ds(**dat)
+        ds_dat = ds(**dat, check=False)
     else:
         ds_dat = dat
     tmp_period = str(ds_dat.period)
-    if 'clim_period' in ds_dat.kvp and tmp_period == 'fx':
+    if 'clim_period' in ds_dat.kvp and \
+       (tmp_period == 'fx' or tmp_period == cperiod('fx') or tmp_period == '*'):
         tmp_period = ds_dat.kvp['clim_period']
     if 'years' in ds_dat.kvp and ds_dat.period == 'fx':
         tmp_period = ds_dat.kvp['years']
@@ -101,7 +103,7 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
         title = replace_keywords_with_values(model, model['customname'])
     else:
         if 'product' not in ds_model.kvp:
-            if model['project'] == 'CMIP5':
+            if model['project'] in [ 'CMIP5', 'CMIP6' ]:
                 title = ds_model.kvp['model']
             else:
                 title = get_realization_simulation_kw(ds_model)
@@ -297,6 +299,7 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
     print('wvar in plot_climato = ', wvar)
     #
     # -- Get the dataset
+    clogger.debug('calling compute_clim in plot_climato')
     climato_dat = compute_climatology(wdat_dict, season, wvar, do_cfile, safe_mode)
     if climato_dat is None and safe_mode:
         print('!! Plotting failed for :', wdat_dict, "\n", wvar)
@@ -668,6 +671,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     #
     # -- Compute the seasonal climatology of the reference
     refseason = ref.get('season',season)
+    clogger.debug('calling compute_clim for ref in plot_diff')
     climato_ref = compute_climatology(wref, refseason, wvar, do_cfile, safe_mode)
     if climato_ref is None and safe_mode:
         print('!! Plotting failed for :', wref, "\n", wvar)
@@ -791,6 +795,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             climato_ref = zonmean(climato_ref)
     else:
         # -- Alternative: 2D variable ------------------------------------------- #
+        clogger.debug('calling compute_clim for the model in plot_diff')
         climato_sim = compute_climatology(wmodel, modelseason, wvar, do_cfile, safe_mode)
         if climato_sim is None and safe_mode:
             print('!! Plotting failed for :', wmodel, "\n", wvar)
