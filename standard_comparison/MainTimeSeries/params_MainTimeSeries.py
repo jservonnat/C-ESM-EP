@@ -228,7 +228,7 @@ def AMOC_finder(dat,**kwargs):
     if 'msftyz_lat_file' in kwargs:
         lat_grid = fds(kwargs['msftyz_lat_file'], period='fx', variable='area')
     else: 
-        lat_grid=fds('/home/ggachon/latitude_msftyz_1.4.2.nc', period='fx', variable='nav_lat')
+        lat_grid=fds('/ccc/work/cont003/gencmip6/gachongu/latitude_msftyz_1.4.2.nc', period='fx', variable='nav_lat')  # Adress on Spirit : '/home/ggachon/latitude_msftyz_1.4.2.nc'
     latitude_filter=ccdo(ccdo(lat_grid,
                              operator='setrtomiss,-90,10'),
                         operator='setrtomiss,60,90')
