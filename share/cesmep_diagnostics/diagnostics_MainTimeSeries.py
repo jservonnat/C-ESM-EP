@@ -210,8 +210,8 @@ if do_main_time_series:
             if 'operation_kwargs' in time_series:
                 if "gridfile" not in time_series['operation_kwargs']:
                     time_series['operation_kwargs'].update(dict(gridfile=wdataset_dict['gridfile']))
-                if "msftyz_lat_file" not in time_series['operation_kwargs']:
-                    time_series['operation_kwargs'].update(dict(gridfile=wdataset_dict['msftyz_lat_file']))
+#                if "msftyz_lat_file" not in time_series['operation_kwargs']:
+#                    time_series['operation_kwargs'].update(dict(gridfile=wdataset_dict['msftyz_lat_file']))
                 ts_dat = time_series['operation'](
                     dat, **time_series['operation_kwargs'])
             else:
