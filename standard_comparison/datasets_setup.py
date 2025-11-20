@@ -236,8 +236,8 @@ if onCiclad or atTGCC or onSpirit:
                ts_period='1930_1939',
                customname='pdControl-IPSLCM7',
                color='green',
-               gridfile='/home/ggachon/eORCA1.4.2_grid.nc',
-               msftyz_lat_file='/home/ggachon/latitude_msftyz_1.4.2.nc'
+               gridfile='/ccc/work/cont003/gencmip6/gachongu/eORCA1.4.2_grid.nc' #  Adress on Spirit/home/ggachon/eORCA1.4.2_grid.nc',
+         #      msftyz_lat_file='/ccc/work/cont003/gencmip6/gachongu/latitude_msftyz_1.4.2.nc',  # Adress on Spirit : '/home/ggachon/latitude_msftyz_1.4.2.nc'
                ),
 #        dict(project='IGCM_OUT',
 #               login='p86fair',
