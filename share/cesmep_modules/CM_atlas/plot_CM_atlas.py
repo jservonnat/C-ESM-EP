@@ -7,6 +7,7 @@
 
 from climaf.api import *
 from climaf.chtml import *
+from climaf.classes import varIsAliased
 from reference import variable2reference
 from env.clogging import clogger, dedent
 from .time_manager import *
@@ -502,7 +503,6 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
-    print('var = ', var)
     scale = 1.
     offset = 0.
     units = None
@@ -763,7 +763,6 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             pres_wmodel.pop('variable')
             ds_pres = ds(variable=(
                 model['press_var'] if 'press_var' in model else 'pres'), **pres_wmodel)
-            print("ds_pres", ds_pres)
             nds_model = ccdo(ds_model, operator='mulc,1')
             nds_pres = ccdo(ds_pres, operator='mulc,1')
             ds_model = ml2pl(nds_model, nds_pres)
@@ -1451,7 +1450,11 @@ def section_2D_maps_climobs_bias_modelmodeldiff(
             print('Reference wref = ', wref)
             # -- Get the reference (model or obs, reanalysis)
             if wref == 'default':
-                ref = variable2reference(variable, my_obs=custom_obs_dict)
+                ref_var = variable
+                var_alias = varIsAliased('ref_climatos', variable)
+                if var_alias:
+                    ref_var = var_alias[0]
+                ref = variable2reference(ref_var, my_obs=custom_obs_dict)
                 if not ref:
                     ref = dict(project='ref_climatos', frequency='seasonal')
                 if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
@@ -1628,7 +1631,7 @@ def plot_zonal_profile(variable, model, reference=dict(), season='ANM', domain={
             refname = build_plot_title(wreference, None)
             #
             # -- Build the ensemble
-            print('simname, refname = ', simname, refname)
+            #print('simname, refname = ', simname, refname)
             print('cfile(zmean_dat) = ', cfile(zmean_dat))
             print('cfile(zmean_ref) = ', cfile(zmean_ref))
             models_dict.update({refname: zmean_ref})
@@ -1721,7 +1724,11 @@ def section_zonal_profiles(
         #
         # -- Get the reference (model or obs, reanalysis)
         if reference == 'default':
-            ref = variable2reference(variable, my_obs=custom_obs_dict)
+            ref_var = variable
+            var_alias = varIsAliased('ref_climatos', variable)
+            if var_alias:
+                ref_var = var_alias[0]
+            ref = variable2reference(ref_var, my_obs=custom_obs_dict)
             if not ref:
                 ref = dict(project='ref_climatos')
             if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
@@ -1896,7 +1903,11 @@ def process_var_reference(wref, variable, custom_obs_dict, var, project_specs, r
     #   - dicts 'project_specs' and 'var' otherwise (and also invokes get_period_manager)
     
     if wref == 'default':
-        ref = variable2reference(variable, my_obs=custom_obs_dict)
+        ref_var = variable
+        var_alias = varIsAliased('ref_climatos', variable)
+        if var_alias:
+            ref_var = var_alias[0]
+        ref = variable2reference(ref_var, my_obs=custom_obs_dict)
         if not ref:
             ref = dict(project='ref_climatos',
                        frequency='seasonal', table='Amon')

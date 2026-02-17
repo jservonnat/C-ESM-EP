@@ -5,7 +5,7 @@ from CM_atlas.spatial_integration import average_over_region, integral_over_regi
 # All settings for Orchidee variables 'a la MAPPER', and a function to map
 # that to C-ESM-EP data structures for component 'maps_and_ts'
 # ----------------------------------------------------------------------------
-# Also includes definitions of observation references
+# Also includes definitions of aliases for observation references
 
 orchidee_variables = {    
     "alb_nir" : { "DIR":"SRF", "filenameVar":"sechiba_history",  "units": "", "longname": "Albedo Near Infrared" },
@@ -98,24 +98,23 @@ orchidee_variables = {
 
 }
 
-# Can define reference observations on a per-variable basis
-# But can also, as an alernate way, import custom_obs_dict (from CESMEP root)
-orchidee_custom_obs_dict = dict(
-    fluxlat  = dict(project='ref_climatos', product='EnsembleLEcor', frequency='annual_cycle'),
-    fluxsens = dict(project='ref_climatos', product='EnsembleHcor' , frequency='annual_cycle'),
-    gpp      = dict(project='ref_climatos', product='EnsembleGPP'  , frequency='annual_cycle'),
-    lai      = dict(project='ref_climatos', product='GIMM3G'       , frequency='annual_cycle'),
-    #lai      = dict(project='ref_climatos', product='GLASS'        , frequency='annual_cycle'),
-    alb_vis    = dict(project='ref_climatos', product='MODIS'       , frequency='annual_cycle'),
-    alb_nir    = dict(project='ref_climatos', product='MODIS'       , frequency='annual_cycle'),
-    snow      = dict(project='ref_climatos', product='MODIS'       , frequency='annual_cycle'),
-)
-
 def declare_orchidee_alias_for_observations():
     # Explain how Orchidee variable names map to observation's variable names
+    # (for those obs data handled by project 'ref_climatos')
     calias("ref_climatos", "alb_vis","albvis")         
     calias("ref_climatos", "alb_nir","albnir")
+    calias("ref_climatos", "LAI","lai")
+    calias("ref_climatos", "lwdown","rlds")
+    calias("ref_climatos", "swdown","rsds")
+    calias("ref_climatos", "albedo","alb")
+    calias("ref_climatos", "temp_sol","ts")
     
+# Can define specific reference observations, on a per-variable basis.
+# This will complement root custom_obs_dict
+orchidee_custom_obs_dict = dict(
+    #fluxlat  = dict(project='ref_climatos', product='EnsembleLEcor', frequency='annual_cycle'),
+)
+
 
 def init_orchidee_variables(variables_setup, plots_setup, time_series_setup,
                             variables_specifics, special_project_specs):

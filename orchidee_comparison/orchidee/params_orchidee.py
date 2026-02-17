@@ -10,7 +10,8 @@
 
 import orchidee_definitions
 
-custom_obs_dict = orchidee_definitions.orchidee_custom_obs_dict 
+# Warning : we may supersede some values from root custom_obs_dict
+custom_obs_dict.update(orchidee_definitions.orchidee_custom_obs_dict )
 
 # -- Head title of the atlas
 diag_name = "Orchidee"
@@ -26,12 +27,8 @@ case_toggles = {
 }
 # For test purposes
 tcase_toggles = {
-    'maps'       : True,       # Plain climatology maps
-    'anomalies'  : False,       # Maps of differences with climatology 
-    'diffs'      : False,        # Maps of differences with first simulation
-    'time_series': False,       # Time series of basin-integrated variables
+    'anomalies'  : True,       # Maps of differences with climatology 
 }
-
 # Which variables to plot, grouped by category. 
 # ---------------------------------------------------------------------------- 
 # Entry 'specs' allows to provide project-specific attributes for each category
@@ -62,7 +59,7 @@ tvariables_setup = {
 }
 
 # We can provide further specifications, both for maps and time
-# series, on a per-variabe basis, in dict variables_specifics, which
+# series, on a per-variabe basis, in dict 'variables_specifics', which
 # keys are variable names and values are corresponding dicts
 
 # There, keys can be : units, longname, global_sum_scale, ratio, ratio_threshold
@@ -102,7 +99,6 @@ variables_specifics = {
 special_project_specs = {
     # Here, mainly fed by init_orchidee_variables(), see below
     'nbp'   : {'IGCM_OUT' : { 'OUT' : '*'}},
-    'mrrob' : {'CMIP6' :{ 'table' : '*mon'}},
     }
 
 
@@ -149,9 +145,11 @@ ts_regions_file = main_cesmep_path + "/data/regs_360720.nc"
 # you have to add attributes standard_name and units to lat & lon
 
 # Providing the list of short names (reg_id in ts_regions_file) for regions
-# on which to integrate. Can be None or []
-ts_regions = [ 'g', 'n', 't'  ] 
-#ts_regions = None
+# on which to integrate.
+# As a special, built-in case, "G" means full globe. None and [] translate to ['G']
+# Default value is None
+ts_regions = [ 'G', 'g', 't'  ] 
+ts_regions = None
 
 # For reference, the list of reg_id and region names for a MAPPER file
 # g (global), n (northern land), t (tropical land), s (southern land), amnbo (america north boreal), amnte (america north temperate), amstr (america south tropical), amste (america south temperate), eu (europe), asbo (asia boreal), aste (asia temperate), astr (asia tropical), afn (africa north), afs (africa south), auzea (australia & new zealand)
@@ -186,7 +184,7 @@ common_ts_plot_params = dict(
 
     #legend_labels=['simulation', 'climato period'],
     legend_ncol=1,
-    legend_lw=[2, 2, 2],
+    legend_lw=[2],
     legend_xy_pos=[0.1, 0.9],
     #legend_colors='black,black',
     append_custom_legend_to_default=False,

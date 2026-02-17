@@ -68,6 +68,7 @@ if CesmepPeriod != 0:
         current_slice = common.copy()
         clim_period = "%d_%d" % (begin, end)
         current_slice.update(clim_period=clim_period,
+                             ts_period=clim_period,
                              customname=JobName + '_' + clim_period)
         models.insert(0, current_slice)
         begin -= CesmepPeriod
@@ -76,6 +77,7 @@ if CesmepPeriod != 0:
 else:
     clim_period = "%d_%d" % (YearBegin, data_end)
     common.update(clim_period=clim_period,
+                  ts_period=clim_period,
                   customname=JobName + '_' + clim_period)
     models.append(common)
 
