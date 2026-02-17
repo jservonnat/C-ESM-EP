@@ -224,10 +224,10 @@ print('==> Against reference:')
 print('==> ----------------------------------- #')
 print('  ')
 if type(reference) is not list:
-    refs = [reference]
+    references = [reference]
 else:
-    refs = reference
-for ref in refs:
+    references = reference
+for ref in references:
     print()
     if ref == 'default':
         print('  --> Using the catalog of pre-defined references (in share/cesmep_modules/reference/reference.py)')

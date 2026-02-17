@@ -108,7 +108,7 @@ if [[ -d "/home/orchideeshare/"  ]] ; then
     #module load cesmep
 
     # Next sequence, which uses conda.sh and conda activate, would also
-    # works but take circa 15s on Obelix
+    # work but take circa 15s on Obelix
     #
     # Initialize the current bash shell 
     #export MAMBA_ROOT_PREFIX=/home/orchideeshare/igcmg/Tools/miniforge3

@@ -22,6 +22,7 @@
 
 from custom_plot_params import dict_plot_params as custom_plot_params
 from CM_atlas import mapper
+from reference.reference import reference_has_data
     
 # Build a dict of map specification by combining 5 sources
 def build_map_specs(variables_setup, variables_specific, common_plot_params,
@@ -52,6 +53,8 @@ def build_time_series_specs(category, variables_setup, variables_specifics,
     # From NetCDF 'regions_file', returns the pair, 'reg_number','reg_label' value for
     # region which 'reg_id' is 'region', assuming they share coordinate 'reg'
     def ts_get_region_label(region, regions_file):
+        if region == 'G' :
+            return(None, "Globe")
         with xr.open_dataset(regions_file) as rf:
             for reg in rf.reg.values :
                 if rf.reg_id[reg] == region:
@@ -101,6 +104,9 @@ if not use_available_period_set:
 else:
     Wmodels = copy.deepcopy(Wmodels_clim)
 
+if ts_regions is None or ts_regions == []:
+    ts_regions=["G"]
+    
 if interactive_selection:
     # Activate relevant filename scheme 
     map_filename_func = mapper.mapper_map_filename
@@ -109,7 +115,7 @@ if interactive_selection:
     mapper_page = mapper.build_mapper_page(models, variables_setup, \
                     case_toggles, seasons, ts_frequencies, ts_regions, \
                     ts_regions_file,  custom_obs_dict, variables_specifics,\
-                    atlas_head_title, reference)
+                    atlas_head_title, references)
 
 # -- Add table. To be re-scrutinized
 #for model in Wmodels:
@@ -126,7 +132,7 @@ index = header(atlas_head_title, style_file=style_file)
 
 index += section('Maps', level=1)
 
-# Common args for all climato_* functions calls
+# Common args for all climato_* functions calls further below
 args_rest = dict(domain=domain,
                  add_product_in_title=add_product_in_title,
                  custom_plot_params=custom_plot_params, shade_missing=True,
@@ -148,19 +154,28 @@ for category in map_specs.keys() :
     index += section(category, level=2)
     #
     for season in seasons:
-        if case_toggles['maps']:
+        if case_toggles.get('maps',False):
             title1 = category + ' - Climatologies'
             index += section_climato_2D_maps(
                 copy.deepcopy(Wmodels), None, proj, season,
                 copy.deepcopy(map_specs[category]), title1, **args_rest)
         #
-        if case_toggles['anomalies']:
+        if case_toggles.get('anomalies',False):
             title1 = category + ' - Anomalies (i.e. vs obs and/or other reference)'
+            # Create a specs list for all variables but the one with
+            # a default reference that is missing
+            vars_with_ref = []
+            for each_var in map_specs[category]:
+                if reference == 'default' or 'default' in reference:
+                    if reference_has_data(each_var, custom_obs_dict):
+                        vars_with_ref.append(copy.deepcopy(each_var))
+                else:
+                    vars_with_ref.append(copy.deepcopy(each_var))
             index += section_2D_maps(
                 copy.deepcopy(Wmodels), reference, proj, season,
                 vars_with_ref, title1, **args_rest)
         #
-        if case_toggles['diffs'] and len(Wmodels) > 1:
+        if case_toggles.get('diffs',False) and len(Wmodels) > 1:
             title1 = category + ' - Diff vs simulation'
             wms = copy.deepcopy(Wmodels)
             index += section_2D_maps(
@@ -169,7 +184,7 @@ for category in map_specs.keys() :
 
 
 
-if case_toggles['time_series']:
+if case_toggles.get('time_series',False):
     #
     index += section('Time series', level=1)
 

@@ -34,7 +34,7 @@ def ts_adapt_frequency(dat, from_freq, to_freq, data_name):
         #
         if rep is None:
             raise ValueError( "Cannot compute %s output with %s input for data %s"%\
-                              to_freq, from_freq, data_name)
+                              (to_freq, from_freq, data_name))
     else:
         rep = dat
     return rep
@@ -158,8 +158,8 @@ if do_main_time_series:
         # Iterate over some parameter (e.g. regions)
         for okwarg in okwargs :
             if "ts_filename_func" in locals() :
-                ts_region = okwarg.get('region','g')
-                ts_region_name = okwarg.get('region_name','')
+                ts_region = okwarg['region']
+                ts_region_name = okwarg['region_name']
             print("processing time_series with :",okwarg, time_series)
             ens_ts_dict = dict()
             names_ens = []
@@ -242,13 +242,15 @@ if do_main_time_series:
                 ts_dat = operation( dat, **time_series.get('operation_kwargs',{}),
                                     **okwarg)
                 if 'global_sum_scale' in time_series:
-                    ts_dat = ccdo(ts_dat, operator='mulc,%g' % float(time_series['global_sum_scale'][0]))
+                    ts_dat = ccdo(ts_dat, operator='mulc,%g' %
+                                  float(time_series['global_sum_scale'][0]))
                 #
                 # -- Add to the ensemble for plot, but only if accessing the data is OK
                 try:
                     cfile(ts_dat)
                 except:
-                    clogger.error("Cannot create time series for %s and %s"%(mem_name,time_series['variable']))
+                    clogger.error("Cannot create time series for %s and %s"%
+                                  (mem_name,time_series['variable']))
                 else:
                     ens_ts_dict.update({mem_name: ts_dat})
                     names_ens.append(mem_name)
