@@ -264,6 +264,12 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
     wdat_dict = dat_dict.copy()
     wdat_dict.update(dict(variable=variable))
     #
+    # -- clim_period
+    #clim_period = wvar.get('clim_period', None)
+    if 'clim_period' in wvar:
+        wvar.pop('clim_period')
+        #wdat_dict['clim_period'] = clim_period
+    #
     # -- Add the gr and table for the CMIP6 datasets
     if grid:
         wdat_dict.update(dict(grid=grid))
@@ -627,6 +633,11 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     # -- Get the datasets of the model and the ref
     wmodel = model.copy()
     wmodel.update(dict(variable=variable))
+    clim_period = wvar.get('clim_period', None)
+    if clim_period:
+        wmodel['clim_period'] = clim_period
+        wvar.pop('clim_period')
+
     # -- Add the gr and table for the CMIP6 datasets
     if 'grid' in wvar:
         wmodel.update(dict(grid=wvar['grid']))
