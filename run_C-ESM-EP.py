@@ -77,7 +77,8 @@ if AtlasPath != os.path.basename(AtlasPath):
 else:
     AtlasBasename = AtlasPath
     AtlasDirname = ""
-    
+
+
 # -- 0/ Identify where we are, based on CliMAF logics
 # -----------------------------------------------------------------------------------------
 from locations import atCNRM, onCiclad, onSpirit, atTGCC, atIDRIS, atCerfacs, onObelix
@@ -380,6 +381,7 @@ else:
             # Odd syntax from an old version of CESMEP. To me removed at some date...
             from libIGCM_settings import ExperimentName as JobName, ExpType as ExperimentName
         suffix_to_comparison = f'C-ESM-EP/{TagName}/{SpaceName}/{ExperimentName}/{JobName}/{OUT}/{comparison}/'
+
 
 # -- path_to_cesmep_output_rootdir = Path to the root of the C-ESM-EP atlas outputs
 #  -> path_to_comparison_outdir = path to the comparison directory
