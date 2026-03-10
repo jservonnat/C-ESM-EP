@@ -1,0 +1,126 @@
+# ---------------------------------------------------------------------------- >
+from env.site_settings import onCiclad, onSpirit, atTGCC, atCNRM, atCerfacs, onObelix
+from CM_atlas import *
+
+
+# -- Patterns to clean the cache at the end of the execution of the atlas
+routine_cache_cleaning = [dict(age='+20')]
+
+# -- Set the path to the grids
+gridpath = '/data/igcmg/database/grids/'
+
+
+# --> case onCiclad or atTGCC:
+models = [
+
+    # dict(project='IGCM_OUT',
+    #      login='lurtont',
+    #      model='IPSLCM6',
+    #      experiment='historical',
+    #      simulation='CM61-LR-hist-01',
+    #      clim_period='1980-2005',
+    #      customname='CM61-LR-hist-01 *',
+    #      color='red',
+    #      ts_period='1980-1989',
+    #      ),
+    
+    # dict(project='CMIP6',
+    #      model='IPSL-CM6A-LR',
+    #      experiment='historical',
+    #      frequency='monthly',
+    #      period='1980-2005',
+    #      realization='r2i1p1f1',
+    #      version='latest'
+    #      ),
+
+    dict(project='IGCM_OUT',
+              root='/data',
+              login='ssenesi',
+              model='IGCM_OUT/OL2',
+              status='TEST',
+              experiment='cesmep',
+              simulation='FG2C',
+              frequency='monthly',
+              OUT='*',
+              ts_period='full',
+              ),
+    dict(project='IGCM_OUT',
+             login='p86caub',
+             model='IPSLCM7',
+             experiment='pdControl',
+             simulation='CM70-ico-O4-BOOST100',
+             clim_period='1880_1889',
+             customname='ICOBOOST100',
+             color='red'
+             ),
+    ]
+
+root = '/thredds/tgcc/store'
+
+if onObelix:
+    models = [
+        dict(project='IGCM_OUT',
+             root = '/home/scratch01', 
+             login='vbastri',
+             model='IGCM_OUT/OL2',
+             experiment='ORC3v8120',
+             status='TEST',
+             OUT='Output',
+             simulation='FGH.20Y',
+             #clim_period='2001-2020',
+             clim_period='2001-2002',
+             ts_period='2001-2010',
+             #customname='CM61-LR-hist-01 *',
+             color='red'
+             ),
+        # /home/orchideeshare/repository/IGCM_OUT/OL2/PROD/ORC4tag42/FGH.CRUJRA.tag42
+        dict(project='IGCM_OUT',
+             root = '/home/orchideeshare', 
+             login='repository',
+             model='IGCM_OUT/OL2',
+             experiment='ORC4tag42',
+             status='PROD',
+             OUT='Output',
+             simulation='FGH.CRUJRA.tag42',
+             clim_period='2001-2002',  #dispo : '1901-2020'
+             ts_period='2001-2010',
+             #customname='CM61-LR-hist-01 *',
+             color='blue'
+             ),
+        ]
+
+#
+# -- Provide a set of common keys to the elements of models
+# ---------------------------------------------------------------------------- >
+common_keys = dict(
+    root=root,
+    login='*',
+    frequency='monthly',
+    clim_period='last_30Y',
+    ts_period='full',
+    ENSO_ts_period='last_80Y',
+    mesh_hgr=gridpath + 'eORCA1.2_mesh_mask_glo.nc',
+    gridfile=gridpath + 'eORCA1.1_grid.nc',
+    varname_area='area',
+)
+#
+for model in models:
+    if model['project'] == 'IGCM_OUT':
+        for key in common_keys:
+            if key not in model:
+                model.update({key: common_keys[key]})
+                
+
+# -- Find the last available common period to all the datasets
+# -- with clim_period = 'common_clim_period'
+# ---------------------------------------------------------------------------- >
+common_period_variable = 'tas'
+
+# common_clim_period = 'last_10Y'
+common_clim_period = None
+if common_clim_period:
+    find_common_period(models, common_period_variable, common_clim_period)
+
+reference = 'default'
+
+#climaf.driver.scripts_ouput_write_mode='a'

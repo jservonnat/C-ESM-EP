@@ -23,24 +23,25 @@
 # --------------------------------------------------------------------------------------------- /
 
 from custom_plot_params import dict_plot_params as custom_plot_params
+from climaf.utils import ranges_to_string
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
-verbose = 'error'
+verbose = 'debug'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = True
+safe_mode = False
 # -- Set to True to clean the CliMAF cache
 clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
-nprocs = 32
+nprocs = 8
 # memory = 20 # in gb
 # queue = 'days3'
-# time = 480 # minutes
+time = 240 # minutes
 # QOS = 'test'
 
 
@@ -57,10 +58,7 @@ nprocs = 32
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Zonal Mean"
-# When driven by libIGCM, an additional title may be provided by config.card
-if AtlasTitle != "NONE":
-    atlas_head_title += " - " + AtlasTitle
+atlas_head_title = "INCA - Zonal Mean"
 
 
 # -- Set the overall season, region and geographical domain
@@ -81,52 +79,73 @@ domain = {}
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-atlas_explorer_variables_list = [
-    'ua', 'va', 'ta', 'hus', 'hur',
-    dict(variable='ua', season='DJF'), dict(variable='va', season='DJF'),
-    dict(variable='ta', season='DJF'), dict(variable='hus', season='DJF'),
-    dict(variable='hur', season='DJF'), dict(variable='ua', season='JJA'),
-    dict(variable='va', season='JJA'), dict(variable='ta', season='JJA'),
-    dict(variable='hus', season='JJA'), dict(variable='hur', season='JJA'),
-    dict(variable='ua', y='log'), dict(variable='va', y='log'),
-    dict(variable='ta', y='log'), dict(variable='hus', y='log'),
-    dict(variable='hur', y='log'),
-    dict(variable='ua', y='log', season='DJF'), dict(
-        variable='va', y='log', season='DJF'),
-    dict(variable='ta', y='log', season='DJF'), dict(
-        variable='hus', y='log', season='DJF'),
-    dict(variable='hur', y='log', season='DJF'), dict(
-        variable='ua', y='log', season='JJA'),
-    dict(variable='va', y='log', season='JJA'), dict(
-        variable='ta', y='log', season='JJA'),
-    dict(variable='hus', y='log', season='JJA'), dict(
-        variable='hur', y='log', season='JJA'),
-]
+atlas_explorer_variables_list = ['vmrn2o', 'vmro3', 'vmrch4', 'vmrco', 'vmrh2o', 'vmrnox',
+                                'vmrhno3', 'vmrhcl', 'vmrclono2', 'vmrclo', 'vmrn2o5',
+                                ]
+
+my_title = {'vmrn2o'  : 'Volume Mixing Ratio of N2O',
+            'vmro3'   : 'Volume Mixing Ratio of O3',
+            'vmrch4'  : 'Volume Mixing Ratio of CH4',
+            'vmrco'   : 'Volume Mixing Ratio of CO',
+            'vmrh2o'  : 'Volume Mixing Ratio of H2O',
+            'vmrnox'  : 'Volume Mixing Ratio of NOx',
+            'vmrhno3' : 'Volume Mixing Ratio of HNO3',
+            'vmrhcl'  : 'Volume Mixing Ratio of HCl',
+            'vmrclono2':'Volume Mixing Ratio of ClONO2',
+            'vmrclo'  : 'Volume Mixing Ratio of ClO',
+            'vmrn2o5' : 'Volume Mixing Ratio of N2O5'}
+
 atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
     if isinstance(var, dict):
         tmpvar = var.copy()
-        tmpvar.update(dict(add_climato_contours=True, zonmean_variable=True))
+        tmpvar.update(dict(add_climato_contours=False, zonmean_variable=True, 
+            y='log',line_title=my_title[var]))
         atlas_explorer_variables.append(tmpvar)
     else:
         atlas_explorer_variables.append(
-            dict(variable=var, add_climato_contours=True, zonmean_variable=True))
+            dict(variable=var, add_climato_contours=False, zonmean_variable=True, 
+                y='log', line_title=my_title[var]))
+
+calias("IGCM_OUT", 'vmrch4', scale=1e6, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrn2o', scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrco',  scale=1e6, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmro3',  scale=1e6, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrnh3', scale=1e6, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrh2o', scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrno',  scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrno2', scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrhno3',scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrhcl', scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrclono2', scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrclo',  scale=1e9, filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrn2o5', scale=1e9, filenameVar='inca_species')
+
+derive("*", "vmrnox", "plus", "vmrno", "vmrno2")
 
 # -- Project Specs
 for var in atlas_explorer_variables:
     var.update(dict(
-        table='Amon', project_specs=dict(
-            IGCM_OUT=dict(DIR='ATM'),
-        ),
+        project_specs=dict(
+        IGCM_OUT=dict(DIR='CHM'),
+    ),
     ))
+
+my_dict_plot_params = {}
+for var in atlas_explorer_variables_list:
+    if var in ['vmrch4', 'vmrco', 'vmro3','vmrnh3']: # change units
+        my_dict_plot_params[var] = {'default': {'gsnCenterString':'units: ppm', 'color':'BlAqGrYeOrRe'},
+            'bias': {'color':'matlab_hot'},
+            'model_model': {'color':'BlueYellowRed'} }
+    else:
+        my_dict_plot_params[var] = {'default': {'gsnCenterString':'units: ppb', 'color':'BlAqGrYeOrRe'},
+            'bias': {'color':'matlab_hot'},
+            'model_model': {'color':'BlueYellowRed'} }
 
 # -- Display full climatology maps =
 # -- Use this variable as atlas_explorer_variables to activate the climatology maps
 atlas_explorer_climato_variables = None
-
-# -- Activate the parallel execution of the plots
-do_parallel = False
-
+add_line_of_climato_plots=True
 
 period_manager_test_variable = 'ua'
 
@@ -142,6 +161,7 @@ thumbnail_size = "250*250"
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
+add_line_of_climato_plots=True
 
 
 # -- Name of the html file
@@ -161,12 +181,6 @@ index_name = None
 #    for an example/
 
 # Fix errors of igcm_out.py re. 3D Variables
-calias("IGCM_OUT", 'ua', 'vitu', filenameVar='histmth')
-calias("IGCM_OUT", 'va', 'vitv', filenameVar='histmth')
-calias("IGCM_OUT", 'ta', 'temp', filenameVar='histmth')
-calias("IGCM_OUT", 'hur', 'rhum', filenameVar='histmth')
-calias("IGCM_OUT", 'zg', 'geoph', filenameVar='histmth')
-#calias("IGCM_OUT", 'hus', filenameVar='histmth')
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #

@@ -39,7 +39,9 @@ if [ -d $target ] ; then
 	    echo "OK"
 	    ;;
 	non|NON|n|no|NO|*)
+	    echo "-------------------------------------------"
 	    echo "No C-ESM-EP install !"
+	    echo "-------------------------------------------"
 	    exit 9
 	    ;;
     esac
@@ -47,12 +49,11 @@ if [ -d $target ] ; then
     rm -fR $target
 fi
 mkdir -p $target
-
 # Copy the comparison subdir
 if [ -d $cesmep_dir/$comparison ] ; then
     comparison_dir=$cesmep_dir
 elif [ -d $comparison ] ; then
-    comparison=$(realname $comparison)
+    comparison=$(realpath $comparison)
     comparison_dir=$(dirname $comparison)
     comparison=$(basename $comparison)
 else
@@ -60,11 +61,13 @@ else
     exit 1
 fi
 (cd $comparison_dir ; tar -chf - --exclude=*.out --exclude=*~ --exclude=climaf.log \
-     --exclude=job.in  --exclude=cesmep_atlas_style_css $comparison) | \
+     --exclude=job.in  --exclude=cesmep_atlas_style_css --exclude=*_C-ESM-EP.o* \
+     --exclude=__pycache__ \
+      $comparison) | \
     (cd $target; tar -xf - )
 
 # Link a few files at C-ESM-EP root level 
-links="share job_C-ESM-EP.sh job_PMP_C-ESM-EP.sh locations.py custom_obs_dict.py"
+links="share data job_C-ESM-EP.sh job_PMP_C-ESM-EP.sh locations.py custom_obs_dict.py"
 [ $with_libIGCM != no ] && links+=" libIGCM_clean.sh libIGCM_post.sh"
 for file in $links; do
      ln -sf $cesmep_dir/$file $target

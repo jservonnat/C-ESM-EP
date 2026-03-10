@@ -14,7 +14,7 @@ except:
     # Odd syntax from an old version of CESMEP. To me removed at some date...
     from libIGCM_settings import ExperimentName as JobName, ExpType as ExperimentName
 
-from env.site_settings import atIDRIS, atTGCC, onSpirit
+from env.site_settings import atIDRIS, atTGCC, onSpirit, onObelix
 
 # Next three imports allow to process data that is not at the location
 # initialized by libIGCM. This is the case when creating a fake
@@ -76,7 +76,7 @@ if CesmepPeriod != 0:
 else:
     clim_period = "%d_%d" % (YearBegin, data_end)
     common.update(clim_period=clim_period,
-                  customname=JobName + ' ' + clim_period)
+                  customname=JobName + '_' + clim_period)
     models.append(common)
 
 #
@@ -84,12 +84,15 @@ else:
 # ---------------------------------------------------------------------------- >
 if atTGCC:
     root = '/ccc/store/cont003/gencmip6'
-    gridpath = '/ccc/work/cont003/igcmg/igcmg/Database/grids/'
+    gridpath = '/ccc/work/cont003/igcmg/igcmg/database/grids/'
 elif atIDRIS:
     root = '/gpfsstore/rech/psl'
     gridpath = '/gpfswork/rech/psl/commun/database/grids'
 elif onSpirit:
     root = 'please_set_default_root_for_spirit_in_libIGCM_datasets.py /'
+    gridpath = 'please_set_gridpath_for_spirit_in_libIGCM_datasets.py /'
+elif onObelix:
+    root = "/home/scratch01/"
     gridpath = 'please_set_gridpath_for_spirit_in_libIGCM_datasets.py /'
 
 IGCM_common_keys = dict(

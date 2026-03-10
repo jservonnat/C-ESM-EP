@@ -857,13 +857,13 @@ def zonal_mean_slice(model, variable, basin, season, ref=None, add_product_in_ti
             # -- Interpolate vertically and compute the difference
             if safe_mode:
                 try:
-                    ZM_bias = diff_zonmean(ZM_MODEL, ZM_REF)
+                    ZM_bias = diff_zonmean(ZM_MODEL, ZM_REF, do_zonmean_1 = False, do_zonmean_2 = False)
                 except:
                     print('--> Error in diff_zonmean(ZM_MODEL, ZM_REF)')
                     print('--> Set safe_mode=False to track the error')
                     ZM_bias = minus(ZM_MODEL, ZM_REF)
             else:
-                ZM_bias = diff_zonmean(ZM_MODEL, ZM_REF)
+                ZM_bias = diff_zonmean(ZM_MODEL, ZM_REF, do_zonmean_1 = False, do_zonmean_2 = False)
             # -- Compute the zonal mean for the basin using the obs masks
         else:
             print(

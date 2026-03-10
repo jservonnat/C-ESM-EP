@@ -4,7 +4,7 @@
 # --      User Interface for:                                                                 - \
 # --                                                                                           - \
 # --          CliMAF Earth System Model Evaluation Platform                                     - \
-# --             - component: Atmosphere_zonmean                                                 - |
+# --             - component: Atmosphere_Surface                                                 - |
 # --                                                                                             - |
 # --      Developed within the ANR Convergence Project                                           - |
 # --      CNRM GAME, IPSL, CERFACS                                                               - |
@@ -22,25 +22,27 @@
 # --                                                                                           - /
 # --------------------------------------------------------------------------------------------- /
 
-from custom_plot_params import dict_plot_params as custom_plot_params
 
 # -- Preliminary settings: import module, set the verbosity and the 'safe mode'
 # ---------------------------------------------------------------------------- >
 from os import getcwd
+from custom_plot_params import dict_plot_params as custom_plot_params
+from climaf.utils import ranges_to_string
+
 # -- Set the verbosity of CliMAF (minimum is 'critical', maximum is 'debug', intermediate -> 'warning')
 verbose = 'error'
 # -- Safe Mode (set to False and verbose='debug' if you want to debug)
-safe_mode = True
+safe_mode = False
 # -- Set to True to clean the CliMAF cache
 clean_cache = False
 # -- Patterns to clean the cache at the end of the execution of the atlas
 routine_cache_cleaning = [dict(age='+20')]
 # -- Parallel and memory instructions
 do_parallel = False
-nprocs = 32
-# memory = 20 # in gb
-# queue = 'days3'
-# time = 480 # minutes
+nprocs = 4
+# memory = 30 # in gb; 30 for ocean atlasas
+# queue = 'days3' # onCiclad: h12, days3
+time = 360 # minutes
 # QOS = 'test'
 
 
@@ -57,8 +59,8 @@ nprocs = 32
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "Atmosphere Zonal Mean"
-# When driven by libIGCM, an additional title may be provided by config.card
+atlas_head_title = "INCA - North Pole"
+# With libIGCM, the user may have provided an additional title
 if AtlasTitle != "NONE":
     atlas_head_title += " - " + AtlasTitle
 
@@ -69,11 +71,10 @@ if AtlasTitle != "NONE":
 # -> Choose among all the possible values taken by clim_average (see help(clim_average)) like JFM, December,...
 season = 'ANM'
 # -> Set to a value taken by the argument 'proj' of plot(): GLOB, NH, SH, NH20, SH30...
-proj = 'GLOB'
+proj = 'NH50'
 # -> set domain = dict(lonmin=X1, lonmax=X2, latmin=Y1, latmax=Y2)
 # domain = dict(lonmin=0, lonmax=360, latmin=-30, latmax=30)
 domain = {}
-
 
 # ---------------------------------------------------------------------------- >
 # -- Atmosphere diagnostics
@@ -81,54 +82,78 @@ domain = {}
 # -- thus possible to use the functionalities (python dictionaries to add options
 # -- with a variable)
 # ---------------------------------------------------------------------------- >
-atlas_explorer_variables_list = [
-    'ua', 'va', 'ta', 'hus', 'hur',
-    dict(variable='ua', season='DJF'), dict(variable='va', season='DJF'),
-    dict(variable='ta', season='DJF'), dict(variable='hus', season='DJF'),
-    dict(variable='hur', season='DJF'), dict(variable='ua', season='JJA'),
-    dict(variable='va', season='JJA'), dict(variable='ta', season='JJA'),
-    dict(variable='hus', season='JJA'), dict(variable='hur', season='JJA'),
-    dict(variable='ua', y='log'), dict(variable='va', y='log'),
-    dict(variable='ta', y='log'), dict(variable='hus', y='log'),
-    dict(variable='hur', y='log'),
-    dict(variable='ua', y='log', season='DJF'), dict(
-        variable='va', y='log', season='DJF'),
-    dict(variable='ta', y='log', season='DJF'), dict(
-        variable='hus', y='log', season='DJF'),
-    dict(variable='hur', y='log', season='DJF'), dict(
-        variable='ua', y='log', season='JJA'),
-    dict(variable='va', y='log', season='JJA'), dict(
-        variable='ta', y='log', season='JJA'),
-    dict(variable='hus', y='log', season='JJA'), dict(
-        variable='hur', y='log', season='JJA'),
-]
+my_seasons = ['MAM', 'April']
+atlas_explorer_variables_list = ['colo3tot', 'vmro3_north', 'vmrhno3_north', 'vmrclo_north', 'vmrhcl_north', 'vmrclono2_north']
+
+period_manager_test_variable = 'tas'
+
+my_title = {'colo3tot':'Total Column of O3',
+        'vmro3_north': 'Volume Mixing Ratio of O3 at 200 hPa',
+        'vmrhno3_north':'Volume Mixing Ratio of HNO_3 at 200 hPa',
+        'vmrclo_north':'Volume Mixing Ratio of ClO at 200 hPa',
+        'vmrhcl_north':'Volume Mixing Ratio of HCl at 200 hPa',
+        'vmrclono2_north':'Volume Mixing Ratio of ClONO_2 at 200 hPa'}
+
 atlas_explorer_variables = []
 for var in atlas_explorer_variables_list:
-    if isinstance(var, dict):
-        tmpvar = var.copy()
-        tmpvar.update(dict(add_climato_contours=True, zonmean_variable=True))
-        atlas_explorer_variables.append(tmpvar)
-    else:
-        atlas_explorer_variables.append(
-            dict(variable=var, add_climato_contours=True, zonmean_variable=True))
+    for seas in my_seasons:
+        atlas_explorer_variables.append(dict(variable=var, season=seas, color='WhiteBlueGreenYellowRed',line_title=my_title[var],
+                                             project_specs=dict(
+                                                 IGCM_OUT=dict(DIR='CHM'),
+                                             ),
+                                             ))
 
-# -- Project Specs
-for var in atlas_explorer_variables:
-    var.update(dict(
-        table='Amon', project_specs=dict(
-            IGCM_OUT=dict(DIR='ATM'),
-        ),
-    ))
+my_dict_plot_params = {
+        'colo3tot': {'default':{ 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'gsnCenterString':'units: DU', 'colors': ranges_to_string(ranges=[220, 460, 20])},
+            'bias': {'colors': ranges_to_string(ranges=[-100, 100, 20], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-10, 100, 20], sym=True)},
+                    },
+        'vmro3_north': {'default':{ 'scale':1e9, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'gsnCenterString':'units: ppbv', 'colors': ranges_to_string(ranges=[0, 700, 25])},
+            'bias': {'colors': ranges_to_string(ranges=[-0.25, 0.25, 0.02], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-0.25, 0.25, 0.02], sym=True)},
+                    },
+        'vmrhno3_north': {'default':{'gsnCenterString':'ppbv', 'scale':1e9, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'gsnCenterString':'units: ppbv', 'colors': ranges_to_string(ranges=[0, 2.2, 0.2])},
+            'bias': {'colors': ranges_to_string(ranges=[-0.5, 0.5, 0.05], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-0.5, 0.5, 0.05], sym=True)},
+                    },
+        'vmrclo_north': {'default':{'gsnCenterString':'pptv', 'scale':1e12, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'gsnCenterString':'units: pptv', 'colors': ranges_to_string(ranges=[0, 15, 1])},
+            'bias': {'colors': ranges_to_string(ranges=[-7, 3, 0.5], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-7, 3, 0.5], sym=True)},
+                    },
+        'vmrhcl_north': {'default':{'gsnCenterString':'ppbv', 'scale':1e9, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'gsnCenterString':'units: ppbv', 'colors': ranges_to_string(ranges=[0, 0.24, 0.02])},
+            'bias': {'colors': ranges_to_string(ranges=[-0.12, 0.12, 0.01], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-0.12, 0.12, 0.01], sym=True)},
+                    },
+        'vmrclono2_north': {'default':{'gsnCenterString':'pptv', 'scale':1e12, 'color': 'WhiteBlueGreenYellowRed'},
+            'full_field': {'gsnCenterString':'units: pptv', 'colors': ranges_to_string(ranges=[0, 70, 10])},
+            'bias': {'colors': ranges_to_string(ranges=[-40, 40, 4], sym=True), 'color': 'BlueWhiteOrangeRed'},
+            'model_model': {'colors': ranges_to_string(ranges=[-40, 40, 4], sym=True)},
+                    },
+        }
+
+calias("IGCM_OUT", 'colo3tot', filenameVar='inca_chem')
+calias("IGCM_OUT", 'vmro3',     filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrhno3',   filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrhcl',    filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrclono2', filenameVar='inca_species')
+calias("IGCM_OUT", 'vmrclo',    filenameVar='inca_species')
+
+for tmpvar in ['vmrhcl', 'vmrclo', 'vmro3', 'vmrclono2', 'vmrhno3']:
+    derive('*', tmpvar + '_north', 'ccdo', tmpvar, operator='intlevel,20000')
+
+# -- Choose the regridding (explicit ; can also be used in the variable dictionary)
+regridding = 'model_on_ref'  # 'ref_on_model', 'no_regridding'
+
 
 # -- Display full climatology maps =
 # -- Use this variable as atlas_explorer_variables to activate the climatology maps
-atlas_explorer_climato_variables = None
-
-# -- Activate the parallel execution of the plots
-do_parallel = False
-
-
-period_manager_test_variable = 'ua'
+atlas_explorer_climato_variables = False #atlas_explorer_variables #True
+add_line_of_climato_plots=True
 
 # ---------------------------------------------------------------------------- >
 
@@ -136,13 +161,10 @@ period_manager_test_variable = 'ua'
 # -- Some settings -- customization
 # ---------------------------------------------------------------------------- >
 
-thumbnail_size = "250*250"
-
 
 # -- Add the name of the product in the title of the figures
 # ---------------------------------------------------------------------------- >
 add_product_in_title = True
-
 
 # -- Name of the html file
 # -- if index_name is set to None, it will be build as user_comparisonname_season
@@ -151,6 +173,7 @@ add_product_in_title = True
 # ---------------------------------------------------------------------------- >
 index_name = None
 
+thumbnail_size = "300*300"
 
 # -- Custom plot params
 # -- Changing the plot parameters of the plots
@@ -160,13 +183,6 @@ index_name = None
 # -> Check $CLIMAF/climaf/plot/atmos_plot_params.py or ocean_plot_params.py
 #    for an example/
 
-# Fix errors of igcm_out.py re. 3D Variables
-calias("IGCM_OUT", 'ua', 'vitu', filenameVar='histmth')
-calias("IGCM_OUT", 'va', 'vitv', filenameVar='histmth')
-calias("IGCM_OUT", 'ta', 'temp', filenameVar='histmth')
-calias("IGCM_OUT", 'hur', 'rhum', filenameVar='histmth')
-calias("IGCM_OUT", 'zg', 'geoph', filenameVar='histmth')
-#calias("IGCM_OUT", 'hus', filenameVar='histmth')
 
 # ---------------------------------------------------------------------------------------- #
 # -- END                                                                                -- #
