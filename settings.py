@@ -21,5 +21,5 @@ publish = True
 # here are not used when running through libIGCM. Value "NONE" will lead
 # to use a default value.
 # Path is relative to $WORKDIR/C-ESM-EP/. Default is <comparison>_<user>
-AtlasPath = "plotmap_valid/plotmap/plotmap.html"
-AtlasTitle = "Plotmap validation. Here using plotmap"
+#AtlasPath = "plotmap_valid/plotmap/plotmap.html"
+#AtlasTitle = "Plotmap validation. Here using plotmap"

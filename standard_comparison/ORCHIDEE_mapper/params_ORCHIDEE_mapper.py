@@ -14,7 +14,7 @@ custom_obs_dict = orchidee_definitions.orchidee_custom_obs_dict
 
 # -- Head title of the atlas
 diag_name = "Orchidee"
-atlas_head_title = "Orchidee"
+atlas_head_title = "ORCHIDEE Mapper"
 
 # What type of figures should we plot
 # ---------------------------------------------------------------------------- 
