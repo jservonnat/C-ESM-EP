@@ -8,7 +8,7 @@
 # names rather than CMIP names. We make use of data and functions
 # from module orchidee_definitions
 
-import orchidee_definitions
+from ORCHIDEE_mapper import orchidee_definitions
 
 # Warning : we may supersede some values from root custom_obs_dict
 custom_obs_dict.update(orchidee_definitions.orchidee_custom_obs_dict )
