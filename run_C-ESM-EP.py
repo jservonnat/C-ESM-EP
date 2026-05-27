@@ -166,7 +166,7 @@ allcomponents = ['MainTimeSeries',
                  'Focus_Atlantic_AMOC_Surface',
                  'NEMO_PISCES',
                  'ENSO',
-                 'ORCHIDEE',
+                 'ORCHIDEE_v0',
                  'ORCHIDEE_mapper',
                  'ORCHIDEE_essentials',
                  'TurbulentAirSeaFluxes',
@@ -204,7 +204,7 @@ else:
                           'NH_Polar_Atmosphere_StdPressLev', 'SH_Polar_Atmosphere_StdPressLev']
         elif argument == 'LMDZOR':
             components = ['Atmosphere_Surface', 'Atmosphere_zonmean',
-                          'Atmosphere_StdPressLev', 'ORCHIDEE']
+                          'Atmosphere_StdPressLev', 'ORCHIDEE_v0']
         elif argument == 'NEMO':
             components = ['NEMO_main', 'NEMO_zonmean',
                           'NEMO_depthlevels', 'NEMO_PISCES']
