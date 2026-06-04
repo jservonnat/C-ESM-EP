@@ -77,7 +77,7 @@ river_basins = True
 # remark (2025-06-10)
 # This cscript receive a cens object (ensemble) and therefore, can handle labels by itself. 
 # However, the python script must receive a single-quoted string, since CLIMAF passes these labels separated by a $ sign
-path = os.path.dirname(os.path.abspath(__file__)) +'/scripts/'
+path = os.path.dirname(os.path.abspath(__file__)) +'/' + comparison + '/ORCHIDEE_essentials/scripts/'
 cscript('river_plot', 'python '+path+'river_discharge.py --variable ${var} --reference ${ref} --ref_label ${ref_label} --simulations "${mmin}" --sim_labels \'${labels}\' --basinmap ${basinmap} --colors ${colors}  --outfig ${out}', format='png')
 
 # ---------------------------------------------------------------------------------------- #
