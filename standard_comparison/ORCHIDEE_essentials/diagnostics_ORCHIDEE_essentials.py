@@ -261,7 +261,8 @@ for plot_section,filters in essentials.items():
             
             # -- Add the plot to the figures line
             # -----------------------------------------------------------------------------------------
-            index += cell("", cfile(figure_file), thumbnail="700*600", hover=False, **alternative_dir)
+            do_cfile=True
+            index += cell("", safe_mode_cfile_plot(figure_file, do_cfile, safe_mode), thumbnail="700*600", hover=False, **alternative_dir)
         else:
             index += cell("", blank_cell, thumbnail=thumbnail_size, hover=hover, **alternative_dir)
  
