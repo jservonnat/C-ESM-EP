@@ -15,7 +15,7 @@ def preprocess_hydro(ds, var_name, RIVER):
             ds = ds[['routing_hydrographs_r']]
             ds = ds.rename({'routing_hydrographs_r': var_name})
             
-            lat, lon = "lat2", "lon2"
+            lat, lon = "lat_routing_domain_read", "lon_routing_domain_read"
         else:
             raise ValueError("Neither 'hydrographs' nor 'routing_hydrographs_r' found in dataset")    
     else:
