@@ -11,6 +11,7 @@ orchidee_variables = {
     "alb_nir" : { "DIR":"SRF", "filenameVar":"sechiba_history",  "units": "", "longname": "Albedo Near Infrared" },
     "alb_vis" : { "DIR":"SRF", "filenameVar":"sechiba_history",  "units": "", "longname": "Albedo Visible" },
     "albedo" : { "formula": "see derive" , "DIR":"SRF", "units": "" , "longname": "Albedo" },
+    "alb_mean" : { "formula": "see derive" , "DIR":"SRF", "units": "" , "longname": "Albedo(mean)" },
     
     "swnet" : { "DIR":"SRF", "filenameVar":"sechiba_history",  "units": "W/m**2" , "longname": "Surface Net Shortwave Radiation" },
     "swdown" : { "DIR":"SRF", "filenameVar":"sechiba_history",  "units": "W/m**2" , "longname": "Surface Down Shortwave Radiation" },
@@ -107,6 +108,7 @@ def declare_orchidee_alias_for_observations():
     calias("ref_climatos", "lwdown","rlds")
     calias("ref_climatos", "swdown","rsds")
     calias("ref_climatos", "albedo","alb")
+    calias("ref_climatos", "alb_mean","alb")
     calias("ref_climatos", "temp_sol","ts")
     
 # Can define specific reference observations, on a per-variable basis.
@@ -139,6 +141,8 @@ def init_orchidee_variables(variables_setup, plots_setup, time_series_setup,
     derive("IGCM_OUT", 'precip',  'ccdo2', 'snowf', 'rain', operator='add')
     cscript("compute_albedo", "cdo mulc,-1. -subc,1 -div ${in_1} ${in_2} ${out}", _var="albedo")
     derive("IGCM_OUT", 'albedo',  'compute_albedo', 'swnet', 'swdown')
+    cscript("compute_alb_mean", "cdo mulc,0.5 -add ${in_1} ${in_2} ${out}", _var="alb_mean")
+    derive("IGCM_OUT", 'alb_mean',  'compute_alb_mean', 'alb_nir', 'alb_vis')
     derive("IGCM_OUT", "gpp", "ccdo", "read_gpp", operator="vertsum")
     derive("IGCM_OUT", "gpp_srf", "ccdo", "read_gpp", operator="vertsum")
     derive("IGCM_OUT", "GPP", "ccdo2", "read_gpp", "VEGET_MAX", operator="vertsum -mul")

@@ -165,7 +165,7 @@ ts_thumbnail_size = '220*200'
 # (see https://climaf.readthedocs.io/en/master/scripts/ensemble_ts_plot.html)
 common_ts_plot_params = dict(
     title="Title",
-    year_delta=1, # Interval between x labels
+    # year_delta=1, # Interval between x labels
     tick_size=12, # Size of x labels
     lw=1,
     highlight_period='clim_period', highlight_period_lw=4,

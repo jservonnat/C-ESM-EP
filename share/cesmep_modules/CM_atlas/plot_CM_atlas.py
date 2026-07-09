@@ -93,8 +93,6 @@ def get_realization_simulation_kw(ds_obj):
 
 
 def build_plot_title(model, ref=None, add_product_in_title=True):
-    #if model is None:
-    #    return "No data"
     if not ref:
         add_product_in_title = False
     #print('model = ', model)
@@ -121,9 +119,32 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
         else:
             ref_in_title = ('OBS' if ref['project'] ==
                             'LMDZ_OBS' else ds_ref.kvp["product"])
-        title = title + ' (vs ' + ref_in_title + ')'
+        # We want to remove from ref name any prefix also occurring in
+        # experiment title (in order to keep it short and clear)
+        ix = 0
+        while (title[ix] == ref_in_title[ix]) and (title[ix] != "_") :
+            ix += 1
+        title = title + ' (vs ' + ref_in_title[ix:] + ')'
         title = title.replace('*', '')
     return title
+
+def add_period_in_title(title, period):
+    # Add string PERIOD at the end of TITLE only if not redundant with TITLE's sufffix
+    # Returns modified or unmodified TITLE
+    
+    # Characters - and _ are considered equivalent in suffix analysis.
+    # Also handles the case where title has an additionnal suffix like " (vs .*1990_1999)"
+    
+    pi = len(period) - 1
+    ti = len(title) - 1
+    while (title[ti] == period[pi]) or \
+          (title[ti] in ['-','_'] and period[pi] in ['-','_']) :
+        pi -=1 ; ti -=1
+    if pi == -1 :
+        return title
+    else:
+        return title + ' ' + period
+    
 
 
 # -- 2D Maps
@@ -394,7 +415,7 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
         p.setdefault("gsnLeftString",  minmaxmean_str)
         p.setdefault("gsnCenterString", ' ')
         p.setdefault("gsnRightString", season)
-        title += ' ' + tmp_period
+        title = add_period_in_title(title, tmp_period)
     else:
         # -- Set the left, center and right strings of the plot
         p.setdefault("gsnLeftString", tmp_period)
@@ -903,7 +924,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         p.setdefault("gsnLeftString", minmaxmean_str)
         p.setdefault("gsnCenterString", ' ')
         p.setdefault("gsnRightString", season)
-        title += ' ' + tmp_period
+        title = add_period_in_title(title, tmp_period)
     else:
         # -- Set the left, center and right strings of the plot
         p.setdefault("gsnLeftString", tmp_period)

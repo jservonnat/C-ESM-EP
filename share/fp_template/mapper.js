@@ -2,6 +2,7 @@ let itype = 0; // index of currently active comparison type (Maps=0 or Time-Seri
 let items = {"sim" : sims, "var" : Object.keys(vars), "freq" : map_freqs, "mod" : mods}; // interface items of currently active comparison type
 let state = {"sim" : [], "var" : [0], "freq" : [0], "mod" : [0], "reg" : [0,1,2,3], "pick" : [] }; // current interface state defined by selected indices in all selectors
 for (let idx=0; idx<sims.length; idx++) { state["sim"].push(idx); } // by default make all simulations selected
+setType(itype);
 
 document.addEventListener("mousedown", function(event) {
     if (event.button === 1) {   // 1 is the middle mouse button
@@ -85,6 +86,11 @@ function makeInterf() {
         select.setAttribute("id", key+"Select");
         select.setAttribute("size", Math.min(5, items[key].length+1));
         select.setAttribute("multiple", "multiple");
+        select.addEventListener("dblclick", () => {
+            getState();
+            makeInterf();
+            makeTable();
+        });
         for (let idx=0; idx<items[key].length; idx++) {
             option = document.createElement("option");
             option.setAttribute("id", idx);

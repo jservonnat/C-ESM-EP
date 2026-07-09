@@ -54,7 +54,7 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
     
     # <html>
     # <head>
-    # <title>CESMEP</title>
+    # <title>>TITLE</title>
     # <script type="text/javascript">
     
     # let sims = ["FGH.ORC22v8514", "FGH.ORC3v8120", "FGH.ORC4v8828.A", "FGH.ORC4v8828.B"];
@@ -155,7 +155,7 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
         'anomalies' : "vsobs",
         'diffs' : "vs0",
         }
-    page = '<html>\n<head>\n<title>CESMEP</title>\n<script type="text/javascript">\n'
+    page = '<html>\n<head>\n<title>%s</title>\n<script type="text/javascript">\n'%title
     page += 'let pngPath = "./";\n'
     page += plist("sims", models, mapper_simu_name)
 
