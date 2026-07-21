@@ -4,6 +4,9 @@
 # -- Python 2 <-> 3 compatibility ---------------------------------------------------------
 from __future__ import unicode_literals, print_function, absolute_import, division
 
+from climaf.classes import varIsAliased
+from climaf.api import ds
+
 def variable2reference(variable, project=None, my_obs={}):
     # -- dealing with a custom dictionary of obs (my_obs)
     table = '*'
@@ -26,8 +29,8 @@ def variable2reference(variable, project=None, my_obs={}):
                              'hus850', 'hus700', 'hus500', 'hus200',
                              'hur850', 'hur700', 'hur500', 'hur200',
                              'zg500',
-                             'ua_Atl_sect', 'va_Atl_sect', 'ta_Atl_sect', 'hus_Atl_sect',
-                             'albvis', 'albnir', 'snow', 'gpp', 'gpptot', 'lai', 'LAI', 'fluxlat', 'fluxsens', 'pme']
+                             'ua_Atl_sect', 'va_Atl_sect', 'ta_Atl_sect', 'hus_Atl_sect', 'pme', ]
+            tmp_Lmon_vars = [ 'albvis', 'albnir', 'fluxlat', 'fluxsens', 'snow', 'gpp', 'gpptot', 'lai', 'LAI']
             tmp_Omon_vars = ['tos', 'sos', 'zos', 'thetao', 'to', 'so', 'so200', 'so1000', 'so2000', 'to200', 'to1000',
                              'to2000', 'wfo',
                              'NO3', 'PO4', 'O2', 'Si', 'mlotst',
@@ -38,11 +41,13 @@ def variable2reference(variable, project=None, my_obs={}):
             tmp_OImon_vars = ['sic']
             if variable in tmp_Amon_vars:
                 table = 'Amon'
+            if variable in tmp_Lmon_vars:
+                table = 'Lmon'
             if variable in tmp_Omon_vars:
                 table = 'Omon'
             if variable in tmp_OImon_vars:
                 table = 'OImon'
-            if variable in tmp_Amon_vars + tmp_Omon_vars + tmp_OImon_vars:
+            if variable in tmp_Amon_vars + tmp_Lmon_vars + tmp_Omon_vars + tmp_OImon_vars:
                 project = 'ref_climatos'
             else:
                 project = 'ref_ts'
@@ -102,3 +107,40 @@ def variable2reference(variable, project=None, my_obs={}):
                                 'frequency': 'annual_cycle', 'table': table}
                     if project == 'ref_ts':
                         return {'project': project, 'product': product, 'variable': variable, 'frequency': 'monthly'}
+
+
+def reference_product_name(variable, custom_obs_dict=None):
+    ref_var = variable
+    var_alias = varIsAliased('ref_climatos', variable)
+    if var_alias:
+        ref_var = var_alias[0]
+    ref = variable2reference(ref_var, my_obs=custom_obs_dict)
+    if ref :
+        name = ref['product'] 
+    else:
+        name = "No_default_obs_for_%s"%variable
+    return name
+            
+
+def reference_has_data(var, custom_obs_dict=None):
+    if type(var) is dict:
+        var=var['variable']
+    message =""
+    var_alias = varIsAliased('ref_climatos', var)
+    if var_alias:
+        message = f" (unaliased : {var} )"
+        var = var_alias[0]
+    ref = variable2reference(var, my_obs=custom_obs_dict)
+    if ref is None:
+        print('No reference obs defined for %s%s'%(var, message))
+        return False
+    else:
+        try:
+            d = ds(**ref, check=True)
+        except:
+            print('No data found for variable %s%s and for reference obs %s '%
+                  (message,var,ref))
+            return False
+        else:
+            return True
+                    

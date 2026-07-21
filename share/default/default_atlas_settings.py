@@ -103,10 +103,15 @@ regridding = 'model_on_ref'
 
 # A function used by plot_CM_atlas.section* function to compute a name for the map plot files
 # If not None, it receives arguments: simu1, simu2 (ref), variable, season
+# See example in CM_atlas.mapper
 map_filename_func = None
+
 # Same for time series plot filename
 # If not None, it receives arguments: region, variable, frequency
+# See example in CM_atlas.mapper
 ts_filename_func = None
+
+ts_regions_file = None
 
 # A toggle for activating 'a la Mapper' interactive selection
 interactive_selection = False

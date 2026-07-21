@@ -58,8 +58,8 @@ atlas_script=$comparison_dir/../main_C-ESM-EP.py
 # -- Setup the environment...
 # -------------------------------------------------------- >
 source ${env}
-# Need to import from comparison directory :
-my_append -bp PYTHONPATH $comparison_dir
+# Need to import from component directory :
+my_append -bp PYTHONPATH $comparison_dir/$component
 
 
 # -- Set CliMAF cache in some special cases (default is to inherit it)

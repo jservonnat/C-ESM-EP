@@ -1,17 +1,19 @@
 # Module for generating an html page 'a la Mapper', based on companion
-# script mapper.js. It provides 2 functions for generating filenames
+# script mapper.js. It provides functions for generating filenames
 # for maps and timeseries images, compatible with mapper.js conventions
 
 from env.clogging import clogger
+from reference.reference import reference_product_name
+from custom_obs_dict import custom_obs_dict
 
-def mapper_simu_name(simu):
+def mapper_simu_name(simu, variable=None):
     if type(simu) is dict:
         if 'customname' in simu :
             return simu['customname']
         elif 'product' in simu :
             return simu['product']
         elif simu.get('project',None) == 'ref_climatos':
-            return 'ref_climato_no_product'
+            return reference_product_name(variable, custom_obs_dict)
         elif simu.get('project',None) in ['IGCM_OUT']:
             return simu['simulation']
         elif simu.get('project',None) in [ 'CMIP6', 'CMIP5' ]:
@@ -30,9 +32,9 @@ def mapper_simu_name(simu):
 def mapper_map_filename(simu1, simu2, variable, season):
     # This is also an example of the interface for a function provided as
     # argument to cesmep_diagnostics.CM_atlas.plot_CM_atlas.section_2D(),
-    rep = mapper_simu_name(simu1)
+    rep = mapper_simu_name(simu1, variable)
     if simu2 :
-        rep += '_vs_' + mapper_simu_name(simu2)
+        rep += '_vs_' + mapper_simu_name(simu2,variable)
     rep += '_' + variable + '_' + season.lower()
     return rep
 
@@ -48,11 +50,11 @@ def mapper_ts_filename(region, variable, frequency):
 def build_mapper_page(models, variables_setup, case_toggles, seasons,
                       ts_frequencies, ts_regions, ts_regions_file,
                       custom_obs_dict, variables_specifics, title, references ):
-    # We want to build a page like that :
+    # We want to build a page like text below, compatible with mapper.js:
     
     # <html>
     # <head>
-    # <title>CESMEP</title>
+    # <title>>TITLE</title>
     # <script type="text/javascript">
     
     # let sims = ["FGH.ORC22v8514", "FGH.ORC3v8120", "FGH.ORC4v8828.A", "FGH.ORC4v8828.B"];
@@ -107,7 +109,7 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
         Returns the javascript syntax for declaring list (or dict) LISTE.
         If CRLF is True , a newline is inserted between elements
         If NAME is not None, the returned construct begins with
-        "let name = " and ends with ";"
+        "let <NAME> = " and ends with ";"
         TRANS is a function or a dict for translating the values in LIST
         """
         dico = type(liste) is dict
@@ -153,14 +155,14 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
         'anomalies' : "vsobs",
         'diffs' : "vs0",
         }
-    page = '<html>\n<head>\n<title>CESMEP</title>\n<script type="text/javascript">\n'
+    page = '<html>\n<head>\n<title>%s</title>\n<script type="text/javascript">\n'%title
     page += 'let pngPath = "./";\n'
     page += plist("sims", models, mapper_simu_name)
 
     page += 'let types = ['
-    if any([ case_toggles[k] for k in ['maps', 'anomalies', 'diffs' ]]):
+    if any([ case_toggles.get(k,False) for k in ['maps', 'anomalies', 'diffs' ]]):
            page += '"map", '
-    if case_toggles['time_series']:
+    if case_toggles.get('time_series',False):
            page += '"ts", '
     page += '];\n'
 
@@ -184,12 +186,9 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
             refs = list()
             for reference in references:
                 if reference == 'default':
-                    if variable in custom_obs_dict:
-                        name = custom_obs_dict[variable]['product']
-                    else:
-                        name = "No_se"
+                    name = reference_product_name(variable,custom_obs_dict)
                 else:
-                    name = mapper_simu_name(reference)
+                    name = mapper_simu_name(reference, variable)
                 refs.append(name)
             obs_dict[variable] = refs
     page += plist("obs", obs_dict, crlf=True)
@@ -206,6 +205,7 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
         "mo" : "Monthly",
         "se" : "Seasonal Cycle",
         # next entries should be derived from regions_file and reg_ts
+        "G" : "Global",
         "g" : "Global Land",
         "n" : "Northern Land",
         "t" : "Tropical Land",

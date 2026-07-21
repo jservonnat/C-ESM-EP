@@ -60,7 +60,7 @@ do_parallel = False
 
 # -- Head title of the atlas
 # ---------------------------------------------------------------------------- >
-atlas_head_title = "ORCHIDEE"
+atlas_head_title = "ORCHIDEE v0"
 # When driven by libIGCM, an additional title may be provided by config.card
 if AtlasTitle != "NONE":
     atlas_head_title += " - " + AtlasTitle

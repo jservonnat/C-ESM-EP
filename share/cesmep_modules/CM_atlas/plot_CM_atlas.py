@@ -7,6 +7,7 @@
 
 from climaf.api import *
 from climaf.chtml import *
+from climaf.classes import varIsAliased
 from reference import variable2reference
 from env.clogging import clogger, dedent
 from .time_manager import *
@@ -92,8 +93,6 @@ def get_realization_simulation_kw(ds_obj):
 
 
 def build_plot_title(model, ref=None, add_product_in_title=True):
-    #if model is None:
-    #    return "No data"
     if not ref:
         add_product_in_title = False
     #print('model = ', model)
@@ -120,9 +119,32 @@ def build_plot_title(model, ref=None, add_product_in_title=True):
         else:
             ref_in_title = ('OBS' if ref['project'] ==
                             'LMDZ_OBS' else ds_ref.kvp["product"])
-        title = title + ' (vs ' + ref_in_title + ')'
+        # We want to remove from ref name any prefix also occurring in
+        # experiment title (in order to keep it short and clear)
+        ix = 0
+        while (title[ix] == ref_in_title[ix]) and (title[ix] != "_") :
+            ix += 1
+        title = title + ' (vs ' + ref_in_title[ix:] + ')'
         title = title.replace('*', '')
     return title
+
+def add_period_in_title(title, period):
+    # Add string PERIOD at the end of TITLE only if not redundant with TITLE's sufffix
+    # Returns modified or unmodified TITLE
+    
+    # Characters - and _ are considered equivalent in suffix analysis.
+    # Also handles the case where title has an additionnal suffix like " (vs .*1990_1999)"
+    
+    pi = len(period) - 1
+    ti = len(title) - 1
+    while (title[ti] == period[pi]) or \
+          (title[ti] in ['-','_'] and period[pi] in ['-','_']) :
+        pi -=1 ; ti -=1
+    if pi == -1 :
+        return title
+    else:
+        return title + ' ' + period
+    
 
 
 # -- 2D Maps
@@ -393,7 +415,7 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
         p.setdefault("gsnLeftString",  minmaxmean_str)
         p.setdefault("gsnCenterString", ' ')
         p.setdefault("gsnRightString", season)
-        title += ' ' + tmp_period
+        title = add_period_in_title(title, tmp_period)
     else:
         # -- Set the left, center and right strings of the plot
         p.setdefault("gsnLeftString", tmp_period)
@@ -508,7 +530,6 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     #
     # -- Processing the variable: if the variable is a dictionary, need to extract the variable
     #    name and the arguments
-    print('var = ', var)
     scale = 1.
     offset = 0.
     units = None
@@ -774,7 +795,6 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
             pres_wmodel.pop('variable')
             ds_pres = ds(variable=(
                 model['press_var'] if 'press_var' in model else 'pres'), **pres_wmodel)
-            print("ds_pres", ds_pres)
             nds_model = ccdo(ds_model, operator='mulc,1')
             nds_pres = ccdo(ds_pres, operator='mulc,1')
             ds_model = ml2pl(nds_model, nds_pres)
@@ -904,7 +924,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         p.setdefault("gsnLeftString", minmaxmean_str)
         p.setdefault("gsnCenterString", ' ')
         p.setdefault("gsnRightString", season)
-        title += ' ' + tmp_period
+        title = add_period_in_title(title, tmp_period)
     else:
         # -- Set the left, center and right strings of the plot
         p.setdefault("gsnLeftString", tmp_period)
@@ -1462,7 +1482,11 @@ def section_2D_maps_climobs_bias_modelmodeldiff(
             print('Reference wref = ', wref)
             # -- Get the reference (model or obs, reanalysis)
             if wref == 'default':
-                ref = variable2reference(variable, my_obs=custom_obs_dict)
+                ref_var = variable
+                var_alias = varIsAliased('ref_climatos', variable)
+                if var_alias:
+                    ref_var = var_alias[0]
+                ref = variable2reference(ref_var, my_obs=custom_obs_dict)
                 if not ref:
                     ref = dict(project='ref_climatos', frequency='seasonal')
                 if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
@@ -1639,7 +1663,7 @@ def plot_zonal_profile(variable, model, reference=dict(), season='ANM', domain={
             refname = build_plot_title(wreference, None)
             #
             # -- Build the ensemble
-            print('simname, refname = ', simname, refname)
+            #print('simname, refname = ', simname, refname)
             print('cfile(zmean_dat) = ', cfile(zmean_dat))
             print('cfile(zmean_ref) = ', cfile(zmean_ref))
             models_dict.update({refname: zmean_ref})
@@ -1732,7 +1756,11 @@ def section_zonal_profiles(
         #
         # -- Get the reference (model or obs, reanalysis)
         if reference == 'default':
-            ref = variable2reference(variable, my_obs=custom_obs_dict)
+            ref_var = variable
+            var_alias = varIsAliased('ref_climatos', variable)
+            if var_alias:
+                ref_var = var_alias[0]
+            ref = variable2reference(ref_var, my_obs=custom_obs_dict)
             if not ref:
                 ref = dict(project='ref_climatos')
             if variable in ['albt', 'albs', 'crest', 'crelt', 'crett', 'cress']:
@@ -1907,7 +1935,11 @@ def process_var_reference(wref, variable, custom_obs_dict, var, project_specs, r
     #   - dicts 'project_specs' and 'var' otherwise (and also invokes get_period_manager)
     
     if wref == 'default':
-        ref = variable2reference(variable, my_obs=custom_obs_dict)
+        ref_var = variable
+        var_alias = varIsAliased('ref_climatos', variable)
+        if var_alias:
+            ref_var = var_alias[0]
+        ref = variable2reference(ref_var, my_obs=custom_obs_dict)
         if not ref:
             ref = dict(project='ref_climatos',
                        frequency='seasonal', table='Amon')
