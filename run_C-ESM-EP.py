@@ -427,7 +427,7 @@ for component in components:
 if len(job_components) == 0 and argument != 'None':
     print("No component to launch. Please check your component arg (%s)!" %
           args[2])
-    exit(0)
+    exit(1)
 
 # -- Loop on the components and edit the html file with pysed
 if argument.lower() not in ['url', 'clean']:

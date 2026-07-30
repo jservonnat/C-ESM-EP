@@ -1,0 +1,16 @@
+In order that, when driven by libIGCM, diagnostics_maps_and_ts (and hence ORCHIDEE_mapper) shows a time series graphs with a single time period for the simulation , the interface to libIGCM adds a 'model' for time series, with ts_period != False and clim_period = False; it also change the slices (that are defined by one 'model' per time_slice), with clim_period != False and ts_period = False. For the time series, one chooses its length using 'last_<x>Y' or 'full'. This has a technical impact on a number of modules (see below)
+
+libIGCM_datasets.py: implement the changes described above
+share/cesmep_diagnostics/diagnostics_maps_and_ts.py adapted to changes in libIGCM_datasets.py: create models sublists according to the computed diag
+standard_comparison/ORCHIDEE_essentials/diagnostics_ORCHIDEE_essentials.py : adapted to changes in libIGCM_datasets.py : removes those 'models' that interface to libIGCM may have introduced for gathering time series
+share/cesmep_modules/CM_atlas/time_manager.py : period_for_diag_manager adapted to changes in libIGCM_datasets.py, depending on diag = 'clim' or 'ts' or includes 'timeries'
+share/cesmep_modules/CM_atlas/mapper.py : adapted to changes in libIGCM_datasets.py; must remove duplicate entries in models list
+
+
+main_C-ESM-EP.py: insert a mechanics for possibly hacking datasets definitions, for instance only for of a given component. See e.g. ORCHIDEE_mapper diagnostics, which directory includes a relevant mdule
+
+standard_comparison/ORCHIDEE_mapper/hack_model_entries.py : new file ; it actually allows that component ORCHIDEE_mapper hacks model entries for setting OUT to Output and frequency to monthly
+
+run_C-ESM-EP.pynow returns 1 if the specified component is missing
+
+share/cesmep_modules/CM_atlas/plot_CM_atlas.py fixed for typo re. climaf.chtml.blank_cell

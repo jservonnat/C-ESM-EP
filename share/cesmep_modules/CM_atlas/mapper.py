@@ -121,6 +121,7 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
         if name is not None : rep += f"let {name} = "
         rep += begin
         if crlf : rep += "\n"
+        already_added = []
         for el in liste :
             quote = '"'
             if crlf : rep += "  "
@@ -133,15 +134,18 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
             else:
                 v = el
             if trans is None :
-                rep += ' %s%s%s,'%(quote,v,quote)
+                to_add = ' %s%s%s,'%(quote,v,quote)
             elif type(trans) is dict :
                 if v in trans:
-                    rep += ' %s%s%s,'%(quote,trans[v],quote)
+                    to_add = ' %s%s%s,'%(quote,trans[v],quote)
                 else:
-                    rep += ' %s%s%s,'%(quote,v,quote)
+                    to_add = ' %s%s%s,'%(quote,v,quote)
             else:
-                rep += ' %s%s%s,'%(quote,trans(v),quote)
-            if crlf : rep += "\n"
+                to_add = ' %s%s%s,'%(quote,trans(v),quote)
+            if to_add not in already_added :
+                rep += to_add
+                already_added.append(to_add)
+                if crlf : rep += "\n"
         rep += end 
         if name is not None : rep += ";\n"
         if crlf : rep += "\n"
@@ -157,6 +161,7 @@ def build_mapper_page(models, variables_setup, case_toggles, seasons,
         }
     page = '<html>\n<head>\n<title>%s</title>\n<script type="text/javascript">\n'%title
     page += 'let pngPath = "./";\n'
+
     page += plist("sims", models, mapper_simu_name)
 
     page += 'let types = ['

@@ -1,0 +1,21 @@
+It is possible to choose the path of the atlas (both basename and path relative to e.g. /thredds/ipsl/<username>/C-ESM-EP.
+  - When using libIGCM, use parameter CesmepAtlasPath (see the page dedicated to libIGCM).
+  - when running C-ESM-EP manually, just add in the C-ESM-EP root directory a file named libIGCM_settings.py with a content like :
+        AtlasPath = "my_first_test/my_index_name.html"
+        AtlasTitle = "My first test"  # or "NONE", for default title
+
+
+On 26 april, 2025, and yet available on :
+  * github (tag climafV3.1_IPSL5),
+  * spirit (/net/nfs/tools/Users/SU/jservon/cesmep_installs/climafV3.1_IPSL5) and
+  * irene (/ccc/cont003/home/igcmg/igcmg/Tools/cesmep_next):
+
+- a new diagnostic code 'maps_and_ts' is introduced. It allows to draw maps and time series for variables that are grouped in categories. Time series are plotted by executing 'diagnostics_MainTimeSeries', which code was extended : time series can be spatial averages (or sum) over regions that are defined by an auxilliary file. 
+
+- this new diagnostic code introduces an interactive scheme for html pages : selection boxes allow to choose which categories of variables to display, which seasons, which simulations, which regions and which type of maps (climatologies, anomalies, diffs with first simulation). Using that scheme is optional, and is triggered by 'interactive_selection = True' . This feature was derived from Mapper's by Vlad (see Javascript code share/fp_template/mapper.js), and interfaced to CESMEP by Stéphane (see interface code share/cesmep_modules/CM_atlas/mapper.py).
+
+- diagnostic code 'maps_and_ts' has been applied to create an atlas for Orchidee, which component name is 'orchidee' and which is yet available in 'orchidee_comparison'. A dedicated code, 'orchidee_definitions.py', maps the description of Orchidee variables (such as used in Mapper) to the data structure used by 'maps_and_ts'.
+
+- documentation : file params_orchidee.py describes, through its comments, the way to use diagnostic 'maps_and_ts'
+
+- in module CM_atlas.plot_CM_atlas, routines 'plot_climato' and 'plot_diff' (which are used by diags maps_and_ts and AtlasExplorer), can now plot variables which are defined as the ratio of the time average of two variables; this is triggered by keyword 'ratio' in the dictionnary defining the data; see explanations in params_orchidee.py

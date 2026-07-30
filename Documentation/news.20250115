@@ -1,0 +1,27 @@
+With libIGCM:
+     new parameter CesmepAtlasPath allows to choose the output directory, relative to $WORKDIR/C-ESM-EP or /scratchu/$LOGIN/C-ESM-EP. The url is also modified accordingly
+
+     new parameter CesmepAtlasTitle allows to control the tile of the atlas pages
+
+     new parameter CesmepPublish allows to choose whether the atlas is copied to Thredds
+
+     parameter CesmepSlices (the number of time slices shown) can have value 'max'
+
+     new parameter CesmepInputFrequency allows to choose the frequency of the simulation outputts to use (in case of ambiguity); it can also be a wildcard '*' when frequency is not homogeneous among simulation components outputs. The case with both ambiguity and heterogeneity is not handled.
+
+Functions section_..._maps have a new argument filename_func which allows some control over png filenames in atlas.
+
+Plot functions are prepared to use new CliMAF script plotmap (instead of plot)
+
+On spirit, setenv_C-ESM-EP.sh uses optional environment variable CESMEP_CLIMAF_MODULE 
+
+Comparison MyOwnDiag has been reworked to illustrate 2 ways of adding diagnostics
+
+At HPC centers,
+   C-ESM-EP now uses a CLiMAF version from ~igcmg/Tools
+
+   The currently stable version of cesmep is ~igcmg/igcmg/Tools/cesmep_stable, while the last version is at ~igcmg/igcmg/Tools/cesmep_next. A symbolic link ~igcmg/igcmg/Tools/cesmep usually refers to the last version. That link is, by default, used by libIGCM. Parameter CesmepCode allows to change it.
+
+   At TGCC, job_C-ESM-EP.sh uses $CESMEP_CONTAINER
+
+

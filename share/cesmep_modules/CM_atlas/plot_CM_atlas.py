@@ -332,7 +332,7 @@ def plot_climato( var, dat_dict, season, proj='GLOB', domain={},
     if climato_dat is None and safe_mode:
         print('!! Plotting failed for :', wdat_dict, "\n", wvar)
         print("set clog('debug') and safe_mode=False to identify where the plotting failed")
-        return climaf.chtml.bank_cell
+        return climaf.chtml.blank_cell
     #
     # -- If we want to add vectors:
     if add_vectors:
@@ -708,7 +708,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
     if climato_ref is None and safe_mode:
         print('!! Plotting failed for :', wref, "\n", wvar)
         print("set clog('debug') and safe_mode=False to identify where the plotting failed")
-        return climaf.chtml.bank_cell
+        return climaf.chtml.blank_cell
     #
     #
     # -- If we want to add vectors:
@@ -831,7 +831,7 @@ def plot_diff(var, model, ref, season='ANM', proj='GLOB', domain={}, add_product
         if climato_sim is None and safe_mode:
             print('!! Plotting failed for :', wmodel, "\n", wvar)
             print("set clog('debug') and safe_mode=False to identify where the plotting failed")
-            return climaf.chtml.bank_cell
+            return climaf.chtml.blank_cell
         
         # -- Particular case of SSH: we compute the spatial anomalies
         if spatial_anomalies:

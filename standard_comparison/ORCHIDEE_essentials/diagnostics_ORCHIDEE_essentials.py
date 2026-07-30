@@ -85,9 +85,12 @@ variables_filtered = [v for v in atlas_budget_variables if (v['variable'] in ORC
 
 essentials = {  'ORCHIDEE':{'keyword':'project', 'pattern':'IGCM_OUT'} }
 
+# Remove those 'models' that interface to libIGCM may have introduced for gathering time series
+models_maps = period_for_diag_manager(models, diag = 'clim')
+
 for plot_section,filters in essentials.items():
 
-    models_essentials = [ m for m in models if (filters['pattern'] in m[filters['keyword']]) ]
+    models_essentials = [ m for m in models_maps if (filters['pattern'] in m[filters['keyword']]) ]
  
     if budget_atlas:
         ## DIFF BETWEEN REF AND SIMS

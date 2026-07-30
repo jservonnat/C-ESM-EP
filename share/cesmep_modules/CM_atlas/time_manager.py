@@ -26,11 +26,16 @@ import copy
 
 
 def period_for_diag_manager(DAT_DICT, diag=''):
-    ''' In a python dictionary dat_dict defining a CliMAF dataset, '''
-    ''' this function updates:                                     '''
+    ''' In a python dictionary dat_dict defining either a CliMAF   '''
+    ''' dataset, or a list of datasets this function updates:      '''
     '''   - period with dat_dict[diag+'_period']                   '''
     '''   - ts_period with dat_dict[diag+'_ts_period']             '''
     '''   - clim_period with dat_dict[diag+'_clim_period']         '''
+    
+    ''' For the case of a list, and depending whether the diag looks
+    like Time Series, it discards some datasets created by the libIGCM
+    interface to CESMEP. See below '''
+    
     ''' In the context of a CliMAF atlas, it allows choosing the   '''
     ''' period for each diagnostic.                                '''
     '''                                                            '''
@@ -48,13 +53,22 @@ def period_for_diag_manager(DAT_DICT, diag=''):
             wdat_dict.update(dict(ts_period=wdat_dict[diag + '_ts_period']))
         return wdat_dict
 
-    print('')
     if isinstance(DAT_DICT, dict):
         return period_update_dict(dat_dict, diag)
     if isinstance(DAT_DICT, list):
-        WDAT_DICT = copy.deepcopy(DAT_DICT)
-        for dat_dict in WDAT_DICT:
-            dat_dict.update(period_update_dict(dat_dict, diag))
+        WDAT_DICT = []
+        for dat_dict in DAT_DICT:
+            if 'timeseries' in diag.lower() or 'ts' == diag.lower():
+                if dat_dict.get('ts_period',True):
+                    # We retain only those datasets with ts_period !=
+                    # False (so we discard the time slices created by
+                    # libIGCM interface)
+                    WDAT_DICT.append(period_update_dict(dat_dict, diag))
+            elif dat_dict.get('clim_period',True) :
+                # We retain only those datasets having clim_period !=
+                # False (so we discard those created for time
+                # series by ligIGCM interface)
+                WDAT_DICT.append(period_update_dict(dat_dict, diag))
         return WDAT_DICT
 
 

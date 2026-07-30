@@ -56,10 +56,15 @@ common = dict(project='IGCM_OUT',
               simulation=DataPathJobName,
               frequency=frequency,
               OUT=OUT,
-              ts_period='full'
+              # Set a ts_period such as 'full' or 'last_5Y'
+              # Default == from simulation start (equivalent to 'full')
+              #ts_period='last_10Y'
               )
 
 YearBegin = int(DateBegin[0:4])
+
+# Defining slices for maps as 'models' with a clim_period and a
+# related custom name
 if CesmepPeriod != 0:
     begin = end - CesmepSlicesDuration + 1
     count = 0
@@ -68,7 +73,7 @@ if CesmepPeriod != 0:
         current_slice = common.copy()
         clim_period = "%d_%d" % (begin, end)
         current_slice.update(clim_period=clim_period,
-                             ts_period=clim_period,
+                             ts_period=False,
                              customname=JobName + '_' + clim_period)
         models.insert(0, current_slice)
         begin -= CesmepPeriod
@@ -76,11 +81,20 @@ if CesmepPeriod != 0:
         count += 1
 else:
     clim_period = "%d_%d" % (YearBegin, data_end)
-    common.update(clim_period=clim_period,
-                  ts_period=clim_period,
-                  customname=JobName + '_' + clim_period)
-    models.append(common)
+    current_slice = common.copy()
+    current_slice.update(clim_period = clim_period,
+                         ts_period   = False,
+                         customname  = JobName + '_' + clim_period)
+    models.append(current_slice)
 
+# Adding a 'model' for a time series, beginning at simulation start
+ts_period = "%d_%d" % (YearBegin, data_end)
+ts_dataset = common.copy()
+ts_dataset.update(
+    ts_period   = ts_period,
+    clim_period = False,
+    customname  = JobName + '_' + ts_period)
+models.append(ts_dataset)
 #
 # -- Provide a set of common keys to the elements of models
 # ---------------------------------------------------------------------------- >

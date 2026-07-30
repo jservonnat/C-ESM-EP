@@ -50,6 +50,15 @@ try:
 except:
     pass
 
+# A mechanics for possibly hacking datasets definitions, for instance
+# ony for of a given component. See e.g. ORCHIDEE_mapper diagnostic,
+# which directory includes a relevant mdule
+try:
+    from hack_model_entries import hack_model_entry
+except:
+    def hack_model_entry(model):
+        pass
+
 # -----------------------------------------------------------------------------------
 # --   PART 1: Get the instructions from:
 # --              - the default values
@@ -132,6 +141,7 @@ if os.path.isfile(datasets_setup_available_period_set_file):
         item.pop('clim_period')
         item.pop('ts_period')
         item.update(clim_period_args)
+        hack_model_entry(item)
     #
     Wmodels_ts = copy.deepcopy(Wmodels)
     for item in Wmodels_ts:
@@ -139,9 +149,12 @@ if os.path.isfile(datasets_setup_available_period_set_file):
         item.pop('ts_period')
         item.pop('clim_period')
         item.update(ts_period_args)
+        hack_model_entry(item)
 else:
     exec(open(datasets_setup).read())
     use_available_period_set = False
+    for item in models :
+        hack_model_entry(item)
 
 
 # -- Get the username ; if we work on fabric (ciclad), we get the manually attributed username

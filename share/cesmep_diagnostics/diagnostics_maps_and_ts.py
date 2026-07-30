@@ -100,9 +100,9 @@ if AtlasTitle != "NONE":
 
 # -- Period Manager
 if not use_available_period_set:
-    Wmodels = period_for_diag_manager(models, diag = diag_name)
+    Wmodels_maps = period_for_diag_manager(models, diag = 'clim')
 else:
-    Wmodels = copy.deepcopy(Wmodels_clim)
+    Wmodels_maps = copy.deepcopy(Wmodels_clim)
 
 if ts_regions is None or ts_regions == []:
     ts_regions=["G"]
@@ -122,10 +122,10 @@ if interactive_selection:
 #    model.update(dict(table='Lmon'))
 
 # -- This diag is yet validated only for IGCM_OUT !
-for model in Wmodels.copy():
+for model in Wmodels_maps.copy():
     if 'IGCM' not in model['project'] :
         print('removing Model %s, for which project (%s) this diag has not been validated yet'%(model,model['project']))
-        Wmodels.remove(model)
+        Wmodels_maps.remove(model)
 
 # -- Init html index
 index = header(atlas_head_title, style_file=style_file)
@@ -157,7 +157,7 @@ for category in map_specs.keys() :
         if case_toggles.get('maps',False):
             title1 = category + ' - Climatologies'
             index += section_climato_2D_maps(
-                copy.deepcopy(Wmodels), None, proj, season,
+                copy.deepcopy(Wmodels_maps), None, proj, season,
                 copy.deepcopy(map_specs[category]), title1, **args_rest)
         #
         if case_toggles.get('anomalies',False):
@@ -172,12 +172,12 @@ for category in map_specs.keys() :
                 else:
                     vars_with_ref.append(copy.deepcopy(each_var))
             index += section_2D_maps(
-                copy.deepcopy(Wmodels), reference, proj, season,
+                copy.deepcopy(Wmodels_maps), reference, proj, season,
                 vars_with_ref, title1, **args_rest)
         #
-        if case_toggles.get('diffs',False) and len(Wmodels) > 1:
+        if case_toggles.get('diffs',False) and len(Wmodels_maps) > 1:
             title1 = category + ' - Diff vs simulation'
-            wms = copy.deepcopy(Wmodels)
+            wms = copy.deepcopy(Wmodels_maps)
             index += section_2D_maps(
                 wms[1:len(wms)], wms[0], proj, season,
                 copy.deepcopy(map_specs[category]), title1, **args_rest)
